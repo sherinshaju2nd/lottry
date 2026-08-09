@@ -24,11 +24,12 @@ import DialogActions from "@mui/material/DialogActions";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import CelebrationIcon from "@mui/icons-material/Celebration";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import confetti from "canvas-confetti";
-import { WEEKLY_LOTTERIES, supabase } from "@/lib/supabase";
+import { WEEKLY_LOTTERIES, StructuredDrawResult, supabase } from "@/lib/supabase";
 
 const searchSchema = yup.object({
   ticketNumber: yup
@@ -52,6 +53,8 @@ interface SearchMatch {
 export default function HomePage() {
   const [todayLottery, setTodayLottery] = useState(WEEKLY_LOTTERIES[0]);
   const [todayDayName, setTodayDayName] = useState("Sunday");
+  const [todayDrawResult, setTodayDrawResult] = useState<StructuredDrawResult | null>(null);
+
   const [searchResults, setSearchResults] = useState<SearchMatch[] | null>(null);
   const [searchedQuery, setSearchedQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -73,6 +76,22 @@ export default function HomePage() {
     const matched = WEEKLY_LOTTERIES.find((l) => l.day === currentDay) || WEEKLY_LOTTERIES[6];
     setTodayLottery(matched);
 
+    async function checkTodayData() {
+      try {
+        const res = await fetch(`/api/draws?code=${matched.code}`);
+        const json = await res.json();
+        if (json.success && json.result) {
+          setTodayDrawResult(json.result);
+        } else {
+          setTodayDrawResult(null);
+        }
+      } catch {
+        setTodayDrawResult(null);
+      }
+    }
+
+    checkTodayData();
+
     const channel = supabase
       .channel("realtime-lottery-results")
       .on(
@@ -83,6 +102,7 @@ export default function HomePage() {
             setRealtimeNotification(
               `🎉 New Draw Result Published: ${payload.new.draw_name} (${payload.new.draw_code}) on ${payload.new.draw_date}`
             );
+            checkTodayData();
           }
         }
       )
@@ -133,10 +153,12 @@ export default function HomePage() {
     return { bgcolor: "#F3F4F6", color: "#4B5563" };
   };
 
+  const hasTodayResult = !!todayDrawResult;
+
   return (
-    <Container maxWidth={false} sx={{ py: 6, px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
+    <Container maxWidth={false} sx={{ py: { xs: 3, sm: 5, md: 6 }, px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
       {realtimeNotification && (
-        <Alert severity="success" sx={{ mb: 4, borderRadius: "12px" }} onClose={() => setRealtimeNotification(null)}>
+        <Alert severity="success" sx={{ mb: 3, borderRadius: "12px" }} onClose={() => setRealtimeNotification(null)}>
           {realtimeNotification}
         </Alert>
       )}
@@ -145,20 +167,20 @@ export default function HomePage() {
       <Paper
         elevation={0}
         sx={{
-          py: { xs: 5, sm: 7, md: 8.5 },
-          px: { xs: 3.5, sm: 5, md: 7, lg: 8 },
+          py: { xs: 4, sm: 6, md: 8 },
+          px: { xs: 2.5, sm: 5, md: 7, lg: 8 },
           minHeight: { xs: "auto", md: 440 },
           display: "flex",
           alignItems: "center",
-          borderRadius: "28px",
+          borderRadius: { xs: "20px", sm: "28px" },
           bgcolor: "#F4F6F8",
           border: "1px solid #E5E7EB",
-          mb: 7,
+          mb: { xs: 4, sm: 6 },
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Subtle Faded Stacked Lottery Cards Graphic on Right */}
+        {/* Subtle Faded Stacked Lottery Cards Graphic on Right (Desktop Only) */}
         <Box
           sx={{
             position: "absolute",
@@ -211,20 +233,39 @@ export default function HomePage() {
         </Box>
 
         <Box sx={{ maxWidth: { xs: "100%", md: 680, lg: 820 }, position: "relative", zIndex: 1, width: "100%" }}>
-          <Chip
-            icon={<EmojiEventsIcon sx={{ fontSize: "15px !important", color: "#111827" }} />}
-            label="Latest Result"
-            sx={{
-              bgcolor: "#FFC107",
-              color: "#111827",
-              fontWeight: 800,
-              fontSize: "0.75rem",
-              borderRadius: "20px",
-              mb: 2.5,
-              px: 1,
-              py: 0.5,
-            }}
-          />
+          {/* Badge: Published vs Coming Soon */}
+          {hasTodayResult ? (
+            <Chip
+              icon={<EmojiEventsIcon sx={{ fontSize: "14px !important", color: "#111827" }} />}
+              label="Latest Published Result"
+              sx={{
+                bgcolor: "#FFC107",
+                color: "#111827",
+                fontWeight: 800,
+                fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                borderRadius: "20px",
+                mb: 2,
+                px: 1,
+                py: 0.25,
+              }}
+            />
+          ) : (
+            <Chip
+              icon={<AccessTimeIcon sx={{ fontSize: "14px !important", color: "#B45309" }} />}
+              label="Result Coming Soon (3:30 PM)"
+              sx={{
+                bgcolor: "#FEF3C7",
+                color: "#92400E",
+                fontWeight: 800,
+                fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                borderRadius: "20px",
+                mb: 2,
+                px: 1,
+                py: 0.25,
+                border: "1px solid #FCD34D",
+              }}
+            />
+          )}
 
           <Typography
             variant="h3"
@@ -232,94 +273,144 @@ export default function HomePage() {
               fontWeight: 900,
               color: "#111827",
               mb: 0.5,
-              fontSize: { xs: "2.2rem", sm: "2.8rem", md: "3.5rem", lg: "4.25rem" },
+              fontSize: { xs: "1.75rem", sm: "2.6rem", md: "3.5rem", lg: "4.25rem" },
               letterSpacing: "-0.02em",
+              lineHeight: 1.15,
             }}
           >
             {todayLottery.name} {todayLottery.code}
           </Typography>
 
-          <Typography
-            variant="h6"
-            sx={{
-              color: "#0F5A24",
-              fontWeight: 800,
-              mb: 2.5,
-              fontSize: { xs: "1.1rem", sm: "1.4rem", lg: "1.65rem" },
-            }}
-          >
-            Drawn Today, 3:00 PM
-          </Typography>
+          {/* Subhead Status */}
+          {hasTodayResult ? (
+            <Typography
+              variant="h6"
+              sx={{
+                color: "#0F5A24",
+                fontWeight: 800,
+                mb: 2,
+                fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
+              }}
+            >
+              Drawn Today ({todayDrawResult.draw_date}), 3:00 PM
+            </Typography>
+          ) : (
+            <Typography
+              variant="h6"
+              sx={{
+                color: "#D97706",
+                fontWeight: 800,
+                mb: 2,
+                fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
+              }}
+            >
+              Draw Scheduled Today at 3:00 PM • Results Coming Soon
+            </Typography>
+          )}
 
+          {/* Body Description */}
           <Typography
             variant="body2"
             sx={{
               color: "#4B5563",
-              mb: 4,
+              mb: 3,
               lineHeight: 1.6,
-              fontSize: { xs: "0.95rem", md: "1.05rem" },
+              fontSize: { xs: "0.875rem", sm: "1rem" },
               maxWidth: 600,
             }}
           >
-            The official results for the {todayLottery.name} {todayLottery.code} lottery have been published. Check your ticket number instantly to see if you&apos;ve won.
+            {hasTodayResult
+              ? `The official results for the ${todayLottery.name} ${todayLottery.code} lottery (${todayDrawResult.draw_code}) have been published. Check your ticket number or view full prize breakdown below.`
+              : `Today's official draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:30 PM.`}
           </Typography>
 
-          {/* Ticket Search Form */}
-          <Box component="form" onSubmit={handleSubmit(onSearchSubmit)} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 0.75,
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
-                gap: { xs: 1.5, sm: 1 },
-                bgcolor: "#FFFFFF",
-                border: errors.ticketNumber ? "2px solid #DC2626" : "1px solid #E5E7EB",
-                borderRadius: "16px",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-                maxWidth: 600,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", flex: 1, pl: 1.5, width: "100%" }}>
-                <Box sx={{ color: "#6B7280", display: "flex", alignItems: "center" }}>
-                  <ConfirmationNumberIcon fontSize="small" />
-                </Box>
-                <TextField
-                  {...register("ticketNumber")}
-                  placeholder="Enter your 6-digit ticket number..."
-                  variant="standard"
-                  fullWidth
-                  slotProps={{ input: { disableUnderline: true } }}
-                  sx={{ ml: 1.5, mr: 1, input: { fontSize: "0.95rem", fontWeight: 500 } }}
-                />
-              </Box>
-
-              <Button
-                type="submit"
-                disabled={isSearching}
-                variant="contained"
-                endIcon={<ArrowForwardIcon />}
+          {/* Action Row: Ticket Search Form + View Details Link */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            <Box component="form" onSubmit={handleSubmit(onSearchSubmit)} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Paper
+                elevation={0}
                 sx={{
-                  bgcolor: "#0F5A24",
-                  color: "#FFFFFF",
-                  px: 3.5,
-                  py: 1.35,
-                  borderRadius: "12px",
-                  fontWeight: 700,
-                  whiteSpace: "nowrap",
-                  width: { xs: "100%", sm: "auto" },
-                  "&:hover": { bgcolor: "#15803D" },
+                  p: { xs: 1.25, sm: 0.75 },
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  alignItems: "center",
+                  gap: { xs: 1.25, sm: 1 },
+                  bgcolor: "#FFFFFF",
+                  border: errors.ticketNumber ? "2px solid #DC2626" : "1px solid #E5E7EB",
+                  borderRadius: "16px",
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+                  maxWidth: 600,
+                  width: "100%",
                 }}
               >
-                {isSearching ? "Checking..." : "Check Now"}
-              </Button>
-            </Paper>
+                <Box sx={{ display: "flex", alignItems: "center", flex: 1, pl: { xs: 0.5, sm: 1.5 }, width: "100%" }}>
+                  <Box sx={{ color: "#6B7280", display: "flex", alignItems: "center" }}>
+                    <ConfirmationNumberIcon fontSize="small" />
+                  </Box>
+                  <TextField
+                    {...register("ticketNumber")}
+                    placeholder="Enter your 6-digit ticket number..."
+                    variant="standard"
+                    fullWidth
+                    slotProps={{ input: { disableUnderline: true } }}
+                    sx={{ ml: 1.5, mr: 1, input: { fontSize: { xs: "0.875rem", sm: "0.95rem" }, fontWeight: 500 } }}
+                  />
+                </Box>
 
-            {errors.ticketNumber && (
-              <Typography variant="caption" sx={{ color: "#DC2626", pl: 1.5, fontWeight: 600 }}>
-                {errors.ticketNumber.message}
-              </Typography>
+                <Button
+                  type="submit"
+                  disabled={isSearching}
+                  variant="contained"
+                  endIcon={<ArrowForwardIcon />}
+                  sx={{
+                    bgcolor: "#0F5A24",
+                    color: "#FFFFFF",
+                    px: 3.5,
+                    py: { xs: 1.2, sm: 1.35 },
+                    borderRadius: { xs: "10px", sm: "12px" },
+                    fontWeight: 700,
+                    whiteSpace: "nowrap",
+                    width: { xs: "100%", sm: "auto" },
+                    fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                    "&:hover": { bgcolor: "#15803D" },
+                  }}
+                >
+                  {isSearching ? "Checking..." : "Check Now"}
+                </Button>
+              </Paper>
+
+              {errors.ticketNumber && (
+                <Typography variant="caption" sx={{ color: "#DC2626", pl: 1.5, fontWeight: 600 }}>
+                  {errors.ticketNumber.message}
+                </Typography>
+              )}
+            </Box>
+
+            {/* View Details Button if result exists */}
+            {hasTodayResult && (
+              <Box sx={{ pt: 0.5 }}>
+                <Button
+                  component={Link}
+                  href={`/lottery/${todayLottery.code.toLowerCase()}/${encodeURIComponent(todayDrawResult.draw_date)}`}
+                  variant="outlined"
+                  endIcon={<ArrowForwardIcon />}
+                  sx={{
+                    borderColor: "#0F5A24",
+                    color: "#0F5A24",
+                    fontWeight: 800,
+                    px: { xs: 2, sm: 3 },
+                    py: { xs: 1.1, sm: 1 },
+                    borderRadius: { xs: "10px", sm: "12px" },
+                    width: { xs: "100%", sm: "auto" },
+                    textAlign: "center",
+                    justifyContent: "center",
+                    fontSize: { xs: "0.825rem", sm: "0.95rem" },
+                    "&:hover": { bgcolor: "#E8F5E9", borderColor: "#0F5A24" },
+                  }}
+                >
+                  View More Details for {todayDrawResult.draw_date} Result
+                </Button>
+              </Box>
             )}
           </Box>
         </Box>
@@ -327,14 +418,14 @@ export default function HomePage() {
 
       {/* Weekly Lottery Schedule Section */}
       <Box id="schedule" sx={{ mb: 6 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, color: "#111827", mb: 0.5, fontSize: { xs: "1.5rem", sm: "1.875rem", lg: "2.25rem" } }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, color: "#111827", mb: 0.5, fontSize: { xs: "1.35rem", sm: "1.875rem", lg: "2.25rem" } }}>
           Weekly Lottery Schedule
         </Typography>
-        <Typography variant="body1" sx={{ color: "#6B7280", mb: 4, fontSize: { xs: "0.925rem", md: "1rem" } }}>
+        <Typography variant="body1" sx={{ color: "#6B7280", mb: 3.5, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
           Daily draws conducted by the Kerala State Lotteries Department.
         </Typography>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, sm: 3 }}>
           {WEEKLY_LOTTERIES.map((item) => {
             const isFriday = item.day === "Friday";
             const isActiveToday = item.day.toLowerCase() === todayDayName.toLowerCase();
@@ -362,26 +453,35 @@ export default function HomePage() {
                     },
                   }}
                 >
-                  {isFriday && (
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        right: 20,
-                        bottom: 15,
-                        color: "#E5E7EB",
-                        opacity: 0.7,
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <SavingsOutlinedIcon sx={{ fontSize: 90 }} />
-                    </Box>
-                  )}
+                  {/* Faint Background Ticket Watermark Icon: On mobile -> All cards; On Web -> Friday wide card */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      right: { xs: 15, sm: 20 },
+                      bottom: { xs: 12, sm: 15 },
+                      color: "#E5E7EB",
+                      opacity: { xs: 0.5, sm: 0.7 },
+                      pointerEvents: "none",
+                      display: {
+                        xs: "block",
+                        sm: isFriday ? "block" : "none",
+                      },
+                    }}
+                  >
+                    <ConfirmationNumberOutlinedIcon sx={{ fontSize: { xs: 65, sm: 90 } }} />
+                  </Box>
 
                   <CardActionArea component={Link} href={`/lottery/${item.code.toLowerCase()}`} sx={{ height: "100%", p: 0.5 }}>
-                    <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between", minHeight: 160 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                    <CardContent sx={{ p: { xs: 2.5, sm: 3 }, display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between", minHeight: 150 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
                         <Chip
-                          label={isActiveToday ? `${item.day} • Today` : item.day}
+                          label={
+                            isActiveToday
+                              ? hasTodayResult
+                                ? `${item.day} • Published`
+                                : `${item.day} • Coming Soon`
+                              : item.day
+                          }
                           size="small"
                           sx={{
                             ...badgeStyle,
@@ -401,13 +501,13 @@ export default function HomePage() {
                             fontWeight: 800,
                             color: isActiveToday ? "#1B5E20" : "#111827",
                             mb: 0.5,
-                            fontSize: isFriday ? { xs: "1.5rem", sm: "1.75rem" } : "1.25rem",
+                            fontSize: isFriday ? { xs: "1.4rem", sm: "1.75rem" } : { xs: "1.15rem", sm: "1.25rem" },
                           }}
                         >
                           {item.name}
                         </Typography>
 
-                        <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500 }}>
+                        <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500, fontSize: "0.85rem" }}>
                           Code: {item.code}
                         </Typography>
                       </Box>
@@ -426,10 +526,10 @@ export default function HomePage() {
         onClose={() => setOpenModal(false)}
         maxWidth="sm"
         fullWidth
-        slotProps={{ paper: { sx: { borderRadius: "16px" } } }}
+        slotProps={{ paper: { sx: { borderRadius: "16px", m: { xs: 2, sm: 3 } } } }}
       >
-        <DialogTitle sx={{ fontWeight: 800, color: "#0F5A24", display: "flex", alignItems: "center", gap: 1 }}>
-          <CelebrationIcon sx={{ color: "#FFC107" }} /> Ticket Search Results for &quot;{searchedQuery}&quot;
+        <DialogTitle sx={{ fontWeight: 800, color: "#0F5A24", display: "flex", alignItems: "center", gap: 1, fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
+          <CelebrationIcon sx={{ color: "#FFC107" }} /> Search Results for &quot;{searchedQuery}&quot;
         </DialogTitle>
         <DialogContent dividers>
           {searchResults && searchResults.length > 0 ? (
@@ -450,6 +550,15 @@ export default function HomePage() {
                     <strong>Matching Ticket Number:</strong>{" "}
                     <Chip label={match.ticket_matched} size="small" color="primary" sx={{ fontWeight: 700, fontFamily: "monospace", borderRadius: "8px" }} />
                   </Typography>
+
+                  <Button
+                    component={Link}
+                    href={`/lottery/${match.lottery_code.toLowerCase()}/${encodeURIComponent(match.draw_date)}`}
+                    size="small"
+                    sx={{ mt: 1.5, fontWeight: 700, color: "#0F5A24" }}
+                  >
+                    View Full Draw Breakdown →
+                  </Button>
                 </Paper>
               ))}
             </Box>

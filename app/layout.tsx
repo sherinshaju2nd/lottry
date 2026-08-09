@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import MuiProvider from "@/components/MuiProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import InitialLoader from "@/components/InitialLoader";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({
       </head>
       <body>
         <MuiProvider>
+          <InitialLoader />
           <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
             <Navbar />
             <main style={{ flex: 1 }}>{children}</main>

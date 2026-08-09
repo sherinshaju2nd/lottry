@@ -215,6 +215,7 @@ export async function searchTicketsInSupabase(queryTicket: string) {
   const rawQuery = queryTicket.trim().toUpperCase();
   const digitsOnly = rawQuery.replace(/\D/g, "");
   const normalizedQuery = rawQuery.replace(/\s+/g, "");
+  const querySeries = rawQuery.replace(/\d/g, "").trim(); // e.g. "MJ" or "MA" or ""
 
   const allResults = await fetchAllDrawResultsFromSupabase();
   const matches: Array<{
@@ -228,28 +229,33 @@ export async function searchTicketsInSupabase(queryTicket: string) {
   }> = [];
 
   for (const draw of allResults) {
+    // 1st Prize matching
     const firstTicketRaw = (draw.first?.ticket || "").trim().toUpperCase();
     const firstTicketNormalized = firstTicketRaw.replace(/\s+/g, "");
     const firstTicketDigits = firstTicketRaw.replace(/\D/g, "");
+    const firstSeries = firstTicketRaw.replace(/\d/g, "").trim();
+
+    const matchesFirstSeries = !querySeries || querySeries === firstSeries;
 
     if (
       firstTicketNormalized &&
+      matchesFirstSeries &&
       (firstTicketNormalized === normalizedQuery ||
-        firstTicketNormalized.includes(normalizedQuery) ||
-        (digitsOnly.length >= 2 && firstTicketDigits.endsWith(digitsOnly)) ||
-        (digitsOnly.length >= 2 && digitsOnly.endsWith(firstTicketDigits)))
+        (digitsOnly.length === 6 && firstTicketDigits === digitsOnly) ||
+        (digitsOnly.length >= 2 && digitsOnly.length < 6 && firstTicketDigits.endsWith(digitsOnly)))
     ) {
       matches.push({
         draw_date: draw.draw_date,
         draw_name: draw.draw_name,
         draw_code: draw.draw_code,
         lottery_code: draw.lottery_code,
-        prize_tier: "1st Prize",
+        prize_tier: "1st Prize Winner",
         prize_amount: draw.prizes.amounts?.["1st"] || "1,00,00,000/-",
         ticket_matched: draw.first.ticket || "",
       });
     }
 
+    // Consolation and 2nd-9th Prizes matching
     const tiers = [
       "consolation",
       "2nd",
@@ -269,21 +275,22 @@ export async function searchTicketsInSupabase(queryTicket: string) {
       for (const num of nums) {
         const normNum = num.trim().toUpperCase().replace(/\s+/g, "");
         const numDigits = normNum.replace(/\D/g, "");
+        const numSeries = normNum.replace(/\d/g, "").trim();
+
+        const matchesItemSeries = !querySeries || !numSeries || querySeries === numSeries;
 
         if (
-          normNum === normalizedQuery ||
-          normNum.includes(normalizedQuery) ||
-          normalizedQuery.includes(normNum) ||
-          (digitsOnly.length >= 2 && numDigits.endsWith(digitsOnly)) ||
-          (digitsOnly.length >= 2 && digitsOnly.endsWith(numDigits))
+          matchesItemSeries &&
+          (normNum === normalizedQuery ||
+            (digitsOnly.length === 6 && numDigits === digitsOnly) ||
+            (digitsOnly.length >= 2 && digitsOnly.length < 6 && numDigits.endsWith(digitsOnly)))
         ) {
           matches.push({
             draw_date: draw.draw_date,
             draw_name: draw.draw_name,
             draw_code: draw.draw_code,
             lottery_code: draw.lottery_code,
-            prize_tier:
-              tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+            prize_tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
             prize_amount: amount,
             ticket_matched: num,
           });

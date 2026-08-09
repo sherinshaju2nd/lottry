@@ -125,6 +125,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     const rawQuery = checkerTicketInput.trim().toUpperCase();
     const normalizedQuery = rawQuery.replace(/\s+/g, "");
     const digitsOnly = rawQuery.replace(/\D/g, "");
+    const querySeries = rawQuery.replace(/\d/g, "").trim();
 
     let winMatch: CheckerWinResult | null = null;
 
@@ -132,17 +133,20 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     const firstTicketRaw = (drawResult.first?.ticket || "").trim().toUpperCase();
     const firstTicketNorm = firstTicketRaw.replace(/\s+/g, "");
     const firstTicketDigits = firstTicketRaw.replace(/\D/g, "");
+    const firstSeries = firstTicketRaw.replace(/\d/g, "").trim();
+
+    const matchesFirstSeries = !querySeries || querySeries === firstSeries;
 
     if (
       firstTicketNorm &&
+      matchesFirstSeries &&
       (firstTicketNorm === normalizedQuery ||
-        firstTicketNorm.includes(normalizedQuery) ||
-        (digitsOnly.length >= 2 && firstTicketDigits.endsWith(digitsOnly)) ||
-        (digitsOnly.length >= 2 && digitsOnly.endsWith(firstTicketDigits)))
+        (digitsOnly.length === 6 && firstTicketDigits === digitsOnly) ||
+        (digitsOnly.length >= 2 && digitsOnly.length < 6 && firstTicketDigits.endsWith(digitsOnly)))
     ) {
       winMatch = {
         isWinner: true,
-        tier: "1st Prize",
+        tier: "1st Prize Winner",
         amount: drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-",
         matchedNumber: drawResult.first?.ticket,
       };
@@ -169,13 +173,15 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
         for (const num of nums) {
           const normNum = num.trim().toUpperCase().replace(/\s+/g, "");
           const numDigits = normNum.replace(/\D/g, "");
+          const itemSeries = normNum.replace(/\d/g, "").trim();
+
+          const matchesItemSeries = !querySeries || !itemSeries || querySeries === itemSeries;
 
           if (
-            normNum === normalizedQuery ||
-            normNum.includes(normalizedQuery) ||
-            normalizedQuery.includes(normNum) ||
-            (digitsOnly.length >= 2 && numDigits.endsWith(digitsOnly)) ||
-            (digitsOnly.length >= 2 && digitsOnly.endsWith(numDigits))
+            matchesItemSeries &&
+            (normNum === normalizedQuery ||
+              (digitsOnly.length === 6 && numDigits === digitsOnly) ||
+              (digitsOnly.length >= 2 && digitsOnly.length < 6 && numDigits.endsWith(digitsOnly)))
           ) {
             winMatch = {
               isWinner: true,
@@ -291,7 +297,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
             <TextField
               value={checkerTicketInput}
               onChange={(e) => setCheckerTicketInput(e.target.value)}
-              placeholder="e.g. MJ 236935 or 236935 or 1638"
+              placeholder="e.g. MJ 236935 or MA 236935 or 236935"
               variant="outlined"
               size="small"
               sx={{ flex: 1, minWidth: 260, bg: "#FFFFFF" }}
