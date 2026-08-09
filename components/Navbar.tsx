@@ -29,22 +29,22 @@ export default function Navbar() {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Weekly Schedule", href: "/#schedule" },
-    { label: "Search Ticket", href: "/search" },
-    { label: "Admin", href: "/admin" },
+    { label: "Winning Ticket Checker", href: "/search" },
+    { label: "Admin Control", href: "/admin" },
   ];
 
   return (
     <AppBar position="sticky" color="default" elevation={0} sx={{ borderBottom: "1px solid #E5E7EB", bgcolor: "#FFFFFF" }}>
       <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
         <Toolbar disableGutters sx={{ justifyContent: "space-between", py: 1 }}>
-          {/* Logo & Title */}
+          {/* Logo & Brand Name SEO Focused */}
           <Box component={Link} href="/" sx={{ display: "flex", alignItems: "center", gap: 1.5, textDecoration: "none", color: "inherit" }}>
             <Box
               sx={{
                 bgcolor: "#2E7D32",
                 color: "white",
                 p: 0.8,
-                borderRadius: "4px",
+                borderRadius: "6px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -53,30 +53,30 @@ export default function Navbar() {
               <ConfirmationNumberIcon fontSize="medium" />
             </Box>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: "#1B5E20", lineHeight: 1.1 }}>
-                Kerala Lottery
+              <Typography variant="h6" sx={{ fontWeight: 900, color: "#1B5E20", lineHeight: 1.1, fontSize: { xs: "1.05rem", sm: "1.25rem" } }}>
+                Kerala Lottery Result Today
               </Typography>
-              <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 500, fontSize: "0.7rem" }}>
-                Official Results & Schedule
+              <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600, fontSize: "0.7rem" }}>
+                Official Live Results & Weekly Schedule
               </Typography>
             </Box>
           </Box>
 
           {/* Desktop Navigation Links */}
           <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1 }}>
-            <Button component={Link} href="/" sx={{ color: "#374151", fontWeight: 600, borderRadius: "4px" }}>
+            <Button component={Link} href="/" sx={{ color: "#374151", fontWeight: 600, borderRadius: "6px" }}>
               Home
             </Button>
-            <Button component={Link} href="/#schedule" sx={{ color: "#374151", fontWeight: 600, borderRadius: "4px" }}>
+            <Button component={Link} href="/#schedule" sx={{ color: "#374151", fontWeight: 600, borderRadius: "6px" }}>
               Schedule
             </Button>
             <Button
               component={Link}
               href="/search"
               startIcon={<SearchIcon />}
-              sx={{ color: "#2E7D32", fontWeight: 700, borderRadius: "4px" }}
+              sx={{ color: "#2E7D32", fontWeight: 700, borderRadius: "6px" }}
             >
-              Advanced Search
+              Winning Ticket Checker
             </Button>
             <Button
               component={Link}
@@ -84,7 +84,7 @@ export default function Navbar() {
               variant="outlined"
               color="primary"
               startIcon={<AdminPanelSettingsIcon />}
-              sx={{ ml: 1, borderRadius: "4px" }}
+              sx={{ ml: 1, borderRadius: "6px", fontWeight: 700 }}
             >
               Admin
             </Button>
@@ -111,18 +111,18 @@ export default function Navbar() {
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 250 },
+          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 270 },
         }}
       >
-        <Box onClick={handleDrawerToggle} sx={{ textAlign: "center", py: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 800, color: "#2E7D32", mb: 2 }}>
-            Kerala Lottery
+        <Box onClick={handleDrawerToggle} sx={{ textAlign: "center", py: 3, px: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 900, color: "#2E7D32", mb: 2 }}>
+            Kerala Lottery Result Today
           </Typography>
           <List>
             {navItems.map((item) => (
               <ListItem key={item.label} disablePadding>
-                <ListItemButton component={Link} href={item.href} sx={{ textAlign: "center" }}>
-                  <ListItemText primary={item.label} slotProps={{ primary: { sx: { fontWeight: 600 } } }} />
+                <ListItemButton component={Link} href={item.href} sx={{ textAlign: "center", borderRadius: "8px", mb: 0.5 }}>
+                  <ListItemText primary={item.label} slotProps={{ primary: { sx: { fontWeight: 700 } } }} />
                 </ListItemButton>
               </ListItem>
             ))}

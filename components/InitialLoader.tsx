@@ -11,10 +11,9 @@ export default function InitialLoader() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // Show splash screen loader for initial load
     const timer = setTimeout(() => {
       setFadeOut(true);
-      setTimeout(() => setLoading(false), 400); // Allow fade out animation to complete
+      setTimeout(() => setLoading(false), 400);
     }, 900);
 
     return () => clearTimeout(timer);
@@ -43,7 +42,6 @@ export default function InitialLoader() {
         transition: "opacity 0.4s ease, visibility 0.4s ease",
       }}
     >
-      {/* Brand Icon */}
       <Box
         sx={{
           bgcolor: "#2E7D32",
@@ -65,15 +63,13 @@ export default function InitialLoader() {
         <ConfirmationNumberIcon sx={{ fontSize: 44 }} />
       </Box>
 
-      {/* Brand Name */}
-      <Typography variant="h4" sx={{ fontWeight: 900, color: "#1B5E20", mb: 0.5, letterSpacing: "-0.02em" }}>
-        Kerala Lottery
+      <Typography variant="h4" sx={{ fontWeight: 900, color: "#1B5E20", mb: 0.5, letterSpacing: "-0.02em", textAlign: "center" }}>
+        Kerala Lottery Result Today
       </Typography>
-      <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 600, mb: 4 }}>
-        Official Results & Weekly Schedule Portal
+      <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 600, mb: 4, textAlign: "center" }}>
+        Official Live Results & Weekly Schedule Portal
       </Typography>
 
-      {/* Green Progress Spinner */}
       <Box sx={{ position: "relative", display: "inline-flex" }}>
         <CircularProgress
           size={36}
@@ -85,7 +81,7 @@ export default function InitialLoader() {
       </Box>
 
       <Typography variant="caption" sx={{ color: "#9CA3AF", mt: 3, fontWeight: 500 }}>
-        Loading latest draw data...
+        Loading latest 3:30 PM draw results...
       </Typography>
     </Box>
   );

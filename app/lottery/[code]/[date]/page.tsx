@@ -264,7 +264,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
 
         <Box sx={{ mb: 4 }}>
           <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", mb: 0.5, fontSize: { xs: "1.875rem", sm: "2.5rem", md: "2.85rem" } }}>
-            {lotteryInfo.name} ({lotteryInfo.code}) - {selectedDate}
+            {lotteryInfo.name} ({lotteryInfo.code}) Result Today - {selectedDate}
           </Typography>
           <Typography variant="body1" sx={{ color: "#6B7280" }}>
             Official Published Result | Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time: <strong>3:00 PM</strong>

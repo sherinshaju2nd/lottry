@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -37,6 +38,7 @@ interface PageProps {
 export default function LotteryDetailsPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const codeParam = resolvedParams.code.toUpperCase();
+  const router = useRouter();
 
   const lotteryInfo = WEEKLY_LOTTERIES.find((l) => l.code === codeParam) || {
     name: `${codeParam} Lottery`,
@@ -108,6 +110,10 @@ export default function LotteryDetailsPage({ params }: PageProps) {
     setPage(0);
   };
 
+  const handleRowClick = (date: string) => {
+    router.push(`/lottery/${codeParam.toLowerCase()}/${encodeURIComponent(date)}`);
+  };
+
   const paginatedDraws = filteredDraws.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
@@ -127,7 +133,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
           <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
             <Box>
               <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", fontSize: { xs: "1.875rem", sm: "2.25rem", md: "2.5rem" } }}>
-                {lotteryInfo.name} ({lotteryInfo.code}) Archives
+                {lotteryInfo.name} ({lotteryInfo.code}) Result Today & Archives
               </Typography>
               <Typography variant="body1" sx={{ color: "#6B7280", mt: 0.5 }}>
                 Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time: <strong>3:00 PM</strong> | Total Draws: <strong>{filteredDraws.length}</strong>
@@ -205,7 +211,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
           )
         ) : filteredDraws.length > 0 ? (
           <>
-            {/* Table View (Default) */}
+            {/* Table View (Default with Row Click Navigation) */}
             {viewMode === "table" && (
               <Paper elevation={0} sx={{ borderRadius: "4px", border: "1px solid #E5E7EB", overflow: "hidden", mb: 2 }}>
                 <TableContainer>
@@ -222,7 +228,16 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                     </TableHead>
                     <TableBody>
                       {paginatedDraws.map((row) => (
-                        <TableRow key={row.id || row.draw_date} hover sx={{ "&:hover": { bgcolor: "#F9FAFB" } }}>
+                        <TableRow
+                          key={row.id || row.draw_date}
+                          hover
+                          onClick={() => handleRowClick(row.draw_date)}
+                          sx={{
+                            cursor: "pointer",
+                            "&:hover": { bgcolor: "#F0FDF4" },
+                            transition: "background-color 0.15s ease",
+                          }}
+                        >
                           <TableCell sx={{ fontWeight: 800, color: "#111827" }}>{row.draw_date}</TableCell>
                           <TableCell>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -243,7 +258,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                           <TableCell sx={{ color: "#4B5563", fontSize: "0.875rem" }}>
                             {row.first?.location || "N/A"} / {row.first?.agent || "N/A"}
                           </TableCell>
-                          <TableCell align="right">
+                          <TableCell align="right" onClick={(e) => e.stopPropagation()}>
                             <Button
                               component={Link}
                               href={`/lottery/${codeParam.toLowerCase()}/${encodeURIComponent(row.draw_date)}`}

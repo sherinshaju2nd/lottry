@@ -20,6 +20,7 @@ import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import SearchIcon from "@mui/icons-material/Search";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import Link from "next/link";
 import { WEEKLY_LOTTERIES } from "@/lib/supabase";
 
 const advancedSearchSchema = yup.object({
@@ -89,22 +90,22 @@ export default function AdvancedSearchPage() {
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
       <Box sx={{ mb: 4, textAlign: "center" }}>
-        <Typography variant="h3" sx={{ fontWeight: 900, color: "#1B5E20", mb: 1, fontSize: { xs: "1.75rem", sm: "2.25rem" } }}>
-          Advanced Ticket Search Engine
+        <Typography variant="h3" sx={{ fontWeight: 900, color: "#1B5E20", mb: 1, fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.6rem" } }}>
+          Kerala Lottery Live Ticket Result Checker
         </Typography>
-        <Typography variant="body1" sx={{ color: "#4B5563" }}>
-          Instantly search across all published Kerala Lottery draw results by ticket number or prize digits.
+        <Typography variant="body1" sx={{ color: "#4B5563", maxWidth: 640, mx: "auto" }}>
+          Official 3:30 PM Kerala Lottery Result Today search engine — verify 1st prize ₹70 Lakhs, consolation prizes, and 2nd–9th prize numbers instantly.
         </Typography>
       </Box>
 
-      <Paper elevation={0} sx={{ p: { xs: 3, sm: 4 }, borderRadius: "4px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", mb: 6 }}>
+      <Paper elevation={0} sx={{ p: { xs: 3, sm: 4 }, borderRadius: "12px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", mb: 6 }}>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 8 }}>
               <TextField
                 {...register("ticketNumber")}
-                label="Ticket Number or Digits"
-                placeholder="e.g. 236935 or MJ 236935"
+                label="Ticket Number or 6-Digit Number"
+                placeholder="e.g. 236935 or MJ 236935 or 1638"
                 fullWidth
                 error={!!errors.ticketNumber}
                 helperText={errors.ticketNumber?.message}
@@ -136,9 +137,9 @@ export default function AdvancedSearchPage() {
             variant="contained"
             size="large"
             startIcon={isSearching ? <CircularProgress size={20} color="inherit" /> : <SearchIcon />}
-            sx={{ bgcolor: "#2E7D32", py: 1.5, fontWeight: 800, fontSize: "1rem", borderRadius: "4px", "&:hover": { bgcolor: "#1B5E20" } }}
+            sx={{ bgcolor: "#2E7D32", py: 1.5, fontWeight: 800, fontSize: "1rem", borderRadius: "8px", "&:hover": { bgcolor: "#1B5E20" } }}
           >
-            {isSearching ? "Searching Records..." : "Search Winning Tickets"}
+            {isSearching ? "Searching Published Results..." : "Check Kerala Lottery Ticket"}
           </Button>
         </Box>
       </Paper>
@@ -151,13 +152,13 @@ export default function AdvancedSearchPage() {
 
           {results.length > 0 ? (
             results.map((match, i) => (
-              <Paper key={i} elevation={0} sx={{ p: 3, borderRadius: "4px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB" }}>
+              <Paper key={i} elevation={0} sx={{ p: 3, borderRadius: "12px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB" }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
                   <Chip
                     icon={<EmojiEventsIcon sx={{ fontSize: "16px !important" }} />}
                     label={match.prize_tier}
                     color="primary"
-                    sx={{ fontWeight: 800, borderRadius: "4px" }}
+                    sx={{ fontWeight: 800, borderRadius: "6px" }}
                   />
                   {match.prize_amount && (
                     <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#2E7D32" }}>
@@ -174,15 +175,24 @@ export default function AdvancedSearchPage() {
                   <strong>Draw Date:</strong> {match.draw_date}
                 </Typography>
 
-                <Typography variant="body2" sx={{ color: "#374151", mt: 1 }}>
+                <Typography variant="body2" sx={{ color: "#374151", mt: 1, mb: 1.5 }}>
                   <strong>Winning Ticket Number:</strong>{" "}
                   <Chip label={match.ticket_matched} size="small" sx={{ fontFamily: "monospace", fontWeight: 800, bgcolor: "#FEF3C7", color: "#92400E", borderRadius: "4px" }} />
                 </Typography>
+
+                <Button
+                  component={Link}
+                  href={`/lottery/${match.lottery_code.toLowerCase()}/${encodeURIComponent(match.draw_date)}`}
+                  size="small"
+                  sx={{ fontWeight: 700, color: "#2E7D32" }}
+                >
+                  View Full Draw Breakdown →
+                </Button>
               </Paper>
             ))
           ) : (
-            <Alert severity="info" sx={{ borderRadius: "4px" }}>
-              No winning tickets matched your query &quot;{searchedTicket}&quot;. Try searching with fewer digits or checking another date.
+            <Alert severity="info" sx={{ borderRadius: "12px" }}>
+              No winning tickets matched your query &quot;{searchedTicket}&quot;. Please double check your ticket number or try searching with fewer digits.
             </Alert>
           )}
         </Box>
