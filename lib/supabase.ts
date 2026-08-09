@@ -1,7 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://dqsoseefmiwyjkgqmphh.supabase.co";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_bF2JcJ0IPvCaVgeybXJKGw_JBtrS7sx";
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "https://dqsoseefmiwyjkgqmphh.supabase.co";
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  "sb_publishable_bF2JcJ0IPvCaVgeybXJKGw_JBtrS7sx";
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -14,14 +18,14 @@ export interface FirstPrize {
 
 export interface PrizeData {
   consolation?: string[];
-  '2nd'?: string[];
-  '3rd'?: string[];
-  '4th'?: string[];
-  '5th'?: string[];
-  '6th'?: string[];
-  '7th'?: string[];
-  '8th'?: string[];
-  '9th'?: string[];
+  "2nd"?: string[];
+  "3rd"?: string[];
+  "4th"?: string[];
+  "5th"?: string[];
+  "6th"?: string[];
+  "7th"?: string[];
+  "8th"?: string[];
+  "9th"?: string[];
   amounts?: Record<string, string>;
   guess?: string[];
   mc?: string[];
@@ -59,7 +63,9 @@ export async function saveDrawResultToSupabase(data: {
   let draw_name = data.draw_name;
 
   const matched = WEEKLY_LOTTERIES.find(
-    (l) => l.code === lottery_code || l.name.toLowerCase() === data.draw_name.toLowerCase()
+    (l) =>
+      l.code === lottery_code ||
+      l.name.toLowerCase() === data.draw_name.toLowerCase(),
   );
 
   if (matched) {
@@ -114,9 +120,15 @@ export async function saveDrawResultToSupabase(data: {
   }
 }
 
-export async function getDrawResultFromSupabase(lotteryCode: string, date?: string): Promise<StructuredDrawResult | null> {
+export async function getDrawResultFromSupabase(
+  lotteryCode: string,
+  date?: string,
+): Promise<StructuredDrawResult | null> {
   try {
-    let query = supabase.from("draw_results").select("*").eq("lottery_code", lotteryCode.toUpperCase());
+    let query = supabase
+      .from("draw_results")
+      .select("*")
+      .eq("lottery_code", lotteryCode.toUpperCase());
     if (date) {
       query = query.eq("draw_date", date);
     } else {
@@ -132,8 +144,12 @@ export async function getDrawResultFromSupabase(lotteryCode: string, date?: stri
         draw_name: row.draw_name,
         draw_code: row.draw_code,
         lottery_code: row.lottery_code,
-        first: typeof row.first_prize === "string" ? JSON.parse(row.first_prize) : row.first_prize,
-        prizes: typeof row.prizes === "string" ? JSON.parse(row.prizes) : row.prizes,
+        first:
+          typeof row.first_prize === "string"
+            ? JSON.parse(row.first_prize)
+            : row.first_prize,
+        prizes:
+          typeof row.prizes === "string" ? JSON.parse(row.prizes) : row.prizes,
         created_at: row.created_at,
       };
     }
@@ -144,7 +160,9 @@ export async function getDrawResultFromSupabase(lotteryCode: string, date?: stri
   return null;
 }
 
-export async function getDrawDatesFromSupabase(lotteryCode: string): Promise<string[]> {
+export async function getDrawDatesFromSupabase(
+  lotteryCode: string,
+): Promise<string[]> {
   try {
     const { data, error } = await supabase
       .from("draw_results")
@@ -162,9 +180,14 @@ export async function getDrawDatesFromSupabase(lotteryCode: string): Promise<str
   return [];
 }
 
-export async function fetchAllDrawResultsFromSupabase(): Promise<StructuredDrawResult[]> {
+export async function fetchAllDrawResultsFromSupabase(): Promise<
+  StructuredDrawResult[]
+> {
   try {
-    const { data, error } = await supabase.from("draw_results").select("*").order("draw_date", { ascending: false });
+    const { data, error } = await supabase
+      .from("draw_results")
+      .select("*")
+      .order("draw_date", { ascending: false });
     if (!error && data && data.length > 0) {
       return data.map((row) => ({
         id: row.id,
@@ -172,8 +195,12 @@ export async function fetchAllDrawResultsFromSupabase(): Promise<StructuredDrawR
         draw_name: row.draw_name,
         draw_code: row.draw_code,
         lottery_code: row.lottery_code,
-        first: typeof row.first_prize === "string" ? JSON.parse(row.first_prize) : row.first_prize,
-        prizes: typeof row.prizes === "string" ? JSON.parse(row.prizes) : row.prizes,
+        first:
+          typeof row.first_prize === "string"
+            ? JSON.parse(row.first_prize)
+            : row.first_prize,
+        prizes:
+          typeof row.prizes === "string" ? JSON.parse(row.prizes) : row.prizes,
         created_at: row.created_at,
       }));
     }
@@ -255,7 +282,8 @@ export async function searchTicketsInSupabase(queryTicket: string) {
             draw_name: draw.draw_name,
             draw_code: draw.draw_code,
             lottery_code: draw.lottery_code,
-            prize_tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+            prize_tier:
+              tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
             prize_amount: amount,
             ticket_matched: num,
           });
