@@ -80,10 +80,30 @@ export async function saveDrawResultToSupabase(data: {
     lottery_code,
     first_prize: data.first || {},
     prizes: data.prizes || {},
+    created_at: new Date().toISOString(),
   };
 
   try {
-    // 1. Try Upsert
+    // 1. Check if record already exists for (draw_date, lottery_code) to OVERWRITE / UPDATE
+    const { data: existing } = await supabase
+      .from("draw_results")
+      .select("id")
+      .eq("draw_date", data.draw_date)
+      .eq("lottery_code", lottery_code);
+
+    if (existing && existing.length > 0) {
+      const { data: updated, error: updateErr } = await supabase
+        .from("draw_results")
+        .update(rowPayload)
+        .eq("id", existing[0].id)
+        .select();
+
+      if (!updateErr && updated && updated.length > 0) {
+        return updated[0];
+      }
+    }
+
+    // 2. Upsert if constraint exists
     const { data: upsertData, error: upsertError } = await supabase
       .from("draw_results")
       .upsert(rowPayload, { onConflict: "draw_date,lottery_code" })
@@ -93,27 +113,13 @@ export async function saveDrawResultToSupabase(data: {
       return upsertData[0];
     }
 
-    // 2. Fallback: Select -> Update or Insert if upsert onConflict fails
-    const { data: existing } = await supabase
+    // 3. Fallback Insert
+    const { data: inserted } = await supabase
       .from("draw_results")
-      .select("id")
-      .eq("draw_date", data.draw_date)
-      .eq("lottery_code", lottery_code);
+      .insert(rowPayload)
+      .select();
 
-    if (existing && existing.length > 0) {
-      const { data: updated } = await supabase
-        .from("draw_results")
-        .update(rowPayload)
-        .eq("id", existing[0].id)
-        .select();
-      return updated ? updated[0] : null;
-    } else {
-      const { data: inserted } = await supabase
-        .from("draw_results")
-        .insert(rowPayload)
-        .select();
-      return inserted ? inserted[0] : null;
-    }
+    return inserted ? inserted[0] : null;
   } catch (e) {
     console.warn("Supabase save error:", e);
     return null;
@@ -215,7 +221,7 @@ export async function searchTicketsInSupabase(queryTicket: string) {
   const rawQuery = queryTicket.trim().toUpperCase();
   const digitsOnly = rawQuery.replace(/\D/g, "");
   const normalizedQuery = rawQuery.replace(/\s+/g, "");
-  const querySeries = rawQuery.replace(/\d/g, "").trim(); // e.g. "MJ" or "MA" or ""
+  const querySeries = rawQuery.replace(/\d/g, "").trim();
 
   const allResults = await fetchAllDrawResultsFromSupabase();
   const matches: Array<{
@@ -229,7 +235,6 @@ export async function searchTicketsInSupabase(queryTicket: string) {
   }> = [];
 
   for (const draw of allResults) {
-    // 1st Prize matching
     const firstTicketRaw = (draw.first?.ticket || "").trim().toUpperCase();
     const firstTicketNormalized = firstTicketRaw.replace(/\s+/g, "");
     const firstTicketDigits = firstTicketRaw.replace(/\D/g, "");
@@ -255,7 +260,6 @@ export async function searchTicketsInSupabase(queryTicket: string) {
       });
     }
 
-    // Consolation and 2nd-9th Prizes matching
     const tiers = [
       "consolation",
       "2nd",
