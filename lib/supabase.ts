@@ -56,34 +56,61 @@ export async function saveDrawResultToSupabase(data: {
   prizes: PrizeData;
 }) {
   let lottery_code = data.draw_code.split("-")[0].toUpperCase();
-  if (!lottery_code) {
-    const matched = WEEKLY_LOTTERIES.find((l) => l.name.toLowerCase() === data.draw_name.toLowerCase());
-    lottery_code = matched ? matched.code : "UNKNOWN";
+  let draw_name = data.draw_name;
+
+  const matched = WEEKLY_LOTTERIES.find(
+    (l) => l.code === lottery_code || l.name.toLowerCase() === data.draw_name.toLowerCase()
+  );
+
+  if (matched) {
+    lottery_code = matched.code;
+    draw_name = matched.name;
   }
 
-  try {
-    const { data: inserted, error } = await supabase
-      .from("draw_results")
-      .upsert(
-        {
-          draw_date: data.draw_date,
-          draw_name: data.draw_name,
-          draw_code: data.draw_code,
-          lottery_code,
-          first_prize: data.first || {},
-          prizes: data.prizes || {},
-        },
-        { onConflict: "draw_date,lottery_code" }
-      )
-      .select()
-      .single();
+  const rowPayload = {
+    draw_date: data.draw_date,
+    draw_name,
+    draw_code: data.draw_code,
+    lottery_code,
+    first_prize: data.first || {},
+    prizes: data.prizes || {},
+  };
 
-    if (error) {
-      console.warn("Supabase upsert note:", error.message);
+  try {
+    // 1. Try Upsert
+    const { data: upsertData, error: upsertError } = await supabase
+      .from("draw_results")
+      .upsert(rowPayload, { onConflict: "draw_date,lottery_code" })
+      .select();
+
+    if (!upsertError && upsertData && upsertData.length > 0) {
+      return upsertData[0];
     }
-    return inserted;
+
+    // 2. Fallback: Select -> Update or Insert if upsert onConflict fails
+    const { data: existing } = await supabase
+      .from("draw_results")
+      .select("id")
+      .eq("draw_date", data.draw_date)
+      .eq("lottery_code", lottery_code);
+
+    if (existing && existing.length > 0) {
+      const { data: updated } = await supabase
+        .from("draw_results")
+        .update(rowPayload)
+        .eq("id", existing[0].id)
+        .select();
+      return updated ? updated[0] : null;
+    } else {
+      const { data: inserted } = await supabase
+        .from("draw_results")
+        .insert(rowPayload)
+        .select();
+      return inserted ? inserted[0] : null;
+    }
   } catch (e) {
-    console.warn("Supabase integration note:", e);
+    console.warn("Supabase save error:", e);
+    return null;
   }
 }
 

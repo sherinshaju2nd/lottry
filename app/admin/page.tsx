@@ -17,7 +17,7 @@ import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
-import { StructuredDrawResult } from "@/lib/supabase";
+import { StructuredDrawResult, saveDrawResultToSupabase } from "@/lib/supabase";
 
 export default function AdminDashboardPage() {
   const [draws, setDraws] = useState<StructuredDrawResult[]>([]);
@@ -47,25 +47,54 @@ export default function AdminDashboardPage() {
     setSyncStatus(null);
 
     try {
-      const res = await fetch("/api/sync", { method: "POST" });
-      const json = await res.json();
+      // 1. Try POST to /api/sync
+      let res = await fetch("/api/sync", { method: "POST" });
+      if (!res.ok) {
+        // 2. Try GET to /api/sync
+        res = await fetch("/api/sync");
+      }
 
-      if (json.success) {
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          setSyncStatus({
+            type: "success",
+            message: `Manual sync completed! Synced: ${json.data?.draw_name} (${json.data?.draw_code}) on ${json.data?.draw_date}`,
+          });
+          await loadDraws();
+          return;
+        }
+      }
+
+      // 3. Fallback: Fetch directly from IndiaLotteryAPI in client and save to Supabase
+      const apiRes = await fetch("https://indialotteryapi.com/wp-json/klr/v1/latest");
+      const json = await apiRes.json();
+
+      if (json && json.draw_date && json.draw_code) {
+        await saveDrawResultToSupabase({
+          draw_date: json.draw_date,
+          draw_name: json.draw_name || "Kerala Lottery",
+          draw_code: json.draw_code,
+          first: json.first || {},
+          prizes: json.prizes || {},
+        });
+
         setSyncStatus({
           type: "success",
-          message: `Manual sync completed! Synced: ${json.data?.draw_name} (${json.data?.draw_code}) on ${json.data?.draw_date}`,
+          message: `Direct API sync completed! Synced: ${json.draw_name} (${json.draw_code}) on ${json.draw_date}`,
         });
         await loadDraws();
       } else {
         setSyncStatus({
           type: "error",
-          message: `Sync failed: ${json.error || "Unknown error"}`,
+          message: "Failed to parse API response structure.",
         });
       }
-    } catch {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Sync connection error";
       setSyncStatus({
         type: "error",
-        message: "Failed to connect to sync endpoint.",
+        message: `Sync error: ${msg}`,
       });
     } finally {
       setIsSyncing(false);

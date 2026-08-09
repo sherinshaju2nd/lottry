@@ -1,4 +1,4 @@
-import { saveDrawResultToSupabase, StructuredDrawResult } from "./supabase";
+import { saveDrawResultToSupabase, StructuredDrawResult, WEEKLY_LOTTERIES } from "./supabase";
 
 export async function fetchAndSyncLatestLottery(): Promise<{
   success: boolean;
@@ -29,9 +29,21 @@ export async function fetchAndSyncLatestLottery(): Promise<{
       };
     }
 
+    let lottery_code = json.draw_code.split("-")[0].toUpperCase();
+    let draw_name = json.draw_name || "Kerala Lottery";
+
+    const matched = WEEKLY_LOTTERIES.find(
+      (l) => l.code === lottery_code || l.name.toLowerCase() === draw_name.toLowerCase()
+    );
+
+    if (matched) {
+      lottery_code = matched.code;
+      draw_name = matched.name;
+    }
+
     const payload = {
       draw_date: json.draw_date,
-      draw_name: json.draw_name || "Kerala Lottery",
+      draw_name,
       draw_code: json.draw_code,
       first: json.first || {},
       prizes: json.prizes || {},
@@ -39,8 +51,6 @@ export async function fetchAndSyncLatestLottery(): Promise<{
 
     // Save exclusively to Supabase DB
     await saveDrawResultToSupabase(payload);
-
-    let lottery_code = json.draw_code.split("-")[0].toUpperCase();
 
     return {
       success: true,
