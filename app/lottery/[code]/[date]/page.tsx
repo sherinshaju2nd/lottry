@@ -16,11 +16,17 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import Skeleton from "@mui/material/Skeleton";
+import Menu from "@mui/material/Menu";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import CelebrationIcon from "@mui/icons-material/Celebration";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import confetti from "canvas-confetti";
 import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 
@@ -55,6 +61,9 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
   // Ticket Checker State
   const [checkerTicketInput, setCheckerTicketInput] = useState<string>("");
   const [checkerResult, setCheckerResult] = useState<CheckerWinResult | null>(null);
+
+  // Export Menu State
+  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
     async function loadDatesAndResult() {
@@ -92,6 +101,108 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setExportAnchorEl(event.currentTarget);
+  };
+
+  const handleExportMenuClose = () => {
+    setExportAnchorEl(null);
+  };
+
+  const exportCSV = () => {
+    if (!drawResult) return;
+    let csv = `Kerala Lottery Result Today - Official Draw Results\n`;
+    csv += `Lottery Name,${drawResult.draw_name}\n`;
+    csv += `Draw Code,${drawResult.draw_code}\n`;
+    csv += `Draw Date,${drawResult.draw_date}\n\n`;
+
+    csv += `Prize Tier,Winning Tickets / Details,Prize Amount\n`;
+    csv += `"1st Prize Winner","${drawResult.first?.ticket || ""} (Location: ${drawResult.first?.location || ""}, Agent: ${drawResult.first?.agent || ""})","${drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-"}"\n`;
+
+    const prizeTiers = [
+      { key: "consolation", label: "Consolation Prize" },
+      { key: "2nd", label: "2nd Prize" },
+      { key: "3rd", label: "3rd Prize" },
+      { key: "4th", label: "4th Prize" },
+      { key: "5th", label: "5th Prize" },
+      { key: "6th", label: "6th Prize" },
+      { key: "7th", label: "7th Prize" },
+      { key: "8th", label: "8th Prize" },
+      { key: "9th", label: "9th Prize" },
+    ] as const;
+
+    for (const tier of prizeTiers) {
+      const nums = drawResult.prizes?.[tier.key as keyof typeof drawResult.prizes] as string[] | undefined;
+      const amt = drawResult.prizes?.amounts?.[tier.key] || "";
+      if (nums && nums.length > 0) {
+        csv += `"${tier.label}","${nums.join("  ")}","${amt}"\n`;
+      }
+    }
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Kerala_Lottery_${drawResult.lottery_code}_${drawResult.draw_date}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    handleExportMenuClose();
+  };
+
+  const exportExcel = () => {
+    if (!drawResult) return;
+    let excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"/><style>
+table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+th { background-color: #2E7D32; color: white; font-weight: bold; }
+.header-title { font-size: 20px; font-weight: bold; color: #1B5E20; }
+.first-prize { background-color: #FEF3C7; font-weight: bold; color: #92400E; }
+</style></head><body>
+<p class="header-title">Kerala Lottery Result Today - Official Draw Results</p>
+<p><b>Lottery Name:</b> ${drawResult.draw_name} (${drawResult.draw_code}) | <b>Draw Date:</b> ${drawResult.draw_date}</p>
+<table>
+<thead><tr><th>Prize Category</th><th>Winning Ticket Numbers</th><th>Prize Amount</th></tr></thead>
+<tbody>
+<tr class="first-prize"><td>1st Prize Winner</td><td>${drawResult.first?.ticket || ""} (Location: ${drawResult.first?.location || ""}, Agent: ${drawResult.first?.agent || ""})</td><td>${drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-"}</td></tr>`;
+
+    const prizeTiers = [
+      { key: "consolation", label: "Consolation Prize" },
+      { key: "2nd", label: "2nd Prize" },
+      { key: "3rd", label: "3rd Prize" },
+      { key: "4th", label: "4th Prize" },
+      { key: "5th", label: "5th Prize" },
+      { key: "6th", label: "6th Prize" },
+      { key: "7th", label: "7th Prize" },
+      { key: "8th", label: "8th Prize" },
+      { key: "9th", label: "9th Prize" },
+    ] as const;
+
+    for (const tier of prizeTiers) {
+      const nums = drawResult.prizes?.[tier.key as keyof typeof drawResult.prizes] as string[] | undefined;
+      const amt = drawResult.prizes?.amounts?.[tier.key] || "";
+      if (nums && nums.length > 0) {
+        excelHtml += `<tr><td><b>${tier.label}</b></td><td>${nums.join(", ")}</td><td>${amt}</td></tr>`;
+      }
+    }
+
+    excelHtml += `</tbody></table></body></html>`;
+
+    const blob = new Blob([excelHtml], { type: "application/vnd.ms-excel;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Kerala_Lottery_${drawResult.lottery_code}_${drawResult.draw_date}.xls`;
+    a.click();
+    URL.revokeObjectURL(url);
+    handleExportMenuClose();
+  };
+
+  const exportPDF = () => {
+    handleExportMenuClose();
+    window.print();
   };
 
   const triggerCelebration = () => {
@@ -222,7 +333,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
   return (
     <Box sx={{ bgcolor: "#F9FAFB", color: "#111827", minHeight: "100vh", py: 6 }}>
       <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
-        {/* Navigation Bar & Date Selector */}
+        {/* Navigation Bar, Date Selector & Export Actions */}
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 4 }}>
           <Box sx={{ display: "flex", gap: 1.5 }}>
             <Button
@@ -243,23 +354,65 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
             </Button>
           </Box>
 
-          {availableDates.length > 0 && (
-            <FormControl size="small" sx={{ minWidth: 220, bgcolor: "#FFFFFF", borderRadius: "4px" }}>
-              <InputLabel sx={{ color: "#6B7280" }}>Select Draw Date</InputLabel>
-              <Select
-                value={selectedDate}
-                onChange={handleDateChange}
-                label="Select Draw Date"
-                sx={{ color: "#111827", borderRadius: "4px" }}
-              >
-                {availableDates.map((d) => (
-                  <MenuItem key={d} value={d}>
-                    {d}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+            {availableDates.length > 0 && (
+              <FormControl size="small" sx={{ minWidth: 200, bgcolor: "#FFFFFF", borderRadius: "6px" }}>
+                <InputLabel sx={{ color: "#6B7280" }}>Select Draw Date</InputLabel>
+                <Select
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  label="Select Draw Date"
+                  sx={{ color: "#111827", borderRadius: "6px", fontWeight: 700 }}
+                >
+                  {availableDates.map((d) => (
+                    <MenuItem key={d} value={d}>
+                      {d}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            {/* Export Results Dropdown Menu */}
+            {drawResult && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={handleExportMenuOpen}
+                  startIcon={<FileDownloadIcon />}
+                  endIcon={<KeyboardArrowDownIcon />}
+                  sx={{
+                    bgcolor: "#0F5A24",
+                    color: "#FFFFFF",
+                    fontWeight: 700,
+                    borderRadius: "6px",
+                    px: 2.5,
+                    py: 1,
+                    "&:hover": { bgcolor: "#15803D" },
+                  }}
+                >
+                  Export Data
+                </Button>
+
+                <Menu
+                  anchorEl={exportAnchorEl}
+                  open={Boolean(exportAnchorEl)}
+                  onClose={handleExportMenuClose}
+                  slotProps={{ paper: { sx: { borderRadius: "10px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", mt: 1 } } }}
+                >
+                  <MenuItem onClick={exportCSV} sx={{ fontWeight: 600, py: 1, px: 2 }}>
+                    <InsertDriveFileIcon sx={{ mr: 1.5, color: "#16A085" }} /> Download CSV (.csv)
                   </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
+                  <MenuItem onClick={exportExcel} sx={{ fontWeight: 600, py: 1, px: 2 }}>
+                    <TableChartIcon sx={{ mr: 1.5, color: "#27AE60" }} /> Download Excel (.xlsx)
+                  </MenuItem>
+                  <MenuItem onClick={exportPDF} sx={{ fontWeight: 600, py: 1, px: 2 }}>
+                    <PictureAsPdfIcon sx={{ mr: 1.5, color: "#C0392B" }} /> Download PDF / Print (.pdf)
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+          </Box>
         </Box>
 
         <Box sx={{ mb: 4 }}>
@@ -274,6 +427,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
         {/* Live Ticket Checker Card for this Draw */}
         <Paper
           elevation={0}
+          className="no-print"
           sx={{
             p: 3,
             mb: 4,
