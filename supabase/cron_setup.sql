@@ -192,4 +192,5 @@ SELECT cron.schedule(
 -- C) View scheduled jobs & logs:
 -- SELECT * FROM cron.job;
 -- SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;
--- SELECT * FROM net._http_response ORDER BY created DESC LIMIT 10;
+-- D) View HTTP response status from pg_net:
+-- SELECT id, status_code, content, created FROM net._http_response ORDER BY created DESC LIMIT 10;

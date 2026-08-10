@@ -22,3 +22,6 @@ SELECT * FROM public.app_config WHERE key = 'app_url';
 
 -- 3. Test triggering the lottery sync immediately:
 SELECT public.trigger_lottery_sync();
+
+-- 4. Check the HTTP response status:
+SELECT id, status_code, content, created FROM net._http_response ORDER BY created DESC LIMIT 1;
