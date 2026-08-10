@@ -63,11 +63,23 @@ export default function InitialLoader() {
         <ConfirmationNumberIcon sx={{ fontSize: 44 }} />
       </Box>
 
-      <Typography variant="h4" sx={{ fontWeight: 900, color: "#1B5E20", mb: 0.5, letterSpacing: "-0.02em", textAlign: "center" }}>
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 900,
+          color: "#1B5E20",
+          mb: 0.5,
+          letterSpacing: "-0.02em",
+          textAlign: "center",
+        }}
+      >
         Kerala Lottery Result Today
       </Typography>
-      <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 600, mb: 4, textAlign: "center" }}>
-        Official Live Results & Weekly Schedule Portal
+      <Typography
+        variant="body2"
+        sx={{ color: "#6B7280", fontWeight: 600, mb: 4, textAlign: "center" }}
+      >
+        Live Results & Weekly Schedule Portal
       </Typography>
 
       <Box sx={{ position: "relative", display: "inline-flex" }}>
@@ -79,10 +91,6 @@ export default function InitialLoader() {
           }}
         />
       </Box>
-
-      <Typography variant="caption" sx={{ color: "#9CA3AF", mt: 3, fontWeight: 500 }}>
-        Loading latest 3:30 PM draw results...
-      </Typography>
     </Box>
   );
 }

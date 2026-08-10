@@ -8,12 +8,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Kerala Lottery Result Today - Official Live Results & Schedule",
   description:
-    "Check Kerala Lottery Result Today live! Official 3:30 PM draw results, live winning ticket search checker, weekly schedule, and complete historical archives.",
+    "Check Kerala Lottery Result Today live! Official 3:10 PM draw results, live winning ticket search checker, weekly schedule, and complete historical archives.",
   keywords: [
     "Kerala Lottery Result Today",
     "Kerala Lottery Result",
     "Kerala Lottery Live Result",
-    "Kerala Lottery Today 3:30 PM",
+    "Kerala Lottery Today 3:10 PM",
     "Kerala Lottery Ticket Search",
     "Suvarna Keralam Result",
     "Karunya Result Today",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Kerala Lottery Result Today - Live Results & Schedule",
     description:
-      "Check Kerala Lottery Result Today live! Fast 3:30 PM draw results, winning ticket search checker engine, weekly schedule, and complete historical archive.",
+      "Check Kerala Lottery Result Today live! Fast 3:10 PM draw results, winning ticket search checker engine, weekly schedule, and complete historical archive.",
     type: "website",
     siteName: "Kerala Lottery Result Today",
   },

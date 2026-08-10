@@ -32,7 +32,11 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import confetti from "canvas-confetti";
-import { WEEKLY_LOTTERIES, StructuredDrawResult, supabase } from "@/lib/supabase";
+import {
+  WEEKLY_LOTTERIES,
+  StructuredDrawResult,
+  supabase,
+} from "@/lib/supabase";
 
 const searchSchema = yup.object({
   ticketNumber: yup
@@ -56,16 +60,24 @@ interface SearchMatch {
 export default function HomePage() {
   const [todayLottery, setTodayLottery] = useState(WEEKLY_LOTTERIES[0]);
   const [todayDayName, setTodayDayName] = useState("Sunday");
-  const [todayDrawResult, setTodayDrawResult] = useState<StructuredDrawResult | null>(null);
+  const [todayDrawResult, setTodayDrawResult] =
+    useState<StructuredDrawResult | null>(null);
 
-  const [searchResults, setSearchResults] = useState<SearchMatch[] | null>(null);
+  const [searchResults, setSearchResults] = useState<SearchMatch[] | null>(
+    null,
+  );
   const [searchedQuery, setSearchedQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [realtimeNotification, setRealtimeNotification] = useState<string | null>(null);
-  const [recentDrawsMap, setRecentDrawsMap] = useState<Record<string, StructuredDrawResult>>({});
+  const [realtimeNotification, setRealtimeNotification] = useState<
+    string | null
+  >(null);
+  const [recentDrawsMap, setRecentDrawsMap] = useState<
+    Record<string, StructuredDrawResult>
+  >({});
   const [heroSlideIndex, setHeroSlideIndex] = useState<number>(0);
-  const [latestPreviousDraw, setLatestPreviousDraw] = useState<StructuredDrawResult | null>(null);
+  const [latestPreviousDraw, setLatestPreviousDraw] =
+    useState<StructuredDrawResult | null>(null);
 
   const {
     register,
@@ -76,20 +88,33 @@ export default function HomePage() {
   });
 
   useEffect(() => {
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     const now = new Date();
     const currentDay = days[now.getDay()];
     setTodayDayName(currentDay);
-    const matched = WEEKLY_LOTTERIES.find((l) => l.day === currentDay) || WEEKLY_LOTTERIES[6];
+    const matched =
+      WEEKLY_LOTTERIES.find((l) => l.day === currentDay) || WEEKLY_LOTTERIES[6];
     setTodayLottery(matched);
 
     // Calculate IST time to determine default banner tab (Before 2:30 PM -> Previous Day Result, After 2:30 PM -> Today's Draw)
     try {
-      const timeStr = now.toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour12: false });
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        timeZone: "Asia/Kolkata",
+        hour12: false,
+      });
       const [hStr, mStr] = timeStr.split(":");
       const istHours = parseInt(hStr, 10);
       const istMinutes = parseInt(mStr, 10);
-      const isAfter230PM = istHours > 14 || (istHours === 14 && istMinutes >= 30);
+      const isAfter230PM =
+        istHours > 14 || (istHours === 14 && istMinutes >= 30);
       setHeroSlideIndex(isAfter230PM ? 0 : 1);
     } catch {
       setHeroSlideIndex(1);
@@ -113,11 +138,17 @@ export default function HomePage() {
       try {
         const res = await fetch("/api/draws?type=all");
         const json = await res.json();
-        if (json.success && Array.isArray(json.results) && json.results.length > 0) {
+        if (
+          json.success &&
+          Array.isArray(json.results) &&
+          json.results.length > 0
+        ) {
           const todayIsoDate = new Date().toISOString().split("T")[0];
           // Find the most recent draw result whose date is NOT today's date
           const prevDraw =
-            json.results.find((d: StructuredDrawResult) => d.draw_date !== todayIsoDate) ||
+            json.results.find(
+              (d: StructuredDrawResult) => d.draw_date !== todayIsoDate,
+            ) ||
             json.results[1] ||
             json.results[0];
           setLatestPreviousDraw(prevDraw);
@@ -147,11 +178,11 @@ export default function HomePage() {
         (payload) => {
           if (payload.new) {
             setRealtimeNotification(
-              `🎉 New Draw Result Published: ${payload.new.draw_name} (${payload.new.draw_code}) on ${payload.new.draw_date}`
+              `🎉 New Draw Result Published: ${payload.new.draw_name} (${payload.new.draw_code}) on ${payload.new.draw_date}`,
             );
             checkTodayData();
           }
-        }
+        },
       )
       .subscribe();
 
@@ -174,15 +205,23 @@ export default function HomePage() {
     setIsSearching(true);
     setSearchedQuery(data.ticketNumber);
 
-    const targetLotteryCode = heroSlideIndex === 0 ? todayLottery.code : (latestPreviousDraw?.lottery_code || "");
-    const targetDrawDate = heroSlideIndex === 1 ? latestPreviousDraw?.draw_date : undefined;
+    const targetLotteryCode =
+      heroSlideIndex === 0
+        ? todayLottery.code
+        : latestPreviousDraw?.lottery_code || "";
+    const targetDrawDate =
+      heroSlideIndex === 1 ? latestPreviousDraw?.draw_date : undefined;
 
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(data.ticketNumber.trim())}`);
+      const res = await fetch(
+        `/api/search?q=${encodeURIComponent(data.ticketNumber.trim())}`,
+      );
       const json = await res.json();
       if (json.success && Array.isArray(json.results)) {
         const filteredMatches = json.results.filter((m: SearchMatch) => {
-          const matchesCode = !targetLotteryCode || m.lottery_code.toLowerCase() === targetLotteryCode.toLowerCase();
+          const matchesCode =
+            !targetLotteryCode ||
+            m.lottery_code.toLowerCase() === targetLotteryCode.toLowerCase();
           const matchesDate = !targetDrawDate || m.draw_date === targetDrawDate;
           return matchesCode && matchesDate;
         });
@@ -205,7 +244,11 @@ export default function HomePage() {
 
   const getBadgeStyle = (day: string) => {
     if (day.toLowerCase() === todayDayName.toLowerCase()) {
-      return { bgcolor: "#E8F5E9", color: "#2E7D32", border: "1px solid #A5D6A7" };
+      return {
+        bgcolor: "#E8F5E9",
+        color: "#2E7D32",
+        border: "1px solid #A5D6A7",
+      };
     }
     if (day === "Saturday" || day === "Sunday") {
       return { bgcolor: "#FEF3C7", color: "#D97706" };
@@ -216,9 +259,16 @@ export default function HomePage() {
   const hasTodayResult = !!todayDrawResult;
 
   return (
-    <Container maxWidth={false} sx={{ py: { xs: 3, sm: 5, md: 6 }, px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
+    <Container
+      maxWidth={false}
+      sx={{ py: { xs: 3, sm: 5, md: 6 }, px: { xs: 2, sm: 3, md: 4, lg: 5 } }}
+    >
       {realtimeNotification && (
-        <Alert severity="success" sx={{ mb: 3, borderRadius: "12px" }} onClose={() => setRealtimeNotification(null)}>
+        <Alert
+          severity="success"
+          sx={{ mb: 3, borderRadius: "12px" }}
+          onClose={() => setRealtimeNotification(null)}
+        >
           {realtimeNotification}
         </Alert>
       )}
@@ -242,7 +292,18 @@ export default function HomePage() {
         }}
       >
         {/* Carousel Tab Switcher at Top of Hero Container */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3, flexWrap: "wrap", gap: 1.5, zIndex: 2, position: "relative" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 3,
+            flexWrap: "wrap",
+            gap: 1.5,
+            zIndex: 2,
+            position: "relative",
+          }}
+        >
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Button
               size="small"
@@ -285,26 +346,40 @@ export default function HomePage() {
                 },
               }}
             >
-              Yesterday&apos;s Result {latestPreviousDraw ? `(${latestPreviousDraw.draw_date})` : ""}
+              Yesterday&apos;s Result{" "}
+              {latestPreviousDraw ? `(${latestPreviousDraw.draw_date})` : ""}
             </Button>
           </Box>
 
           {/* Carousel Slide Indicators & Arrows */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 700 }}>
-              {heroSlideIndex === 0 ? "1 of 2: Today" : "2 of 2: Yesterday/Previous"}
+            <Typography
+              variant="caption"
+              sx={{ color: "#6B7280", fontWeight: 700 }}
+            >
+              {heroSlideIndex === 0
+                ? "1 of 2: Today"
+                : "2 of 2: Yesterday/Previous"}
             </Typography>
             <IconButton
               size="small"
               onClick={() => setHeroSlideIndex((prev) => (prev === 0 ? 1 : 0))}
-              sx={{ border: "1px solid #E5E7EB", bgcolor: "#FFFFFF", "&:hover": { bgcolor: "#F9FAFB" } }}
+              sx={{
+                border: "1px solid #E5E7EB",
+                bgcolor: "#FFFFFF",
+                "&:hover": { bgcolor: "#F9FAFB" },
+              }}
             >
               <ChevronLeftIcon fontSize="small" />
             </IconButton>
             <IconButton
               size="small"
               onClick={() => setHeroSlideIndex((prev) => (prev === 0 ? 1 : 0))}
-              sx={{ border: "1px solid #E5E7EB", bgcolor: "#FFFFFF", "&:hover": { bgcolor: "#F9FAFB" } }}
+              sx={{
+                border: "1px solid #E5E7EB",
+                bgcolor: "#FFFFFF",
+                "&:hover": { bgcolor: "#F9FAFB" },
+              }}
             >
               <ChevronRightIcon fontSize="small" />
             </IconButton>
@@ -327,11 +402,26 @@ export default function HomePage() {
                 display: { xs: "none", md: "block" },
               }}
             >
-              <Paper elevation={0} sx={{ p: 3, borderRadius: "20px", bgcolor: "#FFFFFF", mb: 2, border: "1px solid #E5E7EB" }}>
-                <Typography variant="subtitle1" sx={{ color: "#374151", fontWeight: 700 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: "20px",
+                  bgcolor: "#FFFFFF",
+                  mb: 2,
+                  border: "1px solid #E5E7EB",
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  sx={{ color: "#374151", fontWeight: 700 }}
+                >
                   കേരള ലോട്ടറി
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#D97706", fontWeight: 800, mt: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#D97706", fontWeight: 800, mt: 1 }}
+                >
                   #FFC107 ₹70 Laks
                 </Typography>
               </Paper>
@@ -341,15 +431,42 @@ export default function HomePage() {
               {/* Badge */}
               {hasTodayResult ? (
                 <Chip
-                  icon={<EmojiEventsIcon sx={{ fontSize: "14px !important", color: "#111827" }} />}
+                  icon={
+                    <EmojiEventsIcon
+                      sx={{ fontSize: "14px !important", color: "#111827" }}
+                    />
+                  }
                   label="Latest Published Result"
-                  sx={{ bgcolor: "#FFC107", color: "#111827", fontWeight: 800, fontSize: { xs: "0.7rem", sm: "0.75rem" }, borderRadius: "20px", mb: 2, px: 1, py: 0.25 }}
+                  sx={{
+                    bgcolor: "#FFC107",
+                    color: "#111827",
+                    fontWeight: 800,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                    borderRadius: "20px",
+                    mb: 2,
+                    px: 1,
+                    py: 0.25,
+                  }}
                 />
               ) : (
                 <Chip
-                  icon={<AccessTimeIcon sx={{ fontSize: "14px !important", color: "#B45309" }} />}
-                  label="Result Coming Soon (3:30 PM)"
-                  sx={{ bgcolor: "#FEF3C7", color: "#92400E", fontWeight: 800, fontSize: { xs: "0.7rem", sm: "0.75rem" }, borderRadius: "20px", mb: 2, px: 1, py: 0.25, border: "1px solid #FCD34D" }}
+                  icon={
+                    <AccessTimeIcon
+                      sx={{ fontSize: "14px !important", color: "#B45309" }}
+                    />
+                  }
+                  label="Result Coming Soon (3:10 PM)"
+                  sx={{
+                    bgcolor: "#FEF3C7",
+                    color: "#92400E",
+                    fontWeight: 800,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                    borderRadius: "20px",
+                    mb: 2,
+                    px: 1,
+                    py: 0.25,
+                    border: "1px solid #FCD34D",
+                  }}
                 />
               )}
 
@@ -359,7 +476,12 @@ export default function HomePage() {
                   fontWeight: 900,
                   color: "#111827",
                   mb: 0.5,
-                  fontSize: { xs: "1.75rem", sm: "2.6rem", md: "3.5rem", lg: "4.25rem" },
+                  fontSize: {
+                    xs: "1.75rem",
+                    sm: "2.6rem",
+                    md: "3.5rem",
+                    lg: "4.25rem",
+                  },
                   letterSpacing: "-0.02em",
                   lineHeight: 1.15,
                 }}
@@ -368,24 +490,53 @@ export default function HomePage() {
               </Typography>
 
               {hasTodayResult ? (
-                <Typography variant="h6" sx={{ color: "#0F5A24", fontWeight: 800, mb: 2, fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" } }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "#0F5A24",
+                    fontWeight: 800,
+                    mb: 2,
+                    fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
+                  }}
+                >
                   Drawn Today ({todayDrawResult.draw_date}), 3:00 PM
                 </Typography>
               ) : (
-                <Typography variant="h6" sx={{ color: "#D97706", fontWeight: 800, mb: 2, fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" } }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "#D97706",
+                    fontWeight: 800,
+                    mb: 2,
+                    fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
+                  }}
+                >
                   Draw Scheduled Today at 3:00 PM • Results Coming Soon
                 </Typography>
               )}
 
-              <Typography variant="body2" sx={{ color: "#4B5563", mb: 3, lineHeight: 1.6, fontSize: { xs: "0.875rem", sm: "1rem" }, maxWidth: 600 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#4B5563",
+                  mb: 3,
+                  lineHeight: 1.6,
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                  maxWidth: 600,
+                }}
+              >
                 {hasTodayResult
                   ? `The official results for the ${todayLottery.name} ${todayLottery.code} lottery (${todayDrawResult.draw_code}) have been published. Check your ticket number or view full prize breakdown below.`
-                  : `Today's official draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:30 PM.`}
+                  : `Today's official draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:10 PM.`}
               </Typography>
 
               {/* Action Row */}
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <Box component="form" onSubmit={handleSubmit(onSearchSubmit)} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                <Box
+                  component="form"
+                  onSubmit={handleSubmit(onSearchSubmit)}
+                  sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                >
                   <Paper
                     elevation={0}
                     sx={{
@@ -395,15 +546,31 @@ export default function HomePage() {
                       alignItems: "center",
                       gap: { xs: 1.25, sm: 1 },
                       bgcolor: "#FFFFFF",
-                      border: errors.ticketNumber ? "2px solid #DC2626" : "1px solid #E5E7EB",
+                      border: errors.ticketNumber
+                        ? "2px solid #DC2626"
+                        : "1px solid #E5E7EB",
                       borderRadius: "16px",
                       boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
                       maxWidth: 600,
                       width: "100%",
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", flex: 1, pl: { xs: 0.5, sm: 1.5 }, width: "100%" }}>
-                      <Box sx={{ color: "#6B7280", display: "flex", alignItems: "center" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        flex: 1,
+                        pl: { xs: 0.5, sm: 1.5 },
+                        width: "100%",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          color: "#6B7280",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
                         <ConfirmationNumberIcon fontSize="small" />
                       </Box>
                       <TextField
@@ -412,12 +579,19 @@ export default function HomePage() {
                         placeholder={
                           hasTodayResult
                             ? `Enter 6-digit ticket for ${todayLottery.name} (${todayLottery.code})...`
-                            : `Ticket checker activates at 3:30 PM once results are published`
+                            : `Ticket checker activates at 3:10 PM once results are published`
                         }
                         variant="standard"
                         fullWidth
                         slotProps={{ input: { disableUnderline: true } }}
-                        sx={{ ml: 1.5, mr: 1, input: { fontSize: { xs: "0.85rem", sm: "0.925rem" }, fontWeight: 500 } }}
+                        sx={{
+                          ml: 1.5,
+                          mr: 1,
+                          input: {
+                            fontSize: { xs: "0.85rem", sm: "0.925rem" },
+                            fontWeight: 500,
+                          },
+                        }}
                       />
                     </Box>
 
@@ -436,24 +610,49 @@ export default function HomePage() {
                         whiteSpace: "nowrap",
                         width: { xs: "100%", sm: "auto" },
                         fontSize: { xs: "0.875rem", sm: "0.95rem" },
-                        "&:hover": { bgcolor: hasTodayResult ? "#15803D" : "#9CA3AF" },
+                        "&:hover": {
+                          bgcolor: hasTodayResult ? "#15803D" : "#9CA3AF",
+                        },
                       }}
                     >
-                      {isSearching ? "Checking..." : hasTodayResult ? "Check Now" : "Result Coming Soon"}
+                      {isSearching
+                        ? "Checking..."
+                        : hasTodayResult
+                          ? "Check Now"
+                          : "Result Coming Soon"}
                     </Button>
                   </Paper>
 
                   {!hasTodayResult ? (
-                    <Typography variant="caption" sx={{ color: "#B45309", pl: 1, fontWeight: 600, display: "flex", alignItems: "center", gap: 0.5 }}>
-                      <AccessTimeIcon sx={{ fontSize: 14 }} /> Ticket checker for {todayLottery.name} ({todayLottery.code}) will be accessible at 3:30 PM once results are published.
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#B45309",
+                        pl: 1,
+                        fontWeight: 600,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                      }}
+                    >
+                      <AccessTimeIcon sx={{ fontSize: 14 }} /> Ticket checker
+                      for {todayLottery.name} ({todayLottery.code}) will be
+                      accessible at 3:10 PM once results are published.
                     </Typography>
                   ) : errors.ticketNumber ? (
-                    <Typography variant="caption" sx={{ color: "#DC2626", pl: 1.5, fontWeight: 600 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#DC2626", pl: 1.5, fontWeight: 600 }}
+                    >
                       {errors.ticketNumber.message}
                     </Typography>
                   ) : (
-                    <Typography variant="caption" sx={{ color: "#0F5A24", pl: 1, fontWeight: 600 }}>
-                      ✓ Live Checker active for {todayLottery.name} ({todayLottery.code}) draw result.
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#0F5A24", pl: 1, fontWeight: 600 }}
+                    >
+                      ✓ Live Checker active for {todayLottery.name} (
+                      {todayLottery.code}) draw result.
                     </Typography>
                   )}
                 </Box>
@@ -476,7 +675,10 @@ export default function HomePage() {
                         textAlign: "center",
                         justifyContent: "center",
                         fontSize: { xs: "0.825rem", sm: "0.95rem" },
-                        "&:hover": { bgcolor: "#E8F5E9", borderColor: "#0F5A24" },
+                        "&:hover": {
+                          bgcolor: "#E8F5E9",
+                          borderColor: "#0F5A24",
+                        },
                       }}
                     >
                       View More Details for {todayDrawResult.draw_date} Result
@@ -513,29 +715,65 @@ export default function HomePage() {
                 }}
               >
                 <Chip
-                  icon={<EmojiEventsIcon sx={{ fontSize: "14px !important", color: "#92400E" }} />}
+                  icon={
+                    <EmojiEventsIcon
+                      sx={{ fontSize: "14px !important", color: "#92400E" }}
+                    />
+                  }
                   label={`WINNING TICKET • ${latestPreviousDraw?.draw_date || "PREVIOUS"}`}
                   size="small"
-                  sx={{ bgcolor: "#FEF3C7", color: "#92400E", fontWeight: 800, fontSize: "0.725rem", borderRadius: "12px", mb: 1.5 }}
+                  sx={{
+                    bgcolor: "#FEF3C7",
+                    color: "#92400E",
+                    fontWeight: 800,
+                    fontSize: "0.725rem",
+                    borderRadius: "12px",
+                    mb: 1.5,
+                  }}
                 />
-                <Typography variant="caption" sx={{ color: "#B45309", fontWeight: 700, display: "block" }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#B45309", fontWeight: 700, display: "block" }}
+                >
                   1ST PRIZE WINNER TICKET
                 </Typography>
-                <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 900, color: "#92400E", mb: 1 }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontFamily: "monospace",
+                    fontWeight: 900,
+                    color: "#92400E",
+                    mb: 1,
+                  }}
+                >
                   {latestPreviousDraw?.first?.ticket || "N/A"}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#374151", fontWeight: 700 }}>
-                  Location: <strong>{latestPreviousDraw?.first?.location || "N/A"}</strong>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#374151", fontWeight: 700 }}
+                >
+                  Location:{" "}
+                  <strong>
+                    {latestPreviousDraw?.first?.location || "N/A"}
+                  </strong>
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}>
-                  Agent: <strong>{latestPreviousDraw?.first?.agent || "N/A"}</strong>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}
+                >
+                  Agent:{" "}
+                  <strong>{latestPreviousDraw?.first?.agent || "N/A"}</strong>
                 </Typography>
               </Paper>
             </Box>
 
             <Box sx={{ maxWidth: { xs: "100%", md: 650, lg: 750 } }}>
               <Chip
-                icon={<EmojiEventsIcon sx={{ fontSize: "14px !important", color: "#92400E" }} />}
+                icon={
+                  <EmojiEventsIcon
+                    sx={{ fontSize: "14px !important", color: "#92400E" }}
+                  />
+                }
                 label={`Previous Draw Result Published (${latestPreviousDraw?.draw_date || "Yesterday"})`}
                 sx={{
                   bgcolor: "#FEF3C7",
@@ -556,12 +794,18 @@ export default function HomePage() {
                   fontWeight: 900,
                   color: "#111827",
                   mb: 0.5,
-                  fontSize: { xs: "1.75rem", sm: "2.6rem", md: "3.5rem", lg: "4.25rem" },
+                  fontSize: {
+                    xs: "1.75rem",
+                    sm: "2.6rem",
+                    md: "3.5rem",
+                    lg: "4.25rem",
+                  },
                   letterSpacing: "-0.02em",
                   lineHeight: 1.15,
                 }}
               >
-                {latestPreviousDraw?.draw_name || "Kerala Lottery"} {latestPreviousDraw?.draw_code || ""}
+                {latestPreviousDraw?.draw_name || "Kerala Lottery"}{" "}
+                {latestPreviousDraw?.draw_code || ""}
               </Typography>
 
               <Typography
@@ -573,7 +817,8 @@ export default function HomePage() {
                   fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
                 }}
               >
-                Drawn on {latestPreviousDraw?.draw_date || "Previous Draw"}, 3:00 PM
+                Drawn on {latestPreviousDraw?.draw_date || "Previous Draw"},
+                3:00 PM
               </Typography>
 
               <Typography
@@ -586,12 +831,27 @@ export default function HomePage() {
                   maxWidth: 600,
                 }}
               >
-                Official published winning numbers breakdown for {latestPreviousDraw?.draw_name} ({latestPreviousDraw?.draw_code}) drawn on {latestPreviousDraw?.draw_date}. 1st Prize ticket: <strong>{latestPreviousDraw?.first?.ticket || "N/A"}</strong> ({latestPreviousDraw?.prizes?.amounts?.["1st"] || "₹70 Lakhs"}).
+                Official published winning numbers breakdown for{" "}
+                {latestPreviousDraw?.draw_name} ({latestPreviousDraw?.draw_code}
+                ) drawn on {latestPreviousDraw?.draw_date}. 1st Prize ticket:{" "}
+                <strong>{latestPreviousDraw?.first?.ticket || "N/A"}</strong> (
+                {latestPreviousDraw?.prizes?.amounts?.["1st"] || "₹70 Lakhs"}).
               </Typography>
 
               {/* Ticket Search Form for Previous Draw */}
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
-                <Box component="form" onSubmit={handleSubmit(onSearchSubmit)} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5,
+                  mb: 3,
+                }}
+              >
+                <Box
+                  component="form"
+                  onSubmit={handleSubmit(onSearchSubmit)}
+                  sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                >
                   <Paper
                     elevation={0}
                     sx={{
@@ -601,15 +861,31 @@ export default function HomePage() {
                       alignItems: "center",
                       gap: { xs: 1.25, sm: 1 },
                       bgcolor: "#FFFFFF",
-                      border: errors.ticketNumber ? "2px solid #DC2626" : "1px solid #FDE68A",
+                      border: errors.ticketNumber
+                        ? "2px solid #DC2626"
+                        : "1px solid #FDE68A",
                       borderRadius: "16px",
                       boxShadow: "0 2px 10px rgba(146, 64, 14, 0.08)",
                       maxWidth: 600,
                       width: "100%",
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", flex: 1, pl: { xs: 0.5, sm: 1.5 }, width: "100%" }}>
-                      <Box sx={{ color: "#92400E", display: "flex", alignItems: "center" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        flex: 1,
+                        pl: { xs: 0.5, sm: 1.5 },
+                        width: "100%",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          color: "#92400E",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
                         <ConfirmationNumberIcon fontSize="small" />
                       </Box>
                       <TextField
@@ -619,7 +895,14 @@ export default function HomePage() {
                         variant="standard"
                         fullWidth
                         slotProps={{ input: { disableUnderline: true } }}
-                        sx={{ ml: 1.5, mr: 1, input: { fontSize: { xs: "0.85rem", sm: "0.925rem" }, fontWeight: 500 } }}
+                        sx={{
+                          ml: 1.5,
+                          mr: 1,
+                          input: {
+                            fontSize: { xs: "0.85rem", sm: "0.925rem" },
+                            fontWeight: 500,
+                          },
+                        }}
                       />
                     </Box>
 
@@ -646,19 +929,34 @@ export default function HomePage() {
                   </Paper>
 
                   {errors.ticketNumber ? (
-                    <Typography variant="caption" sx={{ color: "#DC2626", pl: 1.5, fontWeight: 600 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#DC2626", pl: 1.5, fontWeight: 600 }}
+                    >
                       {errors.ticketNumber.message}
                     </Typography>
                   ) : (
-                    <Typography variant="caption" sx={{ color: "#92400E", pl: 1, fontWeight: 600 }}>
-                      ✓ Checking ticket against {latestPreviousDraw?.draw_name} ({latestPreviousDraw?.draw_code}) draw result from {latestPreviousDraw?.draw_date}.
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#92400E", pl: 1, fontWeight: 600 }}
+                    >
+                      ✓ Checking ticket against {latestPreviousDraw?.draw_name}{" "}
+                      ({latestPreviousDraw?.draw_code}) draw result from{" "}
+                      {latestPreviousDraw?.draw_date}.
                     </Typography>
                   )}
                 </Box>
               </Box>
 
               {latestPreviousDraw && (
-                <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
                   <Button
                     component={Link}
                     href={`/lottery/${latestPreviousDraw.lottery_code.toLowerCase()}/${encodeURIComponent(latestPreviousDraw.draw_date)}`}
@@ -703,26 +1001,47 @@ export default function HomePage() {
 
       {/* Weekly Lottery Schedule Section */}
       <Box id="schedule" sx={{ mb: 6 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, color: "#111827", mb: 0.5, fontSize: { xs: "1.35rem", sm: "1.875rem", lg: "2.25rem" } }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 800,
+            color: "#111827",
+            mb: 0.5,
+            fontSize: { xs: "1.35rem", sm: "1.875rem", lg: "2.25rem" },
+          }}
+        >
           Weekly Lottery Schedule
         </Typography>
-        <Typography variant="body1" sx={{ color: "#6B7280", mb: 3.5, fontSize: { xs: "0.875rem", sm: "1rem" } }}>
+        <Typography
+          variant="body1"
+          sx={{
+            color: "#6B7280",
+            mb: 3.5,
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+          }}
+        >
           Daily draws conducted by the Kerala State Lotteries Department.
         </Typography>
 
         <Grid container spacing={{ xs: 2, sm: 3 }}>
           {WEEKLY_LOTTERIES.map((item) => {
             const isFriday = item.day === "Friday";
-            const isActiveToday = item.day.toLowerCase() === todayDayName.toLowerCase();
+            const isActiveToday =
+              item.day.toLowerCase() === todayDayName.toLowerCase();
             const badgeStyle = getBadgeStyle(item.day);
 
             return (
-              <Grid size={{ xs: 12, sm: isFriday ? 12 : 6, md: isFriday ? 6 : 3 }} key={item.code}>
+              <Grid
+                size={{ xs: 12, sm: isFriday ? 12 : 6, md: isFriday ? 6 : 3 }}
+                key={item.code}
+              >
                 <Card
                   elevation={0}
                   sx={{
                     borderRadius: "16px",
-                    border: isActiveToday ? "2px solid #2E7D32" : "1px solid #E5E7EB",
+                    border: isActiveToday
+                      ? "2px solid #2E7D32"
+                      : "1px solid #E5E7EB",
                     bgcolor: "#FFFFFF",
                     boxShadow: isActiveToday
                       ? "0 6px 18px rgba(46, 125, 50, 0.12)"
@@ -730,7 +1049,8 @@ export default function HomePage() {
                     position: "relative",
                     overflow: "hidden",
                     height: "100%",
-                    transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
+                    transition:
+                      "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
                     "&:hover": {
                       transform: "translateY(-3px)",
                       borderColor: "#2E7D32",
@@ -753,12 +1073,34 @@ export default function HomePage() {
                       },
                     }}
                   >
-                    <ConfirmationNumberOutlinedIcon sx={{ fontSize: { xs: 65, sm: 90 } }} />
+                    <ConfirmationNumberOutlinedIcon
+                      sx={{ fontSize: { xs: 65, sm: 90 } }}
+                    />
                   </Box>
 
-                  <CardActionArea component={Link} href={`/lottery/${item.code.toLowerCase()}`} sx={{ height: "100%", p: 0.5 }}>
-                    <CardContent sx={{ p: { xs: 2.5, sm: 3 }, display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between", minHeight: 150 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
+                  <CardActionArea
+                    component={Link}
+                    href={`/lottery/${item.code.toLowerCase()}`}
+                    sx={{ height: "100%", p: 0.5 }}
+                  >
+                    <CardContent
+                      sx={{
+                        p: { xs: 2.5, sm: 3 },
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "100%",
+                        justifyContent: "space-between",
+                        minHeight: 150,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 2.5,
+                        }}
+                      >
                         <Chip
                           label={
                             isActiveToday
@@ -786,7 +1128,10 @@ export default function HomePage() {
                             alignItems: "center",
                             gap: 0.5,
                             transition: "color 0.15s ease",
-                            "&:hover": { color: "#15803D", textDecoration: "underline" },
+                            "&:hover": {
+                              color: "#15803D",
+                              textDecoration: "underline",
+                            },
                           }}
                         >
                           View Previous Results →
@@ -800,13 +1145,22 @@ export default function HomePage() {
                             fontWeight: 800,
                             color: isActiveToday ? "#1B5E20" : "#111827",
                             mb: 0.5,
-                            fontSize: isFriday ? { xs: "1.4rem", sm: "1.75rem" } : { xs: "1.15rem", sm: "1.25rem" },
+                            fontSize: isFriday
+                              ? { xs: "1.4rem", sm: "1.75rem" }
+                              : { xs: "1.15rem", sm: "1.25rem" },
                           }}
                         >
                           {item.name}
                         </Typography>
 
-                        <Typography variant="body2" sx={{ color: "#6B7280", fontWeight: 500, fontSize: "0.85rem" }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "#6B7280",
+                            fontWeight: 500,
+                            fontSize: "0.85rem",
+                          }}
+                        >
                           Code: {item.code}
                         </Typography>
 
@@ -828,18 +1182,35 @@ export default function HomePage() {
                                 zIndex: 1,
                               }}
                             >
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 0.75,
+                                }}
+                              >
                                 <Box
                                   sx={{
                                     width: 7,
                                     height: 7,
                                     borderRadius: "50%",
                                     bgcolor: latestDraw ? "#16A34A" : "#9CA3AF",
-                                    boxShadow: latestDraw ? "0 0 6px rgba(22, 163, 74, 0.4)" : "none",
+                                    boxShadow: latestDraw
+                                      ? "0 0 6px rgba(22, 163, 74, 0.4)"
+                                      : "none",
                                   }}
                                 />
-                                <Typography variant="caption" sx={{ color: "#374151", fontWeight: 700, fontSize: "0.78rem" }}>
-                                  {latestDraw ? `Prev Draw: ${latestDraw.draw_date}` : "Previous Results Available"}
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#374151",
+                                    fontWeight: 700,
+                                    fontSize: "0.78rem",
+                                  }}
+                                >
+                                  {latestDraw
+                                    ? `Prev Draw: ${latestDraw.draw_date}`
+                                    : "Previous Results Available"}
                                 </Typography>
                               </Box>
 
@@ -878,29 +1249,80 @@ export default function HomePage() {
         onClose={() => setOpenModal(false)}
         maxWidth="sm"
         fullWidth
-        slotProps={{ paper: { sx: { borderRadius: "16px", m: { xs: 2, sm: 3 } } } }}
+        slotProps={{
+          paper: { sx: { borderRadius: "16px", m: { xs: 2, sm: 3 } } },
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 800, color: "#0F5A24", display: "flex", alignItems: "center", gap: 1, fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
-          <CelebrationIcon sx={{ color: "#FFC107" }} /> Search Results for {heroSlideIndex === 0 ? `${todayLottery.name} (${todayLottery.code})` : `${latestPreviousDraw?.draw_name || "Previous Draw"} (${latestPreviousDraw?.draw_code || ""})`}: &quot;{searchedQuery}&quot;
+        <DialogTitle
+          sx={{
+            fontWeight: 800,
+            color: "#0F5A24",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            fontSize: { xs: "1.1rem", sm: "1.25rem" },
+          }}
+        >
+          <CelebrationIcon sx={{ color: "#FFC107" }} /> Search Results for{" "}
+          {heroSlideIndex === 0
+            ? `${todayLottery.name} (${todayLottery.code})`
+            : `${latestPreviousDraw?.draw_name || "Previous Draw"} (${latestPreviousDraw?.draw_code || ""})`}
+          : &quot;{searchedQuery}&quot;
         </DialogTitle>
         <DialogContent dividers>
           {searchResults && searchResults.length > 0 ? (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <Alert severity="success" sx={{ fontWeight: 700, borderRadius: "12px" }}>
-                🎉 CONGRATULATIONS! Matching winning ticket found in {heroSlideIndex === 0 ? todayLottery.name : (latestPreviousDraw?.draw_name || "lottery")} draw!
+              <Alert
+                severity="success"
+                sx={{ fontWeight: 700, borderRadius: "12px" }}
+              >
+                🎉 CONGRATULATIONS! Matching winning ticket found in{" "}
+                {heroSlideIndex === 0
+                  ? todayLottery.name
+                  : latestPreviousDraw?.draw_name || "lottery"}{" "}
+                draw!
               </Alert>
 
               {searchResults.map((match, idx) => (
-                <Paper key={idx} variant="outlined" sx={{ p: 2.5, borderRadius: "12px", bgcolor: "#F9FAFB", border: "1px solid #A5D6A7" }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#0F5A24" }}>
-                    {match.prize_tier} {match.prize_amount ? `(${match.prize_amount})` : ""}
+                <Paper
+                  key={idx}
+                  variant="outlined"
+                  sx={{
+                    p: 2.5,
+                    borderRadius: "12px",
+                    bgcolor: "#F9FAFB",
+                    border: "1px solid #A5D6A7",
+                  }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 800, color: "#0F5A24" }}
+                  >
+                    {match.prize_tier}{" "}
+                    {match.prize_amount ? `(${match.prize_amount})` : ""}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: "#374151", mt: 0.5 }}>
-                    <strong>Draw:</strong> {match.draw_name} ({match.draw_code}) on {match.draw_date}
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#374151", mt: 0.5 }}
+                  >
+                    <strong>Draw:</strong> {match.draw_name} ({match.draw_code})
+                    on {match.draw_date}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: "#374151", mt: 0.5 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#374151", mt: 0.5 }}
+                  >
                     <strong>Matching Ticket Number:</strong>{" "}
-                    <Chip label={match.ticket_matched} size="small" color="primary" sx={{ fontWeight: 700, fontFamily: "monospace", borderRadius: "8px" }} />
+                    <Chip
+                      label={match.ticket_matched}
+                      size="small"
+                      color="primary"
+                      sx={{
+                        fontWeight: 700,
+                        fontFamily: "monospace",
+                        borderRadius: "8px",
+                      }}
+                    />
                   </Typography>
 
                   <Button
@@ -917,16 +1339,28 @@ export default function HomePage() {
           ) : (
             <Box sx={{ py: 3, textAlign: "center" }}>
               <Typography variant="h6" sx={{ color: "#4B5563", mb: 1 }}>
-                No Winning Match Found for {heroSlideIndex === 0 ? `${todayLottery.name} (${todayLottery.code})` : `${latestPreviousDraw?.draw_name || "Previous Draw"} (${latestPreviousDraw?.draw_code || ""})`}
+                No Winning Match Found for{" "}
+                {heroSlideIndex === 0
+                  ? `${todayLottery.name} (${todayLottery.code})`
+                  : `${latestPreviousDraw?.draw_name || "Previous Draw"} (${latestPreviousDraw?.draw_code || ""})`}
               </Typography>
               <Typography variant="body2" sx={{ color: "#6B7280" }}>
-                Ticket &quot;{searchedQuery}&quot; did not match any winning ticket for {heroSlideIndex === 0 ? `${todayLottery.name} (${todayLottery.code})` : `${latestPreviousDraw?.draw_name} (${latestPreviousDraw?.draw_code}) draw from ${latestPreviousDraw?.draw_date}`}. Please double-check your ticket number.
+                Ticket &quot;{searchedQuery}&quot; did not match any winning
+                ticket for{" "}
+                {heroSlideIndex === 0
+                  ? `${todayLottery.name} (${todayLottery.code})`
+                  : `${latestPreviousDraw?.draw_name} (${latestPreviousDraw?.draw_code}) draw from ${latestPreviousDraw?.draw_date}`}
+                . Please double-check your ticket number.
               </Typography>
             </Box>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenModal(false)} variant="contained" sx={{ bgcolor: "#0F5A24", borderRadius: "8px" }}>
+          <Button
+            onClick={() => setOpenModal(false)}
+            variant="contained"
+            sx={{ bgcolor: "#0F5A24", borderRadius: "8px" }}
+          >
             Close
           </Button>
         </DialogActions>
