@@ -389,16 +389,16 @@ export default function HomePage() {
         {/* SLIDE 0: TODAY'S DRAW */}
         {heroSlideIndex === 0 && (
           <Box sx={{ width: "100%", position: "relative", zIndex: 1 }}>
-            {/* Winner Details Card on Right (When Today's Winner Result is Available) */}
+            {/* Winner Details Card on Right (When Today's Winner Result is Available - Desktop Only) */}
             {hasTodayResult && todayDrawResult ? (
               <Box
                 sx={{
-                  display: { xs: "none", md: "block" },
+                  display: { xs: "none", lg: "block" },
                   position: "absolute",
-                  right: { md: "20px", lg: "40px" },
+                  right: { lg: "20px", xl: "40px" },
                   top: "50%",
                   transform: "translateY(-50%)",
-                  width: { md: 340, lg: 380 },
+                  width: { lg: 350, xl: 380 },
                   zIndex: 2,
                 }}
               >
@@ -485,13 +485,13 @@ export default function HomePage() {
               <Box
                 sx={{
                   position: "absolute",
-                  right: { sm: "10px", md: "30px", lg: "50px" },
+                  right: { lg: "20px", xl: "50px" },
                   top: "50%",
                   transform: "translateY(-50%)",
-                  width: { sm: 320, md: 400, lg: 450 },
+                  width: { lg: 350, xl: 420 },
                   opacity: 0.35,
                   pointerEvents: "none",
-                  display: { xs: "none", md: "block" },
+                  display: { xs: "none", lg: "block" },
                 }}
               >
                 <Paper
@@ -520,7 +520,7 @@ export default function HomePage() {
               </Box>
             )}
 
-            <Box sx={{ maxWidth: { xs: "100%", md: 650, lg: 750 } }}>
+            <Box sx={{ maxWidth: { xs: "100%", lg: 650, xl: 720 } }}>
               {/* Badge */}
               {hasTodayResult ? (
                 <Chip
@@ -1116,218 +1116,121 @@ export default function HomePage() {
           Daily draws conducted by the Kerala State Lotteries Department.
         </Typography>
 
-        <Grid container spacing={{ xs: 2, sm: 3 }}>
+        <Grid container spacing={{ xs: 2.5, sm: 3 }}>
           {WEEKLY_LOTTERIES.map((item) => {
-            const isFriday = item.day === "Friday";
-            const isActiveToday =
-              item.day.toLowerCase() === todayDayName.toLowerCase();
+            const isActiveToday = item.day.toLowerCase() === todayDayName.toLowerCase();
             const badgeStyle = getBadgeStyle(item.day);
+            const latestDraw = recentDrawsMap[item.code];
 
             return (
               <Grid
-                size={{ xs: 12, sm: isFriday ? 12 : 6, md: isFriday ? 6 : 3 }}
+                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                 key={item.code}
               >
                 <Card
                   elevation={0}
                   sx={{
                     borderRadius: "16px",
-                    border: isActiveToday
-                      ? "2px solid #2E7D32"
-                      : "1px solid #E5E7EB",
+                    border: isActiveToday ? "2px solid #0F5A24" : "1px solid #E5E7EB",
                     bgcolor: "#FFFFFF",
                     boxShadow: isActiveToday
-                      ? "0 6px 18px rgba(46, 125, 50, 0.12)"
-                      : "0 2px 8px rgba(0,0,0,0.02)",
+                      ? "0 8px 22px rgba(15, 90, 36, 0.12)"
+                      : "0 2px 10px rgba(0,0,0,0.03)",
                     position: "relative",
                     overflow: "hidden",
                     height: "100%",
-                    transition:
-                      "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    transition: "all 0.2s ease-in-out",
                     "&:hover": {
                       transform: "translateY(-3px)",
-                      borderColor: "#2E7D32",
-                      boxShadow: "0 8px 20px rgba(46, 125, 50, 0.15)",
+                      borderColor: "#0F5A24",
+                      boxShadow: "0 10px 24px rgba(15, 90, 36, 0.16)",
                     },
                   }}
                 >
-                  {/* Faint Background Ticket Watermark Icon: On mobile -> All cards; On Web -> Friday wide card */}
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      right: { xs: 15, sm: 20 },
-                      bottom: { xs: 12, sm: 15 },
-                      color: "#E5E7EB",
-                      opacity: { xs: 0.5, sm: 0.7 },
-                      pointerEvents: "none",
-                      display: {
-                        xs: "block",
-                        sm: isFriday ? "block" : "none",
-                      },
-                    }}
-                  >
-                    <ConfirmationNumberOutlinedIcon
-                      sx={{ fontSize: { xs: 65, sm: 90 } }}
-                    />
-                  </Box>
-
                   <CardActionArea
                     component={Link}
                     href={`/lottery/${item.code.toLowerCase()}`}
-                    sx={{ height: "100%", p: 0.5 }}
+                    sx={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent: "space-between", p: 0 }}
                   >
-                    <CardContent
-                      sx={{
-                        p: { xs: 2.5, sm: 3 },
-                        display: "flex",
-                        flexDirection: "column",
-                        height: "100%",
-                        justifyContent: "space-between",
-                        minHeight: 150,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mb: 2.5,
-                        }}
-                      >
+                    <CardContent sx={{ p: 2.5, width: "100%" }}>
+                      {/* Top Row: Day Status Chip & Code Pill */}
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                         <Chip
                           label={
                             isActiveToday
                               ? hasTodayResult
                                 ? `${item.day} • Published`
-                                : `${item.day} • Coming Soon`
+                                : `${item.day} • Draws Today`
                               : item.day
                           }
                           size="small"
                           sx={{
                             ...badgeStyle,
-                            fontWeight: 700,
-                            fontSize: "0.75rem",
-                            borderRadius: "16px",
+                            fontWeight: 800,
+                            fontSize: "0.725rem",
+                            borderRadius: "12px",
                             px: 1,
                           }}
                         />
-                        <Typography
-                          variant="caption"
+
+                        <Chip
+                          label={item.code}
+                          size="small"
                           sx={{
-                            color: "#0F5A24",
-                            fontWeight: 800,
-                            fontSize: "0.78rem",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 0.5,
-                            transition: "color 0.15s ease",
-                            "&:hover": {
-                              color: "#15803D",
-                              textDecoration: "underline",
-                            },
+                            fontWeight: 900,
+                            bgcolor: "#E0F2FE",
+                            color: "#0369A1",
+                            borderRadius: "8px",
+                            fontSize: "0.725rem",
+                            height: 22,
+                            px: 0.5,
                           }}
-                        >
-                          View Previous Results →
-                        </Typography>
+                        />
                       </Box>
 
-                      <Box sx={{ zIndex: 1 }}>
-                        <Typography
-                          variant="h5"
-                          sx={{
-                            fontWeight: 800,
-                            color: isActiveToday ? "#1B5E20" : "#111827",
-                            mb: 0.5,
-                            fontSize: isFriday
-                              ? { xs: "1.4rem", sm: "1.75rem" }
-                              : { xs: "1.15rem", sm: "1.25rem" },
-                          }}
-                        >
-                          {item.name}
-                        </Typography>
+                      {/* Main Title & Draw Time */}
+                      <Typography variant="h5" sx={{ fontWeight: 900, color: isActiveToday ? "#0F5A24" : "#111827", mb: 0.5, fontSize: "1.25rem" }}>
+                        {item.name}
+                      </Typography>
 
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#6B7280",
-                            fontWeight: 500,
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          Code: {item.code}
-                        </Typography>
+                      <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600, display: "block", mb: 2 }}>
+                        Official Draw: 3:00 PM
+                      </Typography>
 
-                        {/* Previous Day/Draw Result Indicator */}
-                        {(() => {
-                          const latestDraw = recentDrawsMap[item.code];
-                          return (
-                            <Box
-                              sx={{
-                                mt: 2,
-                                pt: 1.25,
-                                borderTop: "1px solid #F3F4F6",
-                                display: "flex",
-                                flexDirection: "row",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                flexWrap: "wrap",
-                                gap: 1,
-                                zIndex: 1,
-                              }}
-                            >
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 0.75,
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    width: 7,
-                                    height: 7,
-                                    borderRadius: "50%",
-                                    bgcolor: latestDraw ? "#16A34A" : "#9CA3AF",
-                                    boxShadow: latestDraw
-                                      ? "0 0 6px rgba(22, 163, 74, 0.4)"
-                                      : "none",
-                                  }}
-                                />
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: "#374151",
-                                    fontWeight: 700,
-                                    fontSize: "0.78rem",
-                                  }}
-                                >
-                                  {latestDraw
-                                    ? `Prev Draw: ${latestDraw.draw_date}`
-                                    : "Previous Results Available"}
-                                </Typography>
-                              </Box>
-
-                              {latestDraw?.first?.ticket && (
-                                <Chip
-                                  label={`1st: ${latestDraw.first.ticket}`}
-                                  size="small"
-                                  sx={{
-                                    height: 22,
-                                    fontSize: "0.72rem",
-                                    fontFamily: "monospace",
-                                    fontWeight: 800,
-                                    bgcolor: "#FEF3C7",
-                                    color: "#92400E",
-                                    border: "1px solid #FDE68A",
-                                    borderRadius: "6px",
-                                  }}
-                                />
-                              )}
-                            </Box>
-                          );
-                        })()}
-                      </Box>
+                      {/* Previous Draw / 1st Prize Winner Highlight Box */}
+                      {latestDraw ? (
+                        <Box sx={{ bgcolor: "#FEF3C7", p: 1.5, borderRadius: "10px", border: "1px solid #FDE68A" }}>
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+                            <Typography variant="caption" sx={{ color: "#B45309", fontWeight: 800, fontSize: "0.68rem" }}>
+                              LATEST 1ST PRIZE
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: "#B45309", fontWeight: 700, fontSize: "0.68rem" }}>
+                              {latestDraw.draw_date}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body1" sx={{ fontFamily: "monospace", fontWeight: 900, color: "#92400E", letterSpacing: "0.03em" }}>
+                            {latestDraw.first?.ticket || "N/A"}
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <Box sx={{ bgcolor: "#F9FAFB", p: 1.5, borderRadius: "10px", border: "1px solid #F3F4F6" }}>
+                          <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600, display: "block" }}>
+                            Archive Available • Daily 3:10 PM Updates
+                          </Typography>
+                        </Box>
+                      )}
                     </CardContent>
+
+                    {/* Bottom Action Footer */}
+                    <Box sx={{ px: 2.5, py: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #F3F4F6", bgcolor: "#FAFAFA" }}>
+                      <Typography variant="caption" sx={{ color: "#0F5A24", fontWeight: 800, fontSize: "0.78rem" }}>
+                        View Archives & Results
+                      </Typography>
+                      <ArrowForwardIcon sx={{ color: "#0F5A24", fontSize: 16 }} />
+                    </Box>
                   </CardActionArea>
                 </Card>
               </Grid>
