@@ -20,7 +20,6 @@ import Divider from "@mui/material/Divider";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import HomeIcon from "@mui/icons-material/Home";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CloseIcon from "@mui/icons-material/Close";
@@ -42,11 +41,6 @@ export default function Navbar() {
       icon: <CalendarMonthIcon />,
     },
     { label: "Ticket Checker", href: "/search", icon: <SearchIcon /> },
-    {
-      label: "Admin Control",
-      href: "/admin",
-      icon: <AdminPanelSettingsIcon />,
-    },
   ];
 
   return (
@@ -159,22 +153,6 @@ export default function Navbar() {
               }}
             >
               Winning Ticket Checker
-            </Button>
-            <Button
-              component={Link}
-              href="/admin"
-              variant="outlined"
-              startIcon={<AdminPanelSettingsIcon />}
-              sx={{
-                ml: 1,
-                borderRadius: "8px",
-                fontWeight: 700,
-                borderColor: "#0F5A24",
-                color: "#0F5A24",
-                "&:hover": { bgcolor: "#E8F5E9", borderColor: "#0F5A24" },
-              }}
-            >
-              Admin
             </Button>
           </Box>
 
