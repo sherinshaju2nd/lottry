@@ -1,12 +1,13 @@
--- Enable Realtime for draw_results table in Supabase
--- This allows Web & Mobile apps to listen to instant postgres_changes when cron job updates results
+-- Safely ensure draw_results is in supabase_realtime publication
+-- Catches duplicate_object exception (42710) if already added
 
 DO $$
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'draw_results'
-  ) THEN
+  BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE draw_results;
-  END IF;
+  EXCEPTION
+    WHEN duplicate_object THEN
+      -- Already member of publication "supabase_realtime"
+      RAISE NOTICE 'Table draw_results is already in supabase_realtime publication';
+  END;
 END $$;
