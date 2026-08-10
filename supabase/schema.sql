@@ -57,3 +57,28 @@ ON CONFLICT (code) DO UPDATE SET
   name = EXCLUDED.name,
   day = EXCLUDED.day,
   draw_time = EXCLUDED.draw_time;
+
+-- 6. Dynamic App Configuration Table (Allows easy URL changes in the future)
+CREATE TABLE IF NOT EXISTS public.app_config (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.app_config ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access on app_config" ON public.app_config
+  FOR SELECT USING (true);
+
+INSERT INTO public.app_config (key, value)
+VALUES 
+  ('app_url', 'https://lottry-fawn.vercel.app'),
+  ('cron_secret', 'kerala_lottery_cron_secret_2026')
+ON CONFLICT (key) DO UPDATE SET
+  value = EXCLUDED.value,
+  updated_at = NOW();
+
+-- 7. Supabase pg_cron Setup
+-- For setting up automated lottery sync schedules (3:10 PM, 3:20 PM, 3:30 PM, 3:45 PM, 4:00 PM, 4:15 PM, 4:30 PM, 5:00 PM IST),
+-- see the dedicated script: supabase/cron_setup.sql
+

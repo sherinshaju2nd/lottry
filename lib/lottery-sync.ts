@@ -9,7 +9,8 @@ export async function fetchAndSyncLatestLottery(): Promise<{
   const timeoutId = setTimeout(() => controller.abort(), 10000);
 
   try {
-    const res = await fetch("https://indialotteryapi.com/wp-json/klr/v1/latest", {
+    const apiUrl = process.env.LOTTERY_API_URL || "https://indialotteryapi.com/wp-json/klr/v1/latest";
+    const res = await fetch(apiUrl, {
       cache: "no-store",
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
