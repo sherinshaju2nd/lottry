@@ -332,33 +332,33 @@ export default function AdvancedSearchPage() {
   );
 
   return (
-    <Container maxWidth="md" sx={{ py: 6 }}>
+    <Container maxWidth="md" sx={{ py: { xs: 3, sm: 5, md: 6 }, px: { xs: 2, sm: 3, md: 4 } }}>
       {/* Page Title & Watchlist Counter Bar */}
-      <Box sx={{ mb: 4, textAlign: "center" }}>
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 1.5 }}>
+      <Box sx={{ mb: { xs: 3, sm: 4 }, textAlign: "center" }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
           <Chip
             icon={<ConfirmationNumberIcon sx={{ fontSize: "14px !important", color: "#0F5A24" }} />}
             label="Kerala State Lotteries Official Ticket Checker"
-            sx={{ bgcolor: "#E8F5E9", color: "#0F5A24", fontWeight: 800, px: 1, borderRadius: "20px" }}
+            sx={{ bgcolor: "#E8F5E9", color: "#0F5A24", fontWeight: 800, px: 1, borderRadius: "20px", fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
           />
           <Chip
             icon={<StarIcon sx={{ fontSize: "14px !important", color: "#FFC107" }} />}
             label={`Watchlist (${watchlist.length})`}
             onClick={() => setDrawerOpen(true)}
-            sx={{ bgcolor: "#FEF3C7", color: "#92400E", fontWeight: 800, cursor: "pointer", borderRadius: "20px" }}
+            sx={{ bgcolor: "#FEF3C7", color: "#92400E", fontWeight: 800, cursor: "pointer", borderRadius: "20px", fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
           />
         </Box>
 
-        <Typography variant="h3" sx={{ fontWeight: 900, color: "#0F5A24", mb: 1, fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.6rem" } }}>
+        <Typography variant="h3" sx={{ fontWeight: 900, color: "#0F5A24", mb: 1, fontSize: { xs: "1.5rem", sm: "2.1rem", md: "2.5rem" } }}>
           Kerala Lottery Ticket Result Checker
         </Typography>
-        <Typography variant="body1" sx={{ color: "#4B5563", maxWidth: 640, mx: "auto" }}>
+        <Typography variant="body1" sx={{ color: "#4B5563", maxWidth: 640, mx: "auto", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
           Verify your ticket number against official published Kerala Lottery results. Search single tickets, batch bundles, or scan photos.
         </Typography>
       </Box>
 
       {/* Main Search Container */}
-      <Paper elevation={0} sx={{ p: { xs: 3, sm: 4 }, borderRadius: "16px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", mb: 6, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3.5, md: 4 }, borderRadius: "16px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", mb: 6, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
         {/* Mode Switcher: Single vs Batch */}
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
           <Tabs
@@ -370,10 +370,13 @@ export default function AdvancedSearchPage() {
               setBatchError(null);
               setRangeError(null);
             }}
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
             textColor="primary"
             indicatorColor="primary"
             sx={{
-              "& .MuiTab-root": { fontWeight: 800, textTransform: "none", fontSize: "0.95rem" },
+              "& .MuiTab-root": { fontWeight: 800, textTransform: "none", fontSize: { xs: "0.85rem", sm: "0.95rem" } },
               "& .Mui-selected": { color: "#0F5A24" },
               "& .MuiTabs-indicator": { bgcolor: "#0F5A24", height: 3 },
             }}

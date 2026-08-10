@@ -156,7 +156,7 @@ export default function AdminDashboardPage() {
             <TableSkeleton rows={5} />
           </Box>
         ) : draws.length > 0 ? (
-          <TableContainer>
+          <TableContainer sx={{ width: "100%", overflowX: "auto", display: "block" }}>
             <Table>
               <TableHead sx={{ bgcolor: "#F3F4F6" }}>
                 <TableRow>

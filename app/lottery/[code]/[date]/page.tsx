@@ -332,16 +332,16 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
   ] as const;
 
   return (
-    <Box sx={{ bgcolor: "#F9FAFB", color: "#111827", minHeight: "100vh", py: 6 }}>
+    <Box sx={{ bgcolor: "#F9FAFB", color: "#111827", minHeight: "100vh", py: { xs: 3, sm: 5, md: 6 } }}>
       <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
         {/* Navigation Bar, Date Selector & Export Actions */}
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 4 }}>
-          <Box sx={{ display: "flex", gap: 1.5 }}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Button
               component={Link}
               href={`/lottery/${codeParam.toLowerCase()}`}
               startIcon={<ArrowBackIcon />}
-              sx={{ color: "#4B5563", fontWeight: 700, borderRadius: "4px", "&:hover": { color: "#2E7D32" } }}
+              sx={{ color: "#4B5563", fontWeight: 700, borderRadius: "6px", "&:hover": { color: "#2E7D32" } }}
             >
               Back to {lotteryInfo.name} Archives
             </Button>
@@ -349,15 +349,15 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
               component={Link}
               href="/"
               startIcon={<FormatListNumberedIcon />}
-              sx={{ color: "#4B5563", fontWeight: 700, borderRadius: "4px", "&:hover": { color: "#2E7D32" } }}
+              sx={{ color: "#4B5563", fontWeight: 700, borderRadius: "6px", "&:hover": { color: "#2E7D32" } }}
             >
               Schedule
             </Button>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap", width: { xs: "100%", sm: "auto" } }}>
             {availableDates.length > 0 && (
-              <FormControl size="small" sx={{ minWidth: 200, bgcolor: "#FFFFFF", borderRadius: "6px" }}>
+              <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 200 }, bgcolor: "#FFFFFF", borderRadius: "6px" }}>
                 <InputLabel sx={{ color: "#6B7280" }}>Select Draw Date</InputLabel>
                 <Select
                   value={selectedDate}
@@ -389,6 +389,7 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                     borderRadius: "6px",
                     px: 2.5,
                     py: 1,
+                    width: { xs: "100%", sm: "auto" },
                     "&:hover": { bgcolor: "#15803D" },
                   }}
                 >

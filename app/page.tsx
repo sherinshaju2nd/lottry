@@ -389,43 +389,136 @@ export default function HomePage() {
         {/* SLIDE 0: TODAY'S DRAW */}
         {heroSlideIndex === 0 && (
           <Box sx={{ width: "100%", position: "relative", zIndex: 1 }}>
-            {/* Subtle Faded Graphic on Right */}
-            <Box
-              sx={{
-                position: "absolute",
-                right: { sm: "10px", md: "30px", lg: "50px" },
-                top: "50%",
-                transform: "translateY(-50%)",
-                width: { sm: 320, md: 400, lg: 450 },
-                opacity: 0.35,
-                pointerEvents: "none",
-                display: { xs: "none", md: "block" },
-              }}
-            >
-              <Paper
-                elevation={0}
+            {/* Winner Details Card on Right (When Today's Winner Result is Available) */}
+            {hasTodayResult && todayDrawResult ? (
+              <Box
                 sx={{
-                  p: 3,
-                  borderRadius: "20px",
-                  bgcolor: "#FFFFFF",
-                  mb: 2,
-                  border: "1px solid #E5E7EB",
+                  display: { xs: "none", md: "block" },
+                  position: "absolute",
+                  right: { md: "20px", lg: "40px" },
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: { md: 340, lg: 380 },
+                  zIndex: 2,
                 }}
               >
-                <Typography
-                  variant="subtitle1"
-                  sx={{ color: "#374151", fontWeight: 700 }}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: "20px",
+                    bgcolor: "#FFFFFF",
+                    border: "2px solid #2E7D32",
+                    boxShadow: "0 10px 30px rgba(46, 125, 50, 0.15)",
+                  }}
                 >
-                  കേരള ലോട്ടറി
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#D97706", fontWeight: 800, mt: 1 }}
+                  <Chip
+                    icon={
+                      <EmojiEventsIcon
+                        sx={{ fontSize: "14px !important", color: "#1B5E20" }}
+                      />
+                    }
+                    label={`WINNING TICKET • ${todayDrawResult.draw_date}`}
+                    size="small"
+                    sx={{
+                      bgcolor: "#DCFCE7",
+                      color: "#15803D",
+                      fontWeight: 800,
+                      fontSize: "0.725rem",
+                      borderRadius: "12px",
+                      mb: 1.5,
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#15803D", fontWeight: 800, display: "block" }}
+                  >
+                    1ST PRIZE WINNER TICKET ({todayDrawResult.prizes?.amounts?.["1st"] || "₹70 Lakhs"})
+                  </Typography>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontFamily: "monospace",
+                      fontWeight: 900,
+                      color: "#0F5A24",
+                      mb: 1,
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    {todayDrawResult.first?.ticket || "N/A"}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#374151", fontWeight: 700 }}
+                  >
+                    Location: <strong>{todayDrawResult.first?.location || "N/A"}</strong>
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}
+                  >
+                    Agent: <strong>{todayDrawResult.first?.agent || "N/A"}</strong>
+                  </Typography>
+
+                  <Button
+                    component={Link}
+                    href={`/lottery/${todayDrawResult.lottery_code.toLowerCase()}/${encodeURIComponent(todayDrawResult.draw_date)}`}
+                    size="small"
+                    variant="outlined"
+                    fullWidth
+                    sx={{
+                      mt: 2,
+                      borderRadius: "10px",
+                      borderColor: "#2E7D32",
+                      color: "#2E7D32",
+                      fontWeight: 800,
+                      fontSize: "0.8rem",
+                      "&:hover": { bgcolor: "#E8F5E9", borderColor: "#1B5E20" },
+                    }}
+                  >
+                    View Full Prize List →
+                  </Button>
+                </Paper>
+              </Box>
+            ) : (
+              /* Faded Preview Card on Right (When Result Not Yet Published) */
+              <Box
+                sx={{
+                  position: "absolute",
+                  right: { sm: "10px", md: "30px", lg: "50px" },
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: { sm: 320, md: 400, lg: 450 },
+                  opacity: 0.35,
+                  pointerEvents: "none",
+                  display: { xs: "none", md: "block" },
+                }}
+              >
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: "20px",
+                    bgcolor: "#FFFFFF",
+                    mb: 2,
+                    border: "1px solid #E5E7EB",
+                  }}
                 >
-                  #FFC107 ₹70 Laks
-                </Typography>
-              </Paper>
-            </Box>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ color: "#374151", fontWeight: 700 }}
+                  >
+                    കേരള ലോട്ടറി
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#D97706", fontWeight: 800, mt: 1 }}
+                  >
+                    #FFC107 ₹70 Laks
+                  </Typography>
+                </Paper>
+              </Box>
+            )}
 
             <Box sx={{ maxWidth: { xs: "100%", md: 650, lg: 750 } }}>
               {/* Badge */}

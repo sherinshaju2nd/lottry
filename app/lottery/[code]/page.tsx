@@ -119,7 +119,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
   const paginatedDraws = filteredDraws.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <Box sx={{ bgcolor: "#F9FAFB", color: "#111827", minHeight: "100vh", py: 6 }}>
+    <Box sx={{ bgcolor: "#F9FAFB", color: "#111827", minHeight: "100vh", py: { xs: 3, sm: 5, md: 6 } }}>
       <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -133,11 +133,11 @@ export default function LotteryDetailsPage({ params }: PageProps) {
           </Button>
 
           <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
-            <Box>
-              <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", fontSize: { xs: "1.875rem", sm: "2.25rem", md: "2.5rem" } }}>
+            <Box sx={{ maxWidth: { xs: "100%", md: "70%" } }}>
+              <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", fontSize: { xs: "1.4rem", sm: "2rem", md: "2.5rem" } }}>
                 {lotteryInfo.name} ({lotteryInfo.code}) Result Today & Archives
               </Typography>
-              <Typography variant="body1" sx={{ color: "#6B7280", mt: 0.5 }}>
+              <Typography variant="body1" sx={{ color: "#6B7280", mt: 0.5, fontSize: { xs: "0.85rem", sm: "1rem" } }}>
                 Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time: <strong>3:00 PM</strong> | Total Draws: <strong>{filteredDraws.length}</strong>
               </Typography>
             </Box>
@@ -147,12 +147,12 @@ export default function LotteryDetailsPage({ params }: PageProps) {
               exclusive
               onChange={handleViewModeChange}
               size="small"
-              sx={{ bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: "4px" }}
+              sx={{ bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: "4px", width: { xs: "100%", sm: "auto" } }}
             >
-              <ToggleButton value="table" sx={{ px: 2, fontWeight: 700, "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" } }}>
+              <ToggleButton value="table" sx={{ px: 2, py: 1, flex: 1, fontWeight: 700, "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" } }}>
                 <ViewListIcon fontSize="small" sx={{ mr: 1 }} /> Table View
               </ToggleButton>
-              <ToggleButton value="grid" sx={{ px: 2, fontWeight: 700, "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" } }}>
+              <ToggleButton value="grid" sx={{ px: 2, py: 1, flex: 1, fontWeight: 700, "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" } }}>
                 <ViewModuleIcon fontSize="small" sx={{ mr: 1 }} /> Grid View
               </ToggleButton>
             </ToggleButtonGroup>
@@ -160,7 +160,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
         </Box>
 
         {/* Filter Bar */}
-        <Paper elevation={0} sx={{ p: 2.5, mb: 4, borderRadius: "4px", border: "1px solid #E5E7EB", bgcolor: "#FFFFFF" }}>
+        <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5 }, mb: 4, borderRadius: "8px", border: "1px solid #E5E7EB", bgcolor: "#FFFFFF" }}>
           <Grid container spacing={2} sx={{ alignItems: "center" }}>
             <Grid size={{ xs: 12, sm: 8, md: 6 }}>
               <TextField
@@ -199,8 +199,8 @@ export default function LotteryDetailsPage({ params }: PageProps) {
           <>
             {/* Table View (Default with Row Click Navigation) */}
             {viewMode === "table" && (
-              <Paper elevation={0} sx={{ borderRadius: "4px", border: "1px solid #E5E7EB", overflow: "hidden", mb: 2 }}>
-                <TableContainer>
+              <Paper elevation={0} sx={{ borderRadius: "8px", border: "1px solid #E5E7EB", overflow: "hidden", mb: 2 }}>
+                <TableContainer sx={{ width: "100%", overflowX: "auto", display: "block" }}>
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead sx={{ bgcolor: "#F3F4F6" }}>
                       <TableRow>
