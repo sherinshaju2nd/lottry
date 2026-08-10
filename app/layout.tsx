@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "Bhagyathara Result Today",
   ],
   openGraph: {
-    title: "Kerala Lottery Result Today - Official Live Results & Schedule",
+    title: "Kerala Lottery Result Today - Live Results & Schedule",
     description:
       "Check Kerala Lottery Result Today live! Fast 3:30 PM draw results, winning ticket search checker engine, weekly schedule, and complete historical archive.",
     type: "website",
@@ -38,7 +38,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800&display=swap"
           rel="stylesheet"
@@ -54,7 +58,8 @@ export default function RootLayout({
               url: "https://keralalotteryresulttoday.com",
               potentialAction: {
                 "@type": "SearchAction",
-                target: "https://keralalotteryresulttoday.com/search?q={search_term_string}",
+                target:
+                  "https://keralalotteryresulttoday.com/search?q={search_term_string}",
                 "query-input": "required name=search_term_string",
               },
             }),
@@ -64,7 +69,13 @@ export default function RootLayout({
       <body>
         <MuiProvider>
           <InitialLoader />
-          <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              minHeight: "100vh",
+            }}
+          >
             <Navbar />
             <main style={{ flex: 1 }}>{children}</main>
             <Footer />

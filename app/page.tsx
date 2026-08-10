@@ -77,10 +77,23 @@ export default function HomePage() {
 
   useEffect(() => {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const currentDay = days[new Date().getDay()];
+    const now = new Date();
+    const currentDay = days[now.getDay()];
     setTodayDayName(currentDay);
     const matched = WEEKLY_LOTTERIES.find((l) => l.day === currentDay) || WEEKLY_LOTTERIES[6];
     setTodayLottery(matched);
+
+    // Calculate IST time to determine default banner tab (Before 2:30 PM -> Previous Day Result, After 2:30 PM -> Today's Draw)
+    try {
+      const timeStr = now.toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata", hour12: false });
+      const [hStr, mStr] = timeStr.split(":");
+      const istHours = parseInt(hStr, 10);
+      const istMinutes = parseInt(mStr, 10);
+      const isAfter230PM = istHours > 14 || (istHours === 14 && istMinutes >= 30);
+      setHeroSlideIndex(isAfter230PM ? 0 : 1);
+    } catch {
+      setHeroSlideIndex(1);
+    }
 
     async function checkTodayData() {
       try {
@@ -101,7 +114,14 @@ export default function HomePage() {
         const res = await fetch("/api/draws?type=all");
         const json = await res.json();
         if (json.success && Array.isArray(json.results) && json.results.length > 0) {
-          setLatestPreviousDraw(json.results[0]);
+          const todayIsoDate = new Date().toISOString().split("T")[0];
+          // Find the most recent draw result whose date is NOT today's date
+          const prevDraw =
+            json.results.find((d: StructuredDrawResult) => d.draw_date !== todayIsoDate) ||
+            json.results[1] ||
+            json.results[0];
+          setLatestPreviousDraw(prevDraw);
+
           const map: Record<string, StructuredDrawResult> = {};
           json.results.forEach((draw: StructuredDrawResult) => {
             const code = (draw.lottery_code || "").toUpperCase();
@@ -150,19 +170,25 @@ export default function HomePage() {
   };
 
   const onSearchSubmit = async (data: SearchFormData) => {
-    if (!hasTodayResult) return;
+    if (heroSlideIndex === 0 && !hasTodayResult) return;
     setIsSearching(true);
     setSearchedQuery(data.ticketNumber);
+
+    const targetLotteryCode = heroSlideIndex === 0 ? todayLottery.code : (latestPreviousDraw?.lottery_code || "");
+    const targetDrawDate = heroSlideIndex === 1 ? latestPreviousDraw?.draw_date : undefined;
+
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(data.ticketNumber.trim())}`);
       const json = await res.json();
-      if (json.success && Array.isArray(json.results) && json.results.length > 0) {
-        // Filter strictly for today's lottery code
-        const todayMatches = json.results.filter(
-          (m: SearchMatch) => m.lottery_code.toLowerCase() === todayLottery.code.toLowerCase()
-        );
-        setSearchResults(todayMatches);
-        if (todayMatches.length > 0) {
+      if (json.success && Array.isArray(json.results)) {
+        const filteredMatches = json.results.filter((m: SearchMatch) => {
+          const matchesCode = !targetLotteryCode || m.lottery_code.toLowerCase() === targetLotteryCode.toLowerCase();
+          const matchesDate = !targetDrawDate || m.draw_date === targetDrawDate;
+          return matchesCode && matchesDate;
+        });
+
+        setSearchResults(filteredMatches);
+        if (filteredMatches.length > 0) {
           triggerCelebration();
         }
       } else {
@@ -563,6 +589,74 @@ export default function HomePage() {
                 Official published winning numbers breakdown for {latestPreviousDraw?.draw_name} ({latestPreviousDraw?.draw_code}) drawn on {latestPreviousDraw?.draw_date}. 1st Prize ticket: <strong>{latestPreviousDraw?.first?.ticket || "N/A"}</strong> ({latestPreviousDraw?.prizes?.amounts?.["1st"] || "₹70 Lakhs"}).
               </Typography>
 
+              {/* Ticket Search Form for Previous Draw */}
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
+                <Box component="form" onSubmit={handleSubmit(onSearchSubmit)} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: { xs: 1.25, sm: 0.75 },
+                      display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
+                      alignItems: "center",
+                      gap: { xs: 1.25, sm: 1 },
+                      bgcolor: "#FFFFFF",
+                      border: errors.ticketNumber ? "2px solid #DC2626" : "1px solid #FDE68A",
+                      borderRadius: "16px",
+                      boxShadow: "0 2px 10px rgba(146, 64, 14, 0.08)",
+                      maxWidth: 600,
+                      width: "100%",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", flex: 1, pl: { xs: 0.5, sm: 1.5 }, width: "100%" }}>
+                      <Box sx={{ color: "#92400E", display: "flex", alignItems: "center" }}>
+                        <ConfirmationNumberIcon fontSize="small" />
+                      </Box>
+                      <TextField
+                        {...register("ticketNumber")}
+                        disabled={isSearching}
+                        placeholder={`Enter 6-digit ticket for ${latestPreviousDraw?.draw_name || "Previous Draw"} (${latestPreviousDraw?.draw_code || ""})...`}
+                        variant="standard"
+                        fullWidth
+                        slotProps={{ input: { disableUnderline: true } }}
+                        sx={{ ml: 1.5, mr: 1, input: { fontSize: { xs: "0.85rem", sm: "0.925rem" }, fontWeight: 500 } }}
+                      />
+                    </Box>
+
+                    <Button
+                      type="submit"
+                      disabled={isSearching}
+                      variant="contained"
+                      endIcon={<ArrowForwardIcon />}
+                      sx={{
+                        bgcolor: "#92400E",
+                        color: "#FFFFFF",
+                        px: 3.5,
+                        py: { xs: 1.2, sm: 1.35 },
+                        borderRadius: { xs: "10px", sm: "12px" },
+                        fontWeight: 700,
+                        whiteSpace: "nowrap",
+                        width: { xs: "100%", sm: "auto" },
+                        fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                        "&:hover": { bgcolor: "#B45309" },
+                      }}
+                    >
+                      {isSearching ? "Checking..." : "Check Previous Draw"}
+                    </Button>
+                  </Paper>
+
+                  {errors.ticketNumber ? (
+                    <Typography variant="caption" sx={{ color: "#DC2626", pl: 1.5, fontWeight: 600 }}>
+                      {errors.ticketNumber.message}
+                    </Typography>
+                  ) : (
+                    <Typography variant="caption" sx={{ color: "#92400E", pl: 1, fontWeight: 600 }}>
+                      ✓ Checking ticket against {latestPreviousDraw?.draw_name} ({latestPreviousDraw?.draw_code}) draw result from {latestPreviousDraw?.draw_date}.
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+
               {latestPreviousDraw && (
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
                   <Button
@@ -787,13 +881,13 @@ export default function HomePage() {
         slotProps={{ paper: { sx: { borderRadius: "16px", m: { xs: 2, sm: 3 } } } }}
       >
         <DialogTitle sx={{ fontWeight: 800, color: "#0F5A24", display: "flex", alignItems: "center", gap: 1, fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
-          <CelebrationIcon sx={{ color: "#FFC107" }} /> Search Results for {todayLottery.name} ({todayLottery.code}): &quot;{searchedQuery}&quot;
+          <CelebrationIcon sx={{ color: "#FFC107" }} /> Search Results for {heroSlideIndex === 0 ? `${todayLottery.name} (${todayLottery.code})` : `${latestPreviousDraw?.draw_name || "Previous Draw"} (${latestPreviousDraw?.draw_code || ""})`}: &quot;{searchedQuery}&quot;
         </DialogTitle>
         <DialogContent dividers>
           {searchResults && searchResults.length > 0 ? (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Alert severity="success" sx={{ fontWeight: 700, borderRadius: "12px" }}>
-                🎉 CONGRATULATIONS! Matching winning ticket found in {todayLottery.name} draw!
+                🎉 CONGRATULATIONS! Matching winning ticket found in {heroSlideIndex === 0 ? todayLottery.name : (latestPreviousDraw?.draw_name || "lottery")} draw!
               </Alert>
 
               {searchResults.map((match, idx) => (
@@ -823,10 +917,10 @@ export default function HomePage() {
           ) : (
             <Box sx={{ py: 3, textAlign: "center" }}>
               <Typography variant="h6" sx={{ color: "#4B5563", mb: 1 }}>
-                No Winning Match Found for {todayLottery.name} ({todayLottery.code})
+                No Winning Match Found for {heroSlideIndex === 0 ? `${todayLottery.name} (${todayLottery.code})` : `${latestPreviousDraw?.draw_name || "Previous Draw"} (${latestPreviousDraw?.draw_code || ""})`}
               </Typography>
               <Typography variant="body2" sx={{ color: "#6B7280" }}>
-                Ticket &quot;{searchedQuery}&quot; did not match any winning ticket for today&apos;s {todayLottery.name} ({todayLottery.code}) draw. Please double-check your ticket number.
+                Ticket &quot;{searchedQuery}&quot; did not match any winning ticket for {heroSlideIndex === 0 ? `${todayLottery.name} (${todayLottery.code})` : `${latestPreviousDraw?.draw_name} (${latestPreviousDraw?.draw_code}) draw from ${latestPreviousDraw?.draw_date}`}. Please double-check your ticket number.
               </Typography>
             </Box>
           )}
