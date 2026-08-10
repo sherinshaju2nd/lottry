@@ -174,15 +174,17 @@ export default function HomePage() {
       .channel("realtime-lottery-results")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "draw_results" },
+        { event: "*", schema: "public", table: "draw_results" },
         (payload) => {
           if (payload.new) {
+            const newRow = payload.new as any;
             setRealtimeNotification(
-              `🎉 New Draw Result Published: ${payload.new.draw_name} (${payload.new.draw_code}) on ${payload.new.draw_date}`,
+              `🎉 Live Update: ${newRow.draw_name || "Lottery"} (${newRow.draw_code || ""}) updated for ${newRow.draw_date || "today"}`
             );
-            checkTodayData();
           }
-        },
+          checkTodayData();
+          loadRecentDrawsMap();
+        }
       )
       .subscribe();
 

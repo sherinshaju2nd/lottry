@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# mobile app
+/mobile/node_modules/
+/mobile/.expo/
+/mobile/dist/
+/mobile/web-build/
+/mobile/android/
+/mobile/ios/
+/mobile/.env
+/mobile/.env.local
+/mobile/.env*.local
