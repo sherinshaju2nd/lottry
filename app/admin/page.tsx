@@ -17,6 +17,7 @@ import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import { StructuredDrawResult, saveDrawResultToSupabase } from "@/lib/supabase";
 
 export default function AdminDashboardPage() {
@@ -151,8 +152,8 @@ export default function AdminDashboardPage() {
         </Box>
 
         {isLoading ? (
-          <Box sx={{ p: 6, textAlign: "center" }}>
-            <CircularProgress color="primary" />
+          <Box sx={{ p: 2 }}>
+            <TableSkeleton rows={5} />
           </Box>
         ) : draws.length > 0 ? (
           <TableContainer>

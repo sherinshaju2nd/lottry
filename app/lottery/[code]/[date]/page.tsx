@@ -28,6 +28,7 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import confetti from "canvas-confetti";
+import DrawDetailSkeleton from "@/components/skeletons/DrawDetailSkeleton";
 import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 
 interface PageProps {
@@ -504,13 +505,7 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
 
         {/* Skeleton Loading State */}
         {isLoading ? (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <Skeleton variant="rounded" height={220} sx={{ borderRadius: "16px" }} />
-            <Skeleton variant="rectangular" width={250} height={32} sx={{ borderRadius: "4px", mt: 2 }} />
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} variant="rounded" height={110} sx={{ borderRadius: "12px" }} />
-            ))}
-          </Box>
+          <DrawDetailSkeleton />
         ) : drawResult ? (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {/* 1st Prize Winner Card */}

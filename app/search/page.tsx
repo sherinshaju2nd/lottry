@@ -18,6 +18,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
+import Skeleton from "@mui/material/Skeleton";
 import SearchIcon from "@mui/icons-material/Search";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import Link from "next/link";
@@ -144,7 +145,13 @@ export default function AdvancedSearchPage() {
         </Box>
       </Paper>
 
-      {results !== null && (
+      {isSearching ? (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <Skeleton variant="text" width={240} height={32} />
+          <Skeleton variant="rounded" height={130} sx={{ borderRadius: "12px" }} />
+          <Skeleton variant="rounded" height={130} sx={{ borderRadius: "12px" }} />
+        </Box>
+      ) : results !== null ? (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
           <Typography variant="h5" sx={{ fontWeight: 800, color: "#111827" }}>
             Search Results for &quot;{searchedTicket}&quot; ({results.length} match{results.length !== 1 ? "es" : ""})
@@ -196,7 +203,7 @@ export default function AdvancedSearchPage() {
             </Alert>
           )}
         </Box>
-      )}
+      ) : null}
     </Container>
   );
 }

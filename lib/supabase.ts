@@ -144,18 +144,29 @@ export async function getDrawResultFromSupabase(
     const { data, error } = await query;
     if (!error && data && data.length > 0) {
       const row = data[0];
+      let firstObj: FirstPrize = {};
+      let prizesObj: PrizeData = {};
+
+      try {
+        firstObj = typeof row.first_prize === "string" ? JSON.parse(row.first_prize) : (row.first_prize || {});
+      } catch {
+        firstObj = {};
+      }
+
+      try {
+        prizesObj = typeof row.prizes === "string" ? JSON.parse(row.prizes) : (row.prizes || {});
+      } catch {
+        prizesObj = {};
+      }
+
       return {
         id: row.id,
         draw_date: row.draw_date,
         draw_name: row.draw_name,
         draw_code: row.draw_code,
         lottery_code: row.lottery_code,
-        first:
-          typeof row.first_prize === "string"
-            ? JSON.parse(row.first_prize)
-            : row.first_prize,
-        prizes:
-          typeof row.prizes === "string" ? JSON.parse(row.prizes) : row.prizes,
+        first: firstObj,
+        prizes: prizesObj,
         created_at: row.created_at,
       };
     }
@@ -195,20 +206,30 @@ export async function fetchAllDrawResultsFromSupabase(): Promise<
       .select("*")
       .order("draw_date", { ascending: false });
     if (!error && data && data.length > 0) {
-      return data.map((row) => ({
-        id: row.id,
-        draw_date: row.draw_date,
-        draw_name: row.draw_name,
-        draw_code: row.draw_code,
-        lottery_code: row.lottery_code,
-        first:
-          typeof row.first_prize === "string"
-            ? JSON.parse(row.first_prize)
-            : row.first_prize,
-        prizes:
-          typeof row.prizes === "string" ? JSON.parse(row.prizes) : row.prizes,
-        created_at: row.created_at,
-      }));
+      return data.map((row) => {
+        let firstObj: FirstPrize = {};
+        let prizesObj: PrizeData = {};
+        try {
+          firstObj = typeof row.first_prize === "string" ? JSON.parse(row.first_prize) : (row.first_prize || {});
+        } catch {
+          firstObj = {};
+        }
+        try {
+          prizesObj = typeof row.prizes === "string" ? JSON.parse(row.prizes) : (row.prizes || {});
+        } catch {
+          prizesObj = {};
+        }
+        return {
+          id: row.id,
+          draw_date: row.draw_date,
+          draw_name: row.draw_name,
+          draw_code: row.draw_code,
+          lottery_code: row.lottery_code,
+          first: firstObj,
+          prizes: prizesObj,
+          created_at: row.created_at,
+        };
+      });
     }
   } catch (e) {
     console.warn("Supabase fetchAll note:", e);

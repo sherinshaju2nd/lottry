@@ -29,6 +29,8 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import TableSkeleton from "@/components/skeletons/TableSkeleton";
+import LotteryCardSkeleton from "@/components/skeletons/LotteryCardSkeleton";
 import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 
 interface PageProps {
@@ -189,25 +191,9 @@ export default function LotteryDetailsPage({ params }: PageProps) {
         {/* Skeleton Loading State */}
         {isLoading ? (
           viewMode === "table" ? (
-            <Paper elevation={0} sx={{ borderRadius: "4px", border: "1px solid #E5E7EB", overflow: "hidden", p: 2 }}>
-              {[...Array(6)].map((_, i) => (
-                <Box key={i} sx={{ display: "flex", gap: 2, py: 2, borderBottom: i < 5 ? "1px solid #F3F4F6" : "none" }}>
-                  <Skeleton variant="rectangular" width={120} height={28} sx={{ borderRadius: "4px" }} />
-                  <Skeleton variant="rectangular" width={160} height={28} sx={{ borderRadius: "4px" }} />
-                  <Skeleton variant="rectangular" width={140} height={28} sx={{ borderRadius: "4px" }} />
-                  <Skeleton variant="rectangular" width={110} height={28} sx={{ borderRadius: "4px" }} />
-                  <Skeleton variant="rectangular" width={180} height={28} sx={{ borderRadius: "4px", ml: "auto" }} />
-                </Box>
-              ))}
-            </Paper>
+            <TableSkeleton rows={8} />
           ) : (
-            <Grid container spacing={3}>
-              {[...Array(8)].map((_, i) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i}>
-                  <Skeleton variant="rounded" height={180} sx={{ borderRadius: "4px" }} />
-                </Grid>
-              ))}
-            </Grid>
+            <LotteryCardSkeleton count={8} />
           )
         ) : filteredDraws.length > 0 ? (
           <>

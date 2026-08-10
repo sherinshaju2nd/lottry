@@ -5,13 +5,18 @@ export async function fetchAndSyncLatestLottery(): Promise<{
   data?: StructuredDrawResult;
   error?: string;
 }> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
   try {
     const res = await fetch("https://indialotteryapi.com/wp-json/klr/v1/latest", {
       cache: "no-store",
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       },
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       return {
