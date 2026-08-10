@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -17,6 +17,10 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Chip from "@mui/material/Chip";
+import Collapse from "@mui/material/Collapse";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
@@ -24,24 +28,38 @@ import HomeIcon from "@mui/icons-material/Home";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CloseIcon from "@mui/icons-material/Close";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
+import { WEEKLY_LOTTERIES } from "@/lib/supabase";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(true);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const isMenuOpen = Boolean(anchorEl);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLotterySelect = (code: string) => {
+    handleMenuClose();
+    setMobileOpen(false);
+    router.push(`/lottery/${code.toLowerCase()}`);
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-
-  const navItems = [
-    { label: "Home", href: "/", icon: <HomeIcon /> },
-    {
-      label: "Weekly Schedule",
-      href: "/#schedule",
-      icon: <CalendarMonthIcon />,
-    },
-    { label: "Ticket Checker", href: "/search", icon: <SearchIcon /> },
-  ];
 
   return (
     <AppBar
@@ -119,6 +137,7 @@ export default function Navbar() {
             <Button
               component={Link}
               href="/"
+              startIcon={<HomeIcon />}
               sx={{
                 color: pathname === "/" ? "#0F5A24" : "#374151",
                 fontWeight: pathname === "/" ? 800 : 600,
@@ -128,9 +147,93 @@ export default function Navbar() {
             >
               Home
             </Button>
+
+            {/* Submenu Dropdown Button for Kerala Lotteries */}
+            <Button
+              onClick={handleMenuClick}
+              endIcon={<KeyboardArrowDownIcon />}
+              startIcon={<LocalActivityIcon />}
+              sx={{
+                color: pathname.startsWith("/lottery/") ? "#0F5A24" : "#374151",
+                fontWeight: pathname.startsWith("/lottery/") ? 800 : 700,
+                borderRadius: "8px",
+                px: 2,
+                bgcolor: isMenuOpen || pathname.startsWith("/lottery/") ? "#E8F5E9" : "transparent",
+              }}
+            >
+              Kerala Lotteries
+            </Button>
+
+            {/* Desktop Popover Menu for Lotteries */}
+            <Menu
+              anchorEl={anchorEl}
+              open={isMenuOpen}
+              onClose={handleMenuClose}
+              slotProps={{
+                paper: {
+                  sx: {
+                    mt: 1,
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                    border: "1px solid #E5E7EB",
+                    minWidth: 260,
+                    p: 1,
+                  },
+                },
+              }}
+            >
+              <Box sx={{ px: 1.5, py: 1, borderBottom: "1px solid #F3F4F6", mb: 0.5 }}>
+                <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 800, letterSpacing: "0.05em" }}>
+                  SELECT KERALA WEEKLY LOTTERY
+                </Typography>
+              </Box>
+
+              {WEEKLY_LOTTERIES.map((lottery) => {
+                const isActive = pathname === `/lottery/${lottery.code.toLowerCase()}`;
+                return (
+                  <MenuItem
+                    key={lottery.code}
+                    onClick={() => handleLotterySelect(lottery.code)}
+                    sx={{
+                      borderRadius: "8px",
+                      py: 1,
+                      px: 1.5,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      bgcolor: isActive ? "#E8F5E9" : "transparent",
+                      "&:hover": { bgcolor: "#F0FDF4" },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Chip
+                        label={lottery.code}
+                        size="small"
+                        sx={{
+                          fontWeight: 800,
+                          bgcolor: isActive ? "#2E7D32" : "#E0F2FE",
+                          color: isActive ? "#FFFFFF" : "#0369A1",
+                          fontSize: "0.75rem",
+                          height: 22,
+                        }}
+                      />
+                      <Typography variant="body2" sx={{ fontWeight: isActive ? 800 : 700, color: "#111827" }}>
+                        {lottery.name}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600 }}>
+                      {lottery.day}
+                    </Typography>
+                  </MenuItem>
+                );
+              })}
+            </Menu>
+
             <Button
               component={Link}
               href="/#schedule"
+              startIcon={<CalendarMonthIcon />}
               sx={{
                 color: "#374151",
                 fontWeight: 600,
@@ -140,6 +243,7 @@ export default function Navbar() {
             >
               Schedule
             </Button>
+
             <Button
               component={Link}
               href="/search"
@@ -270,56 +374,126 @@ export default function Navbar() {
             >
               NAVIGATION MENU
             </Typography>
+
             <List disablePadding>
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <ListItem key={item.label} disablePadding sx={{ mb: 1 }}>
-                    <ListItemButton
-                      component={Link}
-                      href={item.href}
-                      onClick={handleDrawerToggle}
-                      sx={{
-                        borderRadius: "12px",
-                        py: 1.25,
-                        px: 1.5,
-                        bgcolor: isActive ? "#E8F5E9" : "transparent",
-                        color: isActive ? "#0F5A24" : "#374151",
-                        borderLeft: isActive
-                          ? "4px solid #0F5A24"
-                          : "4px solid transparent",
-                        "&:hover": {
-                          bgcolor: isActive ? "#E8F5E9" : "#F9FAFB",
-                        },
-                      }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          color: isActive ? "#0F5A24" : "#6B7280",
-                          minWidth: 38,
-                        }}
-                      >
-                        {item.icon}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={item.label}
-                        slotProps={{
-                          primary: {
-                            sx: {
-                              fontWeight: isActive ? 800 : 600,
-                              fontSize: "0.925rem",
-                            },
-                          },
-                        }}
-                      />
-                      <ChevronRightIcon
-                        fontSize="small"
-                        sx={{ color: isActive ? "#0F5A24" : "#D1D5DB" }}
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                );
-              })}
+              {/* Home */}
+              <ListItem disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  component={Link}
+                  href="/"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    bgcolor: pathname === "/" ? "#E8F5E9" : "transparent",
+                    color: pathname === "/" ? "#0F5A24" : "#374151",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: pathname === "/" ? "#0F5A24" : "#6B7280", minWidth: 38 }}>
+                    <HomeIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Home" slotProps={{ primary: { sx: { fontWeight: pathname === "/" ? 800 : 600 } } }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Expandable Kerala Lotteries Submenu */}
+              <ListItem disablePadding sx={{ mb: 1, flexDirection: "column", alignItems: "stretch" }}>
+                <ListItemButton
+                  onClick={() => setMobileSubmenuOpen(!mobileSubmenuOpen)}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    bgcolor: pathname.startsWith("/lottery/") ? "#E8F5E9" : "#F9FAFB",
+                    color: pathname.startsWith("/lottery/") ? "#0F5A24" : "#374151",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: "#0F5A24", minWidth: 38 }}>
+                    <LocalActivityIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Kerala Lotteries" slotProps={{ primary: { sx: { fontWeight: 800, fontSize: "0.925rem" } } }} />
+                  {mobileSubmenuOpen ? <ExpandLess sx={{ color: "#0F5A24" }} /> : <ExpandMore sx={{ color: "#6B7280" }} />}
+                </ListItemButton>
+
+                <Collapse in={mobileSubmenuOpen} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding sx={{ pl: 2, pt: 1 }}>
+                    {WEEKLY_LOTTERIES.map((lottery) => {
+                      const isActive = pathname === `/lottery/${lottery.code.toLowerCase()}`;
+                      return (
+                        <ListItemButton
+                          key={lottery.code}
+                          onClick={() => handleLotterySelect(lottery.code)}
+                          sx={{
+                            borderRadius: "8px",
+                            py: 1,
+                            mb: 0.5,
+                            px: 1.5,
+                            bgcolor: isActive ? "#E8F5E9" : "transparent",
+                          }}
+                        >
+                          <Chip
+                            label={lottery.code}
+                            size="small"
+                            sx={{
+                              mr: 1.5,
+                              fontWeight: 800,
+                              bgcolor: isActive ? "#2E7D32" : "#E0F2FE",
+                              color: isActive ? "#FFFFFF" : "#0369A1",
+                              height: 20,
+                              fontSize: "0.7rem",
+                            }}
+                          />
+                          <ListItemText
+                            primary={lottery.name}
+                            secondary={lottery.day}
+                            slotProps={{
+                              primary: { sx: { fontWeight: isActive ? 800 : 600, fontSize: "0.85rem", color: isActive ? "#0F5A24" : "#111827" } },
+                              secondary: { sx: { fontSize: "0.7rem" } },
+                            }}
+                          />
+                        </ListItemButton>
+                      );
+                    })}
+                  </List>
+                </Collapse>
+              </ListItem>
+
+              {/* Weekly Schedule */}
+              <ListItem disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  component={Link}
+                  href="/#schedule"
+                  onClick={handleDrawerToggle}
+                  sx={{ borderRadius: "12px", py: 1.25, px: 1.5 }}
+                >
+                  <ListItemIcon sx={{ color: "#6B7280", minWidth: 38 }}>
+                    <CalendarMonthIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Weekly Schedule" slotProps={{ primary: { sx: { fontWeight: 600 } } }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Ticket Checker */}
+              <ListItem disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  component={Link}
+                  href="/search"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    bgcolor: pathname === "/search" ? "#E8F5E9" : "transparent",
+                    color: pathname === "/search" ? "#0F5A24" : "#374151",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: pathname === "/search" ? "#0F5A24" : "#6B7280", minWidth: 38 }}>
+                    <SearchIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Ticket Checker" slotProps={{ primary: { sx: { fontWeight: pathname === "/search" ? 800 : 600 } } }} />
+                </ListItemButton>
+              </ListItem>
             </List>
           </Box>
         </Box>
