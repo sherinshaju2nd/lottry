@@ -78,9 +78,26 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
 
-  // Identify Today's Draw and Yesterday's/Previous Draw
-  const todayDraw = allDraws.length > 0 ? allDraws[0] : null;
-  const previousDraw = allDraws.length > 1 ? allDraws[1] : null;
+  // Identify Today's Lottery metadata based on IST weekday
+  const todayISTDate = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata",
+  });
+
+  const istDayName = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    timeZone: "Asia/Kolkata",
+  });
+
+  const todayLottery =
+    WEEKLY_LOTTERIES.find(
+      (l) => l.day.toLowerCase() === istDayName.toLowerCase()
+    ) || WEEKLY_LOTTERIES[1];
+
+  const todayDraw = allDraws.find((d) => d.draw_date === todayISTDate) || null;
+  const previousDraw =
+    allDraws.find((d) => d.draw_date !== todayISTDate) ||
+    (allDraws.length > 1 ? allDraws[1] : allDraws[0]) ||
+    null;
 
   // Active draw based on selected hero tab
   const activeDraw = heroTab === 0 ? todayDraw : previousDraw;
@@ -114,79 +131,134 @@ export default function HomeScreen({ navigation }: any) {
         </View>
 
         {/* Hero Tab Switcher: Today's Draw vs Yesterday's Result */}
-        {allDraws.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.heroTabScrollView}>
-            <View style={styles.heroTabBar}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.heroTabScrollView}>
+          <View style={styles.heroTabBar}>
+            <TouchableOpacity
+              style={[styles.heroTab, heroTab === 0 && styles.heroTabActiveGreen]}
+              onPress={() => setHeroTab(0)}
+            >
+              <Ionicons
+                name="time-outline"
+                size={14}
+                color={heroTab === 0 ? COLORS.white : COLORS.primary}
+              />
+              <Text style={[styles.heroTabText, heroTab === 0 && styles.heroTabActiveText]}>
+                Today&apos;s Draw ({todayDraw ? `${todayDraw.draw_name} ${todayDraw.lottery_code}` : `${todayLottery.name} ${todayLottery.code}`})
+              </Text>
+            </TouchableOpacity>
+
+            {previousDraw && (
               <TouchableOpacity
-                style={[styles.heroTab, heroTab === 0 && styles.heroTabActiveGreen]}
-                onPress={() => setHeroTab(0)}
+                style={[styles.heroTab, heroTab === 1 && styles.heroTabActiveGold]}
+                onPress={() => setHeroTab(1)}
               >
                 <Ionicons
-                  name="time-outline"
+                  name="trophy-outline"
                   size={14}
-                  color={heroTab === 0 ? COLORS.white : COLORS.primary}
+                  color={heroTab === 1 ? COLORS.white : COLORS.gold}
                 />
-                <Text style={[styles.heroTabText, heroTab === 0 && styles.heroTabActiveText]}>
-                  Today&apos;s Draw ({todayDraw ? `${todayDraw.draw_name} ${todayDraw.lottery_code}` : "Today"})
+                <Text style={[styles.heroTabText, heroTab === 1 && styles.heroTabActiveText]}>
+                  Yesterday&apos;s Result ({previousDraw.draw_date})
                 </Text>
               </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
 
-              {previousDraw && (
-                <TouchableOpacity
-                  style={[styles.heroTab, heroTab === 1 && styles.heroTabActiveGold]}
-                  onPress={() => setHeroTab(1)}
-                >
-                  <Ionicons
-                    name="trophy-outline"
-                    size={14}
-                    color={heroTab === 1 ? COLORS.white : COLORS.gold}
-                  />
-                  <Text style={[styles.heroTabText, heroTab === 1 && styles.heroTabActiveText]}>
-                    Yesterday&apos;s Result ({previousDraw.draw_date})
-                  </Text>
-                </TouchableOpacity>
+        {/* HERO TAB 0: TODAY'S DRAW */}
+        {heroTab === 0 && (
+          todayDraw ? (
+            /* Today's Draw Published Card */
+            <View style={styles.winnerCard}>
+              <View style={styles.winnerHeader}>
+                <Ionicons name="trophy" size={16} color={COLORS.successText} />
+                <Text style={styles.winnerTextBadge}>LATEST DRAW • {todayDraw.draw_date}</Text>
+              </View>
+
+              <Text style={styles.winnerTitle}>{todayDraw.draw_name} ({todayDraw.draw_code})</Text>
+              <Text style={[styles.winnerPrizeLabel, { color: COLORS.primary }]}>
+                1ST PRIZE ({todayDraw.prizes?.amounts?.["1st"] || "₹70 Lakhs"})
+              </Text>
+
+              <Text style={styles.winnerTicketNumber}>
+                {todayDraw.first?.ticket || "N/A"}
+              </Text>
+
+              {todayDraw.first?.location && (
+                <Text style={styles.winnerMeta}>
+                  Location: <Text style={styles.boldText}>{todayDraw.first.location}</Text>
+                  {todayDraw.first?.agent ? `  |  Agent: ${todayDraw.first.agent}` : ""}
+                </Text>
               )}
+
+              <TouchableOpacity
+                style={styles.viewBreakdownBtn}
+                onPress={() =>
+                  navigation.navigate("DrawBreakdown", {
+                    code: todayDraw.lottery_code,
+                    date: todayDraw.draw_date,
+                  })
+                }
+              >
+                <Text style={styles.viewBreakdownText}>
+                  View Full Breakdown for {todayDraw.draw_date} →
+                </Text>
+              </TouchableOpacity>
             </View>
-          </ScrollView>
+          ) : (
+            /* Today's Draw Coming Soon Scheduled Card */
+            <View style={styles.scheduledCard}>
+              <View style={styles.scheduledBadgeRow}>
+                <Ionicons name="time" size={14} color={COLORS.gold} />
+                <Text style={styles.scheduledBadgeText}>RESULT COMING SOON (3:10 PM)</Text>
+              </View>
+
+              <Text style={styles.scheduledTitle}>{todayLottery.name} ({todayLottery.code})</Text>
+              <Text style={styles.scheduledSubtitle}>Draw Scheduled Today at 3:00 PM</Text>
+              <Text style={styles.scheduledDesc}>
+                Official results for {todayLottery.name} ({todayLottery.code}) will be published automatically at 3:10 PM.
+              </Text>
+            </View>
+          )
         )}
 
-        {/* Active Draw 1st Prize Winner Highlight Card */}
-        {activeDraw && (
-          <View style={[styles.winnerCard, heroTab === 1 && styles.winnerCardGold]}>
+        {/* HERO TAB 1: YESTERDAY'S / PREVIOUS DRAW RESULT */}
+        {heroTab === 1 && previousDraw && (
+          <View style={[styles.winnerCard, styles.winnerCardGold]}>
             <View style={styles.winnerHeader}>
-              <Ionicons name="trophy" size={16} color={heroTab === 1 ? COLORS.gold : COLORS.successText} />
-              <Text style={[styles.winnerTextBadge, heroTab === 1 && { color: COLORS.gold }]}>
-                {heroTab === 0 ? `LATEST DRAW • ${activeDraw.draw_date}` : `PREVIOUS DRAW • ${activeDraw.draw_date}`}
+              <Ionicons name="trophy" size={16} color={COLORS.gold} />
+              <Text style={[styles.winnerTextBadge, { color: COLORS.gold }]}>
+                PREVIOUS DRAW RESULT • {previousDraw.draw_date}
               </Text>
             </View>
 
-            <Text style={styles.winnerTitle}>{activeDraw.draw_name} ({activeDraw.draw_code})</Text>
-            <Text style={[styles.winnerPrizeLabel, heroTab === 0 && { color: COLORS.primary }]}>
-              1ST PRIZE ({activeDraw.prizes?.amounts?.["1st"] || "₹70 Lakhs"})
+            <Text style={styles.winnerTitle}>{previousDraw.draw_name} ({previousDraw.draw_code})</Text>
+            <Text style={styles.winnerPrizeLabel}>
+              1ST PRIZE ({previousDraw.prizes?.amounts?.["1st"] || "₹70 Lakhs"})
             </Text>
 
-            <Text style={[styles.winnerTicketNumber, heroTab === 1 && { color: COLORS.gold }]}>
-              {activeDraw.first?.ticket || "N/A"}
+            <Text style={[styles.winnerTicketNumber, { color: COLORS.gold }]}>
+              {previousDraw.first?.ticket || "N/A"}
             </Text>
 
-            {activeDraw.first?.location && (
+            {previousDraw.first?.location && (
               <Text style={styles.winnerMeta}>
-                Location: <Text style={styles.boldText}>{activeDraw.first.location}</Text>
-                {activeDraw.first?.agent ? `  |  Agent: ${activeDraw.first.agent}` : ""}
+                Location: <Text style={styles.boldText}>{previousDraw.first.location}</Text>
+                {previousDraw.first?.agent ? `  |  Agent: ${previousDraw.first.agent}` : ""}
               </Text>
             )}
 
             <TouchableOpacity
-              style={[styles.viewBreakdownBtn, heroTab === 1 && { backgroundColor: COLORS.goldLight }]}
+              style={[styles.viewBreakdownBtn, { backgroundColor: COLORS.goldLight }]}
               onPress={() =>
                 navigation.navigate("DrawBreakdown", {
-                  code: activeDraw.lottery_code,
-                  date: activeDraw.draw_date,
+                  code: previousDraw.lottery_code,
+                  date: previousDraw.draw_date,
                 })
               }
             >
-              <Text style={[styles.viewBreakdownText, heroTab === 1 && { color: COLORS.gold }]}>
-                View Full Breakdown for {activeDraw.draw_date} →
+              <Text style={[styles.viewBreakdownText, { color: COLORS.gold }]}>
+                View Full Breakdown for {previousDraw.draw_date} →
               </Text>
             </TouchableOpacity>
           </View>
@@ -197,20 +269,32 @@ export default function HomeScreen({ navigation }: any) {
           <View style={styles.checkerTitleRow}>
             <Ionicons name="search" size={18} color={COLORS.primary} />
             <Text style={styles.checkerTitle}>
-              {heroTab === 0 ? "Check Today's Ticket" : "Check Previous Draw Ticket"}
+              {heroTab === 0
+                ? todayDraw
+                  ? `Check ${todayDraw.draw_name} Ticket`
+                  : `Check ${todayLottery.name} Ticket`
+                : `Check ${previousDraw?.draw_name || "Previous"} Ticket`}
             </Text>
           </View>
 
           <Text style={styles.checkerSubtitle}>
-            {activeDraw
-              ? `Check ticket number against ${activeDraw.draw_name} (${activeDraw.draw_code}) result from ${activeDraw.draw_date}.`
-              : "Enter your 6-digit ticket number below."}
+            {heroTab === 0
+              ? todayDraw
+                ? `Checking ticket against ${todayDraw.draw_name} (${todayDraw.draw_code}) from ${todayDraw.draw_date}.`
+                : `Ticket checker for ${todayLottery.name} (${todayLottery.code}) will be active at 3:10 PM once results are published.`
+              : `Checking ticket against ${previousDraw?.draw_name} (${previousDraw?.draw_code}) from ${previousDraw?.draw_date}.`}
           </Text>
 
           <View style={styles.inputRow}>
             <TextInput
               style={styles.input}
-              placeholder={activeDraw ? `Enter 6-digit ticket for ${activeDraw.draw_code}...` : "Enter ticket (e.g. BT 263322)"}
+              placeholder={
+                heroTab === 0
+                  ? todayDraw
+                    ? `Enter ticket for ${todayDraw.draw_code}...`
+                    : `Enter ticket for ${todayLottery.code}...`
+                  : `Enter ticket for ${previousDraw?.draw_code || "draw"}...`
+              }
               placeholderTextColor={COLORS.textLight}
               value={ticketInput}
               onChangeText={setTicketInput}
@@ -219,14 +303,20 @@ export default function HomeScreen({ navigation }: any) {
             />
 
             <TouchableOpacity
-              style={[styles.checkButton, heroTab === 1 && { backgroundColor: COLORS.gold }]}
+              style={[
+                styles.checkButton,
+                heroTab === 0 && !todayDraw && { backgroundColor: COLORS.textLight },
+                heroTab === 1 && { backgroundColor: COLORS.gold },
+              ]}
               onPress={handleQuickCheck}
-              disabled={isChecking}
+              disabled={isChecking || (heroTab === 0 && !todayDraw)}
             >
               {isChecking ? (
                 <ActivityIndicator size="small" color={COLORS.white} />
               ) : (
-                <Text style={styles.checkButtonText}>Check Now</Text>
+                <Text style={styles.checkButtonText}>
+                  {heroTab === 0 && !todayDraw ? "Coming 3:10 PM" : "Check Now"}
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -374,6 +464,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   viewBreakdownText: { fontSize: 13, fontWeight: "800", color: COLORS.primary },
+  scheduledCard: {
+    backgroundColor: COLORS.goldLight,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.goldBorder,
+    marginBottom: 16,
+  },
+  scheduledBadgeRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 8 },
+  scheduledBadgeText: { fontSize: 11, fontWeight: "800", color: COLORS.gold },
+  scheduledTitle: { fontSize: 22, fontWeight: "900", color: COLORS.textDark, marginBottom: 2 },
+  scheduledSubtitle: { fontSize: 14, fontWeight: "800", color: COLORS.gold, marginBottom: 6 },
+  scheduledDesc: { fontSize: 12, color: COLORS.textDark, lineHeight: 18 },
   checkerCard: {
     backgroundColor: COLORS.cardBg,
     borderRadius: 16,

@@ -97,15 +97,18 @@ export default function HomePage() {
       "Friday",
       "Saturday",
     ];
-    const now = new Date();
-    const currentDay = days[now.getDay()];
-    setTodayDayName(currentDay);
+    const istDayName = new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      timeZone: "Asia/Kolkata",
+    });
+    setTodayDayName(istDayName);
     const matched =
-      WEEKLY_LOTTERIES.find((l) => l.day === currentDay) || WEEKLY_LOTTERIES[6];
+      WEEKLY_LOTTERIES.find((l) => l.day.toLowerCase() === istDayName.toLowerCase()) || WEEKLY_LOTTERIES[0];
     setTodayLottery(matched);
 
     // Calculate IST time to determine default banner tab (Before 2:30 PM -> Previous Day Result, After 2:30 PM -> Today's Draw)
     try {
+      const now = new Date();
       const timeStr = now.toLocaleTimeString("en-GB", {
         timeZone: "Asia/Kolkata",
         hour12: false,
@@ -143,11 +146,13 @@ export default function HomePage() {
           Array.isArray(json.results) &&
           json.results.length > 0
         ) {
-          const todayIsoDate = new Date().toISOString().split("T")[0];
-          // Find the most recent draw result whose date is NOT today's date
+          const todayISTDate = new Date().toLocaleDateString("en-CA", {
+            timeZone: "Asia/Kolkata",
+          });
+          // Previous draw is the most recent draw published prior to todayISTDate (or json.results[0] if today is not published)
           const prevDraw =
             json.results.find(
-              (d: StructuredDrawResult) => d.draw_date !== todayIsoDate,
+              (d: StructuredDrawResult) => d.draw_date !== todayISTDate
             ) ||
             json.results[1] ||
             json.results[0];
