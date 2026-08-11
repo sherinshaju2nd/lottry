@@ -22,6 +22,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.85.0",
+    "tesseract.js": "^7.0.0",
     "tsx": "^4.23.11",
     "yup": "^1.7.1"
   },
