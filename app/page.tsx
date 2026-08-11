@@ -78,6 +78,10 @@ export default function HomePage() {
   const [latestPreviousDraw, setLatestPreviousDraw] =
     useState<StructuredDrawResult | null>(null);
 
+  const todayISTDate = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata",
+  });
+
   const {
     register,
     handleSubmit,
@@ -1249,55 +1253,121 @@ export default function HomePage() {
 
                       {/* Previous Draw / 1st Prize Winner Highlight Box */}
                       {latestDraw ? (
-                        <Box
-                          sx={{
-                            bgcolor: "#FEF3C7",
-                            p: 1.5,
-                            borderRadius: "10px",
-                            border: "1px solid #FDE68A",
-                          }}
-                        >
+                        latestDraw.draw_date === todayISTDate ? (
                           <Box
                             sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              mb: 0.5,
+                              bgcolor: "#DCFCE7",
+                              p: 1.5,
+                              borderRadius: "10px",
+                              border: "1px solid #86EFAC",
                             }}
                           >
-                            <Typography
-                              variant="caption"
+                            <Box
                               sx={{
-                                color: "#B45309",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mb: 0.5,
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#15803D",
+                                  fontWeight: 800,
+                                  fontSize: "0.68rem",
+                                }}
+                              >
+                                TODAY&apos;S RESULT PUBLISHED
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#15803D",
+                                  fontWeight: 700,
+                                  fontSize: "0.68rem",
+                                }}
+                              >
+                                {latestDraw.draw_date}
+                              </Typography>
+                            </Box>
+                            {/* Mobile View: Redirect button / instruction text instead of direct ticket */}
+                            <Typography
+                              variant="body2"
+                              sx={{
                                 fontWeight: 800,
-                                fontSize: "0.68rem",
+                                color: "#15803D",
+                                fontSize: "0.775rem",
+                                display: { xs: "block", md: "none" },
                               }}
                             >
-                              LATEST 1ST PRIZE
+                              Search ticket or tap to view result →
                             </Typography>
+                            {/* Desktop View: Keep direct 1st prize ticket */}
                             <Typography
-                              variant="caption"
+                              variant="body1"
                               sx={{
-                                color: "#B45309",
-                                fontWeight: 700,
-                                fontSize: "0.68rem",
+                                fontFamily: "monospace",
+                                fontWeight: 900,
+                                color: "#0F5A24",
+                                letterSpacing: "0.03em",
+                                display: { xs: "none", md: "block" },
                               }}
                             >
-                              {latestDraw.draw_date}
+                              {latestDraw.first?.ticket || "N/A"}
                             </Typography>
                           </Box>
-                          <Typography
-                            variant="body1"
+                        ) : (
+                          <Box
                             sx={{
-                              fontFamily: "monospace",
-                              fontWeight: 900,
-                              color: "#92400E",
-                              letterSpacing: "0.03em",
+                              bgcolor: "#FEF3C7",
+                              p: 1.5,
+                              borderRadius: "10px",
+                              border: "1px solid #FDE68A",
                             }}
                           >
-                            {latestDraw.first?.ticket || "N/A"}
-                          </Typography>
-                        </Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mb: 0.5,
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#B45309",
+                                  fontWeight: 800,
+                                  fontSize: "0.68rem",
+                                }}
+                              >
+                                LATEST 1ST PRIZE
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#B45309",
+                                  fontWeight: 700,
+                                  fontSize: "0.68rem",
+                                }}
+                              >
+                                {latestDraw.draw_date}
+                              </Typography>
+                            </Box>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontFamily: "monospace",
+                                fontWeight: 900,
+                                color: "#92400E",
+                                letterSpacing: "0.03em",
+                              }}
+                            >
+                              {latestDraw.first?.ticket || "N/A"}
+                            </Typography>
+                          </Box>
+                        )
                       ) : (
                         <Box
                           sx={{
