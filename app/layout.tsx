@@ -54,11 +54,14 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
+      { url: "/icon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-128x128.png", sizes: "128x128", type: "image/png" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-256x256.png", sizes: "256x256", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
       { url: "/favicon.ico", sizes: "any" },
       { url: "/icon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/icon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
     apple: [
@@ -76,13 +79,13 @@ export const metadata: Metadata = {
     siteName: "Kerala Lottery Result Today",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://www.keralalotteryresultstoday.in/og-image.png",
         width: 1024,
         height: 1024,
         alt: "Kerala Lottery Result Today Logo",
       },
       {
-        url: "/website-banner-1600x500.png",
+        url: "https://www.keralalotteryresultstoday.in/website-banner-1600x500.png",
         width: 1600,
         height: 500,
         alt: "Kerala Lottery Schedule & Live Draw Banner",
@@ -96,7 +99,7 @@ export const metadata: Metadata = {
     title: "Kerala Lottery Ticket Search Engine - Live Results Today & Checker",
     description:
       "Check Kerala State Lottery live results & search winning ticket numbers instantly using our checker tool!",
-    images: ["/og-image.png"],
+    images: ["https://www.keralalotteryresultstoday.in/og-image.png"],
   },
   robots: {
     index: true,

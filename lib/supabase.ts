@@ -48,6 +48,15 @@ export const WEEKLY_LOTTERIES = [
   { day: "Sunday", name: "Samrudhi", code: "SM" },
 ];
 
+let cachedDrawResults: StructuredDrawResult[] | null = null;
+let lastCacheTime = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+export const bustDrawResultsCache = () => {
+  cachedDrawResults = null;
+  lastCacheTime = 0;
+};
+
 export async function saveDrawResultToSupabase(data: {
   draw_date: string;
   draw_name: string;
@@ -55,6 +64,7 @@ export async function saveDrawResultToSupabase(data: {
   first: FirstPrize;
   prizes: PrizeData;
 }) {
+  bustDrawResultsCache();
   let lottery_code = data.draw_code.split("-")[0].toUpperCase();
   let draw_name = data.draw_name;
 
@@ -193,16 +203,21 @@ export async function getDrawDatesFromSupabase(
   return [];
 }
 
-export async function fetchAllDrawResultsFromSupabase(): Promise<
+export async function fetchAllDrawResultsFromSupabase(forceRefresh = false): Promise<
   StructuredDrawResult[]
 > {
+  const now = Date.now();
+  if (!forceRefresh && cachedDrawResults && (now - lastCacheTime < CACHE_TTL_MS)) {
+    return cachedDrawResults;
+  }
+
   try {
     const { data, error } = await supabase
       .from("draw_results")
       .select("*")
       .order("draw_date", { ascending: false });
     if (!error && data && data.length > 0) {
-      return data.map((row) => {
+      const results = data.map((row) => {
         let firstObj: FirstPrize = {};
         let prizesObj: PrizeData = {};
         try {
@@ -226,6 +241,10 @@ export async function fetchAllDrawResultsFromSupabase(): Promise<
           created_at: row.created_at,
         };
       });
+
+      cachedDrawResults = results;
+      lastCacheTime = now;
+      return results;
     }
   } catch (e) {
     console.warn("Supabase fetchAll note:", e);
