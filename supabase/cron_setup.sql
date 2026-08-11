@@ -35,7 +35,7 @@ END $$;
 -- Seed initial App URL & Cron Secret
 INSERT INTO public.app_config (key, value)
 VALUES 
-    ('app_url', 'https://lottry-fawn.vercel.app'),
+    ('app_url', 'https://www.keralalotteryresultstoday.in'),
     ('cron_secret', 'kerala_lottery_cron_secret_2026')
 ON CONFLICT (key) DO UPDATE SET 
     value = EXCLUDED.value,
@@ -86,7 +86,7 @@ BEGIN
 
     -- Fallback default if app_config row is missing
     IF final_app_url IS NULL OR final_app_url = '' THEN
-        final_app_url := 'https://lottry-fawn.vercel.app';
+        final_app_url := 'https://www.keralalotteryresultstoday.in';
     END IF;
 
     target_endpoint := rtrim(final_app_url, '/') || '/api/cron';

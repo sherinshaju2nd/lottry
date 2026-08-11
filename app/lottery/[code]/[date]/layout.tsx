@@ -14,7 +14,7 @@ export async function generateMetadata({
   const lotteryName = lottery ? lottery.name : code;
   const title = `${lotteryName} Result on ${dateStr} | Kerala State Lottery Result Today`;
   const description = `Check kerala lottery result today result live! Official winning numbers for the ${lotteryName} draw on ${dateStr}. Check the 1st prize kerala jackpot result, 2nd prize, and full kl lottery results list fast and easy.`;
-  const url = `https://keralalotteryresultstoday.in/lottery/${code.toLowerCase()}/${dateStr}`;
+  const url = `https://www.keralalotteryresultstoday.in/lottery/${code.toLowerCase()}/${dateStr}`;
 
   return {
     title,

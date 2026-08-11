@@ -12,7 +12,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://keralalotteryresultstoday.in"),
+  metadataBase: new URL("https://www.keralalotteryresultstoday.in"),
   title: {
     default: "Kerala Lottery Result Today | Kerala State Lottery Result Live",
     template: "%s | Kerala State Lottery Result Today",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     title: "Kerala Lottery Result Today - Live Results & Schedule",
     description:
       "Check Kerala Lottery Result Today live! Fast 3:10 PM draw results, winning ticket search checker engine, weekly schedule, and complete historical archive.",
-    url: "https://keralalotteryresultstoday.in",
+    url: "https://www.keralalotteryresultstoday.in",
     siteName: "Kerala Lottery Result Today",
     images: [
       {
@@ -133,11 +133,11 @@ export default function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebSite",
                 name: "Kerala Lottery Result Today",
-                url: "https://keralalotteryresultstoday.in",
+                url: "https://www.keralalotteryresultstoday.in",
                 potentialAction: {
                   "@type": "SearchAction",
                   target:
-                    "https://keralalotteryresultstoday.in/search?q={search_term_string}",
+                    "https://www.keralalotteryresultstoday.in/search?q={search_term_string}",
                   "query-input": "required name=search_term_string",
                 },
               },
@@ -145,10 +145,10 @@ export default function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "Organization",
                 name: "Kerala Lottery Result Today",
-                url: "https://keralalotteryresultstoday.in",
-                logo: "https://keralalotteryresultstoday.in/logo-master-1024.png",
+                url: "https://www.keralalotteryresultstoday.in",
+                logo: "https://www.keralalotteryresultstoday.in/logo-master-1024.png",
                 sameAs: [
-                  "https://keralalotteryresultstoday.in",
+                  "https://www.keralalotteryresultstoday.in",
                 ],
               },
             ]),

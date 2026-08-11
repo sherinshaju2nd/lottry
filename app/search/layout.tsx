@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: "Winning Ticket Checker | Kerala Lottery Result Today",
     description:
       "Search your kl lottery results to instantly see if you've won the kerala jackpot.",
-    url: "https://keralalotteryresultstoday.in/search",
+    url: "https://www.keralalotteryresultstoday.in/search",
     siteName: "Kerala Lottery Result Today",
     images: [
       {

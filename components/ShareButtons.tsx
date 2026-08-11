@@ -31,7 +31,7 @@ export default function ShareButtons({
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
-  const [currentUrl, setCurrentUrl] = useState(url || "https://keralalotteryresultstoday.in");
+  const [currentUrl, setCurrentUrl] = useState(url || "https://www.keralalotteryresultstoday.in");
   const [currentTitle, setCurrentTitle] = useState(title);
 
   useEffect(() => {
