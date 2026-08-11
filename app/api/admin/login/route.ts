@@ -5,8 +5,8 @@ export async function POST(req: NextRequest) {
     const { username, password } = await req.json();
 
     const isAdminValid =
-      (username === "admin" && password === "admin123") ||
-      (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD);
+      username === process.env.ADMIN_USERNAME &&
+      password === process.env.ADMIN_PASSWORD;
 
     if (!isAdminValid) {
       return NextResponse.json(
