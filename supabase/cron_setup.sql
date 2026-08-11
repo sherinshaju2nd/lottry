@@ -123,6 +123,7 @@ $$;
 --  IST Time  | UTC Time | Cron Schedule | Cron Job Name
 -- ------------------------------------------------------------------------------
 --  3:10 PM   | 09:40 AM | 40 9 * * *    | lottery_sync_3_10_pm_ist
+--  3:15 PM   | 09:45 AM | 45 9 * * *    | lottery_sync_3_15_pm_ist
 --  3:20 PM   | 09:50 AM | 50 9 * * *    | lottery_sync_3_20_pm_ist
 --  3:30 PM   | 10:00 AM | 0 10 * * *    | lottery_sync_3_30_pm_ist
 --  3:45 PM   | 10:15 AM | 15 10 * * *   | lottery_sync_3_45_pm_ist
@@ -135,6 +136,12 @@ $$;
 SELECT cron.schedule(
     'lottery_sync_3_10_pm_ist',
     '40 9 * * *',
+    $$SELECT public.trigger_lottery_sync();$$
+);
+
+SELECT cron.schedule(
+    'lottery_sync_3_15_pm_ist',
+    '45 9 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
 
