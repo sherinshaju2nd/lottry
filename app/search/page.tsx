@@ -39,6 +39,7 @@ import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 import ModernDatePicker from "@/components/ModernDatePicker";
 import TicketScannerModal from "@/components/TicketScannerModal";
 import SavedWatchlistDrawer from "@/components/SavedWatchlistDrawer";
+import ShareButtons from "@/components/ShareButtons";
 import {
   getRecentSearches,
   addRecentSearch,
@@ -59,7 +60,7 @@ const searchSchema = yup.object({
         if (!val) return false;
         const digits = val.replace(/\D/g, "");
         return digits.length >= 2;
-      }
+      },
     ),
   lotteryCode: yup.string().optional(),
   drawDate: yup.string().optional(),
@@ -82,13 +83,27 @@ interface BatchTicketResult {
   matches: SearchMatch[];
 }
 
-const POPULAR_SERIES = ["BT", "SM", "SK", "KN", "FF", "NR", "WA", "WB", "WC", "WD", "WE"];
+const POPULAR_SERIES = [
+  "BT",
+  "SM",
+  "SK",
+  "KN",
+  "FF",
+  "NR",
+  "WA",
+  "WB",
+  "WC",
+  "WD",
+  "WE",
+];
 
 export default function AdvancedSearchPage() {
   const [results, setResults] = useState<SearchMatch[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchedTicket, setSearchedTicket] = useState("");
-  const [availableDraws, setAvailableDraws] = useState<StructuredDrawResult[]>([]);
+  const [availableDraws, setAvailableDraws] = useState<StructuredDrawResult[]>(
+    [],
+  );
 
   // Pro Feature States
   const [searchMode, setSearchMode] = useState<"single" | "batch">("single");
@@ -99,7 +114,9 @@ export default function AdvancedSearchPage() {
 
   // Batch Mode & Range Generator Validation States
   const [batchInput, setBatchInput] = useState("");
-  const [batchResults, setBatchResults] = useState<BatchTicketResult[] | null>(null);
+  const [batchResults, setBatchResults] = useState<BatchTicketResult[] | null>(
+    null,
+  );
   const [batchError, setBatchError] = useState<string | null>(null);
 
   const [rangeSeries, setRangeSeries] = useState("BT");
@@ -127,7 +144,9 @@ export default function AdvancedSearchPage() {
   const selectedDate = watch("drawDate");
   const currentTicketInput = watch("ticketNumber");
 
-  const publishedDateList = Array.from(new Set(availableDraws.map((d) => d.draw_date)));
+  const publishedDateList = Array.from(
+    new Set(availableDraws.map((d) => d.draw_date)),
+  );
 
   useEffect(() => {
     async function loadDraws() {
@@ -163,7 +182,8 @@ export default function AdvancedSearchPage() {
 
       if (data.lotteryCode && data.lotteryCode !== "ALL") {
         matches = matches.filter(
-          (m) => m.lottery_code.toLowerCase() === data.lotteryCode?.toLowerCase()
+          (m) =>
+            m.lottery_code.toLowerCase() === data.lotteryCode?.toLowerCase(),
         );
       }
 
@@ -188,11 +208,13 @@ export default function AdvancedSearchPage() {
       .filter((t) => t.length >= 2);
 
     // Filter tickets that contain at least 2 digits
-    const validTickets = rawList.filter((t) => t.replace(/\D/g, "").length >= 2);
+    const validTickets = rawList.filter(
+      (t) => t.replace(/\D/g, "").length >= 2,
+    );
 
     if (validTickets.length === 0) {
       setBatchError(
-        "Please enter or paste at least 1 valid ticket number containing digits (e.g. BT 236935, 6935)."
+        "Please enter or paste at least 1 valid ticket number containing digits (e.g. BT 236935, 6935).",
       );
       return;
     }
@@ -211,7 +233,7 @@ export default function AdvancedSearchPage() {
 
         if (selectedCode && selectedCode !== "ALL") {
           matches = matches.filter(
-            (m) => m.lottery_code.toLowerCase() === selectedCode.toLowerCase()
+            (m) => m.lottery_code.toLowerCase() === selectedCode.toLowerCase(),
           );
         }
 
@@ -238,12 +260,16 @@ export default function AdvancedSearchPage() {
     const cleanEnd = rangeEnd.trim().replace(/\D/g, "");
 
     if (!cleanStart || cleanStart.length < 2) {
-      setRangeError("Please enter a valid Start Ticket Number with digits (e.g. 100001).");
+      setRangeError(
+        "Please enter a valid Start Ticket Number with digits (e.g. 100001).",
+      );
       return;
     }
 
     if (!cleanEnd || cleanEnd.length < 2) {
-      setRangeError("Please enter a valid End Ticket Number with digits (e.g. 100010).");
+      setRangeError(
+        "Please enter a valid End Ticket Number with digits (e.g. 100010).",
+      );
       return;
     }
 
@@ -256,7 +282,9 @@ export default function AdvancedSearchPage() {
     }
 
     if (startNum > endNum) {
-      setRangeError("Start Ticket Number cannot be greater than End Ticket Number.");
+      setRangeError(
+        "Start Ticket Number cannot be greater than End Ticket Number.",
+      );
       return;
     }
 
@@ -275,7 +303,11 @@ export default function AdvancedSearchPage() {
     }
 
     const existingText = batchInput.trim();
-    setBatchInput(existingText ? `${existingText}\n${generated.join("\n")}` : generated.join("\n"));
+    setBatchInput(
+      existingText
+        ? `${existingText}\n${generated.join("\n")}`
+        : generated.join("\n"),
+    );
     setBatchError(null);
     setRangeError(null);
   };
@@ -286,13 +318,19 @@ export default function AdvancedSearchPage() {
     if (current.toUpperCase().startsWith(seriesCode)) return;
 
     const digitsOnly = current.replace(/^[A-Z]{1,2}\s*/i, "");
-    setValue("ticketNumber", `${seriesCode} ${digitsOnly}`.trim(), { shouldValidate: true });
+    setValue("ticketNumber", `${seriesCode} ${digitsOnly}`.trim(), {
+      shouldValidate: true,
+    });
   };
 
   // --- Helper: Quick Re-check Chip Click ---
   const handleRecentChipClick = (query: string) => {
     setValue("ticketNumber", query, { shouldValidate: true });
-    onSubmit({ ticketNumber: query, lotteryCode: selectedCode, drawDate: selectedDate });
+    onSubmit({
+      ticketNumber: query,
+      lotteryCode: selectedCode,
+      drawDate: selectedDate,
+    });
   };
 
   // --- Helper: Save to Watchlist ---
@@ -300,10 +338,15 @@ export default function AdvancedSearchPage() {
     if (!currentTicketInput || !currentTicketInput.trim()) return;
     const digitsOnly = currentTicketInput.replace(/\D/g, "");
     if (digitsOnly.length < 2) {
-      alert("Please enter a valid ticket number with digits before saving to watchlist.");
+      alert(
+        "Please enter a valid ticket number with digits before saving to watchlist.",
+      );
       return;
     }
-    const updated = addToWatchlist(currentTicketInput.trim(), selectedCode || "ALL");
+    const updated = addToWatchlist(
+      currentTicketInput.trim(),
+      selectedCode || "ALL",
+    );
     setWatchlist(updated);
     setDrawerOpen(true);
   };
@@ -328,37 +371,104 @@ export default function AdvancedSearchPage() {
   };
 
   const isCurrentSaved = watchlist.some(
-    (w) => w.ticketNumber.toLowerCase() === (currentTicketInput || "").trim().toLowerCase()
+    (w) =>
+      w.ticketNumber.toLowerCase() ===
+      (currentTicketInput || "").trim().toLowerCase(),
   );
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 3, sm: 5, md: 6 }, px: { xs: 2, sm: 3, md: 4 } }}>
+    <Container
+      maxWidth="md"
+      sx={{ py: { xs: 3, sm: 5, md: 6 }, px: { xs: 2, sm: 3, md: 4 } }}
+    >
       {/* Page Title & Watchlist Counter Bar */}
       <Box sx={{ mb: { xs: 3, sm: 4 }, textAlign: "center" }}>
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 1,
+            mb: 1.5,
+            flexWrap: "wrap",
+          }}
+        >
           <Chip
-            icon={<ConfirmationNumberIcon sx={{ fontSize: "14px !important", color: "#0F5A24" }} />}
+            icon={
+              <ConfirmationNumberIcon
+                sx={{ fontSize: "14px !important", color: "#0F5A24" }}
+              />
+            }
             label="Kerala State Lotteries Official Ticket Checker"
-            sx={{ bgcolor: "#E8F5E9", color: "#0F5A24", fontWeight: 800, px: 1, borderRadius: "20px", fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
+            sx={{
+              bgcolor: "#E8F5E9",
+              color: "#0F5A24",
+              fontWeight: 800,
+              px: 1,
+              borderRadius: "20px",
+              fontSize: { xs: "0.7rem", sm: "0.8rem" },
+            }}
           />
           <Chip
-            icon={<StarIcon sx={{ fontSize: "14px !important", color: "#FFC107" }} />}
+            icon={
+              <StarIcon
+                sx={{ fontSize: "14px !important", color: "#FFC107" }}
+              />
+            }
             label={`Watchlist (${watchlist.length})`}
             onClick={() => setDrawerOpen(true)}
-            sx={{ bgcolor: "#FEF3C7", color: "#92400E", fontWeight: 800, cursor: "pointer", borderRadius: "20px", fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
+            sx={{
+              bgcolor: "#FEF3C7",
+              color: "#92400E",
+              fontWeight: 800,
+              cursor: "pointer",
+              borderRadius: "20px",
+              fontSize: { xs: "0.7rem", sm: "0.8rem" },
+            }}
           />
         </Box>
 
-        <Typography variant="h3" sx={{ fontWeight: 900, color: "#0F5A24", mb: 1, fontSize: { xs: "1.5rem", sm: "2.1rem", md: "2.5rem" } }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 900,
+            color: "#0F5A24",
+            mb: 1,
+            fontSize: { xs: "1.5rem", sm: "2.1rem", md: "2.5rem" },
+          }}
+        >
           Kerala Lottery Ticket Result Checker
         </Typography>
-        <Typography variant="body1" sx={{ color: "#4B5563", maxWidth: 640, mx: "auto", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
-          Verify your ticket number against official published Kerala Lottery results. Search single tickets, batch bundles, or scan photos.
+        <Typography
+          variant="body1"
+          sx={{
+            color: "#4B5563",
+            maxWidth: 640,
+            mx: "auto",
+            fontSize: { xs: "0.875rem", sm: "1rem" },
+          }}
+        >
+          Verify your ticket number against official published Kerala Lottery
+          results. Search single tickets, batch bundles, or scan photos.
         </Typography>
+
+        {/* <ShareButtons
+          title="Official Kerala Lottery Winning Ticket Checker Tool"
+          text="Search and check Kerala state lottery winning tickets across single, series, and batch tickets!"
+        /> */}
       </Box>
 
       {/* Main Search Container */}
-      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3.5, md: 4 }, borderRadius: "16px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", mb: 6, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2, sm: 3.5, md: 4 },
+          borderRadius: "16px",
+          bgcolor: "#FFFFFF",
+          border: "1px solid #E5E7EB",
+          mb: 6,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+        }}
+      >
         {/* Mode Switcher: Single vs Batch */}
         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
           <Tabs
@@ -376,19 +486,37 @@ export default function AdvancedSearchPage() {
             textColor="primary"
             indicatorColor="primary"
             sx={{
-              "& .MuiTab-root": { fontWeight: 800, textTransform: "none", fontSize: { xs: "0.85rem", sm: "0.95rem" } },
+              "& .MuiTab-root": {
+                fontWeight: 800,
+                textTransform: "none",
+                fontSize: { xs: "0.85rem", sm: "0.95rem" },
+              },
               "& .Mui-selected": { color: "#0F5A24" },
               "& .MuiTabs-indicator": { bgcolor: "#0F5A24", height: 3 },
             }}
           >
-            <Tab icon={<SearchIcon />} iconPosition="start" value="single" label="Single Ticket Check" />
-            <Tab icon={<StyleIcon />} iconPosition="start" value="batch" label="🎟️ Check Ticket Bundle (Batch)" />
+            <Tab
+              icon={<SearchIcon />}
+              iconPosition="start"
+              value="single"
+              label="Single Ticket Check"
+            />
+            <Tab
+              icon={<StyleIcon />}
+              iconPosition="start"
+              value="batch"
+              label="🎟️ Check Ticket Bundle (Batch)"
+            />
           </Tabs>
         </Box>
 
         {/* --- SINGLE TICKET MODE --- */}
         {searchMode === "single" && (
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit(onSubmit)}
+            sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+          >
             {/* Input Row */}
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 5 }}>
@@ -408,14 +536,34 @@ export default function AdvancedSearchPage() {
                       endAdornment: (
                         <Box sx={{ display: "flex", gap: 0.5, pl: 0.5 }}>
                           <Tooltip title="Scan Ticket via Photo / Camera">
-                            <IconButton size="small" onClick={() => setScannerOpen(true)} sx={{ color: "#0F5A24" }}>
+                            <IconButton
+                              size="small"
+                              onClick={() => setScannerOpen(true)}
+                              sx={{ color: "#0F5A24" }}
+                            >
                               <CameraAltIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
 
-                          <Tooltip title={isCurrentSaved ? "Ticket Saved to Watchlist" : "Save Ticket to Watchlist"}>
-                            <IconButton size="small" onClick={handleSaveToWatchlist} sx={{ color: isCurrentSaved ? "#FFC107" : "#9CA3AF" }}>
-                              {isCurrentSaved ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
+                          <Tooltip
+                            title={
+                              isCurrentSaved
+                                ? "Ticket Saved to Watchlist"
+                                : "Save Ticket to Watchlist"
+                            }
+                          >
+                            <IconButton
+                              size="small"
+                              onClick={handleSaveToWatchlist}
+                              sx={{
+                                color: isCurrentSaved ? "#FFC107" : "#9CA3AF",
+                              }}
+                            >
+                              {isCurrentSaved ? (
+                                <StarIcon fontSize="small" />
+                              ) : (
+                                <StarBorderIcon fontSize="small" />
+                              )}
                             </IconButton>
                           </Tooltip>
                         </Box>
@@ -430,7 +578,9 @@ export default function AdvancedSearchPage() {
                   <InputLabel>Filter by Lottery</InputLabel>
                   <Select
                     value={selectedCode || "ALL"}
-                    onChange={(e) => setValue("lotteryCode", e.target.value as string)}
+                    onChange={(e) =>
+                      setValue("lotteryCode", e.target.value as string)
+                    }
                     label="Filter by Lottery"
                   >
                     <MenuItem value="ALL">All Lotteries</MenuItem>
@@ -455,8 +605,25 @@ export default function AdvancedSearchPage() {
 
             {/* Recent Search History Chips */}
             {recentSearches.length > 0 && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", pt: 0.5 }}>
-                <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 800, display: "flex", alignItems: "center", gap: 0.5 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexWrap: "wrap",
+                  pt: 0.5,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#9CA3AF",
+                    fontWeight: 800,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                  }}
+                >
                   <HistoryIcon sx={{ fontSize: 14 }} /> Recent:
                 </Typography>
                 {recentSearches.map((q) => (
@@ -476,7 +643,16 @@ export default function AdvancedSearchPage() {
                     }}
                   />
                 ))}
-                <Button size="small" onClick={handleClearHistory} sx={{ color: "#9CA3AF", fontSize: "0.7rem", p: 0, minWidth: "auto" }}>
+                <Button
+                  size="small"
+                  onClick={handleClearHistory}
+                  sx={{
+                    color: "#9CA3AF",
+                    fontSize: "0.7rem",
+                    p: 0,
+                    minWidth: "auto",
+                  }}
+                >
                   Clear History
                 </Button>
               </Box>
@@ -489,7 +665,13 @@ export default function AdvancedSearchPage() {
                 disabled={isSearching}
                 variant="contained"
                 size="large"
-                startIcon={isSearching ? <CircularProgress size={20} color="inherit" /> : <SearchIcon />}
+                startIcon={
+                  isSearching ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <SearchIcon />
+                  )
+                }
                 sx={{
                   bgcolor: "#0F5A24",
                   flex: 1,
@@ -501,7 +683,9 @@ export default function AdvancedSearchPage() {
                   "&:hover": { bgcolor: "#15803D" },
                 }}
               >
-                {isSearching ? "Searching Results..." : "Check Kerala Lottery Ticket"}
+                {isSearching
+                  ? "Searching Results..."
+                  : "Check Kerala Lottery Ticket"}
               </Button>
 
               <Button
@@ -528,9 +712,28 @@ export default function AdvancedSearchPage() {
         {searchMode === "batch" && (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {/* Range Generator Accordion Box */}
-            <Paper elevation={0} sx={{ p: 2.5, bgcolor: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "12px" }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0F5A24", mb: 1.5, display: "flex", alignItems: "center", gap: 0.75 }}>
-                <AddIcon fontSize="small" /> Generate Series Range Bundle (e.g. BT 100001 to BT 100010)
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.5,
+                bgcolor: "#F8FAFC",
+                border: "1px solid #E2E8F0",
+                borderRadius: "12px",
+              }}
+            >
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 800,
+                  color: "#0F5A24",
+                  mb: 1.5,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.75,
+                }}
+              >
+                <AddIcon fontSize="small" /> Generate Series Range Bundle (e.g.
+                BT 100001 to BT 100010)
               </Typography>
               <Grid container spacing={1.5} sx={{ alignItems: "center" }}>
                 <Grid size={{ xs: 12, sm: 3 }}>
@@ -538,7 +741,9 @@ export default function AdvancedSearchPage() {
                     size="small"
                     label="Series Code"
                     value={rangeSeries}
-                    onChange={(e) => setRangeSeries(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setRangeSeries(e.target.value.toUpperCase())
+                    }
                     placeholder="e.g. BT"
                     fullWidth
                   />
@@ -568,7 +773,13 @@ export default function AdvancedSearchPage() {
                     variant="contained"
                     fullWidth
                     onClick={handleGenerateRange}
-                    sx={{ bgcolor: "#0F5A24", fontWeight: 800, height: 40, borderRadius: "8px", "&:hover": { bgcolor: "#15803D" } }}
+                    sx={{
+                      bgcolor: "#0F5A24",
+                      fontWeight: 800,
+                      height: 40,
+                      borderRadius: "8px",
+                      "&:hover": { bgcolor: "#15803D" },
+                    }}
                   >
                     Generate
                   </Button>
@@ -576,7 +787,10 @@ export default function AdvancedSearchPage() {
               </Grid>
 
               {rangeError && (
-                <Alert severity="error" sx={{ mt: 1.5, borderRadius: "8px", fontWeight: 700 }}>
+                <Alert
+                  severity="error"
+                  sx={{ mt: 1.5, borderRadius: "8px", fontWeight: 700 }}
+                >
                   {rangeError}
                 </Alert>
               )}
@@ -598,7 +812,10 @@ export default function AdvancedSearchPage() {
                 error={!!batchError}
               />
               {batchError && (
-                <Alert severity="error" sx={{ mt: 1, borderRadius: "8px", fontWeight: 700 }}>
+                <Alert
+                  severity="error"
+                  sx={{ mt: 1, borderRadius: "8px", fontWeight: 700 }}
+                >
                   {batchError}
                 </Alert>
               )}
@@ -611,7 +828,9 @@ export default function AdvancedSearchPage() {
                   <InputLabel>Filter by Lottery</InputLabel>
                   <Select
                     value={selectedCode || "ALL"}
-                    onChange={(e) => setValue("lotteryCode", e.target.value as string)}
+                    onChange={(e) =>
+                      setValue("lotteryCode", e.target.value as string)
+                    }
                     label="Filter by Lottery"
                   >
                     <MenuItem value="ALL">All Lotteries</MenuItem>
@@ -641,7 +860,13 @@ export default function AdvancedSearchPage() {
                 size="large"
                 disabled={isSearching}
                 onClick={handleBatchSubmit}
-                startIcon={isSearching ? <CircularProgress size={20} color="inherit" /> : <SearchIcon />}
+                startIcon={
+                  isSearching ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <SearchIcon />
+                  )
+                }
                 sx={{
                   bgcolor: "#0F5A24",
                   flex: 1,
@@ -651,10 +876,17 @@ export default function AdvancedSearchPage() {
                   "&:hover": { bgcolor: "#15803D" },
                 }}
               >
-                {isSearching ? "Checking Ticket Bundle..." : "Check All Bundle Tickets Now"}
+                {isSearching
+                  ? "Checking Ticket Bundle..."
+                  : "Check All Bundle Tickets Now"}
               </Button>
 
-              <Button onClick={handleReset} variant="outlined" size="large" sx={{ fontWeight: 700, borderRadius: "10px", px: 3 }}>
+              <Button
+                onClick={handleReset}
+                variant="outlined"
+                size="large"
+                sx={{ fontWeight: 700, borderRadius: "10px", px: 3 }}
+              >
                 Reset
               </Button>
             </Box>
@@ -666,14 +898,28 @@ export default function AdvancedSearchPage() {
       {searchMode === "single" && isSearching && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
           <Skeleton variant="text" width={240} height={32} />
-          <Skeleton variant="rounded" height={130} sx={{ borderRadius: "12px" }} />
-          <Skeleton variant="rounded" height={130} sx={{ borderRadius: "12px" }} />
+          <Skeleton
+            variant="rounded"
+            height={130}
+            sx={{ borderRadius: "12px" }}
+          />
+          <Skeleton
+            variant="rounded"
+            height={130}
+            sx={{ borderRadius: "12px" }}
+          />
         </Box>
       )}
 
       {searchMode === "single" && !isSearching && results !== null && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <Typography variant="h5" sx={{ fontWeight: 900, color: "#111827" }}>
               Search Results for &quot;{searchedTicket}&quot;
             </Typography>
@@ -686,32 +932,82 @@ export default function AdvancedSearchPage() {
 
           {results.length > 0 ? (
             results.map((match, i) => (
-              <Paper key={i} elevation={0} sx={{ p: 3, borderRadius: "12px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", boxShadow: "0 2px 10px rgba(0,0,0,0.02)" }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5, flexWrap: "wrap", gap: 1 }}>
+              <Paper
+                key={i}
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: "12px",
+                  bgcolor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1.5,
+                    flexWrap: "wrap",
+                    gap: 1,
+                  }}
+                >
                   <Chip
-                    icon={<EmojiEventsIcon sx={{ fontSize: "16px !important" }} />}
+                    icon={
+                      <EmojiEventsIcon sx={{ fontSize: "16px !important" }} />
+                    }
                     label={match.prize_tier}
-                    sx={{ bgcolor: "#E8F5E9", color: "#0F5A24", fontWeight: 800, borderRadius: "6px" }}
+                    sx={{
+                      bgcolor: "#E8F5E9",
+                      color: "#0F5A24",
+                      fontWeight: 800,
+                      borderRadius: "6px",
+                    }}
                   />
                   {match.prize_amount && (
-                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#0F5A24" }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 900, color: "#0F5A24" }}
+                    >
                       Prize Amount: {match.prize_amount}
                     </Typography>
                   )}
                 </Box>
 
-                <Typography variant="h6" sx={{ fontWeight: 900, color: "#111827", mt: 1 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 900, color: "#111827", mt: 1 }}
+                >
                   {match.draw_name} ({match.draw_code})
                 </Typography>
 
                 <Box sx={{ display: "flex", gap: 3, mt: 1, flexWrap: "wrap" }}>
                   <Typography variant="body2" sx={{ color: "#4B5563" }}>
-                    <strong>Draw Date:</strong> <CalendarMonthIcon sx={{ fontSize: 14, verticalAlign: "middle", mr: 0.5, color: "#0F5A24" }} />
+                    <strong>Draw Date:</strong>{" "}
+                    <CalendarMonthIcon
+                      sx={{
+                        fontSize: 14,
+                        verticalAlign: "middle",
+                        mr: 0.5,
+                        color: "#0F5A24",
+                      }}
+                    />
                     {match.draw_date}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#374151" }}>
                     <strong>Winning Ticket Number:</strong>{" "}
-                    <Chip label={match.ticket_matched} size="small" sx={{ fontFamily: "monospace", fontWeight: 900, bgcolor: "#FEF3C7", color: "#92400E", borderRadius: "4px" }} />
+                    <Chip
+                      label={match.ticket_matched}
+                      size="small"
+                      sx={{
+                        fontFamily: "monospace",
+                        fontWeight: 900,
+                        bgcolor: "#FEF3C7",
+                        color: "#92400E",
+                        borderRadius: "4px",
+                      }}
+                    />
                   </Typography>
                 </Box>
 
@@ -726,8 +1022,13 @@ export default function AdvancedSearchPage() {
               </Paper>
             ))
           ) : (
-            <Alert severity="info" sx={{ borderRadius: "12px", border: "1px solid #B3E5FC" }}>
-              No winning tickets matched your search query &quot;{searchedTicket}&quot;. Try selecting &quot;All Lotteries&quot; or searching with fewer digits (e.g. 4-digit last numbers).
+            <Alert
+              severity="info"
+              sx={{ borderRadius: "12px", border: "1px solid #B3E5FC" }}
+            >
+              No winning tickets matched your search query &quot;
+              {searchedTicket}&quot;. Try selecting &quot;All Lotteries&quot; or
+              searching with fewer digits (e.g. 4-digit last numbers).
             </Alert>
           )}
         </Box>
@@ -737,8 +1038,16 @@ export default function AdvancedSearchPage() {
       {searchMode === "batch" && isSearching && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
           <Skeleton variant="text" width={280} height={32} />
-          <Skeleton variant="rounded" height={100} sx={{ borderRadius: "12px" }} />
-          <Skeleton variant="rounded" height={100} sx={{ borderRadius: "12px" }} />
+          <Skeleton
+            variant="rounded"
+            height={100}
+            sx={{ borderRadius: "12px" }}
+          />
+          <Skeleton
+            variant="rounded"
+            height={100}
+            sx={{ borderRadius: "12px" }}
+          />
         </Box>
       )}
 
@@ -761,30 +1070,66 @@ export default function AdvancedSearchPage() {
                   border: hasMatch ? "2px solid #81C784" : "1px solid #E5E7EB",
                 }}
               >
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#111827" }}>
-                    Ticket: <span style={{ color: "#0F5A24" }}>{item.ticketNumber}</span>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                  }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 900, color: "#111827" }}
+                  >
+                    Ticket:{" "}
+                    <span style={{ color: "#0F5A24" }}>
+                      {item.ticketNumber}
+                    </span>
                   </Typography>
 
                   <Chip
-                    label={hasMatch ? `🎉 ${item.matches.length} WINNING MATCH!` : "No Match"}
+                    label={
+                      hasMatch
+                        ? `🎉 ${item.matches.length} WINNING MATCH!`
+                        : "No Match"
+                    }
                     color={hasMatch ? "success" : "default"}
                     sx={{ fontWeight: 900 }}
                   />
                 </Box>
 
                 {hasMatch ? (
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
+                      mt: 1,
+                    }}
+                  >
                     {item.matches.map((m, idx) => (
-                      <Alert key={idx} severity="success" sx={{ borderRadius: "8px" }}>
-                        <strong>{m.prize_tier}</strong> — {m.draw_name} ({m.draw_code}) on {m.draw_date}. Matched number: {m.ticket_matched}.
-                        {m.prize_amount && <span> Prize: <strong>{m.prize_amount}</strong></span>}
+                      <Alert
+                        key={idx}
+                        severity="success"
+                        sx={{ borderRadius: "8px" }}
+                      >
+                        <strong>{m.prize_tier}</strong> — {m.draw_name} (
+                        {m.draw_code}) on {m.draw_date}. Matched number:{" "}
+                        {m.ticket_matched}.
+                        {m.prize_amount && (
+                          <span>
+                            {" "}
+                            Prize: <strong>{m.prize_amount}</strong>
+                          </span>
+                        )}
                       </Alert>
                     ))}
                   </Box>
                 ) : (
                   <Typography variant="body2" sx={{ color: "#6B7280" }}>
-                    No prize tier matched for this ticket number in published results.
+                    No prize tier matched for this ticket number in published
+                    results.
                   </Typography>
                 )}
               </Paper>
@@ -799,7 +1144,11 @@ export default function AdvancedSearchPage() {
         onClose={() => setScannerOpen(false)}
         onSelectTicket={(ticket) => {
           setValue("ticketNumber", ticket, { shouldValidate: true });
-          onSubmit({ ticketNumber: ticket, lotteryCode: selectedCode, drawDate: selectedDate });
+          onSubmit({
+            ticketNumber: ticket,
+            lotteryCode: selectedCode,
+            drawDate: selectedDate,
+          });
         }}
       />
 

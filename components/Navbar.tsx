@@ -81,49 +81,22 @@ export default function Navbar() {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1.5,
               textDecoration: "none",
               color: "inherit",
             }}
           >
             <Box
+              component="img"
+              src="/logo-round-192.png"
+              alt="Kerala Lottery Logo"
               sx={{
-                bgcolor: "#0F5A24",
-                color: "white",
-                p: 0.8,
-                borderRadius: "8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 2px 6px rgba(15,90,36,0.25)",
+                width: 73,
+                height: 75,
+                borderRadius: "50%",
+                boxShadow: "0 2px 8px rgba(15,90,36,0.3)",
+                objectFit: "contain",
               }}
-            >
-              <ConfirmationNumberIcon fontSize="medium" />
-            </Box>
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 900,
-                  color: "#0F5A24",
-                  lineHeight: 1.1,
-                  fontSize: { xs: "1.05rem", sm: "1.25rem" },
-                }}
-              >
-                Kerala Lottery Result Today
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: "#6B7280",
-                  fontWeight: 600,
-                  fontSize: "0.7rem",
-                  display: { xs: "none", sm: "block" },
-                }}
-              >
-                Live Results & Weekly Schedule
-              </Typography>
-            </Box>
+            />
           </Box>
 
           {/* Desktop Navigation Links */}
@@ -309,39 +282,18 @@ export default function Navbar() {
               bgcolor: "#F9FAFB",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
+                component="img"
+                src="/logo-round-192.png"
+                alt="Kerala Lottery Logo"
                 sx={{
-                  bgcolor: "#0F5A24",
-                  color: "#FFFFFF",
-                  p: 0.75,
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  width: 73,
+                  height: 75,
+                  borderRadius: "50%",
+                  objectFit: "contain",
                 }}
-              >
-                <ConfirmationNumberIcon fontSize="small" />
-              </Box>
-              <Box>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: 900,
-                    color: "#0F5A24",
-                    lineHeight: 1.1,
-                    fontSize: "0.95rem",
-                  }}
-                >
-                  Kerala Lottery
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#6B7280", fontWeight: 600, fontSize: "0.7rem" }}
-                >
-                  Result & Checker
-                </Typography>
-              </Box>
+              />
             </Box>
 
             <IconButton

@@ -22,10 +22,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
-import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import CelebrationIcon from "@mui/icons-material/Celebration";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -37,6 +35,7 @@ import {
   StructuredDrawResult,
   supabase,
 } from "@/lib/supabase";
+import ShareButtons from "@/components/ShareButtons";
 
 const searchSchema = yup.object({
   ticketNumber: yup
@@ -103,7 +102,9 @@ export default function HomePage() {
     });
     setTodayDayName(istDayName);
     const matched =
-      WEEKLY_LOTTERIES.find((l) => l.day.toLowerCase() === istDayName.toLowerCase()) || WEEKLY_LOTTERIES[0];
+      WEEKLY_LOTTERIES.find(
+        (l) => l.day.toLowerCase() === istDayName.toLowerCase(),
+      ) || WEEKLY_LOTTERIES[0];
     setTodayLottery(matched);
 
     // Calculate IST time to determine default banner tab (Before 2:30 PM -> Previous Day Result, After 2:30 PM -> Today's Draw)
@@ -152,7 +153,7 @@ export default function HomePage() {
           // Previous draw is the most recent draw published prior to todayISTDate (or json.results[0] if today is not published)
           const prevDraw =
             json.results.find(
-              (d: StructuredDrawResult) => d.draw_date !== todayISTDate
+              (d: StructuredDrawResult) => d.draw_date !== todayISTDate,
             ) ||
             json.results[1] ||
             json.results[0];
@@ -184,12 +185,12 @@ export default function HomePage() {
           if (payload.new) {
             const newRow = payload.new as any;
             setRealtimeNotification(
-              `🎉 Live Update: ${newRow.draw_name || "Lottery"} (${newRow.draw_code || ""}) updated for ${newRow.draw_date || "today"}`
+              `🎉 Live Update: ${newRow.draw_name || "Lottery"} (${newRow.draw_code || ""}) updated for ${newRow.draw_date || "today"}`,
             );
           }
           checkTodayData();
           loadRecentDrawsMap();
-        }
+        },
       )
       .subscribe();
 
@@ -440,7 +441,8 @@ export default function HomePage() {
                     variant="caption"
                     sx={{ color: "#15803D", fontWeight: 800, display: "block" }}
                   >
-                    1ST PRIZE WINNER TICKET ({todayDrawResult.prizes?.amounts?.["1st"] || "₹70 Lakhs"})
+                    1ST PRIZE WINNER TICKET (
+                    {todayDrawResult.prizes?.amounts?.["1st"] || "₹70 Lakhs"})
                   </Typography>
                   <Typography
                     variant="h4"
@@ -458,13 +460,15 @@ export default function HomePage() {
                     variant="body2"
                     sx={{ color: "#374151", fontWeight: 700 }}
                   >
-                    Location: <strong>{todayDrawResult.first?.location || "N/A"}</strong>
+                    Location:{" "}
+                    <strong>{todayDrawResult.first?.location || "N/A"}</strong>
                   </Typography>
                   <Typography
                     variant="body2"
                     sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}
                   >
-                    Agent: <strong>{todayDrawResult.first?.agent || "N/A"}</strong>
+                    Agent:{" "}
+                    <strong>{todayDrawResult.first?.agent || "N/A"}</strong>
                   </Typography>
 
                   <Button
@@ -1099,6 +1103,12 @@ export default function HomePage() {
         )}
       </Paper>
 
+      {/* Social Media Share Component */}
+      {/* <ShareButtons
+        title="Kerala Lottery Result Today - Live 3:10 PM Draw & Ticket Checker"
+        text="Check today's Kerala State Lottery results live & verify winning ticket numbers instantly!"
+      /> */}
+
       {/* Weekly Lottery Schedule Section */}
       <Box id="schedule" sx={{ mb: 6 }}>
         <Typography
@@ -1125,20 +1135,20 @@ export default function HomePage() {
 
         <Grid container spacing={{ xs: 2.5, sm: 3 }}>
           {WEEKLY_LOTTERIES.map((item) => {
-            const isActiveToday = item.day.toLowerCase() === todayDayName.toLowerCase();
+            const isActiveToday =
+              item.day.toLowerCase() === todayDayName.toLowerCase();
             const badgeStyle = getBadgeStyle(item.day);
             const latestDraw = recentDrawsMap[item.code];
 
             return (
-              <Grid
-                size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                key={item.code}
-              >
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.code}>
                 <Card
                   elevation={0}
                   sx={{
                     borderRadius: "16px",
-                    border: isActiveToday ? "2px solid #0F5A24" : "1px solid #E5E7EB",
+                    border: isActiveToday
+                      ? "2px solid #0F5A24"
+                      : "1px solid #E5E7EB",
                     bgcolor: "#FFFFFF",
                     boxShadow: isActiveToday
                       ? "0 8px 22px rgba(15, 90, 36, 0.12)"
@@ -1160,11 +1170,25 @@ export default function HomePage() {
                   <CardActionArea
                     component={Link}
                     href={`/lottery/${item.code.toLowerCase()}`}
-                    sx={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent: "space-between", p: 0 }}
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "stretch",
+                      justifyContent: "space-between",
+                      p: 0,
+                    }}
                   >
                     <CardContent sx={{ p: 2.5, width: "100%" }}>
                       {/* Top Row: Day Status Chip & Code Pill */}
-                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          mb: 2,
+                        }}
+                      >
                         <Chip
                           label={
                             isActiveToday
@@ -1199,32 +1223,98 @@ export default function HomePage() {
                       </Box>
 
                       {/* Main Title & Draw Time */}
-                      <Typography variant="h5" sx={{ fontWeight: 900, color: isActiveToday ? "#0F5A24" : "#111827", mb: 0.5, fontSize: "1.25rem" }}>
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontWeight: 900,
+                          color: isActiveToday ? "#0F5A24" : "#111827",
+                          mb: 0.5,
+                          fontSize: "1.25rem",
+                        }}
+                      >
                         {item.name}
                       </Typography>
 
-                      <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600, display: "block", mb: 2 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#6B7280",
+                          fontWeight: 600,
+                          display: "block",
+                          mb: 2,
+                        }}
+                      >
                         Official Draw: 3:00 PM
                       </Typography>
 
                       {/* Previous Draw / 1st Prize Winner Highlight Box */}
                       {latestDraw ? (
-                        <Box sx={{ bgcolor: "#FEF3C7", p: 1.5, borderRadius: "10px", border: "1px solid #FDE68A" }}>
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
-                            <Typography variant="caption" sx={{ color: "#B45309", fontWeight: 800, fontSize: "0.68rem" }}>
+                        <Box
+                          sx={{
+                            bgcolor: "#FEF3C7",
+                            p: 1.5,
+                            borderRadius: "10px",
+                            border: "1px solid #FDE68A",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              mb: 0.5,
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color: "#B45309",
+                                fontWeight: 800,
+                                fontSize: "0.68rem",
+                              }}
+                            >
                               LATEST 1ST PRIZE
                             </Typography>
-                            <Typography variant="caption" sx={{ color: "#B45309", fontWeight: 700, fontSize: "0.68rem" }}>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color: "#B45309",
+                                fontWeight: 700,
+                                fontSize: "0.68rem",
+                              }}
+                            >
                               {latestDraw.draw_date}
                             </Typography>
                           </Box>
-                          <Typography variant="body1" sx={{ fontFamily: "monospace", fontWeight: 900, color: "#92400E", letterSpacing: "0.03em" }}>
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              fontFamily: "monospace",
+                              fontWeight: 900,
+                              color: "#92400E",
+                              letterSpacing: "0.03em",
+                            }}
+                          >
                             {latestDraw.first?.ticket || "N/A"}
                           </Typography>
                         </Box>
                       ) : (
-                        <Box sx={{ bgcolor: "#F9FAFB", p: 1.5, borderRadius: "10px", border: "1px solid #F3F4F6" }}>
-                          <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600, display: "block" }}>
+                        <Box
+                          sx={{
+                            bgcolor: "#F9FAFB",
+                            p: 1.5,
+                            borderRadius: "10px",
+                            border: "1px solid #F3F4F6",
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: "#6B7280",
+                              fontWeight: 600,
+                              display: "block",
+                            }}
+                          >
                             Archive Available • Daily 3:10 PM Updates
                           </Typography>
                         </Box>
@@ -1232,11 +1322,30 @@ export default function HomePage() {
                     </CardContent>
 
                     {/* Bottom Action Footer */}
-                    <Box sx={{ px: 2.5, py: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #F3F4F6", bgcolor: "#FAFAFA" }}>
-                      <Typography variant="caption" sx={{ color: "#0F5A24", fontWeight: 800, fontSize: "0.78rem" }}>
+                    <Box
+                      sx={{
+                        px: 2.5,
+                        py: 1.5,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        borderTop: "1px solid #F3F4F6",
+                        bgcolor: "#FAFAFA",
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#0F5A24",
+                          fontWeight: 800,
+                          fontSize: "0.78rem",
+                        }}
+                      >
                         View Archives & Results
                       </Typography>
-                      <ArrowForwardIcon sx={{ color: "#0F5A24", fontSize: 16 }} />
+                      <ArrowForwardIcon
+                        sx={{ color: "#0F5A24", fontSize: 16 }}
+                      />
                     </Box>
                   </CardActionArea>
                 </Card>
@@ -1244,6 +1353,191 @@ export default function HomePage() {
             );
           })}
         </Grid>
+      </Box>
+
+      {/* SEO Content Section */}
+      <Box sx={{ mt: 6, mb: 4, pt: 4, borderTop: "1px solid #E5E7EB" }}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 800, color: "#111827", mb: 2 }}
+        >
+          Kerala Lottery Results Today – Live Winning Numbers, Prize List & Full
+          Draw Details
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+        >
+          If you're searching for the kerala lottery results today, you've
+          landed on the right page. This site publishes the kerala lottery
+          result today the moment the official draw closes, so you never have to
+          dig through old posts to find your kerala lottery results today
+          result. Whether you're tracking today kerala lottery result for a
+          routine weekly draw or the kerala lottery ticket result today for a
+          specific series, everything here is organised by date, draw name and
+          prize tier.
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
+        >
+          When Does the Draw Go Live?
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+        >
+          The lottery result today kerala telecast begins at 2:55 PM on Kairali
+          TV, Kaumudy TV and Jai Hind TV, and the full today's kerala lottery
+          result sheet — first prize down to consolation — is usually finalised
+          between 3:00 PM and 4:30 PM. Our today lottery result kerala table
+          refreshes automatically as the Directorate confirms each tier, so the
+          kerala result today lottery list you see is always the verified,
+          official one.
+          <br />
+          <br />
+          We track the kerala lottery today result and kerala lottery today
+          results every day of the week, so the kerala lottery results today
+          3.00 pm live update is never more than a few minutes old. For readers
+          outside Kerala, the kerala state lottery result today page loads the
+          same information as the in-state broadcast.
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
+        >
+          Today's Draw, by Lottery Name
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+        >
+          Kerala runs a different lottery each day. The win win lottery result
+          today kerala publishes every Monday, Tuesday belongs to kerala lottery
+          result today sthree sakthi, Wednesday to kerala lottery result today
+          karunya plus, and Thursday to kerala lottery result today nirmal.
+          Friday is kerala lottery result today karunya, and Saturday brings
+          kerala lottery result today fifty fifty, also written as fifty fifty
+          lottery result today kerala. Sunday rounds out the week with Pournami.
+          <br />
+          <br />
+          Six seasonal bumpers run through the year too, each with its own page
+          under kerala lottery result today bumper — including the festive
+          kerala lottery result today pooja bumper, which usually carries the
+          year's largest jackpot.
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
+        >
+          Checking Your Ticket
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+        >
+          To find the lottery result kerala today for your ticket, use the
+          search bar or browse by draw name — the same shortcut works whether
+          you typed kerala lottery result on today, today result kerala lottery,
+          or today kerala lottery results. Readers who search www kerala lottery
+          result today or www kerala lottery results today land on the same live
+          table; there's no separate "official" mirror.
+          <br />
+          <br />
+          One honest note: we don't publish a kerala lottery result today
+          guessing number. Kerala's draw uses a mechanical Lottis machine, and
+          no chart or kerala lottery result today guessing system can predict
+          it. What we provide is the confirmed kerala lottery results today live
+          results today feed, cross-checked against the government gazette.
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
+        >
+          Jackpots and Big Wins
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+        >
+          The number one thing readers want is the kerala lottery result today
+          jackpot, and we lead every page with it. You'll find the kerala
+          lottery jackpot result today, the kerala jackpot lottery result today,
+          and the jackpot kerala lottery result today figure right at the top of
+          today's card. For the biggest draws, our kerala lottery bumper result
+          today coverage breaks the jackpot down prize-tier by district, so
+          winners can confirm their ticket without the full gazette PDF.
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
+        >
+          Why Check Here
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+        >
+          Between the live kerala lottery result today feed, the by-draw
+          archive, and the lottery results today kerala search tool, this page
+          answers one question fast: did I win, and how much? That's the whole
+          point of publishing the kerala lottery results today the way we do.
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
+        >
+          One Page, Every Version of the Search
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+        >
+          Everyone phrases the same search differently, so this page answers all
+          of them from one live feed. Whether you typed kerala lottery result
+          today result for double confirmation, or searched kerala lottery
+          result live today, today kerala lottery result live, or kerala lottery
+          today result live, you land on the same table. Older phrasing like
+          today lottery results kerala and kerala lottery today results live
+          today pulls up the identical kerala state lottery results today feed.
+          Even a query like lottery result today kerala lottery result today, or
+          the shorter lottery result today kerala lottery result, resolves here.
+          And if Monday brought you here, the kerala lottery result today win
+          win numbers sit at the top of today's card.
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
+        >
+          A Note on Accuracy
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#4B5563", mb: 0, lineHeight: 1.7 }}
+        >
+          Every number on this page is pulled from the official gazette
+          published by the Directorate of Kerala State Lotteries, not copied
+          from a broadcast transcript or a third-party forum. Draw numbers,
+          ticket series and prize amounts are checked twice before publishing,
+          and any correction issued by the department after a draw is reflected
+          here within minutes. If a figure ever looks off, treat the printed
+          gazette as the final word and use this page as a fast pointer to it,
+          not a replacement for it.
+          <br />
+          <br />
+          <em>
+            Results are published for informational purposes. Always verify
+            winning numbers against the official Kerala State Lotteries gazette
+            before making any prize claim.
+          </em>
+        </Typography>
       </Box>
 
       {/* Ticket Search Result Dialog */}

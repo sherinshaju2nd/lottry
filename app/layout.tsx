@@ -1,31 +1,108 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import MuiProvider from "@/components/MuiProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import InitialLoader from "@/components/InitialLoader";
 import "./globals.css";
 
+export const viewport: Viewport = {
+  themeColor: "#0F5A24",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: "Kerala Lottery Result Today - Official Live Results & Schedule",
+  metadataBase: new URL("https://keralalotteryresultstoday.in"),
+  title: {
+    default: "Kerala Lottery Result Today | Kerala State Lottery Result Live",
+    template: "%s | Kerala State Lottery Result Today",
+  },
   description:
-    "Check Kerala Lottery Result Today live! Official 3:10 PM draw results, live winning ticket search checker, weekly schedule, and complete historical archives.",
+    "Check kerala lottery result today result live! Get the latest kl lottery results, kerala jackpot result, and official kerala state lottery today updates.",
   keywords: [
+    "kerala lottery result",
+    "kerala lottery result today result",
+    "kerala state lottery result today",
+    "kerala state lottery today",
+    "kl lottery results",
+    "jackpot kerala",
+    "kerala jackpot",
+    "kerala lottery",
+    "kerela lottery com",
+    "kerala jackpot result",
+    "kerala lottery lottery",
     "Kerala Lottery Result Today",
-    "Kerala Lottery Result",
     "Kerala Lottery Live Result",
-    "Kerala Lottery Today 3:10 PM",
     "Kerala Lottery Ticket Search",
     "Suvarna Keralam Result",
     "Karunya Result Today",
     "Samrudhi Result Today",
     "Bhagyathara Result Today",
+    "Fifty Fifty Result Today",
+    "Nirmal Result Today",
+    "Stree Sakthi Result Today",
+    "Win-Win Result Today",
   ],
+  authors: [{ name: "Kerala Lottery Results Team" }],
+  creator: "Kerala Lottery Results",
+  publisher: "Kerala Lottery Results",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon-180x180.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Kerala Lottery Result Today - Live Results & Schedule",
     description:
       "Check Kerala Lottery Result Today live! Fast 3:10 PM draw results, winning ticket search checker engine, weekly schedule, and complete historical archive.",
-    type: "website",
+    url: "https://keralalotteryresultstoday.in",
     siteName: "Kerala Lottery Result Today",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1024,
+        height: 1024,
+        alt: "Kerala Lottery Result Today Logo",
+      },
+      {
+        url: "/website-banner-1600x500.png",
+        width: 1600,
+        height: 500,
+        alt: "Kerala Lottery Schedule & Live Draw Banner",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kerala Lottery Result Today - Live Results & Schedule",
+    description:
+      "Check Kerala State Lottery live 3:10 PM results & search winning tickets instantly!",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -51,18 +128,30 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "Kerala Lottery Result Today",
-              url: "https://keralalotteryresulttoday.com",
-              potentialAction: {
-                "@type": "SearchAction",
-                target:
-                  "https://keralalotteryresulttoday.com/search?q={search_term_string}",
-                "query-input": "required name=search_term_string",
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "Kerala Lottery Result Today",
+                url: "https://keralalotteryresultstoday.in",
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target:
+                    "https://keralalotteryresultstoday.in/search?q={search_term_string}",
+                  "query-input": "required name=search_term_string",
+                },
               },
-            }),
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "Kerala Lottery Result Today",
+                url: "https://keralalotteryresultstoday.in",
+                logo: "https://keralalotteryresultstoday.in/logo-master-1024.png",
+                sameAs: [
+                  "https://keralalotteryresultstoday.in",
+                ],
+              },
+            ]),
           }}
         />
       </head>
@@ -85,3 +174,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 
 export default function InitialLoader() {
   const [loading, setLoading] = useState(true);
@@ -43,14 +42,14 @@ export default function InitialLoader() {
       }}
     >
       <Box
+        component="img"
+        src="/logo-round-192.png"
+        alt="Kerala Lottery Logo"
         sx={{
-          bgcolor: "#2E7D32",
-          color: "#FFFFFF",
-          p: 2,
-          borderRadius: "16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          width: 150,
+          height: 150,
+          borderRadius: "50%",
+          objectFit: "contain",
           boxShadow: "0 10px 30px rgba(46, 125, 50, 0.25)",
           mb: 3,
           animation: "pulse 1.8s infinite ease-in-out",
@@ -59,9 +58,7 @@ export default function InitialLoader() {
             "50%": { transform: "scale(1.08)" },
           },
         }}
-      >
-        <ConfirmationNumberIcon sx={{ fontSize: 44 }} />
-      </Box>
+      />
 
       <Typography
         variant="h4"

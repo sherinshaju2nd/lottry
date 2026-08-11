@@ -6,6 +6,8 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
 
+import ShareButtons from "./ShareButtons";
+
 export default function Footer() {
   return (
     <Box
@@ -21,20 +23,39 @@ export default function Footer() {
         maxWidth={false}
         sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 }, textAlign: "center" }}
       >
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 900, color: "#1B5E20", mb: 1 }}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            mb: 1.5,
+          }}
         >
-          Kerala Lottery Result Today
-        </Typography>
+          <Box
+            component="img"
+            src="/logo-round-192.png"
+            alt="Kerala Lottery Logo"
+            sx={{
+              width: 150,
+              height: 150,
+              borderRadius: "50%",
+              objectFit: "contain",
+            }}
+          />
+        </Box>
+
         <Typography
           variant="body2"
-          sx={{ color: "#6B7280", mb: 3, maxWidth: 600, mx: "auto" }}
+          sx={{ color: "#6B7280", mb: 2.5, maxWidth: 600, mx: "auto" }}
         >
           Your official destination for live Kerala lottery results today, 3:10
           PM winning ticket number verification, weekly schedule, and historical
           draw archives.
         </Typography>
+
+        {/* <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+          <ShareButtons variant="compact" />
+        </Box> */}
 
         <Box
           sx={{
@@ -56,7 +77,7 @@ export default function Footer() {
               "&:hover": { color: "#2E7D32" },
             }}
           >
-            Kerala Lottery Result Today
+            Home
           </Typography>
           <Typography
             variant="body2"
@@ -84,26 +105,13 @@ export default function Footer() {
           >
             Winning Ticket Checker
           </Typography>
-          <Typography
-            variant="body2"
-            component={Link}
-            href="/admin"
-            sx={{
-              color: "#4B5563",
-              textDecoration: "none",
-              fontWeight: 600,
-              "&:hover": { color: "#2E7D32" },
-            }}
-          >
-            Admin Portal
-          </Typography>
         </Box>
 
         <Typography
           variant="caption"
           sx={{ color: "#9CA3AF", display: "block" }}
         >
-          © 2026 Kerala Lottery Result Today • Kerala State Lotteries Results &
+          © 2026 Kerala Lottery Result Today • Kerala Lotteries Results &
           Schedule
         </Typography>
       </Container>

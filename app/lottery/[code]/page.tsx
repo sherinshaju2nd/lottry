@@ -31,6 +31,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import LotteryCardSkeleton from "@/components/skeletons/LotteryCardSkeleton";
+import ShareButtons from "@/components/ShareButtons";
 import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 
 interface PageProps {
@@ -49,7 +50,9 @@ export default function LotteryDetailsPage({ params }: PageProps) {
   };
 
   const [drawHistory, setDrawHistory] = useState<StructuredDrawResult[]>([]);
-  const [filteredDraws, setFilteredDraws] = useState<StructuredDrawResult[]>([]);
+  const [filteredDraws, setFilteredDraws] = useState<StructuredDrawResult[]>(
+    [],
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
@@ -86,7 +89,9 @@ export default function LotteryDetailsPage({ params }: PageProps) {
         const dateMatch = draw.draw_date.toLowerCase().includes(q);
         const nameMatch = draw.draw_name.toLowerCase().includes(q);
         const codeMatch = draw.draw_code.toLowerCase().includes(q);
-        const ticketMatch = (draw.first?.ticket || "").toLowerCase().includes(q);
+        const ticketMatch = (draw.first?.ticket || "")
+          .toLowerCase()
+          .includes(q);
         return dateMatch || nameMatch || codeMatch || ticketMatch;
       });
       setFilteredDraws(filtered);
@@ -96,7 +101,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
 
   const handleViewModeChange = (
     _event: React.MouseEvent<HTMLElement>,
-    newMode: "table" | "grid" | null
+    newMode: "table" | "grid" | null,
   ) => {
     if (newMode !== null) {
       setViewMode(newMode);
@@ -107,19 +112,33 @@ export default function LotteryDetailsPage({ params }: PageProps) {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
   const handleRowClick = (date: string) => {
-    router.push(`/lottery/${codeParam.toLowerCase()}/${encodeURIComponent(date)}`);
+    router.push(
+      `/lottery/${codeParam.toLowerCase()}/${encodeURIComponent(date)}`,
+    );
   };
 
-  const paginatedDraws = filteredDraws.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedDraws = filteredDraws.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
 
   return (
-    <Box sx={{ bgcolor: "#F9FAFB", color: "#111827", minHeight: "100vh", py: { xs: 3, sm: 5, md: 6 } }}>
+    <Box
+      sx={{
+        bgcolor: "#F9FAFB",
+        color: "#111827",
+        minHeight: "100vh",
+        py: { xs: 3, sm: 5, md: 6 },
+      }}
+    >
       <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -127,18 +146,47 @@ export default function LotteryDetailsPage({ params }: PageProps) {
             component={Link}
             href="/"
             startIcon={<ArrowBackIcon />}
-            sx={{ color: "#4B5563", mb: 2, borderRadius: "4px", "&:hover": { color: "#1B5E20" } }}
+            sx={{
+              color: "#4B5563",
+              mb: 2,
+              borderRadius: "4px",
+              "&:hover": { color: "#1B5E20" },
+            }}
           >
             Back to Schedule
           </Button>
 
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
             <Box sx={{ maxWidth: { xs: "100%", md: "70%" } }}>
-              <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", fontSize: { xs: "1.4rem", sm: "2rem", md: "2.5rem" } }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 900,
+                  color: "#111827",
+                  fontSize: { xs: "1.4rem", sm: "2rem", md: "2.5rem" },
+                }}
+              >
                 {lotteryInfo.name} ({lotteryInfo.code}) Result Today & Archives
               </Typography>
-              <Typography variant="body1" sx={{ color: "#6B7280", mt: 0.5, fontSize: { xs: "0.85rem", sm: "1rem" } }}>
-                Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time: <strong>3:00 PM</strong> | Total Draws: <strong>{filteredDraws.length}</strong>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#6B7280",
+                  mt: 0.5,
+                  fontSize: { xs: "0.85rem", sm: "1rem" },
+                }}
+              >
+                Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time:{" "}
+                <strong>3:00 PM</strong> | Total Draws:{" "}
+                <strong>{filteredDraws.length}</strong>
               </Typography>
             </Box>
 
@@ -147,20 +195,56 @@ export default function LotteryDetailsPage({ params }: PageProps) {
               exclusive
               onChange={handleViewModeChange}
               size="small"
-              sx={{ bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: "4px", width: { xs: "100%", sm: "auto" } }}
+              sx={{
+                bgcolor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: "4px",
+                width: { xs: "100%", sm: "auto" },
+              }}
             >
-              <ToggleButton value="table" sx={{ px: 2, py: 1, flex: 1, fontWeight: 700, "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" } }}>
+              <ToggleButton
+                value="table"
+                sx={{
+                  px: 2,
+                  py: 1,
+                  flex: 1,
+                  fontWeight: 700,
+                  "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" },
+                }}
+              >
                 <ViewListIcon fontSize="small" sx={{ mr: 1 }} /> Table View
               </ToggleButton>
-              <ToggleButton value="grid" sx={{ px: 2, py: 1, flex: 1, fontWeight: 700, "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" } }}>
+              <ToggleButton
+                value="grid"
+                sx={{
+                  px: 2,
+                  py: 1,
+                  flex: 1,
+                  fontWeight: 700,
+                  "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" },
+                }}
+              >
                 <ViewModuleIcon fontSize="small" sx={{ mr: 1 }} /> Grid View
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
         </Box>
-
+        {/* Social Share Buttons
+        <ShareButtons
+          title={`Kerala ${lotteryInfo.name} (${lotteryInfo.code}) Draw Results Today`}
+          text={`Check official ${lotteryInfo.name} (${lotteryInfo.code}) draw results held every ${lotteryInfo.day} at 3:00 PM!`}
+        /> */}
         {/* Filter Bar */}
-        <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5 }, mb: 4, borderRadius: "8px", border: "1px solid #E5E7EB", bgcolor: "#FFFFFF" }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 2, sm: 2.5 },
+            mb: 4,
+            borderRadius: "8px",
+            border: "1px solid #E5E7EB",
+            bgcolor: "#FFFFFF",
+          }}
+        >
           <Grid container spacing={2} sx={{ alignItems: "center" }}>
             <Grid size={{ xs: 12, sm: 8, md: 6 }}>
               <TextField
@@ -172,7 +256,9 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                 fullWidth
                 slotProps={{
                   input: {
-                    startAdornment: <SearchIcon sx={{ color: "#9CA3AF", mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon sx={{ color: "#9CA3AF", mr: 1 }} />
+                    ),
                   },
                 }}
               />
@@ -180,14 +266,17 @@ export default function LotteryDetailsPage({ params }: PageProps) {
 
             {searchFilter && (
               <Grid size={{ xs: 12, sm: 4, md: 2 }}>
-                <Button size="small" onClick={() => setSearchFilter("")} sx={{ color: "#6B7280" }}>
+                <Button
+                  size="small"
+                  onClick={() => setSearchFilter("")}
+                  sx={{ color: "#6B7280" }}
+                >
                   Clear Filter
                 </Button>
               </Grid>
             )}
           </Grid>
         </Paper>
-
         {/* Skeleton Loading State */}
         {isLoading ? (
           viewMode === "table" ? (
@@ -199,17 +288,42 @@ export default function LotteryDetailsPage({ params }: PageProps) {
           <>
             {/* Table View (Default with Row Click Navigation) */}
             {viewMode === "table" && (
-              <Paper elevation={0} sx={{ borderRadius: "8px", border: "1px solid #E5E7EB", overflow: "hidden", mb: 2 }}>
-                <TableContainer sx={{ width: "100%", overflowX: "auto", display: "block" }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  borderRadius: "8px",
+                  border: "1px solid #E5E7EB",
+                  overflow: "hidden",
+                  mb: 2,
+                }}
+              >
+                <TableContainer
+                  sx={{ width: "100%", overflowX: "auto", display: "block" }}
+                >
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead sx={{ bgcolor: "#F3F4F6" }}>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>Draw Date</TableCell>
-                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>Draw Name & Code</TableCell>
-                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>1st Prize Winning Ticket</TableCell>
-                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>Prize Amount</TableCell>
-                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>Winner Location / Agent</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 800, color: "#374151" }}>Action</TableCell>
+                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>
+                          Draw Date
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>
+                          Draw Name & Code
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>
+                          1st Prize Winning Ticket
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>
+                          Prize Amount
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 800, color: "#374151" }}>
+                          Winner Location / Agent
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontWeight: 800, color: "#374151" }}
+                        >
+                          Action
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -224,34 +338,72 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                             transition: "background-color 0.15s ease",
                           }}
                         >
-                          <TableCell sx={{ fontWeight: 800, color: "#111827" }}>{row.draw_date}</TableCell>
+                          <TableCell sx={{ fontWeight: 800, color: "#111827" }}>
+                            {row.draw_date}
+                          </TableCell>
                           <TableCell>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Typography variant="body2" sx={{ fontWeight: 800, color: "#2E7D32" }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{ fontWeight: 800, color: "#2E7D32" }}
+                              >
                                 {row.draw_name}
                               </Typography>
-                              <Chip label={row.draw_code} size="small" sx={{ fontWeight: 700, bgcolor: "#E0F2FE", color: "#0369A1", borderRadius: "4px" }} />
+                              <Chip
+                                label={row.draw_code}
+                                size="small"
+                                sx={{
+                                  fontWeight: 700,
+                                  bgcolor: "#E0F2FE",
+                                  color: "#0369A1",
+                                  borderRadius: "4px",
+                                }}
+                              />
                             </Box>
                           </TableCell>
                           <TableCell>
-                            <Typography variant="body1" sx={{ fontFamily: "monospace", fontWeight: 900, color: "#D97706" }}>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontFamily: "monospace",
+                                fontWeight: 900,
+                                color: "#D97706",
+                              }}
+                            >
                               {row.first?.ticket || "N/A"}
                             </Typography>
                           </TableCell>
                           <TableCell sx={{ fontWeight: 700, color: "#1B5E20" }}>
                             {row.prizes?.amounts?.["1st"] || "1,00,00,000/-"}
                           </TableCell>
-                          <TableCell sx={{ color: "#4B5563", fontSize: "0.875rem" }}>
-                            {row.first?.location || "N/A"} / {row.first?.agent || "N/A"}
+                          <TableCell
+                            sx={{ color: "#4B5563", fontSize: "0.875rem" }}
+                          >
+                            {row.first?.location || "N/A"} /{" "}
+                            {row.first?.agent || "N/A"}
                           </TableCell>
-                          <TableCell align="right" onClick={(e) => e.stopPropagation()}>
+                          <TableCell
+                            align="right"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Button
                               component={Link}
                               href={`/lottery/${codeParam.toLowerCase()}/${encodeURIComponent(row.draw_date)}`}
                               size="small"
                               variant="contained"
                               startIcon={<VisibilityIcon />}
-                              sx={{ bgcolor: "#2E7D32", fontWeight: 700, borderRadius: "4px", "&:hover": { bgcolor: "#1B5E20" } }}
+                              sx={{
+                                bgcolor: "#2E7D32",
+                                fontWeight: 700,
+                                borderRadius: "4px",
+                                "&:hover": { bgcolor: "#1B5E20" },
+                              }}
                             >
                               View Results
                             </Button>
@@ -268,38 +420,101 @@ export default function LotteryDetailsPage({ params }: PageProps) {
             {viewMode === "grid" && (
               <Grid container spacing={3} sx={{ mb: 3 }}>
                 {paginatedDraws.map((row) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={row.id || row.draw_date}>
+                  <Grid
+                    size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                    key={row.id || row.draw_date}
+                  >
                     <Card
                       elevation={0}
                       sx={{
                         borderRadius: "4px",
                         border: "1px solid #E5E7EB",
-                        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-                        "&:hover": { borderColor: "#2E7D32", boxShadow: "0 6px 16px rgba(46, 125, 50, 0.1)" },
+                        transition:
+                          "border-color 0.2s ease, box-shadow 0.2s ease",
+                        "&:hover": {
+                          borderColor: "#2E7D32",
+                          boxShadow: "0 6px 16px rgba(46, 125, 50, 0.1)",
+                        },
                       }}
                     >
-                      <CardActionArea component={Link} href={`/lottery/${codeParam.toLowerCase()}/${encodeURIComponent(row.draw_date)}`}>
+                      <CardActionArea
+                        component={Link}
+                        href={`/lottery/${codeParam.toLowerCase()}/${encodeURIComponent(row.draw_date)}`}
+                      >
                         <CardContent sx={{ p: 3 }}>
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                            <Chip label={row.draw_date} size="small" sx={{ fontWeight: 700, bgcolor: "#F3F4F6", color: "#374151", borderRadius: "4px" }} />
-                            <Chip label={row.draw_code} size="small" sx={{ fontWeight: 700, bgcolor: "#E0F2FE", color: "#0369A1", borderRadius: "4px" }} />
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              mb: 2,
+                            }}
+                          >
+                            <Chip
+                              label={row.draw_date}
+                              size="small"
+                              sx={{
+                                fontWeight: 700,
+                                bgcolor: "#F3F4F6",
+                                color: "#374151",
+                                borderRadius: "4px",
+                              }}
+                            />
+                            <Chip
+                              label={row.draw_code}
+                              size="small"
+                              sx={{
+                                fontWeight: 700,
+                                bgcolor: "#E0F2FE",
+                                color: "#0369A1",
+                                borderRadius: "4px",
+                              }}
+                            />
                           </Box>
 
-                          <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
+                          <Typography
+                            variant="h6"
+                            sx={{ fontWeight: 800, color: "#111827", mb: 1 }}
+                          >
                             {row.draw_name}
                           </Typography>
 
-                          <Box sx={{ bgcolor: "#FEF3C7", p: 1.5, borderRadius: "4px", mb: 2 }}>
-                            <Typography variant="caption" sx={{ color: "#B45309", fontWeight: 700, display: "block" }}>
+                          <Box
+                            sx={{
+                              bgcolor: "#FEF3C7",
+                              p: 1.5,
+                              borderRadius: "4px",
+                              mb: 2,
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color: "#B45309",
+                                fontWeight: 700,
+                                display: "block",
+                              }}
+                            >
                               1ST PRIZE TICKET
                             </Typography>
-                            <Typography variant="h6" sx={{ fontFamily: "monospace", fontWeight: 900, color: "#92400E" }}>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontFamily: "monospace",
+                                fontWeight: 900,
+                                color: "#92400E",
+                              }}
+                            >
                               {row.first?.ticket || "N/A"}
                             </Typography>
                           </Box>
 
-                          <Typography variant="body2" sx={{ color: "#4B5563", fontSize: "0.85rem" }}>
-                            Location: <strong>{row.first?.location || "N/A"}</strong>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "#4B5563", fontSize: "0.85rem" }}
+                          >
+                            Location:{" "}
+                            <strong>{row.first?.location || "N/A"}</strong>
                           </Typography>
                         </CardContent>
                       </CardActionArea>
@@ -310,7 +525,14 @@ export default function LotteryDetailsPage({ params }: PageProps) {
             )}
 
             {/* Pagination Controls */}
-            <Paper elevation={0} sx={{ border: "1px solid #E5E7EB", borderRadius: "4px", bgcolor: "#FFFFFF" }}>
+            <Paper
+              elevation={0}
+              sx={{
+                border: "1px solid #E5E7EB",
+                borderRadius: "4px",
+                bgcolor: "#FFFFFF",
+              }}
+            >
               <TablePagination
                 rowsPerPageOptions={[10, 25, 50, 100]}
                 component="div"
@@ -323,12 +545,22 @@ export default function LotteryDetailsPage({ params }: PageProps) {
             </Paper>
           </>
         ) : (
-          <Paper elevation={0} sx={{ p: 6, textAlign: "center", bgcolor: "#FFFFFF", borderRadius: "4px", border: "1px solid #E5E7EB" }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: "center",
+              bgcolor: "#FFFFFF",
+              borderRadius: "4px",
+              border: "1px solid #E5E7EB",
+            }}
+          >
             <Typography variant="h6" sx={{ color: "#6B7280", mb: 1 }}>
               No Draw Records Found
             </Typography>
             <Typography variant="body2" sx={{ color: "#9CA3AF" }}>
-              No historical draw records matched your search filter for {lotteryInfo.name} ({codeParam}).
+              No historical draw records matched your search filter for{" "}
+              {lotteryInfo.name} ({codeParam}).
             </Typography>
           </Paper>
         )}

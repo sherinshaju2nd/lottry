@@ -29,6 +29,7 @@ import TableChartIcon from "@mui/icons-material/TableChart";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import confetti from "canvas-confetti";
 import DrawDetailSkeleton from "@/components/skeletons/DrawDetailSkeleton";
+import ShareButtons from "@/components/ShareButtons";
 import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 
 interface PageProps {
@@ -56,15 +57,21 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
 
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(dateParam);
-  const [drawResult, setDrawResult] = useState<StructuredDrawResult | null>(null);
+  const [drawResult, setDrawResult] = useState<StructuredDrawResult | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Ticket Checker State
   const [checkerTicketInput, setCheckerTicketInput] = useState<string>("");
-  const [checkerResult, setCheckerResult] = useState<CheckerWinResult | null>(null);
+  const [checkerResult, setCheckerResult] = useState<CheckerWinResult | null>(
+    null,
+  );
 
   // Export Menu State
-  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(
+    null,
+  );
 
   useEffect(() => {
     async function loadDatesAndResult() {
@@ -75,7 +82,9 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
         const dates: string[] = datesJson.dates || [];
         setAvailableDates(dates);
 
-        const resultRes = await fetch(`/api/draws?code=${codeParam}&date=${dateParam}`);
+        const resultRes = await fetch(
+          `/api/draws?code=${codeParam}&date=${dateParam}`,
+        );
         const resultJson = await resultRes.json();
         setDrawResult(resultJson.result || null);
       } catch {
@@ -135,14 +144,18 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     ] as const;
 
     for (const tier of prizeTiers) {
-      const nums = drawResult.prizes?.[tier.key as keyof typeof drawResult.prizes] as string[] | undefined;
+      const nums = drawResult.prizes?.[
+        tier.key as keyof typeof drawResult.prizes
+      ] as string[] | undefined;
       const amt = drawResult.prizes?.amounts?.[tier.key] || "";
       if (nums && nums.length > 0) {
         csv += `"${tier.label}","${nums.join("  ")}","${amt}"\n`;
       }
     }
 
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -182,7 +195,9 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
     ] as const;
 
     for (const tier of prizeTiers) {
-      const nums = drawResult.prizes?.[tier.key as keyof typeof drawResult.prizes] as string[] | undefined;
+      const nums = drawResult.prizes?.[
+        tier.key as keyof typeof drawResult.prizes
+      ] as string[] | undefined;
       const amt = drawResult.prizes?.amounts?.[tier.key] || "";
       if (nums && nums.length > 0) {
         excelHtml += `<tr><td><b>${tier.label}</b></td><td>${nums.join(", ")}</td><td>${amt}</td></tr>`;
@@ -191,7 +206,9 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
 
     excelHtml += `</tbody></table></body></html>`;
 
-    const blob = new Blob([excelHtml], { type: "application/vnd.ms-excel;charset=utf-8;" });
+    const blob = new Blob([excelHtml], {
+      type: "application/vnd.ms-excel;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -242,7 +259,9 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
     let winMatch: CheckerWinResult | null = null;
 
     // Check 1st Prize
-    const firstTicketRaw = (drawResult.first?.ticket || "").trim().toUpperCase();
+    const firstTicketRaw = (drawResult.first?.ticket || "")
+      .trim()
+      .toUpperCase();
     const firstTicketNorm = firstTicketRaw.replace(/\s+/g, "");
     const firstTicketDigits = firstTicketRaw.replace(/\D/g, "");
     const firstSeries = firstTicketRaw.replace(/\d/g, "").trim();
@@ -254,7 +273,9 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
       matchesFirstSeries &&
       (firstTicketNorm === normalizedQuery ||
         (digitsOnly.length === 6 && firstTicketDigits === digitsOnly) ||
-        (digitsOnly.length >= 2 && digitsOnly.length < 6 && firstTicketDigits.endsWith(digitsOnly)))
+        (digitsOnly.length >= 2 &&
+          digitsOnly.length < 6 &&
+          firstTicketDigits.endsWith(digitsOnly)))
     ) {
       winMatch = {
         isWinner: true,
@@ -287,17 +308,21 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
           const numDigits = normNum.replace(/\D/g, "");
           const itemSeries = normNum.replace(/\d/g, "").trim();
 
-          const matchesItemSeries = !querySeries || !itemSeries || querySeries === itemSeries;
+          const matchesItemSeries =
+            !querySeries || !itemSeries || querySeries === itemSeries;
 
           if (
             matchesItemSeries &&
             (normNum === normalizedQuery ||
               (digitsOnly.length === 6 && numDigits === digitsOnly) ||
-              (digitsOnly.length >= 2 && digitsOnly.length < 6 && numDigits.endsWith(digitsOnly)))
+              (digitsOnly.length >= 2 &&
+                digitsOnly.length < 6 &&
+                numDigits.endsWith(digitsOnly)))
           ) {
             winMatch = {
               isWinner: true,
-              tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+              tier:
+                tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
               amount: amount,
               matchedNumber: num,
             };
@@ -332,16 +357,37 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
   ] as const;
 
   return (
-    <Box sx={{ bgcolor: "#F9FAFB", color: "#111827", minHeight: "100vh", py: { xs: 3, sm: 5, md: 6 } }}>
+    <Box
+      sx={{
+        bgcolor: "#F9FAFB",
+        color: "#111827",
+        minHeight: "100vh",
+        py: { xs: 3, sm: 5, md: 6 },
+      }}
+    >
       <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
         {/* Navigation Bar, Date Selector & Export Actions */}
-        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 2,
+            mb: 4,
+          }}
+        >
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Button
               component={Link}
               href={`/lottery/${codeParam.toLowerCase()}`}
               startIcon={<ArrowBackIcon />}
-              sx={{ color: "#4B5563", fontWeight: 700, borderRadius: "6px", "&:hover": { color: "#2E7D32" } }}
+              sx={{
+                color: "#4B5563",
+                fontWeight: 700,
+                borderRadius: "6px",
+                "&:hover": { color: "#2E7D32" },
+              }}
             >
               Back to {lotteryInfo.name} Archives
             </Button>
@@ -349,21 +395,47 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
               component={Link}
               href="/"
               startIcon={<FormatListNumberedIcon />}
-              sx={{ color: "#4B5563", fontWeight: 700, borderRadius: "6px", "&:hover": { color: "#2E7D32" } }}
+              sx={{
+                color: "#4B5563",
+                fontWeight: 700,
+                borderRadius: "6px",
+                "&:hover": { color: "#2E7D32" },
+              }}
             >
               Schedule
             </Button>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap", width: { xs: "100%", sm: "auto" } }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              flexWrap: "wrap",
+              width: { xs: "100%", sm: "auto" },
+            }}
+          >
             {availableDates.length > 0 && (
-              <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 200 }, bgcolor: "#FFFFFF", borderRadius: "6px" }}>
-                <InputLabel sx={{ color: "#6B7280" }}>Select Draw Date</InputLabel>
+              <FormControl
+                size="small"
+                sx={{
+                  minWidth: { xs: "100%", sm: 200 },
+                  bgcolor: "#FFFFFF",
+                  borderRadius: "6px",
+                }}
+              >
+                <InputLabel sx={{ color: "#6B7280" }}>
+                  Select Draw Date
+                </InputLabel>
                 <Select
                   value={selectedDate}
                   onChange={handleDateChange}
                   label="Select Draw Date"
-                  sx={{ color: "#111827", borderRadius: "6px", fontWeight: 700 }}
+                  sx={{
+                    color: "#111827",
+                    borderRadius: "6px",
+                    fontWeight: 700,
+                  }}
                 >
                   {availableDates.map((d) => (
                     <MenuItem key={d} value={d}>
@@ -400,16 +472,36 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                   anchorEl={exportAnchorEl}
                   open={Boolean(exportAnchorEl)}
                   onClose={handleExportMenuClose}
-                  slotProps={{ paper: { sx: { borderRadius: "10px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", mt: 1 } } }}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        borderRadius: "10px",
+                        boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                        mt: 1,
+                      },
+                    },
+                  }}
                 >
-                  <MenuItem onClick={exportCSV} sx={{ fontWeight: 600, py: 1, px: 2 }}>
-                    <InsertDriveFileIcon sx={{ mr: 1.5, color: "#16A085" }} /> Download CSV (.csv)
+                  <MenuItem
+                    onClick={exportCSV}
+                    sx={{ fontWeight: 600, py: 1, px: 2 }}
+                  >
+                    <InsertDriveFileIcon sx={{ mr: 1.5, color: "#16A085" }} />{" "}
+                    Download CSV (.csv)
                   </MenuItem>
-                  <MenuItem onClick={exportExcel} sx={{ fontWeight: 600, py: 1, px: 2 }}>
-                    <TableChartIcon sx={{ mr: 1.5, color: "#27AE60" }} /> Download Excel (.xlsx)
+                  <MenuItem
+                    onClick={exportExcel}
+                    sx={{ fontWeight: 600, py: 1, px: 2 }}
+                  >
+                    <TableChartIcon sx={{ mr: 1.5, color: "#27AE60" }} />{" "}
+                    Download Excel (.xlsx)
                   </MenuItem>
-                  <MenuItem onClick={exportPDF} sx={{ fontWeight: 600, py: 1, px: 2 }}>
-                    <PictureAsPdfIcon sx={{ mr: 1.5, color: "#C0392B" }} /> Download PDF / Print (.pdf)
+                  <MenuItem
+                    onClick={exportPDF}
+                    sx={{ fontWeight: 600, py: 1, px: 2 }}
+                  >
+                    <PictureAsPdfIcon sx={{ mr: 1.5, color: "#C0392B" }} />{" "}
+                    Download PDF / Print (.pdf)
                   </MenuItem>
                 </Menu>
               </>
@@ -417,14 +509,31 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
           </Box>
         </Box>
 
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h3" sx={{ fontWeight: 900, color: "#111827", mb: 0.5, fontSize: { xs: "1.875rem", sm: "2.5rem", md: "2.85rem" } }}>
-            {lotteryInfo.name} ({lotteryInfo.code}) Result Today - {selectedDate}
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: 900,
+              color: "#111827",
+              mb: 0.5,
+              fontSize: { xs: "1.875rem", sm: "2.5rem", md: "2.85rem" },
+            }}
+          >
+            {lotteryInfo.name} ({lotteryInfo.code}) Result Today -{" "}
+            {selectedDate}
           </Typography>
           <Typography variant="body1" sx={{ color: "#6B7280" }}>
-            Official Published Result | Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time: <strong>3:00 PM</strong>
+            Official Published Result | Draw Day:{" "}
+            <strong>{lotteryInfo.day}</strong> | Draw Time:{" "}
+            <strong>3:00 PM</strong>
           </Typography>
         </Box>
+
+        {/* Social Share Buttons */}
+        {/* <ShareButtons
+          title={`Kerala ${lotteryInfo.name} (${lotteryInfo.code}) Winning Numbers - ${selectedDate}`}
+          text={`Official results for ${lotteryInfo.name} (${lotteryInfo.code}) draw on ${selectedDate}! Check winning numbers instantly.`}
+        /> */}
 
         {/* Live Ticket Checker Card for this Draw */}
         <Paper
@@ -446,10 +555,20 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: "#6B7280", mb: 2.5 }}>
-            Enter your ticket number below to verify if your ticket won a prize in this draw.
+            Enter your ticket number below to verify if your ticket won a prize
+            in this draw.
           </Typography>
 
-          <Box component="form" onSubmit={handleCheckTicketSubmit} sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
+          <Box
+            component="form"
+            onSubmit={handleCheckTicketSubmit}
+            sx={{
+              display: "flex",
+              gap: 1.5,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
             <TextField
               value={checkerTicketInput}
               onChange={(e) => setCheckerTicketInput(e.target.value)}
@@ -462,7 +581,15 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
               type="submit"
               variant="contained"
               startIcon={<CelebrationIcon />}
-              sx={{ bgcolor: "#2E7D32", color: "#FFFFFF", fontWeight: 800, px: 3.5, py: 1, borderRadius: "8px", "&:hover": { bgcolor: "#1B5E20" } }}
+              sx={{
+                bgcolor: "#2E7D32",
+                color: "#FFFFFF",
+                fontWeight: 800,
+                px: 3.5,
+                py: 1,
+                borderRadius: "8px",
+                "&:hover": { bgcolor: "#1B5E20" },
+              }}
             >
               Check Ticket
             </Button>
@@ -477,26 +604,44 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                   sx={{
                     p: 2.5,
                     borderRadius: "12px",
-                    background: "linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)",
+                    background:
+                      "linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)",
                     color: "#FFFFFF",
                     boxShadow: "0 4px 15px rgba(46, 125, 50, 0.3)",
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                      mb: 1,
+                    }}
+                  >
                     <CelebrationIcon sx={{ fontSize: 32, color: "#FFC107" }} />
                     <Typography variant="h5" sx={{ fontWeight: 900 }}>
                       🎉 CONGRATULATIONS! YOU HAVE A WINNING TICKET!
                     </Typography>
                   </Box>
-                  <Typography variant="body1" sx={{ fontWeight: 700, opacity: 0.95 }}>
-                    Winning Category: <strong>{checkerResult.tier}</strong> {checkerResult.amount ? `(Prize Amount: ${checkerResult.amount})` : ""}
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: 700, opacity: 0.95 }}
+                  >
+                    Winning Category: <strong>{checkerResult.tier}</strong>{" "}
+                    {checkerResult.amount
+                      ? `(Prize Amount: ${checkerResult.amount})`
+                      : ""}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-                    Matching Number: <strong>{checkerResult.matchedNumber}</strong>
+                    Matching Number:{" "}
+                    <strong>{checkerResult.matchedNumber}</strong>
                   </Typography>
                 </Paper>
               ) : (
-                <Alert severity="info" sx={{ borderRadius: "12px", fontWeight: 600 }}>
+                <Alert
+                  severity="info"
+                  sx={{ borderRadius: "12px", fontWeight: 600 }}
+                >
                   {checkerResult.message}
                 </Alert>
               )}
@@ -525,23 +670,60 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
               <Grid container spacing={3} sx={{ alignItems: "center" }}>
                 <Grid size={{ xs: 12, md: 7 }}>
                   <Chip
-                    icon={<EmojiEventsIcon sx={{ color: "#FFFFFF !important" }} />}
+                    icon={
+                      <EmojiEventsIcon sx={{ color: "#FFFFFF !important" }} />
+                    }
                     label="1ST PRIZE WINNER"
-                    sx={{ bgcolor: "rgba(0, 0, 0, 0.25)", color: "#FFFFFF", fontWeight: 800, fontSize: "0.75rem", mb: 2, borderRadius: "12px" }}
+                    sx={{
+                      bgcolor: "rgba(0, 0, 0, 0.25)",
+                      color: "#FFFFFF",
+                      fontWeight: 800,
+                      fontSize: "0.75rem",
+                      mb: 2,
+                      borderRadius: "12px",
+                    }}
                   />
-                  <Typography variant="h2" sx={{ fontWeight: 900, fontFamily: "monospace", letterSpacing: 2, mb: 1, fontSize: { xs: "2.25rem", sm: "3rem", md: "3.5rem" } }}>
+                  <Typography
+                    variant="h2"
+                    sx={{
+                      fontWeight: 900,
+                      fontFamily: "monospace",
+                      letterSpacing: 2,
+                      mb: 1,
+                      fontSize: { xs: "2.25rem", sm: "3rem", md: "3.5rem" },
+                    }}
+                  >
                     {drawResult.first?.ticket || "N/A"}
                   </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 700, opacity: 0.95, fontSize: "1.15rem" }}>
-                    Prize Amount: <span style={{ textDecoration: "underline" }}>{drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-"}</span>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 700, opacity: 0.95, fontSize: "1.15rem" }}
+                  >
+                    Prize Amount:{" "}
+                    <span style={{ textDecoration: "underline" }}>
+                      {drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-"}
+                    </span>
                   </Typography>
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 5 }}>
-                  <Box sx={{ bgcolor: "rgba(0, 0, 0, 0.2)", p: 3, borderRadius: "12px", backdropFilter: "blur(10px)" }}>
+                  <Box
+                    sx={{
+                      bgcolor: "rgba(0, 0, 0, 0.2)",
+                      p: 3,
+                      borderRadius: "12px",
+                      backdropFilter: "blur(10px)",
+                    }}
+                  >
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 6 }}>
-                        <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.8)", display: "block" }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "rgba(255, 255, 255, 0.8)",
+                            display: "block",
+                          }}
+                        >
                           Location
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -549,7 +731,13 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 6 }}>
-                        <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.8)", display: "block" }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "rgba(255, 255, 255, 0.8)",
+                            display: "block",
+                          }}
+                        >
                           Agent
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -557,7 +745,13 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12 }}>
-                        <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.8)", display: "block" }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "rgba(255, 255, 255, 0.8)",
+                            display: "block",
+                          }}
+                        >
                           Agency No.
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -570,14 +764,24 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
               </Grid>
             </Paper>
 
-            <Typography variant="h4" sx={{ fontWeight: 800, color: "#111827", pt: 1, fontSize: { xs: "1.5rem", sm: "1.875rem" } }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 800,
+                color: "#111827",
+                pt: 1,
+                fontSize: { xs: "1.5rem", sm: "1.875rem" },
+              }}
+            >
               All Prize Winning Numbers
             </Typography>
 
             {/* Prize Tiers Stack on White Cards */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               {prizeTiers.map(({ key, label, badgeBg }) => {
-                const numbers = drawResult.prizes?.[key as keyof typeof drawResult.prizes] as string[] | undefined;
+                const numbers = drawResult.prizes?.[
+                  key as keyof typeof drawResult.prizes
+                ] as string[] | undefined;
                 const amount = drawResult.prizes?.amounts?.[key];
 
                 if (!numbers || numbers.length === 0) return null;
@@ -594,16 +798,45 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                       boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
                     }}
                   >
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", gap: 1.2, fontSize: "1.1rem" }}>
-                        <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: badgeBg }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 2.5,
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 800,
+                          color: "#111827",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.2,
+                          fontSize: "1.1rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            backgroundColor: badgeBg,
+                          }}
+                        />
                         {label}
                       </Typography>
                       {amount && (
                         <Chip
                           label={`Prize: ${amount}`}
                           size="small"
-                          sx={{ bgcolor: "#F3F4F6", color: "#374151", fontWeight: 700, borderRadius: "8px" }}
+                          sx={{
+                            bgcolor: "#F3F4F6",
+                            color: "#374151",
+                            fontWeight: 700,
+                            borderRadius: "8px",
+                          }}
                         />
                       )}
                     </Box>
@@ -634,32 +867,76 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
             </Box>
 
             {/* Guess & MC Numbers */}
-            {(drawResult.prizes?.guess?.length || drawResult.prizes?.mc?.length) && (
+            {(drawResult.prizes?.guess?.length ||
+              drawResult.prizes?.mc?.length) && (
               <Grid container spacing={3} sx={{ pt: 1 }}>
-                {drawResult.prizes?.guess && drawResult.prizes.guess.length > 0 && (
-                  <Grid size={{ xs: 12, md: 6 }}>
-                    <Paper elevation={0} sx={{ p: 3, borderRadius: "12px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB" }}>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 2 }}>
-                        🎯 Guess Numbers
-                      </Typography>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {drawResult.prizes.guess.map((n, i) => (
-                          <Chip key={i} label={n} sx={{ bgcolor: "#F3F4F6", color: "#111827", fontFamily: "monospace", fontWeight: 700, borderRadius: "6px" }} />
-                        ))}
-                      </Box>
-                    </Paper>
-                  </Grid>
-                )}
+                {drawResult.prizes?.guess &&
+                  drawResult.prizes.guess.length > 0 && (
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          p: 3,
+                          borderRadius: "12px",
+                          bgcolor: "#FFFFFF",
+                          border: "1px solid #E5E7EB",
+                        }}
+                      >
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 800, color: "#111827", mb: 2 }}
+                        >
+                          🎯 Guess Numbers
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                          {drawResult.prizes.guess.map((n, i) => (
+                            <Chip
+                              key={i}
+                              label={n}
+                              sx={{
+                                bgcolor: "#F3F4F6",
+                                color: "#111827",
+                                fontFamily: "monospace",
+                                fontWeight: 700,
+                                borderRadius: "6px",
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      </Paper>
+                    </Grid>
+                  )}
 
                 {drawResult.prizes?.mc && drawResult.prizes.mc.length > 0 && (
                   <Grid size={{ xs: 12, md: 6 }}>
-                    <Paper elevation={0} sx={{ p: 3, borderRadius: "12px", bgcolor: "#FFFFFF", border: "1px solid #E5E7EB" }}>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 2 }}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 3,
+                        borderRadius: "12px",
+                        bgcolor: "#FFFFFF",
+                        border: "1px solid #E5E7EB",
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 800, color: "#111827", mb: 2 }}
+                      >
                         🔢 MC Numbers
                       </Typography>
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                         {drawResult.prizes.mc.map((n, i) => (
-                          <Chip key={i} label={n} sx={{ bgcolor: "#EEF2FF", color: "#3730A3", fontFamily: "monospace", fontWeight: 800, borderRadius: "6px" }} />
+                          <Chip
+                            key={i}
+                            label={n}
+                            sx={{
+                              bgcolor: "#EEF2FF",
+                              color: "#3730A3",
+                              fontFamily: "monospace",
+                              fontWeight: 800,
+                              borderRadius: "6px",
+                            }}
+                          />
                         ))}
                       </Box>
                     </Paper>
@@ -669,9 +946,19 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
             )}
           </Box>
         ) : (
-          <Paper elevation={0} sx={{ p: 6, textAlign: "center", bgcolor: "#FFFFFF", borderRadius: "12px", border: "1px solid #E5E7EB" }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: "center",
+              bgcolor: "#FFFFFF",
+              borderRadius: "12px",
+              border: "1px solid #E5E7EB",
+            }}
+          >
             <Typography variant="h6" sx={{ color: "#6B7280" }}>
-              No draw result recorded for {lotteryInfo.name} ({codeParam}) on {selectedDate}.
+              No draw result recorded for {lotteryInfo.name} ({codeParam}) on{" "}
+              {selectedDate}.
             </Typography>
           </Paper>
         )}

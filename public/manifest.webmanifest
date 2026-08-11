@@ -1,0 +1,36 @@
+{
+  "name": "Kerala Lottery Result Today - Live Results & Schedule",
+  "short_name": "Kerala Lottery",
+  "description": "Live Kerala Lottery Draw Results today at 3:10 PM. Check winning tickets, weekly draw schedules, search past history, and get live updates.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F5A24",
+  "theme_color": "#0F5A24",
+  "categories": ["utilities", "news", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
