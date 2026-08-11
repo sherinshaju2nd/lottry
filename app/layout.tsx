@@ -172,6 +172,7 @@ export default function RootLayout({
           >
             <Navbar />
             <main style={{ flex: 1 }}>{children}</main>
+            
             <Footer />
           </div>
         </MuiProvider>
