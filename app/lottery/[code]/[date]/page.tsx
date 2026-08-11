@@ -123,7 +123,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
 
   const exportCSV = () => {
     if (!drawResult) return;
-    let csv = `Kerala Lottery Result Today - Official Draw Results\n`;
+    let csv = `Kerala Lottery Result Today - Draw Results\n`;
     csv += `Lottery Name,${drawResult.draw_name}\n`;
     csv += `Draw Code,${drawResult.draw_code}\n`;
     csv += `Draw Date,${drawResult.draw_date}\n\n`;
@@ -175,7 +175,7 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
 .header-title { font-size: 20px; font-weight: bold; color: #1B5E20; }
 .first-prize { background-color: #FEF3C7; font-weight: bold; color: #92400E; }
 </style></head><body>
-<p class="header-title">Kerala Lottery Result Today - Official Draw Results</p>
+<p class="header-title">Kerala Lottery Result Today - Draw Results</p>
 <p><b>Lottery Name:</b> ${drawResult.draw_name} (${drawResult.draw_code}) | <b>Draw Date:</b> ${drawResult.draw_date}</p>
 <table>
 <thead><tr><th>Prize Category</th><th>Winning Ticket Numbers</th><th>Prize Amount</th></tr></thead>
@@ -523,7 +523,7 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
             {selectedDate}
           </Typography>
           <Typography variant="body1" sx={{ color: "#6B7280" }}>
-            Official Published Result | Draw Day:{" "}
+            Published Result | Draw Day:{" "}
             <strong>{lotteryInfo.day}</strong> | Draw Time:{" "}
             <strong>3:00 PM</strong>
           </Typography>

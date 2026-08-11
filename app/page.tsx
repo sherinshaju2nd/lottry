@@ -634,8 +634,8 @@ export default function HomePage() {
                 }}
               >
                 {hasTodayResult
-                  ? `The official results for the ${todayLottery.name} ${todayLottery.code} lottery (${todayDrawResult.draw_code}) have been published. Check your ticket number or view full prize breakdown below.`
-                  : `Today's official draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:10 PM.`}
+                  ? `The results for the ${todayLottery.name} ${todayLottery.code} lottery (${todayDrawResult.draw_code}) have been published. Check your ticket number or view full prize breakdown below.`
+                  : `Today's draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:10 PM.`}
               </Typography>
 
               {/* Action Row */}
@@ -783,6 +783,7 @@ export default function HomePage() {
                         textAlign: "center",
                         justifyContent: "center",
                         fontSize: { xs: "0.825rem", sm: "0.95rem" },
+                        display: { xs: "none", md: "inline-flex" },
                         "&:hover": {
                           bgcolor: "#E8F5E9",
                           borderColor: "#0F5A24",
@@ -791,6 +792,149 @@ export default function HomePage() {
                     >
                       View More Details for {todayDrawResult.draw_date} Result
                     </Button>
+                  </Box>
+                )}
+
+                {hasTodayResult && todayDrawResult && (
+                  <Box sx={{ display: { xs: "block", md: "none" }, mt: 3, pt: 3, borderTop: "1px solid #E5E7EB" }}>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 2 }}>
+                      Winning Numbers
+                    </Typography>
+
+                    {/* 1st Prize Winner details card (mobile version) */}
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        mb: 3,
+                        borderRadius: "16px",
+                        background: "linear-gradient(135deg, #E67E22 0%, #D35400 100%)",
+                        color: "#FFFFFF",
+                        boxShadow: "0 4px 15px rgba(211, 84, 0, 0.15)",
+                      }}
+                    >
+                      <Chip
+                        icon={<EmojiEventsIcon sx={{ color: "#FFFFFF !important", fontSize: "14px !important" }} />}
+                        label="1ST PRIZE WINNER"
+                        size="small"
+                        sx={{
+                          bgcolor: "rgba(0, 0, 0, 0.25)",
+                          color: "#FFFFFF",
+                          fontWeight: 800,
+                          fontSize: "0.7rem",
+                          mb: 1.5,
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Typography
+                        variant="h4"
+                        sx={{
+                          fontWeight: 900,
+                          fontFamily: "monospace",
+                          letterSpacing: 1,
+                          mb: 0.5,
+                        }}
+                      >
+                        {todayDrawResult.first?.ticket || "N/A"}
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, opacity: 0.95, mb: 1.5 }}>
+                        Prize: {todayDrawResult.prizes?.amounts?.["1st"] || "₹70 Lakhs"}
+                      </Typography>
+
+                      {((todayDrawResult.first?.location && todayDrawResult.first.location.toLowerCase() !== "n/a" && todayDrawResult.first.location.toLowerCase() !== "nan" && todayDrawResult.first.location.toLowerCase() !== "null") || 
+                        (todayDrawResult.first?.agent && todayDrawResult.first.agent.toLowerCase() !== "n/a" && todayDrawResult.first.agent.toLowerCase() !== "nan" && todayDrawResult.first.agent.toLowerCase() !== "null")) && (
+                        <Box sx={{ display: "flex", borderTop: "1px solid rgba(255, 255, 255, 0.2)", pt: 1.5, gap: 2 }}>
+                          {todayDrawResult.first?.location && todayDrawResult.first.location.toLowerCase() !== "n/a" && todayDrawResult.first.location.toLowerCase() !== "nan" && todayDrawResult.first.location.toLowerCase() !== "null" && (
+                            <Box sx={{ flex: 1 }}>
+                              <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.8)", display: "block" }}>
+                                Location
+                              </Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                {todayDrawResult.first.location}
+                              </Typography>
+                            </Box>
+                          )}
+                          {todayDrawResult.first?.agent && todayDrawResult.first.agent.toLowerCase() !== "n/a" && todayDrawResult.first.agent.toLowerCase() !== "nan" && todayDrawResult.first.agent.toLowerCase() !== "null" && (
+                            <Box sx={{ flex: 1 }}>
+                              <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.8)", display: "block" }}>
+                                Agent
+                              </Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                {todayDrawResult.first.agent}
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+                      )}
+                    </Paper>
+
+                    {/* Other Prize Tiers */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                      {[
+                        { key: "consolation", label: "Consolation Prize", badgeBg: "#7F8C8D" },
+                        { key: "2nd", label: "2nd Prize", badgeBg: "#D4AF37" },
+                        { key: "3rd", label: "3rd Prize", badgeBg: "#2980B9" },
+                        { key: "4th", label: "4th Prize", badgeBg: "#8E44AD" },
+                        { key: "5th", label: "5th Prize", badgeBg: "#2C3E50" },
+                        { key: "6th", label: "6th Prize", badgeBg: "#16A085" },
+                        { key: "7th", label: "7th Prize", badgeBg: "#D35400" },
+                        { key: "8th", label: "8th Prize", badgeBg: "#C0392B" },
+                        { key: "9th", label: "9th Prize", badgeBg: "#7F8C8D" },
+                      ].map(({ key, label, badgeBg }) => {
+                        const numbers = todayDrawResult.prizes?.[
+                          key as keyof typeof todayDrawResult.prizes
+                        ] as string[] | undefined;
+                        const amount = todayDrawResult.prizes?.amounts?.[key];
+
+                        if (!numbers || numbers.length === 0) return null;
+
+                        return (
+                          <Paper
+                            key={key}
+                            elevation={0}
+                            sx={{
+                              p: 2,
+                              borderRadius: "12px",
+                              bgcolor: "#FFFFFF",
+                              border: "1px solid #E5E7EB",
+                            }}
+                          >
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", gap: 1 }}>
+                                <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: badgeBg }} />
+                                {label}
+                              </Typography>
+                              {amount && (
+                                <Chip
+                                  label={`Prize: ${amount}`}
+                                  size="small"
+                                  sx={{ bgcolor: "#F3F4F6", color: "#374151", fontWeight: 700, borderRadius: "6px", fontSize: "0.75rem" }}
+                                />
+                              )}
+                            </Box>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                              {numbers.map((num, idx) => (
+                                <Box
+                                  key={idx}
+                                  sx={{
+                                    px: 1.5,
+                                    py: 0.75,
+                                    borderRadius: "6px",
+                                    bgcolor: badgeBg,
+                                    color: "#FFFFFF",
+                                    fontFamily: "monospace",
+                                    fontWeight: 800,
+                                    fontSize: "0.8rem",
+                                  }}
+                                >
+                                  {num}
+                                </Box>
+                              ))}
+                            </Box>
+                          </Paper>
+                        );
+                      })}
+                    </Box>
                   </Box>
                 )}
               </Box>
@@ -939,7 +1083,7 @@ export default function HomePage() {
                   maxWidth: 600,
                 }}
               >
-                Official published winning numbers breakdown for{" "}
+                Published winning numbers breakdown for{" "}
                 {latestPreviousDraw?.draw_name} ({latestPreviousDraw?.draw_code}
                 ) drawn on {latestPreviousDraw?.draw_date}. 1st Prize ticket:{" "}
                 <strong>{latestPreviousDraw?.first?.ticket || "N/A"}</strong> (
@@ -1248,7 +1392,7 @@ export default function HomePage() {
                           mb: 2,
                         }}
                       >
-                        Official Draw: 3:00 PM
+                        Draw: 3:00 PM
                       </Typography>
 
                       {/* Previous Draw / 1st Prize Winner Highlight Box */}

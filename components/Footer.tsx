@@ -48,7 +48,7 @@ export default function Footer() {
           variant="body2"
           sx={{ color: "#6B7280", mb: 2.5, maxWidth: 600, mx: "auto" }}
         >
-          Your official destination for live Kerala lottery results today, 3:10
+          Your destination for live Kerala lottery results today, 3:10
           PM winning ticket number verification, weekly schedule, and historical
           draw archives.
         </Typography>

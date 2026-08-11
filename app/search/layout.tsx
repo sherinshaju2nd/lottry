@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Winning Ticket Checker | Kerala Lottery Result Today Result",
+  title: "Kerala Lottery Ticket Search Engine | Live Results Today Checker",
   description:
-    "Check kerala lottery result today result live! Use our fast kl lottery results search engine to check your ticket for the kerala jackpot result.",
+    "Search your Kerala State Lottery ticket numbers. Use our fast kl lottery results search engine to check your ticket for winning jackpot numbers instantly.",
   openGraph: {
-    title: "Winning Ticket Checker | Kerala Lottery Result Today",
+    title: "Kerala Lottery Ticket Search Engine | Live Results Today Checker",
     description:
-      "Search your kl lottery results to instantly see if you've won the kerala jackpot.",
+      "Search your kl lottery results to instantly see if you have won the jackpot.",
     url: "https://www.keralalotteryresultstoday.in/search",
     siteName: "Kerala Lottery Result Today",
     images: [
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Winning Ticket Checker | Kerala Lottery Result Today",
+    title: "Kerala Lottery Ticket Search Engine | Live Results Today Checker",
     description:
-      "Search your Kerala Lottery ticket number to instantly see if you've won. Fast and easy checker engine.",
+      "Search your Kerala Lottery ticket number to instantly see if you have won. Fast and easy checker search engine.",
     images: ["/website-banner-1600x500.png"],
   },
 };

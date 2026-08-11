@@ -14,12 +14,18 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.keralalotteryresultstoday.in"),
   title: {
-    default: "Kerala Lottery Result Today | Kerala State Lottery Result Live",
+    default: "Kerala Lottery Ticket Search Engine | Live Results Today Checker",
     template: "%s | Kerala State Lottery Result Today",
   },
   description:
-    "Check kerala lottery result today result live! Get the latest kl lottery results, kerala jackpot result, and official kerala state lottery today updates.",
+    "Check kerala lottery results using our fast lottery ticket search engine and checker. Enter your ticket number to instantly verify winning results, check kerala jackpot, and view draw tables.",
   keywords: [
+    "kerala lottery ticket search",
+    "kerala lottery ticket search engine",
+    "kerala lottery ticket checker",
+    "check kerala lottery ticket online",
+    "kerala lottery search engine",
+    "lottery checker search",
     "kerala lottery result",
     "kerala lottery result today result",
     "kerala state lottery result today",
@@ -30,10 +36,9 @@ export const metadata: Metadata = {
     "kerala lottery",
     "kerela lottery com",
     "kerala jackpot result",
-    "kerala lottery lottery",
-    "Kerala Lottery Result Today",
-    "Kerala Lottery Live Result",
+    "kerala lottery ticket search online",
     "Kerala Lottery Ticket Search",
+    "Kerala Lottery Live Result",
     "Suvarna Keralam Result",
     "Karunya Result Today",
     "Samrudhi Result Today",
@@ -64,9 +69,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Kerala Lottery Result Today - Live Results & Schedule",
+    title: "Kerala Lottery Ticket Search Engine - Live Results Today & Checker",
     description:
-      "Check Kerala Lottery Result Today live! Fast 3:10 PM draw results, winning ticket search checker engine, weekly schedule, and complete historical archive.",
+      "Search your Kerala Lottery ticket numbers instantly to see if you won! Live draw results, search checker engine, weekly schedule, and historical archive.",
     url: "https://www.keralalotteryresultstoday.in",
     siteName: "Kerala Lottery Result Today",
     images: [
@@ -88,9 +93,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kerala Lottery Result Today - Live Results & Schedule",
+    title: "Kerala Lottery Ticket Search Engine - Live Results Today & Checker",
     description:
-      "Check Kerala State Lottery live 3:10 PM results & search winning tickets instantly!",
+      "Check Kerala State Lottery live results & search winning ticket numbers instantly using our checker tool!",
     images: ["/og-image.png"],
   },
   robots: {
