@@ -207,6 +207,7 @@ export async function fetchAllDrawResultsFromSupabase(forceRefresh = true): Prom
   StructuredDrawResult[]
 > {
   // Bypassing in-memory cache to guarantee live results
+  const now = Date.now();
 
 
   try {
