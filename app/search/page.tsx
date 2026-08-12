@@ -28,7 +28,6 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import HistoryIcon from "@mui/icons-material/History";
@@ -37,7 +36,6 @@ import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
 import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 import ModernDatePicker from "@/components/ModernDatePicker";
-import TicketScannerModal from "@/components/TicketScannerModal";
 import SavedWatchlistDrawer from "@/components/SavedWatchlistDrawer";
 import ShareButtons from "@/components/ShareButtons";
 import {
@@ -110,7 +108,6 @@ export default function AdvancedSearchPage() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [watchlist, setWatchlist] = useState<SavedTicket[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [scannerOpen, setScannerOpen] = useState(false);
 
   // Batch Mode & Range Generator Validation States
   const [batchInput, setBatchInput] = useState("");
@@ -535,15 +532,6 @@ export default function AdvancedSearchPage() {
                     input: {
                       endAdornment: (
                         <Box sx={{ display: "flex", gap: 0.5, pl: 0.5 }}>
-                          <Tooltip title="Scan Ticket via Photo / Camera">
-                            <IconButton
-                              size="small"
-                              onClick={() => setScannerOpen(true)}
-                              sx={{ color: "#0F5A24" }}
-                            >
-                              <CameraAltIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
 
                           <Tooltip
                             title={
@@ -1137,20 +1125,6 @@ export default function AdvancedSearchPage() {
           })}
         </Box>
       )}
-
-      {/* Camera OCR Scanner Modal */}
-      <TicketScannerModal
-        open={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-        onSelectTicket={(ticket) => {
-          setValue("ticketNumber", ticket, { shouldValidate: true });
-          onSubmit({
-            ticketNumber: ticket,
-            lotteryCode: selectedCode,
-            drawDate: selectedDate,
-          });
-        }}
-      />
 
       {/* Saved Watchlist Drawer */}
       <SavedWatchlistDrawer
