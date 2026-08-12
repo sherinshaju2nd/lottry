@@ -30,7 +30,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import confetti from "canvas-confetti";
 import DrawDetailSkeleton from "@/components/skeletons/DrawDetailSkeleton";
 import ShareButtons from "@/components/ShareButtons";
-import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
+import { WEEKLY_LOTTERIES, StructuredDrawResult, supabase } from "@/lib/supabase";
 
 interface PageProps {
   params: Promise<{ code: string; date: string }>;
@@ -77,13 +77,13 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     async function loadDatesAndResult() {
       setIsLoading(true);
       try {
-        const datesRes = await fetch(`/api/draws?code=${codeParam}&type=dates`);
+        const datesRes = await fetch(`/api/draws?code=${codeParam}&type=dates&t=${Date.now()}`);
         const datesJson = await datesRes.json();
         const dates: string[] = datesJson.dates || [];
         setAvailableDates(dates);
 
         const resultRes = await fetch(
-          `/api/draws?code=${codeParam}&date=${dateParam}`,
+          `/api/draws?code=${codeParam}&date=${dateParam}&t=${Date.now()}`
         );
         const resultJson = await resultRes.json();
         setDrawResult(resultJson.result || null);
@@ -95,6 +95,29 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     }
 
     loadDatesAndResult();
+
+    const channel = supabase
+      .channel(`realtime-details-${codeParam}-${dateParam}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "draw_results",
+          filter: `lottery_code=eq.${codeParam}`
+        },
+        (payload) => {
+          const newRow = payload.new as any;
+          if (newRow && newRow.draw_date === dateParam) {
+            loadDatesAndResult();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [codeParam, dateParam]);
 
   const handleDateChange = async (event: SelectChangeEvent<string>) => {

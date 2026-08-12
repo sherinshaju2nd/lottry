@@ -130,7 +130,7 @@ export default function HomePage() {
 
     async function checkTodayData() {
       try {
-        const res = await fetch(`/api/draws?code=${matched.code}`);
+        const res = await fetch(`/api/draws?code=${matched.code}&t=${Date.now()}`);
         const json = await res.json();
         if (json.success && json.result) {
           setTodayDrawResult(json.result);
@@ -144,7 +144,7 @@ export default function HomePage() {
 
     async function loadRecentDrawsMap() {
       try {
-        const res = await fetch("/api/draws?type=all");
+        const res = await fetch(`/api/draws?type=all&t=${Date.now()}`);
         const json = await res.json();
         if (
           json.success &&

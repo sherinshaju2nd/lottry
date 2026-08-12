@@ -120,52 +120,19 @@ $$;
 --
 -- IST is UTC + 05:30. pg_cron runs on UTC clock.
 -- ------------------------------------------------------------------------------
---  IST Time  | UTC Time | Cron Schedule | Cron Job Name
--- ------------------------------------------------------------------------------
---  3:10 PM   | 09:40 AM | 40 9 * * *    | lottery_sync_3_10_pm_ist
---  3:15 PM   | 09:45 AM | 45 9 * * *    | lottery_sync_3_15_pm_ist
---  3:20 PM   | 09:50 AM | 50 9 * * *    | lottery_sync_3_20_pm_ist
---  3:30 PM   | 10:00 AM | 0 10 * * *    | lottery_sync_3_30_pm_ist
---  3:45 PM   | 10:15 AM | 15 10 * * *   | lottery_sync_3_45_pm_ist
---  4:00 PM   | 10:30 AM | 30 10 * * *   | lottery_sync_4_00_pm_ist
---  4:15 PM   | 10:45 AM | 45 10 * * *   | lottery_sync_4_15_pm_ist
---  4:30 PM   | 11:00 AM | 0 11 * * *    | lottery_sync_4_30_pm_ist
---  5:00 PM   | 11:30 AM | 30 11 * * *   | lottery_sync_5_00_pm_ist
+--  3:00 PM - 3:57 PM IST | 09:30 AM - 09:57 AM UTC | every 3 min | lottery_sync_3pm_to_357pm_ist
+--  4:00 PM - 4:30 PM IST | 10:00 AM - 10:30 AM UTC | every 3 min | lottery_sync_4pm_ist
 -- ==============================================================================
 
 SELECT cron.schedule(
-    'lottery_sync_3_10_pm_ist',
-    '40 9 * * *',
+    'lottery_sync_3pm_to_357pm_ist',
+    '30,33,36,39,42,45,48,51,54,57 9 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
 
 SELECT cron.schedule(
-    'lottery_sync_3_15_pm_ist',
-    '45 9 * * *',
-    $$SELECT public.trigger_lottery_sync();$$
-);
-
-SELECT cron.schedule(
-    'lottery_sync_3_20_pm_ist',
-    '50 9 * * *',
-    $$SELECT public.trigger_lottery_sync();$$
-);
-
-SELECT cron.schedule(
-    'lottery_sync_3_30_pm_ist',
-    '0 10 * * *',
-    $$SELECT public.trigger_lottery_sync();$$
-);
-
-SELECT cron.schedule(
-    'lottery_sync_3_45_pm_ist',
-    '15 10 * * *',
-    $$SELECT public.trigger_lottery_sync();$$
-);
-
-SELECT cron.schedule(
-    'lottery_sync_4_00_pm_ist',
-    '30 10 * * *',
+    'lottery_sync_4pm_ist',
+    '0,3,6,9,12,15,18,21,24,27,30 10 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
 

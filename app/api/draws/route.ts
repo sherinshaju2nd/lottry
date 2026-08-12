@@ -37,10 +37,10 @@ export async function GET(req: NextRequest) {
   }
 
   const response = NextResponse.json(responseData);
-  // Cache response at CDN edge for 2 minutes, allowing stale-while-revalidate for 5 minutes
+  // Disabled CDN/edge caching to support instant, live updates
   response.headers.set(
     "Cache-Control",
-    "public, s-maxage=120, stale-while-revalidate=300"
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
   );
   return response;
 }

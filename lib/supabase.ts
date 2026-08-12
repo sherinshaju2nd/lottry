@@ -203,13 +203,11 @@ export async function getDrawDatesFromSupabase(
   return [];
 }
 
-export async function fetchAllDrawResultsFromSupabase(forceRefresh = false): Promise<
+export async function fetchAllDrawResultsFromSupabase(forceRefresh = true): Promise<
   StructuredDrawResult[]
 > {
-  const now = Date.now();
-  if (!forceRefresh && cachedDrawResults && (now - lastCacheTime < CACHE_TTL_MS)) {
-    return cachedDrawResults;
-  }
+  // Bypassing in-memory cache to guarantee live results
+
 
   try {
     const { data, error } = await supabase
