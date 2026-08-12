@@ -48,6 +48,9 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const codeParam = resolvedParams.code.toUpperCase();
   const dateParam = decodeURIComponent(resolvedParams.date);
+  const todayISTDate = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata",
+  });
 
   const lotteryInfo = WEEKLY_LOTTERIES.find((l) => l.code === codeParam) || {
     name: `${codeParam} Lottery`,
@@ -62,6 +65,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     null,
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAfter3PM, setIsAfter3PM] = useState(false);
 
   // Ticket Checker State
   const [checkerTicketInput, setCheckerTicketInput] = useState<string>("");
@@ -95,6 +99,23 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
       }
     }
 
+    const checkTime = () => {
+      try {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString("en-GB", {
+          timeZone: "Asia/Kolkata",
+          hour12: false,
+        });
+        const [hStr] = timeStr.split(":");
+        const hours = parseInt(hStr, 10);
+        setIsAfter3PM(hours >= 15);
+      } catch {
+        setIsAfter3PM(false);
+      }
+    };
+    checkTime();
+    const timeInterval = setInterval(checkTime, 30000);
+
     loadDatesAndResult();
 
     const channel = supabase
@@ -118,6 +139,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
 
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(timeInterval);
     };
   }, [codeParam, dateParam]);
 
@@ -566,6 +588,25 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
           </Typography>
         </Box>
 
+        {selectedDate === todayISTDate && isAfter3PM && (!drawResult || !drawResult?.first?.ticket) && (
+          <Alert
+            severity="info"
+            sx={{
+              mb: 3,
+              borderRadius: "12px",
+              fontWeight: 700,
+              bgcolor: "#EFF6FF",
+              color: "#1E40AF",
+              border: "1px solid #BFDBFE",
+              "& .MuiAlert-icon": {
+                color: "#3B82F6",
+              },
+            }}
+          >
+            Result will update shortly. Drawing is in progress...
+          </Alert>
+        )}
+
         {/* Social Share Buttons */}
         {/* <ShareButtons
           title={`Kerala ${lotteryInfo.name} (${lotteryInfo.code}) Winning Numbers - ${selectedDate}`}
@@ -983,21 +1024,41 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
             )}
           </Box>
         ) : (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 6,
-              textAlign: "center",
-              bgcolor: "#FFFFFF",
-              borderRadius: "12px",
-              border: "1px solid #E5E7EB",
-            }}
-          >
-            <Typography variant="h6" sx={{ color: "#6B7280" }}>
-              No draw result recorded for {lotteryInfo.name} ({codeParam}) on{" "}
-              {selectedDate}.
-            </Typography>
-          </Paper>
+          selectedDate === todayISTDate && isAfter3PM ? (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 6,
+                textAlign: "center",
+                bgcolor: "#EFF6FF",
+                borderRadius: "16px",
+                border: "2px dashed #BFDBFE",
+              }}
+            >
+              <Typography variant="h5" sx={{ color: "#1E40AF", fontWeight: 800, mb: 1 }}>
+                Drawing in Progress...
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#1E40AF", fontWeight: 600 }}>
+                The live draw for today&apos;s {lotteryInfo.name} ({codeParam}) is currently in progress. Results will update shortly on this page.
+              </Typography>
+            </Paper>
+          ) : (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 6,
+                textAlign: "center",
+                bgcolor: "#FFFFFF",
+                borderRadius: "12px",
+                border: "1px solid #E5E7EB",
+              }}
+            >
+              <Typography variant="h6" sx={{ color: "#6B7280" }}>
+                No draw result recorded for {lotteryInfo.name} ({codeParam}) on{" "}
+                {selectedDate}.
+              </Typography>
+            </Paper>
+          )
         )}
       </Container>
     </Box>

@@ -78,6 +78,7 @@ export default function HomePage() {
   const [heroSlideIndex, setHeroSlideIndex] = useState<number>(0);
   const [latestPreviousDraw, setLatestPreviousDraw] =
     useState<StructuredDrawResult | null>(null);
+  const [isAfter3PM, setIsAfter3PM] = useState(false);
 
   const todayISTDate = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
@@ -111,6 +112,23 @@ export default function HomePage() {
         (l) => l.day.toLowerCase() === istDayName.toLowerCase(),
       ) || WEEKLY_LOTTERIES[0];
     setTodayLottery(matched);
+
+    const checkTime = () => {
+      try {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString("en-GB", {
+          timeZone: "Asia/Kolkata",
+          hour12: false,
+        });
+        const [hStr] = timeStr.split(":");
+        const hours = parseInt(hStr, 10);
+        setIsAfter3PM(hours >= 15);
+      } catch {
+        setIsAfter3PM(false);
+      }
+    };
+    checkTime();
+    const timeInterval = setInterval(checkTime, 30000);
 
     async function loadLotteriesFromDb() {
       try {
@@ -229,6 +247,7 @@ export default function HomePage() {
 
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(timeInterval);
     };
   }, []);
 
@@ -297,7 +316,7 @@ export default function HomePage() {
     return { bgcolor: "#F3F4F6", color: "#4B5563" };
   };
 
-  const hasTodayResult = !!todayDrawResult;
+  const hasTodayResult = !!todayDrawResult && !!todayDrawResult.first?.ticket;
 
   return (
     <Container
@@ -589,20 +608,20 @@ export default function HomePage() {
                 <Chip
                   icon={
                     <AccessTimeIcon
-                      sx={{ fontSize: "14px !important", color: "#B45309" }}
+                      sx={{ fontSize: "14px !important", color: isAfter3PM ? "#1E40AF" : "#B45309" }}
                     />
                   }
-                  label="Result Coming Soon (3:10 PM)"
+                  label={isAfter3PM ? "Drawing in Progress..." : "Result Coming Soon (3:10 PM)"}
                   sx={{
-                    bgcolor: "#FEF3C7",
-                    color: "#92400E",
+                    bgcolor: isAfter3PM ? "#EFF6FF" : "#FEF3C7",
+                    color: isAfter3PM ? "#1E40AF" : "#92400E",
                     fontWeight: 800,
                     fontSize: { xs: "0.7rem", sm: "0.75rem" },
                     borderRadius: "20px",
                     mb: 2,
                     px: 1,
                     py: 0.25,
-                    border: "1px solid #FCD34D",
+                    border: isAfter3PM ? "1px solid #BFDBFE" : "1px solid #FCD34D",
                   }}
                 />
               )}
@@ -642,13 +661,13 @@ export default function HomePage() {
                 <Typography
                   variant="h6"
                   sx={{
-                    color: "#D97706",
+                    color: isAfter3PM ? "#1E40AF" : "#D97706",
                     fontWeight: 800,
                     mb: 2,
                     fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
                   }}
                 >
-                  Draw Scheduled Today at 3:00 PM • Results Coming Soon
+                  {isAfter3PM ? "Drawing is currently in progress..." : "Draw Scheduled Today at 3:00 PM • Results Coming Soon"}
                 </Typography>
               )}
 
@@ -664,8 +683,30 @@ export default function HomePage() {
               >
                 {hasTodayResult
                   ? `The results for the ${todayLottery.name} ${todayLottery.code} lottery (${todayDrawResult.draw_code}) have been published. Check your ticket number or view full prize breakdown below.`
-                  : `Today's draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:10 PM.`}
+                  : isAfter3PM
+                    ? `Today's draw for ${todayLottery.name} ${todayLottery.code} is currently in progress. Results will update shortly.`
+                    : `Today's draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:10 PM.`}
               </Typography>
+
+              {isAfter3PM && (!hasTodayResult || !todayDrawResult?.first?.ticket) && (
+                <Alert
+                  severity="info"
+                  sx={{
+                    mb: 3,
+                    borderRadius: "12px",
+                    fontWeight: 700,
+                    bgcolor: "#EFF6FF",
+                    color: "#1E40AF",
+                    border: "1px solid #BFDBFE",
+                    maxWidth: 600,
+                    "& .MuiAlert-icon": {
+                      color: "#3B82F6",
+                    },
+                  }}
+                >
+                  Result will update shortly. Drawing is in progress...
+                </Alert>
+              )}
 
               {/* Action Row */}
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
