@@ -92,43 +92,61 @@ export default function BarcodeScannerModal({ open, onClose }: BarcodeScannerMod
       setScannerError(null);
       setIsScanning(true);
 
-      const timer = setTimeout(() => {
+      const timer = setTimeout(async () => {
         if (!isMounted) return;
         try {
-          const html5QrCode = new Html5Qrcode(scannerRegionId);
+          const html5QrCode = new Html5Qrcode(scannerRegionId, {
+            formatsToSupport: [
+              0, // CODE_128
+              1, // CODE_39
+              2, // CODE_93
+              4, // EAN_13
+              5, // EAN_8
+              7, // ITF
+              11, // UPC_A
+              12, // UPC_E
+              14, // QR_CODE
+            ],
+            verbose: false,
+          });
           html5QrCodeRef.current = html5QrCode;
 
-          html5QrCode
-            .start(
-              { facingMode: "environment" },
-              {
-                fps: 10,
-                qrbox: { width: 250, height: 180 },
-              },
-              (decodedText) => {
-                if (isMounted) {
-                  setScannedCode(decodedText);
-                  setManualTicketInput(decodedText);
-                  stopScanner();
-                  checkWinningTicketInSupabase(decodedText, selectedDate);
-                }
-              },
-              () => {
-                // Ignore silent frame decoding failures
-              }
-            )
-            .catch((err) => {
-              console.warn("Camera start warning:", err);
-              if (isMounted) {
-                setScannerError(
-                  "Could not access camera. Please ensure camera permissions are granted or use manual entry below."
-                );
-                setIsScanning(false);
-              }
-            });
-        } catch (e) {
-          console.error("Scanner setup error:", e);
-          if (isMounted) setIsScanning(false);
+          const config = {
+            fps: 20,
+            qrbox: { width: 280, height: 110 },
+            aspectRatio: 1.777778,
+          };
+
+          const onScanSuccess = (decodedText: string) => {
+            if (isMounted) {
+              setScannedCode(decodedText);
+              setManualTicketInput(decodedText);
+              stopScanner();
+              checkWinningTicketInSupabase(decodedText, selectedDate);
+            }
+          };
+
+          // Try back camera first
+          try {
+            await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
+          } catch (e1) {
+            // Fallback to getting list of available cameras
+            const cameras = await Html5Qrcode.getCameras();
+            if (cameras && cameras.length > 0) {
+              const cameraId = cameras[cameras.length - 1].id;
+              await html5QrCode.start(cameraId, config, onScanSuccess, () => {});
+            } else {
+              throw e1;
+            }
+          }
+        } catch (err: any) {
+          console.warn("Camera start error:", err);
+          if (isMounted) {
+            setScannerError(
+              "Camera access issue or scanner restricted. Please ensure camera permissions are allowed, or type/paste your ticket below."
+            );
+            setIsScanning(false);
+          }
         }
       }, 300);
 
@@ -341,17 +359,38 @@ export default function BarcodeScannerModal({ open, onClose }: BarcodeScannerMod
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            mb: 2,
+            mb: 1.5,
           }}
         >
           <div id={scannerRegionId} style={{ width: "100%", height: "100%" }} />
 
+          {/* Red horizontal barcode laser line hint overlay */}
+          {!scannerError && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "10%",
+                right: "10%",
+                height: "2px",
+                bgcolor: "#EF4444",
+                boxShadow: "0 0 8px #EF4444",
+                zIndex: 3,
+                pointerEvents: "none",
+              }}
+            />
+          )}
+
           {scannerError && (
-            <Typography variant="caption" sx={{ color: "#EF4444", p: 2, textAlign: "center", zIndex: 2 }}>
+            <Typography variant="caption" sx={{ color: "#EF4444", p: 2, textAlign: "center", zIndex: 4 }}>
               {scannerError}
             </Typography>
           )}
         </Box>
+
+        <Alert severity="info" sx={{ py: 0.5, px: 1.5, mb: 2, borderRadius: "8px", fontSize: "0.75rem" }}>
+          💡 <strong>Barcode Scanning Hint:</strong> Align the long horizontal 1D barcode on your ticket across the red line.
+        </Alert>
 
         {/* Ticket Input & Manual Check */}
         <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
