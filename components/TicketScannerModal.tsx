@@ -60,48 +60,37 @@ export default function TicketScannerModal({
     reader.readAsDataURL(file);
   };
 
-  // Client-side Canvas Text & Digit Pattern Analysis
-  const analyzeImage = (imageSrc: string) => {
+  // Real OCR API image analysis
+  const analyzeImage = async (imageSrc: string) => {
     setIsAnalyzing(true);
-    setStatusMessage("Scanning ticket image for 6-digit & series numbers...");
+    setStatusMessage("Scanning ticket image with OCR AI...");
     setDetectedNumbers([]);
 
-    const img = new Image();
-    img.src = imageSrc;
-    img.onload = () => {
-      // Simulate intelligent scan delay for smooth UX
-      setTimeout(() => {
-        const dummyCandidates: string[] = [];
-
-        // Create canvas to inspect image metadata / OCR pattern
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-        }
-
-        // Example regex patterns for Kerala lottery tickets
-        // Matches e.g. "BT 236935", "MJ 123456", "727235", "163829"
+    try {
+      const res = await fetch("/api/ocr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: imageSrc }),
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.tickets) && data.tickets.length > 0) {
+        setDetectedNumbers(data.tickets);
+        setStatusMessage(`Successfully detected ${data.tickets.length} ticket number(s)!`);
+      } else {
         const filename = fileInputRef.current?.files?.[0]?.name || "";
         const fnMatch = filename.match(/\b([A-Z]{2}\s*\d{6}|\d{6})\b/i);
-
         if (fnMatch) {
-          dummyCandidates.push(fnMatch[0].toUpperCase());
+          setDetectedNumbers([fnMatch[0].toUpperCase()]);
+          setStatusMessage("Detected ticket number!");
+        } else {
+          setStatusMessage("No clear ticket numbers detected. Please upload a clearer photo.");
         }
-
-        // Generate high-probability candidate matches if scanner reads paper
-        if (dummyCandidates.length === 0) {
-          // Provide instant smart candidates based on standard ticket structures
-          dummyCandidates.push("BT 236935", "MJ 727218", "WA 163842");
-        }
-
-        setDetectedNumbers(Array.from(new Set(dummyCandidates)));
-        setIsAnalyzing(false);
-        setStatusMessage(`Successfully detected ${dummyCandidates.length} candidate ticket numbers!`);
-      }, 900);
-    };
+      }
+    } catch {
+      setStatusMessage("Scan failed. Please try again.");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handlePickTicket = (ticket: string) => {

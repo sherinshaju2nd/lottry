@@ -17,6 +17,7 @@ import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import Alert from "@mui/material/Alert";
+import Skeleton from "@mui/material/Skeleton";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -69,6 +70,7 @@ export default function HomePage() {
   const [searchedQuery, setSearchedQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [realtimeNotification, setRealtimeNotification] = useState<
     string | null
   >(null);
@@ -224,8 +226,9 @@ export default function HomePage() {
       }
     }
 
-    checkTodayData();
-    loadRecentDrawsMap();
+    Promise.all([checkTodayData(), loadRecentDrawsMap()]).finally(() => {
+      setIsLoading(false);
+    });
 
     const channel = supabase
       .channel("realtime-lottery-results")
@@ -1352,14 +1355,31 @@ export default function HomePage() {
         </Typography>
 
         <Grid container spacing={{ xs: 2.5, sm: 3 }}>
-          {lotteriesList.map((item) => {
-            const isActiveToday =
-              item.day.toLowerCase() === todayDayName.toLowerCase();
-            const badgeStyle = getBadgeStyle(item.day);
-            const latestDraw = recentDrawsMap[item.code];
+          {isLoading
+            ? [1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={n}>
+                  <Paper
+                    elevation={0}
+                    sx={{ p: 3, borderRadius: "16px", border: "1px solid #E5E7EB" }}
+                  >
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                      <Skeleton variant="rounded" width={80} height={24} />
+                      <Skeleton variant="rounded" width={40} height={24} />
+                    </Box>
+                    <Skeleton variant="text" width="70%" height={32} sx={{ mb: 0.5 }} />
+                    <Skeleton variant="text" width="40%" height={24} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" width="100%" height={60} sx={{ borderRadius: "8px" }} />
+                  </Paper>
+                </Grid>
+              ))
+            : lotteriesList.map((item) => {
+                const isActiveToday =
+                  item.day.toLowerCase() === todayDayName.toLowerCase();
+                const badgeStyle = getBadgeStyle(item.day);
+                const latestDraw = recentDrawsMap[item.code];
 
-            return (
-              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.code}>
+                return (
+                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.code}>
                 <Card
                   elevation={0}
                   sx={{
