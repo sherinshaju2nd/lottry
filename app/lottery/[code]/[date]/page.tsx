@@ -51,6 +51,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
 
   const lotteryInfo = WEEKLY_LOTTERIES.find((l) => l.code === codeParam) || {
     name: `${codeParam} Lottery`,
+    nameMl: "",
     code: codeParam,
     day: "Scheduled Draw",
   };
@@ -545,6 +546,19 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
             {lotteryInfo.name} ({lotteryInfo.code}) Result Today -{" "}
             {selectedDate}
           </Typography>
+          {lotteryInfo.nameMl && (
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 800,
+                color: "#16A34A",
+                mb: 1.5,
+                fontSize: { xs: "1.25rem", sm: "1.60rem" },
+              }}
+            >
+              {lotteryInfo.nameMl}
+            </Typography>
+          )}
           <Typography variant="body1" sx={{ color: "#6B7280" }}>
             Published Result | Draw Day:{" "}
             <strong>{lotteryInfo.day}</strong> | Draw Time:{" "}

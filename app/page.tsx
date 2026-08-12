@@ -58,6 +58,7 @@ interface SearchMatch {
 
 export default function HomePage() {
   const [todayLottery, setTodayLottery] = useState(WEEKLY_LOTTERIES[0]);
+  const [lotteriesList, setLotteriesList] = useState(WEEKLY_LOTTERIES);
   const [todayDayName, setTodayDayName] = useState("Sunday");
   const [todayDrawResult, setTodayDrawResult] =
     useState<StructuredDrawResult | null>(null);
@@ -110,6 +111,34 @@ export default function HomePage() {
         (l) => l.day.toLowerCase() === istDayName.toLowerCase(),
       ) || WEEKLY_LOTTERIES[0];
     setTodayLottery(matched);
+
+    async function loadLotteriesFromDb() {
+      try {
+        const { data, error } = await supabase
+          .from("lotteries")
+          .select("*")
+          .order("id", { ascending: true });
+        if (!error && data && data.length > 0) {
+          const mapped = data.map((d: any) => ({
+            day: d.day,
+            name: d.name,
+            nameMl: d.name_ml || d.name,
+            code: d.code,
+            drawTime: d.draw_time || "3:00 PM",
+          }));
+          setLotteriesList(mapped);
+
+          // Update today's matched lottery dynamically
+          const matchedDb = mapped.find(
+            (l: any) => l.day.toLowerCase() === istDayName.toLowerCase(),
+          ) || mapped[0];
+          setTodayLottery(matchedDb);
+        }
+      } catch (e) {
+        console.warn("Error fetching lotteries:", e);
+      }
+    }
+    loadLotteriesFromDb();
 
     // Calculate IST time to determine default banner tab (Before 2:30 PM -> Previous Day Result, After 2:30 PM -> Today's Draw)
     try {
@@ -1282,7 +1311,7 @@ export default function HomePage() {
         </Typography>
 
         <Grid container spacing={{ xs: 2.5, sm: 3 }}>
-          {WEEKLY_LOTTERIES.map((item) => {
+          {lotteriesList.map((item) => {
             const isActiveToday =
               item.day.toLowerCase() === todayDayName.toLowerCase();
             const badgeStyle = getBadgeStyle(item.day);
@@ -1376,11 +1405,23 @@ export default function HomePage() {
                         sx={{
                           fontWeight: 900,
                           color: isActiveToday ? "#0F5A24" : "#111827",
-                          mb: 0.5,
+                          mb: 0.2,
                           fontSize: "1.25rem",
                         }}
                       >
                         {item.name}
+                      </Typography>
+
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 700,
+                          color: isActiveToday ? "#16A34A" : "#4B5563",
+                          mb: 0.5,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {item.nameMl}
                       </Typography>
 
                       <Typography

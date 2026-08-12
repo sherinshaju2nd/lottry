@@ -39,13 +39,13 @@ export interface StructuredDrawResult {
 }
 
 export const WEEKLY_LOTTERIES = [
-  { day: "Monday", name: "Bhagyathara", code: "BT" },
-  { day: "Tuesday", name: "Sthree Sakthi", code: "SS" },
-  { day: "Wednesday", name: "Dhanalekshmi", code: "DL" },
-  { day: "Thursday", name: "Karunya Plus", code: "KN" },
-  { day: "Friday", name: "Suvarna Keralam", code: "SK" },
-  { day: "Saturday", name: "Karunya", code: "KR" },
-  { day: "Sunday", name: "Samrudhi", code: "SM" },
+  { day: "Monday", name: "Bhagyathara", nameMl: "ഭാഗ്യതാരാ", code: "BT" },
+  { day: "Tuesday", name: "Sthree Sakthi", nameMl: "സ്ത്രീശക്തി", code: "SS" },
+  { day: "Wednesday", name: "Dhanalekshmi", nameMl: "ധനലക്ഷ്മി", code: "DL" },
+  { day: "Thursday", name: "Karunya Plus", nameMl: "കാരുണ്യ പ്ലസ്", code: "KN" },
+  { day: "Friday", name: "Suvarna Keralam", nameMl: "സുവർണ്ണ കേരളം", code: "SK" },
+  { day: "Saturday", name: "Karunya", nameMl: "കാരുണ്യ", code: "KR" },
+  { day: "Sunday", name: "Samrudhi", nameMl: "സമൃദ്ധി", code: "SM" },
 ];
 
 let cachedDrawResults: StructuredDrawResult[] | null = null;

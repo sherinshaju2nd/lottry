@@ -115,14 +115,7 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
--- ==============================================================================
--- 5. Schedule Cron Jobs (Times converted from Indian Standard Time IST to UTC)
---
--- IST is UTC + 05:30. pg_cron runs on UTC clock.
--- ------------------------------------------------------------------------------
---  3:00 PM - 3:57 PM IST | 09:30 AM - 09:57 AM UTC | every 3 min | lottery_sync_3pm_to_357pm_ist
---  4:00 PM - 4:30 PM IST | 10:00 AM - 10:30 AM UTC | every 3 min | lottery_sync_4pm_ist
--- ==============================================================================
+
 
 SELECT cron.schedule(
     'lottery_sync_3pm_to_357pm_ist',
@@ -143,28 +136,7 @@ SELECT cron.schedule(
 );
 
 SELECT cron.schedule(
-    'lottery_sync_4_30_pm_ist',
-    '0 11 * * *',
+    'lottery_sync_430_to_500_pm_ist',
+    '0,15,30 11 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
-
-SELECT cron.schedule(
-    'lottery_sync_5_00_pm_ist',
-    '30 11 * * *',
-    $$SELECT public.trigger_lottery_sync();$$
-);
-
--- ==============================================================================
--- 6. HOW TO TEST OR UPDATE URL IN THE FUTURE:
--- ==============================================================================
--- A) To test immediately in Supabase SQL Editor:
--- SELECT public.trigger_lottery_sync();
-
--- B) To update your website URL if domain changes in future:
--- UPDATE public.app_config SET value = 'https://your-new-domain.com' WHERE key = 'app_url';
-
--- C) View scheduled jobs & logs:
--- SELECT * FROM cron.job;
--- SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;
--- D) View HTTP response status from pg_net:
--- SELECT id, status_code, content, created FROM net._http_response ORDER BY created DESC LIMIT 10;

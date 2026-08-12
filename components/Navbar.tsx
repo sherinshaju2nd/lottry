@@ -32,7 +32,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
-import { WEEKLY_LOTTERIES } from "@/lib/supabase";
+import { WEEKLY_LOTTERIES, supabase } from "@/lib/supabase";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,6 +40,31 @@ export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const pathname = usePathname();
   const router = useRouter();
+  const [lotteriesList, setLotteriesList] = useState(WEEKLY_LOTTERIES);
+
+  React.useEffect(() => {
+    async function loadNavbarLotteries() {
+      try {
+        const { data, error } = await supabase
+          .from("lotteries")
+          .select("*")
+          .order("id", { ascending: true });
+        if (!error && data && data.length > 0) {
+          const mapped = data.map((d: any) => ({
+            day: d.day,
+            name: d.name,
+            nameMl: d.name_ml || d.name,
+            code: d.code,
+            drawTime: d.draw_time || "3:00 PM",
+          }));
+          setLotteriesList(mapped);
+        }
+      } catch (e) {
+        console.warn("Navbar loading error:", e);
+      }
+    }
+    loadNavbarLotteries();
+  }, []);
 
   const isMenuOpen = Boolean(anchorEl);
 
@@ -161,7 +186,7 @@ export default function Navbar() {
                 </Typography>
               </Box>
 
-              {WEEKLY_LOTTERIES.map((lottery) => {
+              {lotteriesList.map((lottery) => {
                 const isActive = pathname === `/lottery/${lottery.code.toLowerCase()}`;
                 return (
                   <MenuItem
@@ -370,7 +395,7 @@ export default function Navbar() {
 
                 <Collapse in={mobileSubmenuOpen} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding sx={{ pl: 2, pt: 1 }}>
-                    {WEEKLY_LOTTERIES.map((lottery) => {
+                    {lotteriesList.map((lottery) => {
                       const isActive = pathname === `/lottery/${lottery.code.toLowerCase()}`;
                       return (
                         <ListItemButton
