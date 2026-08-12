@@ -32,10 +32,13 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import { WEEKLY_LOTTERIES, supabase } from "@/lib/supabase";
+import BarcodeScannerModal from "@/components/BarcodeScannerModal";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const pathname = usePathname();
@@ -256,26 +259,64 @@ export default function Navbar() {
             >
               Winning Ticket Checker
             </Button>
+
+            {/* Camera Barcode Reader Button */}
+            <Button
+              onClick={() => setScannerOpen(true)}
+              startIcon={<CameraAltIcon />}
+              variant="contained"
+              sx={{
+                bgcolor: "#0F5A24",
+                color: "#FFFFFF",
+                fontWeight: 800,
+                borderRadius: "8px",
+                px: 2,
+                "&:hover": { bgcolor: "#15803D" },
+              }}
+            >
+              Scan Barcode
+            </Button>
           </Box>
 
-          {/* Mobile Menu Toggle Button */}
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{
-              display: { md: "none" },
-              bgcolor: "#F3F4F6",
-              p: 1,
-              borderRadius: "10px",
-              border: "1px solid #E5E7EB",
-            }}
-          >
-            <MenuIcon sx={{ color: "#0F5A24" }} />
-          </IconButton>
+          {/* Mobile Right Controls: Camera Scan Icon + Mobile Drawer Toggle */}
+          <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", gap: 1 }}>
+            <IconButton
+              onClick={() => setScannerOpen(true)}
+              aria-label="scan barcode"
+              sx={{
+                bgcolor: "#E8F5E9",
+                color: "#0F5A24",
+                p: 1,
+                borderRadius: "10px",
+                border: "1px solid #BBF7D0",
+              }}
+            >
+              <CameraAltIcon />
+            </IconButton>
+
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{
+                bgcolor: "#F3F4F6",
+                p: 1,
+                borderRadius: "10px",
+                border: "1px solid #E5E7EB",
+              }}
+            >
+              <MenuIcon sx={{ color: "#0F5A24" }} />
+            </IconButton>
+          </Box>
         </Toolbar>
       </Container>
+
+      {/* Barcode Scanner Modal */}
+      <BarcodeScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+      />
 
       {/* Modern Mobile Drawer */}
       <Drawer
