@@ -81,6 +81,6 @@ ON CONFLICT (key) DO UPDATE SET
   updated_at = NOW();
 
 -- 7. Supabase pg_cron Setup
--- For setting up automated lottery sync schedules (3:10 PM, 3:20 PM, 3:30 PM, 3:45 PM, 4:00 PM, 4:15 PM, 4:30 PM, 5:00 PM IST),
+-- For setting up automated lottery sync schedules (Every 2.5 mins between 3:00-4:00 PM IST & Every 5 mins between 4:00-5:00 PM IST),
 -- see the dedicated script: supabase/cron_setup.sql
 

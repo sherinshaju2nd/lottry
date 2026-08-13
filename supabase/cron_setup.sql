@@ -118,25 +118,25 @@ $$;
 
 
 SELECT cron.schedule(
-    'lottery_sync_3pm_to_357pm_ist',
-    '30,33,36,39,42,45,48,51,54,57 9 * * *',
+    'lottery_sync_3pm_to_327pm_ist',
+    '30,32,35,37,40,42,45,47,50,52,55,57 9 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
 
 SELECT cron.schedule(
-    'lottery_sync_4pm_ist',
-    '0,3,6,9,12,15,18,21,24,27,30 10 * * *',
+    'lottery_sync_330pm_to_357pm_ist',
+    '0,2,5,7,10,12,15,17,20,22,25,27 10 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
 
 SELECT cron.schedule(
-    'lottery_sync_4_15_pm_ist',
-    '45 10 * * *',
+    'lottery_sync_4pm_to_425pm_ist',
+    '30,35,40,45,50,55 10 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
 
 SELECT cron.schedule(
-    'lottery_sync_430_to_500_pm_ist',
-    '0,15,30 11 * * *',
+    'lottery_sync_430pm_to_500pm_ist',
+    '0,5,10,15,20,25,30 11 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
