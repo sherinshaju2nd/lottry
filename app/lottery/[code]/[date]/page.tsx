@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
+import React, { useEffect, useState, use, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
@@ -30,7 +31,14 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import confetti from "canvas-confetti";
 import DrawDetailSkeleton from "@/components/skeletons/DrawDetailSkeleton";
 import ShareButtons from "@/components/ShareButtons";
-import { WEEKLY_LOTTERIES, StructuredDrawResult, supabase } from "@/lib/supabase";
+import { WEEKLY_LOTTERIES, StructuredDrawResult, supabase, validateTicketMatch } from "@/lib/supabase";
+
+interface SingleCheckerMatch {
+  tier: string;
+  amount?: string;
+  matchedNumber: string;
+  seriesNote?: string;
+}
 
 interface PageProps {
   params: Promise<{ code: string; date: string }>;
@@ -38,9 +46,7 @@ interface PageProps {
 
 interface CheckerWinResult {
   isWinner: boolean;
-  tier?: string;
-  amount?: string;
-  matchedNumber?: string;
+  matches?: SingleCheckerMatch[];
   message?: string;
 }
 
@@ -72,6 +78,8 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
   const [checkerResult, setCheckerResult] = useState<CheckerWinResult | null>(
     null,
   );
+  const checkerSectionRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
 
   // Export Menu State
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(
@@ -142,6 +150,65 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
       clearInterval(timeInterval);
     };
   }, [codeParam, dateParam]);
+
+  // Auto-highlight ticket from search page navigation
+  useEffect(() => {
+    const highlight = searchParams.get("highlight");
+    if (!highlight || !drawResult) return;
+
+    const query = highlight.trim();
+    const queryDigits = query.replace(/\D/g, "");
+    if (queryDigits.length < 4) return;
+
+    setCheckerTicketInput(query);
+
+    // Run the checker logic inline
+    const matchesList: SingleCheckerMatch[] = [];
+
+    if (drawResult.first?.ticket) {
+      const matchRes = validateTicketMatch(query, drawResult.first.ticket);
+      if (matchRes.isMatch) {
+        matchesList.push({
+          tier: "1st Prize Winner",
+          amount: drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-",
+          matchedNumber: drawResult.first.ticket,
+          seriesNote: matchRes.seriesNote,
+        });
+      }
+    }
+
+    const tiers = ["consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"] as const;
+    for (const tier of tiers) {
+      const nums = drawResult.prizes?.[tier] || [];
+      const amount = drawResult.prizes?.amounts?.[tier];
+      for (const num of nums) {
+        const matchRes = validateTicketMatch(query, num);
+        if (matchRes.isMatch) {
+          matchesList.push({
+            tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+            amount,
+            matchedNumber: num,
+            seriesNote: matchRes.seriesNote,
+          });
+        }
+      }
+    }
+
+    if (matchesList.length > 0) {
+      setCheckerResult({ isWinner: true, matches: matchesList });
+      triggerCelebration();
+    } else {
+      setCheckerResult({
+        isWinner: false,
+        message: `Ticket "${query}" did not win a prize in the ${dateParam} draw.`,
+      });
+    }
+
+    // Smooth scroll to checker section
+    setTimeout(() => {
+      checkerSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 400);
+  }, [drawResult, searchParams]);
 
   const handleDateChange = async (event: SelectChangeEvent<string>) => {
     const newDate = event.target.value;
@@ -297,90 +364,68 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
     e.preventDefault();
     if (!checkerTicketInput.trim() || !drawResult) return;
 
-    const rawQuery = checkerTicketInput.trim().toUpperCase();
-    const normalizedQuery = rawQuery.replace(/\s+/g, "");
-    const digitsOnly = rawQuery.replace(/\D/g, "");
-    const querySeries = rawQuery.replace(/\d/g, "").trim();
+    const queryInput = checkerTicketInput.trim();
+    const queryDigits = queryInput.replace(/\D/g, "");
 
-    let winMatch: CheckerWinResult | null = null;
-
-    // Check 1st Prize
-    const firstTicketRaw = (drawResult.first?.ticket || "")
-      .trim()
-      .toUpperCase();
-    const firstTicketNorm = firstTicketRaw.replace(/\s+/g, "");
-    const firstTicketDigits = firstTicketRaw.replace(/\D/g, "");
-    const firstSeries = firstTicketRaw.replace(/\d/g, "").trim();
-
-    const matchesFirstSeries = !querySeries || querySeries === firstSeries;
-
-    if (
-      firstTicketNorm &&
-      matchesFirstSeries &&
-      (firstTicketNorm === normalizedQuery ||
-        (digitsOnly.length === 6 && firstTicketDigits === digitsOnly) ||
-        (digitsOnly.length >= 2 &&
-          digitsOnly.length < 6 &&
-          firstTicketDigits.endsWith(digitsOnly)))
-    ) {
-      winMatch = {
-        isWinner: true,
-        tier: "1st Prize Winner",
-        amount: drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-",
-        matchedNumber: drawResult.first?.ticket,
-      };
+    // Require at least 4 digits
+    if (queryDigits.length < 4) {
+      setCheckerResult({
+        isWinner: false,
+        message: "Please enter at least 4 digits to search (e.g. 6935, BT 236935).",
+      });
+      return;
     }
 
-    // Check Consolation and 2nd..9th Prizes if not 1st prize
-    if (!winMatch) {
-      const tiers = [
-        "consolation",
-        "2nd",
-        "3rd",
-        "4th",
-        "5th",
-        "6th",
-        "7th",
-        "8th",
-        "9th",
-      ] as const;
+    const matchesList: SingleCheckerMatch[] = [];
 
-      for (const tier of tiers) {
-        const nums = drawResult.prizes?.[tier] || [];
-        const amount = drawResult.prizes?.amounts?.[tier];
-
-        for (const num of nums) {
-          const normNum = num.trim().toUpperCase().replace(/\s+/g, "");
-          const numDigits = normNum.replace(/\D/g, "");
-          const itemSeries = normNum.replace(/\d/g, "").trim();
-
-          const matchesItemSeries =
-            !querySeries || !itemSeries || querySeries === itemSeries;
-
-          if (
-            matchesItemSeries &&
-            (normNum === normalizedQuery ||
-              (digitsOnly.length === 6 && numDigits === digitsOnly) ||
-              (digitsOnly.length >= 2 &&
-                digitsOnly.length < 6 &&
-                numDigits.endsWith(digitsOnly)))
-          ) {
-            winMatch = {
-              isWinner: true,
-              tier:
-                tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
-              amount: amount,
-              matchedNumber: num,
-            };
-            break;
-          }
-        }
-        if (winMatch) break;
+    // Check 1st Prize
+    if (drawResult.first?.ticket) {
+      const matchRes = validateTicketMatch(queryInput, drawResult.first.ticket);
+      if (matchRes.isMatch) {
+        matchesList.push({
+          tier: "1st Prize Winner",
+          amount: drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-",
+          matchedNumber: drawResult.first.ticket,
+          seriesNote: matchRes.seriesNote,
+        });
       }
     }
 
-    if (winMatch) {
-      setCheckerResult(winMatch);
+    // Check Consolation and 2nd..9th Prizes
+    const tiers = [
+      "consolation",
+      "2nd",
+      "3rd",
+      "4th",
+      "5th",
+      "6th",
+      "7th",
+      "8th",
+      "9th",
+    ] as const;
+
+    for (const tier of tiers) {
+      const nums = drawResult.prizes?.[tier] || [];
+      const amount = drawResult.prizes?.amounts?.[tier];
+
+      for (const num of nums) {
+        const matchRes = validateTicketMatch(queryInput, num);
+        if (matchRes.isMatch) {
+          matchesList.push({
+            tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+            amount: amount,
+            matchedNumber: num,
+            seriesNote: matchRes.seriesNote,
+          });
+        }
+      }
+    }
+
+    if (matchesList.length > 0) {
+      setCheckerResult({
+        isWinner: true,
+        matches: matchesList,
+      });
       triggerCelebration();
     } else {
       setCheckerResult({
@@ -391,15 +436,15 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
   };
 
   const prizeTiers = [
-    { key: "consolation", label: "Consolation Prize", badgeBg: "#D35400" },
-    { key: "2nd", label: "2nd Prize", badgeBg: "#27AE60" },
-    { key: "3rd", label: "3rd Prize", badgeBg: "#2980B9" },
-    { key: "4th", label: "4th Prize", badgeBg: "#8E44AD" },
-    { key: "5th", label: "5th Prize", badgeBg: "#2C3E50" },
-    { key: "6th", label: "6th Prize", badgeBg: "#16A085" },
-    { key: "7th", label: "7th Prize", badgeBg: "#D35400" },
-    { key: "8th", label: "8th Prize", badgeBg: "#C0392B" },
-    { key: "9th", label: "9th Prize", badgeBg: "#7F8C8D" },
+    { key: "consolation", label: "Consolation Prize", dotBg: "#64748B" },
+    { key: "2nd", label: "2nd Prize", dotBg: "#D97706" },
+    { key: "3rd", label: "3rd Prize", dotBg: "#0B3C5D" },
+    { key: "4th", label: "4th Prize", dotBg: "#2563EB" },
+    { key: "5th", label: "5th Prize", dotBg: "#475569" },
+    { key: "6th", label: "6th Prize", dotBg: "#0284C7" },
+    { key: "7th", label: "7th Prize", dotBg: "#0B3C5D" },
+    { key: "8th", label: "8th Prize", dotBg: "#475569" },
+    { key: "9th", label: "9th Prize", dotBg: "#64748B" },
   ] as const;
 
   return (
@@ -615,6 +660,7 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
 
         {/* Live Ticket Checker Card for this Draw */}
         <Paper
+          ref={checkerSectionRef}
           elevation={0}
           className="no-print"
           sx={{
@@ -676,12 +722,12 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
           {/* Winner Celebration Alert */}
           {checkerResult && (
             <Box sx={{ mt: 3 }}>
-              {checkerResult.isWinner ? (
+              {checkerResult.isWinner && checkerResult.matches && checkerResult.matches.length > 0 ? (
                 <Paper
                   elevation={0}
                   sx={{
                     p: 2.5,
-                    borderRadius: "12px",
+                    borderRadius: "16px",
                     background:
                       "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
                     color: "#FFFFFF",
@@ -693,27 +739,44 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
                       display: "flex",
                       alignItems: "center",
                       gap: 1.5,
-                      mb: 1,
+                      mb: 2,
                     }}
                   >
                     <CelebrationIcon sx={{ fontSize: 32, color: "#FFC107" }} />
-                    <Typography variant="h5" sx={{ fontWeight: 900 }}>
-                      🎉 CONGRATULATIONS! YOU HAVE A WINNING TICKET!
+                    <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                      🎉 CONGRATULATIONS! YOU HAVE {checkerResult.matches.length} WINNING {checkerResult.matches.length > 1 ? "MATCHES" : "MATCH"}!
                     </Typography>
                   </Box>
-                  <Typography
-                    variant="body1"
-                    sx={{ fontWeight: 700, opacity: 0.95 }}
-                  >
-                    Winning Category: <strong>{checkerResult.tier}</strong>{" "}
-                    {checkerResult.amount
-                      ? `(Prize Amount: ${checkerResult.amount})`
-                      : ""}
-                  </Typography>
-                  <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-                    Matching Number:{" "}
-                    <strong>{checkerResult.matchedNumber}</strong>
-                  </Typography>
+
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    {checkerResult.matches.map((m, idx) => (
+                      <Box
+                        key={idx}
+                        sx={{
+                          bgcolor: "rgba(255, 255, 255, 0.12)",
+                          p: 1.75,
+                          borderRadius: "10px",
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          sx={{ fontWeight: 800, color: "#FFFFFF" }}
+                        >
+                          Winning Category: <strong>{m.tier}</strong>{" "}
+                          {m.amount ? `(Prize Amount: ${m.amount})` : ""}
+                        </Typography>
+                        <Typography variant="body2" sx={{ opacity: 0.95, mt: 0.5 }}>
+                          Matching Number: <strong>{m.matchedNumber}</strong>
+                          {m.seriesNote && (
+                            <span style={{ color: "#FEF3C7", marginLeft: "10px", fontWeight: 700 }}>
+                              • {m.seriesNote}
+                            </span>
+                          )}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
                 </Paper>
               ) : (
                 <Alert
@@ -738,23 +801,23 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
               sx={{
                 p: { xs: 3, md: 5 },
                 borderRadius: "16px",
-                background: "linear-gradient(135deg, #E67E22 0%, #D35400 100%)",
+                background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
                 color: "#FFFFFF",
                 position: "relative",
                 overflow: "hidden",
-                boxShadow: "0 10px 25px rgba(211, 84, 0, 0.25)",
+                boxShadow: "0 10px 25px rgba(11, 60, 93, 0.25)",
               }}
             >
               <Grid container spacing={3} sx={{ alignItems: "center" }}>
                 <Grid size={{ xs: 12, md: 7 }}>
                   <Chip
                     icon={
-                      <EmojiEventsIcon sx={{ color: "#FFFFFF !important" }} />
+                      <EmojiEventsIcon sx={{ color: "#D97706 !important" }} />
                     }
                     label="1ST PRIZE WINNER"
                     sx={{
-                      bgcolor: "rgba(0, 0, 0, 0.25)",
-                      color: "#FFFFFF",
+                      bgcolor: "#FEF3C7",
+                      color: "#92400E",
                       fontWeight: 800,
                       fontSize: "0.75rem",
                       mb: 2,
@@ -787,10 +850,11 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
                 <Grid size={{ xs: 12, md: 5 }}>
                   <Box
                     sx={{
-                      bgcolor: "rgba(0, 0, 0, 0.2)",
+                      bgcolor: "rgba(255, 255, 255, 0.1)",
                       p: 3,
                       borderRadius: "12px",
                       backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
                     }}
                   >
                     <Grid container spacing={2}>
@@ -856,7 +920,7 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
 
             {/* Prize Tiers Stack on White Cards */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              {prizeTiers.map(({ key, label, badgeBg }) => {
+              {prizeTiers.map(({ key, label, dotBg }) => {
                 const numbers = drawResult.prizes?.[
                   key as keyof typeof drawResult.prizes
                 ] as string[] | undefined;
@@ -870,7 +934,7 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
                     elevation={0}
                     sx={{
                       p: 3,
-                      borderRadius: "12px",
+                      borderRadius: "16px",
                       bgcolor: "#FFFFFF",
                       border: "1px solid #E5E7EB",
                       boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
@@ -900,7 +964,7 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
                             width: 10,
                             height: 10,
                             borderRadius: "50%",
-                            backgroundColor: badgeBg,
+                            backgroundColor: dotBg,
                           }}
                         />
                         {label}
@@ -910,9 +974,9 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
                           label={`Prize: ${amount}`}
                           size="small"
                           sx={{
-                            bgcolor: "#F3F4F6",
-                            color: "#374151",
-                            fontWeight: 700,
+                            bgcolor: "#F1F5F9",
+                            color: "#334155",
+                            fontWeight: 800,
                             borderRadius: "8px",
                           }}
                         />
@@ -924,15 +988,28 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
                         <Box
                           key={idx}
                           sx={{
-                            px: 2,
+                            width: { xs: "calc(50% - 0.625rem)", sm: "auto" },
+                            px: { xs: 1, sm: 2.25 },
                             py: 1,
-                            borderRadius: "8px",
-                            bgcolor: badgeBg,
-                            color: "#FFFFFF",
+                            borderRadius: "10px",
+                            bgcolor: "#FFFFFF",
+                            border: "1px solid #E2E8F0",
+                            color: "#0F172A",
                             fontFamily: "monospace",
-                            fontWeight: 800,
-                            fontSize: "0.9rem",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                            fontWeight: 900,
+                            fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                            letterSpacing: "0.03em",
+                            textAlign: "center",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                            transition: "all 0.15s ease-in-out",
+                            "&:hover": {
+                              bgcolor: "#EBF5FF",
+                              borderColor: "#0B3C5D",
+                              color: "#0B3C5D",
+                            },
                           }}
                         >
                           {num}

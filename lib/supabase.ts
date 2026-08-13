@@ -252,12 +252,73 @@ export async function fetchAllDrawResultsFromSupabase(forceRefresh = true): Prom
   return [];
 }
 
-export async function searchTicketsInSupabase(queryTicket: string) {
-  const rawQuery = queryTicket.trim().toUpperCase();
-  const digitsOnly = rawQuery.replace(/\D/g, "");
-  const normalizedQuery = rawQuery.replace(/\s+/g, "");
-  const querySeries = rawQuery.replace(/\d/g, "").trim();
+export interface PrizeMatchResult {
+  isMatch: boolean;
+  seriesNote?: string;
+  exactSeriesMatch: boolean;
+}
 
+export function validateTicketMatch(
+  queryInput: string,
+  prizeNumberStr: string
+): PrizeMatchResult {
+  const rawQuery = queryInput.trim().toUpperCase();
+  const rawPrize = prizeNumberStr.trim().toUpperCase();
+
+  const queryDigits = rawQuery.replace(/\D/g, "");
+  const querySeries = rawQuery.replace(/[^A-Z]/gi, "").trim();
+
+  const prizeDigits = rawPrize.replace(/\D/g, "");
+  const prizeSeries = rawPrize.replace(/[^A-Z]/gi, "").trim();
+
+  if (!queryDigits || !prizeDigits || queryDigits.length < 4) {
+    return { isMatch: false, exactSeriesMatch: false };
+  }
+
+  // 1. Check Digits Match
+  let digitsMatch = false;
+
+  if (queryDigits === prizeDigits) {
+    digitsMatch = true;
+  } else if (queryDigits.length === 6 && prizeDigits.length < 6 && prizeDigits.length >= 2) {
+    // User typed 6-digit ticket (e.g. 120417), prize is last 4/3/2 digits (e.g. 0417)
+    digitsMatch = queryDigits.endsWith(prizeDigits);
+  } else if (queryDigits.length < 6 && prizeDigits.length === 6 && queryDigits.length >= 4) {
+    // User typed last 4 or 5 digits (e.g. 3322 or 63322), prize is 6-digit (e.g. 263322)
+    digitsMatch = prizeDigits.endsWith(queryDigits);
+  } else if (queryDigits.length < 6 && prizeDigits.length < 6 && queryDigits.length >= 4 && prizeDigits.length >= 4) {
+    // Both are partial (e.g. 4-digit vs 4-digit)
+    digitsMatch = queryDigits.endsWith(prizeDigits) || prizeDigits.endsWith(queryDigits);
+  }
+
+  if (!digitsMatch) {
+    return { isMatch: false, exactSeriesMatch: false };
+  }
+
+  // 2. Check Series (first 2 letters)
+  if (prizeSeries) {
+    if (querySeries) {
+      if (querySeries === prizeSeries) {
+        return { isMatch: true, exactSeriesMatch: true };
+      } else {
+        // User specified a series, but it doesn't match the prize series
+        return { isMatch: false, exactSeriesMatch: false };
+      }
+    } else {
+      // User entered no series (e.g. 263322). Digits match, but series requirement exists
+      return {
+        isMatch: true,
+        exactSeriesMatch: false,
+        seriesNote: `Requires series '${prizeSeries}'`,
+      };
+    }
+  }
+
+  // Prize has no series restriction (e.g. 4-digit prize 0417)
+  return { isMatch: true, exactSeriesMatch: true };
+}
+
+export async function searchTicketsInSupabase(queryTicket: string) {
   const allResults = await fetchAllDrawResultsFromSupabase();
   const matches: Array<{
     draw_date: string;
@@ -267,32 +328,24 @@ export async function searchTicketsInSupabase(queryTicket: string) {
     prize_tier: string;
     prize_amount?: string;
     ticket_matched: string;
+    series_note?: string;
   }> = [];
 
   for (const draw of allResults) {
-    const firstTicketRaw = (draw.first?.ticket || "").trim().toUpperCase();
-    const firstTicketNormalized = firstTicketRaw.replace(/\s+/g, "");
-    const firstTicketDigits = firstTicketRaw.replace(/\D/g, "");
-    const firstSeries = firstTicketRaw.replace(/\d/g, "").trim();
-
-    const matchesFirstSeries = !querySeries || querySeries === firstSeries;
-
-    if (
-      firstTicketNormalized &&
-      matchesFirstSeries &&
-      (firstTicketNormalized === normalizedQuery ||
-        (digitsOnly.length === 6 && firstTicketDigits === digitsOnly) ||
-        (digitsOnly.length >= 2 && digitsOnly.length < 6 && firstTicketDigits.endsWith(digitsOnly)))
-    ) {
-      matches.push({
-        draw_date: draw.draw_date,
-        draw_name: draw.draw_name,
-        draw_code: draw.draw_code,
-        lottery_code: draw.lottery_code,
-        prize_tier: "1st Prize Winner",
-        prize_amount: draw.prizes.amounts?.["1st"] || "1,00,00,000/-",
-        ticket_matched: draw.first.ticket || "",
-      });
+    if (draw.first?.ticket) {
+      const matchRes = validateTicketMatch(queryTicket, draw.first.ticket);
+      if (matchRes.isMatch) {
+        matches.push({
+          draw_date: draw.draw_date,
+          draw_name: draw.draw_name,
+          draw_code: draw.draw_code,
+          lottery_code: draw.lottery_code,
+          prize_tier: "1st Prize Winner",
+          prize_amount: draw.prizes.amounts?.["1st"] || "1,00,00,000/-",
+          ticket_matched: draw.first.ticket,
+          series_note: matchRes.seriesNote,
+        });
+      }
     }
 
     const tiers = [
@@ -312,18 +365,8 @@ export async function searchTicketsInSupabase(queryTicket: string) {
       const amount = draw.prizes.amounts?.[tier];
 
       for (const num of nums) {
-        const normNum = num.trim().toUpperCase().replace(/\s+/g, "");
-        const numDigits = normNum.replace(/\D/g, "");
-        const numSeries = normNum.replace(/\d/g, "").trim();
-
-        const matchesItemSeries = !querySeries || !numSeries || querySeries === numSeries;
-
-        if (
-          matchesItemSeries &&
-          (normNum === normalizedQuery ||
-            (digitsOnly.length === 6 && numDigits === digitsOnly) ||
-            (digitsOnly.length >= 2 && digitsOnly.length < 6 && numDigits.endsWith(digitsOnly)))
-        ) {
+        const matchRes = validateTicketMatch(queryTicket, num);
+        if (matchRes.isMatch) {
           matches.push({
             draw_date: draw.draw_date,
             draw_name: draw.draw_name,
@@ -332,6 +375,7 @@ export async function searchTicketsInSupabase(queryTicket: string) {
             prize_tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
             prize_amount: amount,
             ticket_matched: num,
+            series_note: matchRes.seriesNote,
           });
         }
       }

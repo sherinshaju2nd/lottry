@@ -903,20 +903,20 @@ export default function HomePage() {
                     <Paper
                       elevation={0}
                       sx={{
-                        p: 2,
+                        p: 2.5,
                         mb: 3,
                         borderRadius: "16px",
                         background:
-                          "linear-gradient(135deg, #E67E22 0%, #D35400 100%)",
+                          "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
                         color: "#FFFFFF",
-                        boxShadow: "0 4px 15px rgba(211, 84, 0, 0.15)",
+                        boxShadow: "0 4px 15px rgba(11, 60, 93, 0.2)",
                       }}
                     >
                       <Chip
                         icon={
                           <EmojiEventsIcon
                             sx={{
-                              color: "#FFFFFF !important",
+                              color: "#D97706 !important",
                               fontSize: "14px !important",
                             }}
                           />
@@ -924,8 +924,8 @@ export default function HomePage() {
                         label="1ST PRIZE WINNER"
                         size="small"
                         sx={{
-                          bgcolor: "rgba(0, 0, 0, 0.25)",
-                          color: "#FFFFFF",
+                          bgcolor: "#FEF3C7",
+                          color: "#92400E",
                           fontWeight: 800,
                           fontSize: "0.7rem",
                           mb: 1.5,

@@ -53,11 +53,11 @@ const searchSchema = yup.object({
     .required("Please enter a ticket number or digits")
     .test(
       "has-digits",
-      "Please enter at least 2 to 6 numeric digits (e.g. 236935, BT 236935, or 6935)",
+      "Please enter at least 4 numeric digits (e.g. 236935, BT 236935, or 6935)",
       (val) => {
         if (!val) return false;
         const digits = val.replace(/\D/g, "");
-        return digits.length >= 2;
+        return digits.length >= 4;
       },
     ),
   lotteryCode: yup.string().optional(),
@@ -919,94 +919,105 @@ export default function AdvancedSearchPage() {
 
           {results.length > 0 ? (
             results.map((match, i) => (
-              <Paper
+              <Link
                 key={i}
-                elevation={0}
-                sx={{
-                  p: 3,
-                  borderRadius: "12px",
-                  bgcolor: "#FFFFFF",
-                  border: "1px solid #E5E7EB",
-                  boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
-                }}
+                href={`/lottery/${match.lottery_code.toLowerCase()}/${encodeURIComponent(match.draw_date)}?highlight=${encodeURIComponent(match.ticket_matched)}`}
+                style={{ textDecoration: "none" }}
               >
-                <Box
+                <Paper
+                  elevation={0}
                   sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 1.5,
-                    flexWrap: "wrap",
-                    gap: 1,
+                    p: 3,
+                    borderRadius: "12px",
+                    bgcolor: "#FFFFFF",
+                    border: "1px solid #E5E7EB",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+                    cursor: "pointer",
+                    transition: "all 0.18s",
+                    "&:hover": {
+                      bgcolor: "#EBF5FF",
+                      borderColor: "#BFDBFE",
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 6px 20px rgba(11,60,93,0.1)",
+                    },
                   }}
                 >
-                  <Chip
-                    icon={
-                      <EmojiEventsIcon sx={{ fontSize: "16px !important" }} />
-                    }
-                    label={match.prize_tier}
+                  <Box
                     sx={{
-                      bgcolor: "#EBF5FF",
-                      color: "#0B3C5D",
-                      fontWeight: 800,
-                      borderRadius: "6px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 1.5,
+                      flexWrap: "wrap",
+                      gap: 1,
                     }}
-                  />
-                  {match.prize_amount && (
-                    <Typography
-                      variant="subtitle1"
-                      sx={{ fontWeight: 900, color: "#0B3C5D" }}
-                    >
-                      Prize Amount: {match.prize_amount}
-                    </Typography>
-                  )}
-                </Box>
-
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 900, color: "#111827", mt: 1 }}
-                >
-                  {match.draw_name} ({match.draw_code})
-                </Typography>
-
-                <Box sx={{ display: "flex", gap: 3, mt: 1, flexWrap: "wrap" }}>
-                  <Typography variant="body2" sx={{ color: "#4B5563" }}>
-                    <strong>Draw Date:</strong>{" "}
-                    <CalendarMonthIcon
-                      sx={{
-                        fontSize: 14,
-                        verticalAlign: "middle",
-                        mr: 0.5,
-                        color: "#0B3C5D",
-                      }}
-                    />
-                    {match.draw_date}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#374151" }}>
-                    <strong>Winning Ticket Number:</strong>{" "}
+                  >
                     <Chip
-                      label={match.ticket_matched}
-                      size="small"
+                      icon={
+                        <EmojiEventsIcon sx={{ fontSize: "16px !important" }} />
+                      }
+                      label={match.prize_tier}
                       sx={{
-                        fontFamily: "monospace",
-                        fontWeight: 900,
-                        bgcolor: "#FEF3C7",
-                        color: "#92400E",
-                        borderRadius: "4px",
+                        bgcolor: "#EBF5FF",
+                        color: "#0B3C5D",
+                        fontWeight: 800,
+                        borderRadius: "6px",
                       }}
                     />
-                  </Typography>
-                </Box>
+                    {match.prize_amount && (
+                      <Typography
+                        variant="subtitle1"
+                        sx={{ fontWeight: 900, color: "#0B3C5D" }}
+                      >
+                        Prize Amount: {match.prize_amount}
+                      </Typography>
+                    )}
+                  </Box>
 
-                <Button
-                  component={Link}
-                  href={`/lottery/${match.lottery_code.toLowerCase()}/${encodeURIComponent(match.draw_date)}`}
-                  size="small"
-                  sx={{ mt: 2, fontWeight: 800, color: "#0B3C5D" }}
-                >
-                  View Full Prize Breakdown for {match.draw_date} →
-                </Button>
-              </Paper>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 900, color: "#111827", mt: 1 }}
+                  >
+                    {match.draw_name} ({match.draw_code})
+                  </Typography>
+
+                  <Box sx={{ display: "flex", gap: 3, mt: 1, flexWrap: "wrap" }}>
+                    <Typography variant="body2" sx={{ color: "#4B5563" }}>
+                      <strong>Draw Date:</strong>{" "}
+                      <CalendarMonthIcon
+                        sx={{
+                          fontSize: 14,
+                          verticalAlign: "middle",
+                          mr: 0.5,
+                          color: "#0B3C5D",
+                        }}
+                      />
+                      {match.draw_date}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "#374151" }}>
+                      <strong>Winning Ticket Number:</strong>{" "}
+                      <Chip
+                        label={match.ticket_matched}
+                        size="small"
+                        sx={{
+                          fontFamily: "monospace",
+                          fontWeight: 900,
+                          bgcolor: "#FEF3C7",
+                          color: "#92400E",
+                          borderRadius: "4px",
+                        }}
+                      />
+                    </Typography>
+                  </Box>
+
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 1.5, color: "#0B3C5D", fontWeight: 800 }}
+                  >
+                    Tap to view full prize breakdown →
+                  </Typography>
+                </Paper>
+              </Link>
             ))
           ) : (
             <Alert
@@ -1096,21 +1107,36 @@ export default function AdvancedSearchPage() {
                     }}
                   >
                     {item.matches.map((m, idx) => (
-                      <Alert
+                      <Link
                         key={idx}
-                        severity="success"
-                        sx={{ borderRadius: "8px" }}
+                        href={`/lottery/${m.lottery_code.toLowerCase()}/${encodeURIComponent(m.draw_date)}?highlight=${encodeURIComponent(m.ticket_matched)}`}
+                        style={{ textDecoration: "none", display: "block" }}
                       >
-                        <strong>{m.prize_tier}</strong> — {m.draw_name} (
-                        {m.draw_code}) on {m.draw_date}. Matched number:{" "}
-                        {m.ticket_matched}.
-                        {m.prize_amount && (
-                          <span>
-                            {" "}
-                            Prize: <strong>{m.prize_amount}</strong>
-                          </span>
-                        )}
-                      </Alert>
+                        <Alert
+                          severity="success"
+                          sx={{
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            transition: "all 0.18s",
+                            "&:hover": {
+                              bgcolor: "#D1FAE5",
+                              transform: "translateX(4px)",
+                              boxShadow: "0 2px 8px rgba(11,60,93,0.12)",
+                            },
+                          }}
+                        >
+                          <strong>{m.prize_tier}</strong> — {m.draw_name} (
+                          {m.draw_code}) on {m.draw_date}. Matched number:{" "}
+                          {m.ticket_matched}.
+                          {m.prize_amount && (
+                            <span>
+                              {" "}
+                              Prize: <strong>{m.prize_amount}</strong>
+                            </span>
+                          )}
+                          <span style={{ marginLeft: 8, color: "#0B3C5D", fontWeight: 800, fontSize: 13 }}>→ View</span>
+                        </Alert>
+                      </Link>
                     ))}
                   </Box>
                 ) : (
