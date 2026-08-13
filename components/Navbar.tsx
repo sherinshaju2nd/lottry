@@ -137,7 +137,7 @@ export default function Navbar() {
               href="/"
               startIcon={<HomeIcon />}
               sx={{
-                color: pathname === "/" ? "#0F5A24" : "#374151",
+                color: pathname === "/" ? "#0B3C5D" : "#374151",
                 fontWeight: pathname === "/" ? 800 : 600,
                 borderRadius: "8px",
                 px: 2,
@@ -152,11 +152,11 @@ export default function Navbar() {
               endIcon={<KeyboardArrowDownIcon />}
               startIcon={<LocalActivityIcon />}
               sx={{
-                color: pathname.startsWith("/lottery/") ? "#0F5A24" : "#374151",
+                color: pathname.startsWith("/lottery/") ? "#0B3C5D" : "#374151",
                 fontWeight: pathname.startsWith("/lottery/") ? 800 : 700,
                 borderRadius: "8px",
                 px: 2,
-                bgcolor: isMenuOpen || pathname.startsWith("/lottery/") ? "#E8F5E9" : "transparent",
+                bgcolor: isMenuOpen || pathname.startsWith("/lottery/") ? "#EBF5FF" : "transparent",
               }}
             >
               Kerala Lotteries
@@ -199,8 +199,8 @@ export default function Navbar() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      bgcolor: isActive ? "#E8F5E9" : "transparent",
-                      "&:hover": { bgcolor: "#F0FDF4" },
+                      bgcolor: isActive ? "#EBF5FF" : "transparent",
+                      "&:hover": { bgcolor: "#F0F7FF" },
                     }}
                   >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -209,7 +209,7 @@ export default function Navbar() {
                         size="small"
                         sx={{
                           fontWeight: 800,
-                          bgcolor: isActive ? "#2E7D32" : "#E0F2FE",
+                          bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
                           color: isActive ? "#FFFFFF" : "#0369A1",
                           fontSize: "0.75rem",
                           height: 22,
@@ -247,11 +247,11 @@ export default function Navbar() {
               href="/search"
               startIcon={<SearchIcon />}
               sx={{
-                color: "#0F5A24",
+                color: "#0B3C5D",
                 fontWeight: 700,
                 borderRadius: "8px",
                 px: 2,
-                bgcolor: pathname === "/search" ? "#E8F5E9" : "transparent",
+                bgcolor: pathname === "/search" ? "#EBF5FF" : "transparent",
               }}
             >
               Winning Ticket Checker
@@ -272,7 +272,7 @@ export default function Navbar() {
                 border: "1px solid #E5E7EB",
               }}
             >
-              <MenuIcon sx={{ color: "#0F5A24" }} />
+              <MenuIcon sx={{ color: "#0B3C5D" }} />
             </IconButton>
           </Box>
         </Toolbar>
@@ -364,11 +364,11 @@ export default function Navbar() {
                     borderRadius: "12px",
                     py: 1.25,
                     px: 1.5,
-                    bgcolor: pathname === "/" ? "#E8F5E9" : "transparent",
-                    color: pathname === "/" ? "#0F5A24" : "#374151",
+                    bgcolor: pathname === "/" ? "#EBF5FF" : "transparent",
+                    color: pathname === "/" ? "#0B3C5D" : "#374151",
                   }}
                 >
-                  <ListItemIcon sx={{ color: pathname === "/" ? "#0F5A24" : "#6B7280", minWidth: 38 }}>
+                  <ListItemIcon sx={{ color: pathname === "/" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
                     <HomeIcon />
                   </ListItemIcon>
                   <ListItemText primary="Home" slotProps={{ primary: { sx: { fontWeight: pathname === "/" ? 800 : 600 } } }} />
@@ -383,15 +383,15 @@ export default function Navbar() {
                     borderRadius: "12px",
                     py: 1.25,
                     px: 1.5,
-                    bgcolor: pathname.startsWith("/lottery/") ? "#E8F5E9" : "#F9FAFB",
-                    color: pathname.startsWith("/lottery/") ? "#0F5A24" : "#374151",
+                    bgcolor: pathname.startsWith("/lottery/") ? "#EBF5FF" : "#F9FAFB",
+                    color: pathname.startsWith("/lottery/") ? "#0B3C5D" : "#374151",
                   }}
                 >
-                  <ListItemIcon sx={{ color: "#0F5A24", minWidth: 38 }}>
+                  <ListItemIcon sx={{ color: "#0B3C5D", minWidth: 38 }}>
                     <LocalActivityIcon />
                   </ListItemIcon>
                   <ListItemText primary="Kerala Lotteries" slotProps={{ primary: { sx: { fontWeight: 800, fontSize: "0.925rem" } } }} />
-                  {mobileSubmenuOpen ? <ExpandLess sx={{ color: "#0F5A24" }} /> : <ExpandMore sx={{ color: "#6B7280" }} />}
+                  {mobileSubmenuOpen ? <ExpandLess sx={{ color: "#0B3C5D" }} /> : <ExpandMore sx={{ color: "#6B7280" }} />}
                 </ListItemButton>
 
                 <Collapse in={mobileSubmenuOpen} timeout="auto" unmountOnExit>
@@ -407,7 +407,7 @@ export default function Navbar() {
                             py: 1,
                             mb: 0.5,
                             px: 1.5,
-                            bgcolor: isActive ? "#E8F5E9" : "transparent",
+                            bgcolor: isActive ? "#EBF5FF" : "transparent",
                           }}
                         >
                           <Chip
@@ -416,7 +416,7 @@ export default function Navbar() {
                             sx={{
                               mr: 1.5,
                               fontWeight: 800,
-                              bgcolor: isActive ? "#2E7D32" : "#E0F2FE",
+                              bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
                               color: isActive ? "#FFFFFF" : "#0369A1",
                               height: 20,
                               fontSize: "0.7rem",
@@ -426,7 +426,7 @@ export default function Navbar() {
                             primary={lottery.name}
                             secondary={lottery.day}
                             slotProps={{
-                              primary: { sx: { fontWeight: isActive ? 800 : 600, fontSize: "0.85rem", color: isActive ? "#0F5A24" : "#111827" } },
+                              primary: { sx: { fontWeight: isActive ? 800 : 600, fontSize: "0.85rem", color: isActive ? "#0B3C5D" : "#111827" } },
                               secondary: { sx: { fontSize: "0.7rem" } },
                             }}
                           />
@@ -462,11 +462,11 @@ export default function Navbar() {
                     borderRadius: "12px",
                     py: 1.25,
                     px: 1.5,
-                    bgcolor: pathname === "/search" ? "#E8F5E9" : "transparent",
-                    color: pathname === "/search" ? "#0F5A24" : "#374151",
+                    bgcolor: pathname === "/search" ? "#EBF5FF" : "transparent",
+                    color: pathname === "/search" ? "#0B3C5D" : "#374151",
                   }}
                 >
-                  <ListItemIcon sx={{ color: pathname === "/search" ? "#0F5A24" : "#6B7280", minWidth: 38 }}>
+                  <ListItemIcon sx={{ color: pathname === "/search" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
                     <SearchIcon />
                   </ListItemIcon>
                   <ListItemText primary="Ticket Checker" slotProps={{ primary: { sx: { fontWeight: pathname === "/search" ? 800 : 600 } } }} />
@@ -488,14 +488,14 @@ export default function Navbar() {
             fullWidth
             startIcon={<SearchIcon />}
             sx={{
-              bgcolor: "#0F5A24",
+              bgcolor: "#0B3C5D",
               color: "#FFFFFF",
               fontWeight: 800,
               borderRadius: "10px",
               py: 1.2,
               fontSize: "0.875rem",
-              boxShadow: "0 4px 12px rgba(15,90,36,0.2)",
-              "&:hover": { bgcolor: "#15803D" },
+              boxShadow: "0 4px 12px rgba(11,60,93,0.2)",
+              "&:hover": { bgcolor: "#0F2C59" },
             }}
           >
             Check Ticket Result

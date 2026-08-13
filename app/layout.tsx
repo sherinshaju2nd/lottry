@@ -6,7 +6,7 @@ import InitialLoader from "@/components/InitialLoader";
 import "./globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#0F5A24",
+  themeColor: "#0B3C5D",
   width: "device-width",
   initialScale: 1,
 };
@@ -147,15 +147,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
         {/* End Google Tag Manager */}
 
-        <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2JZL3TDXGE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-2JZL3TDXGE');
-</script>
+        {/* Google tag (gtag.js) */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-2JZL3TDXGE"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-2JZL3TDXGE');
+            `,
+          }}
+        />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
   return (
     <Container maxWidth="xs" sx={{ py: 10 }}>
       <Paper elevation={0} sx={{ p: 4, borderRadius: "4px", border: "1px solid #E5E7EB", textAlign: "center" }}>
-        <Box sx={{ bgcolor: "#2E7D32", color: "white", width: 44, height: 44, borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 2 }}>
+        <Box sx={{ bgcolor: "#0B3C5D", color: "white", width: 44, height: 44, borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 2 }}>
           <LockOutlinedIcon />
         </Box>
 
@@ -102,7 +102,7 @@ export default function AdminLoginPage() {
             disabled={isLoading}
             variant="contained"
             size="large"
-            sx={{ bgcolor: "#2E7D32", py: 1.5, fontWeight: 700, borderRadius: "4px", "&:hover": { bgcolor: "#1B5E20" } }}
+            sx={{ bgcolor: "#0B3C5D", py: 1.5, fontWeight: 700, borderRadius: "4px", "&:hover": { bgcolor: "#0F2C59" } }}
           >
             {isLoading ? <CircularProgress size={24} color="inherit" /> : "Sign In to Admin"}
           </Button>

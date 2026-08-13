@@ -143,10 +143,10 @@ export default function ShareButtons({
           <IconButton
             onClick={handleCopyLink}
             sx={{
-              bgcolor: copied ? "#2E7D32" : "#F3F4F6",
+              bgcolor: copied ? "#0B3C5D" : "#F3F4F6",
               color: copied ? "#FFFFFF" : "#374151",
               border: "1px solid #E5E7EB",
-              "&:hover": { bgcolor: copied ? "#1B5E20" : "#E5E7EB" },
+              "&:hover": { bgcolor: copied ? "#0F2C59" : "#E5E7EB" },
               width: 36,
               height: 36,
             }}
@@ -192,7 +192,7 @@ export default function ShareButtons({
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <ShareIcon sx={{ color: "#0F5A24", fontSize: "1.3rem" }} />
+          <ShareIcon sx={{ color: "#0B3C5D", fontSize: "1.3rem" }} />
           <Typography
             variant="subtitle1"
             sx={{ fontWeight: 800, color: "#111827", fontSize: "1rem" }}
@@ -312,7 +312,7 @@ export default function ShareButtons({
           onClick={handleCopyLink}
           startIcon={copied ? <CheckIcon /> : <ContentCopyIcon />}
           sx={{
-            bgcolor: copied ? "#2E7D32" : "#FFFFFF",
+            bgcolor: copied ? "#0B3C5D" : "#FFFFFF",
             color: copied ? "#FFFFFF" : "#374151",
             border: "1px solid #D1D5DB",
             fontWeight: 800,
@@ -320,7 +320,7 @@ export default function ShareButtons({
             textTransform: "none",
             borderRadius: "10px",
             py: 1,
-            "&:hover": { bgcolor: copied ? "#1B5E20" : "#F3F4F6" },
+            "&:hover": { bgcolor: copied ? "#0F2C59" : "#F3F4F6" },
           }}
         >
           {copied ? "Copied!" : "Copy Link"}
@@ -331,15 +331,15 @@ export default function ShareButtons({
           onClick={handleNativeShare}
           startIcon={<ShareIcon />}
           sx={{
-            bgcolor: "#0F5A24",
+            bgcolor: "#0B3C5D",
             color: "#FFFFFF",
             fontWeight: 800,
             fontSize: "0.825rem",
             textTransform: "none",
             borderRadius: "10px",
             py: 1,
-            boxShadow: "0 2px 6px rgba(15,90,36,0.25)",
-            "&:hover": { bgcolor: "#15803D" },
+            boxShadow: "0 2px 6px rgba(11,60,93,0.25)",
+            "&:hover": { bgcolor: "#0F2C59" },
           }}
         >
           More Share

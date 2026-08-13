@@ -6,9 +6,9 @@ export const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#2E7D32", // Primary Green
-      dark: "#1B5E20",
-      light: "#4CAF50",
+      main: "#0B3C5D", // Emblem Navy
+      dark: "#0F2C59",
+      light: "#3B82F6",
       contrastText: "#FFFFFF",
     },
     secondary: {

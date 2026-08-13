@@ -84,7 +84,7 @@ export default function InitialLoader() {
           size={36}
           thickness={4.5}
           sx={{
-            color: "#2E7D32",
+            color: "#0B3C5D",
           }}
         />
       </Box>

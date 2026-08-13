@@ -42,7 +42,7 @@ export default function GlobalError({
             onClick={() => reset()}
             variant="contained"
             startIcon={<RefreshIcon />}
-            sx={{ bgcolor: "#2E7D32", fontWeight: 700, borderRadius: "8px", "&:hover": { bgcolor: "#1B5E20" } }}
+            sx={{ bgcolor: "#0B3C5D", fontWeight: 700, borderRadius: "8px", "&:hover": { bgcolor: "#0F2C59" } }}
           >
             Try Again
           </Button>

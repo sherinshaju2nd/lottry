@@ -13,7 +13,7 @@ export default function NotFound() {
   return (
     <Container maxWidth="sm" sx={{ py: 12 }}>
       <Paper elevation={0} sx={{ p: 5, borderRadius: "16px", border: "1px solid #E5E7EB", textAlign: "center", bgcolor: "#FFFFFF" }}>
-        <Typography variant="h1" sx={{ fontWeight: 900, color: "#2E7D32", mb: 1, fontSize: "4rem" }}>
+        <Typography variant="h1" sx={{ fontWeight: 900, color: "#0B3C5D", mb: 1, fontSize: "4rem" }}>
           404
         </Typography>
 
@@ -31,7 +31,7 @@ export default function NotFound() {
             href="/"
             variant="contained"
             startIcon={<HomeIcon />}
-            sx={{ bgcolor: "#2E7D32", fontWeight: 700, px: 3, py: 1.2, borderRadius: "8px", "&:hover": { bgcolor: "#1B5E20" } }}
+            sx={{ bgcolor: "#0B3C5D", fontWeight: 700, px: 3, py: 1.2, borderRadius: "8px", "&:hover": { bgcolor: "#0F2C59" } }}
           >
             Back to Kerala Lottery Home
           </Button>

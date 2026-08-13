@@ -209,7 +209,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                   py: 1,
                   flex: 1,
                   fontWeight: 700,
-                  "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" },
+                  "&.Mui-selected": { bgcolor: "#EBF5FF", color: "#0B3C5D" },
                 }}
               >
                 <ViewListIcon fontSize="small" sx={{ mr: 1 }} /> Table View
@@ -221,7 +221,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                   py: 1,
                   flex: 1,
                   fontWeight: 700,
-                  "&.Mui-selected": { bgcolor: "#E8F5E9", color: "#2E7D32" },
+                  "&.Mui-selected": { bgcolor: "#EBF5FF", color: "#0B3C5D" },
                 }}
               >
                 <ViewModuleIcon fontSize="small" sx={{ mr: 1 }} /> Grid View
@@ -351,7 +351,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                             >
                               <Typography
                                 variant="body2"
-                                sx={{ fontWeight: 800, color: "#2E7D32" }}
+                                sx={{ fontWeight: 800, color: "#0B3C5D" }}
                               >
                                 {row.draw_name}
                               </Typography>
@@ -379,7 +379,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                               {row.first?.ticket || "N/A"}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ fontWeight: 700, color: "#1B5E20" }}>
+                          <TableCell sx={{ fontWeight: 700, color: "#0B3C5D" }}>
                             {row.prizes?.amounts?.["1st"] || "1,00,00,000/-"}
                           </TableCell>
                           <TableCell
@@ -399,10 +399,10 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                               variant="contained"
                               startIcon={<VisibilityIcon />}
                               sx={{
-                                bgcolor: "#2E7D32",
+                                bgcolor: "#0B3C5D",
                                 fontWeight: 700,
                                 borderRadius: "4px",
-                                "&:hover": { bgcolor: "#1B5E20" },
+                                "&:hover": { bgcolor: "#0F2C59" },
                               }}
                             >
                               View Results
@@ -432,8 +432,8 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                         transition:
                           "border-color 0.2s ease, box-shadow 0.2s ease",
                         "&:hover": {
-                          borderColor: "#2E7D32",
-                          boxShadow: "0 6px 16px rgba(46, 125, 50, 0.1)",
+                          borderColor: "#0B3C5D",
+                          boxShadow: "0 6px 16px rgba(11, 60, 93, 0.1)",
                         },
                       }}
                     >

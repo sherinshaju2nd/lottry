@@ -130,7 +130,7 @@ export default function AdminDashboardPage() {
             disabled={isSyncing}
             variant="contained"
             startIcon={isSyncing ? <CircularProgress size={20} color="inherit" /> : <CloudDownloadIcon />}
-            sx={{ bgcolor: "#2E7D32", color: "#FFFFFF", fontWeight: 800, px: 3, borderRadius: "8px", "&:hover": { bgcolor: "#1B5E20" } }}
+            sx={{ bgcolor: "#0B3C5D", color: "#FFFFFF", fontWeight: 800, px: 3, borderRadius: "8px", "&:hover": { bgcolor: "#0F2C59" } }}
           >
             {isSyncing ? "Syncing..." : "Sync Latest API Result"}
           </Button>
@@ -171,7 +171,7 @@ export default function AdminDashboardPage() {
                 {draws.map((row, idx) => (
                   <TableRow key={idx} hover>
                     <TableCell sx={{ fontWeight: 700 }}>{row.draw_date}</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: "#2E7D32" }}>{row.draw_name}</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: "#0B3C5D" }}>{row.draw_name}</TableCell>
                     <TableCell>
                       <Chip label={row.draw_code} size="small" sx={{ fontWeight: 700, bgcolor: "#E0F2FE", color: "#0369A1", borderRadius: "6px" }} />
                     </TableCell>

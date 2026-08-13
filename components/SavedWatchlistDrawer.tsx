@@ -74,7 +74,7 @@ export default function SavedWatchlistDrawer({
       <Box
         sx={{
           p: 2.5,
-          background: "linear-gradient(135deg, #0F5A24 0%, #15803D 100%)",
+          background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
           color: "#FFFFFF",
           display: "flex",
           alignItems: "center",
@@ -116,12 +116,12 @@ export default function SavedWatchlistDrawer({
               onClick={handleCheckAll}
               startIcon={<PlayArrowIcon />}
               sx={{
-                bgcolor: "#0F5A24",
+                bgcolor: "#0B3C5D",
                 fontWeight: 900,
                 py: 1.25,
                 borderRadius: "10px",
-                boxShadow: "0 4px 12px rgba(15,90,36,0.25)",
-                "&:hover": { bgcolor: "#15803D" },
+                boxShadow: "0 4px 12px rgba(11,60,93,0.25)",
+                "&:hover": { bgcolor: "#0F2C59" },
               }}
             >
               ⚡ Check All ({watchlist.length}) Saved Tickets
@@ -143,7 +143,7 @@ export default function SavedWatchlistDrawer({
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-                    <ConfirmationNumberIcon sx={{ color: "#0F5A24" }} />
+                    <ConfirmationNumberIcon sx={{ color: "#0B3C5D" }} />
                     <Box>
                       <Typography variant="subtitle2" sx={{ fontWeight: 900, color: "#111827" }}>
                         {item.ticketNumber}

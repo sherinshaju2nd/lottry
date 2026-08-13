@@ -132,7 +132,7 @@ export default function ModernDatePicker({
         slotProps={{
           input: {
             readOnly: true,
-            startAdornment: <CalendarMonthIcon sx={{ color: "#0F5A24", mr: 1, cursor: "pointer" }} />,
+            startAdornment: <CalendarMonthIcon sx={{ color: "#0B3C5D", mr: 1, cursor: "pointer" }} />,
             endAdornment: value ? (
               <IconButton size="small" onClick={handleClear} sx={{ color: "#6B7280" }}>
                 <ClearIcon fontSize="small" />
@@ -146,8 +146,8 @@ export default function ModernDatePicker({
             borderRadius: "10px",
             bgcolor: "#FFFFFF",
             cursor: "pointer",
-            "&:hover fieldset": { borderColor: "#0F5A24" },
-            "&.Mui-focused fieldset": { borderColor: "#0F5A24" },
+            "&:hover fieldset": { borderColor: "#0B3C5D" },
+            "&.Mui-focused fieldset": { borderColor: "#0B3C5D" },
           },
         }}
       />
@@ -174,7 +174,7 @@ export default function ModernDatePicker({
         {/* Header Bar */}
         <Box
           sx={{
-            background: "linear-gradient(135deg, #0F5A24 0%, #15803D 100%)",
+            background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
             color: "#FFFFFF",
             p: 2.5,
           }}
@@ -194,12 +194,12 @@ export default function ModernDatePicker({
             size="small"
             onClick={() => handleSelectDate(todayStr)}
             sx={{
-              bgcolor: value === todayStr ? "#0F5A24" : "#FFFFFF",
+              bgcolor: value === todayStr ? "#0B3C5D" : "#FFFFFF",
               color: value === todayStr ? "#FFFFFF" : "#374151",
               fontWeight: 700,
               border: "1px solid #E5E7EB",
               cursor: "pointer",
-              "&:hover": { bgcolor: "#E8F5E9", color: "#0F5A24" },
+              "&:hover": { bgcolor: "#EBF5FF", color: "#0B3C5D" },
             }}
           />
           <Chip
@@ -207,12 +207,12 @@ export default function ModernDatePicker({
             size="small"
             onClick={() => handleSelectDate(yesterdayStr)}
             sx={{
-              bgcolor: value === yesterdayStr ? "#0F5A24" : "#FFFFFF",
+              bgcolor: value === yesterdayStr ? "#0B3C5D" : "#FFFFFF",
               color: value === yesterdayStr ? "#FFFFFF" : "#374151",
               fontWeight: 700,
               border: "1px solid #E5E7EB",
               cursor: "pointer",
-              "&:hover": { bgcolor: "#E8F5E9", color: "#0F5A24" },
+              "&:hover": { bgcolor: "#EBF5FF", color: "#0B3C5D" },
             }}
           />
           <Chip
@@ -220,12 +220,12 @@ export default function ModernDatePicker({
             size="small"
             onClick={() => handleSelectDate("")}
             sx={{
-              bgcolor: !value ? "#0F5A24" : "#FFFFFF",
+              bgcolor: !value ? "#0B3C5D" : "#FFFFFF",
               color: !value ? "#FFFFFF" : "#374151",
               fontWeight: 700,
               border: "1px solid #E5E7EB",
               cursor: "pointer",
-              "&:hover": { bgcolor: "#E8F5E9", color: "#0F5A24" },
+              "&:hover": { bgcolor: "#EBF5FF", color: "#0B3C5D" },
             }}
           />
         </Box>
@@ -244,7 +244,7 @@ export default function ModernDatePicker({
                   size="small"
                   onClick={() => handleSelectDate(pDate)}
                   sx={{
-                    bgcolor: value === pDate ? "#0F5A24" : "#FEF3C7",
+                    bgcolor: value === pDate ? "#0B3C5D" : "#FEF3C7",
                     color: value === pDate ? "#FFFFFF" : "#92400E",
                     fontWeight: 800,
                     fontSize: "0.725rem",
@@ -302,14 +302,14 @@ export default function ModernDatePicker({
                     borderRadius: "50%",
                     fontSize: "0.825rem",
                     fontWeight: isSelected || hasDraw ? 800 : 500,
-                    bgcolor: isSelected ? "#0F5A24" : hasDraw ? "#E8F5E9" : "transparent",
-                    color: isSelected ? "#FFFFFF" : hasDraw ? "#0F5A24" : "#374151",
-                    border: hasDraw && !isSelected ? "1px solid #A5D6A7" : "1px solid transparent",
+                    bgcolor: isSelected ? "#0B3C5D" : hasDraw ? "#EBF5FF" : "transparent",
+                    color: isSelected ? "#FFFFFF" : hasDraw ? "#0B3C5D" : "#374151",
+                    border: hasDraw && !isSelected ? "1px solid #BFDBFE" : "1px solid transparent",
                     cursor: "pointer",
                     transition: "all 0.15s ease",
                     position: "relative",
                     "&:hover": {
-                      bgcolor: isSelected ? "#0F5A24" : "#F3F4F6",
+                      bgcolor: isSelected ? "#0B3C5D" : "#F3F4F6",
                     },
                   }}
                 >
@@ -320,7 +320,7 @@ export default function ModernDatePicker({
                         width: 4,
                         height: 4,
                         borderRadius: "50%",
-                        bgcolor: "#0F5A24",
+                        bgcolor: "#0B3C5D",
                         position: "absolute",
                         bottom: 3,
                       }}

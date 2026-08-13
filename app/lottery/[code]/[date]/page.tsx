@@ -217,8 +217,8 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
 <head><meta charset="utf-8"/><style>
 table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
 th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-th { background-color: #2E7D32; color: white; font-weight: bold; }
-.header-title { font-size: 20px; font-weight: bold; color: #1B5E20; }
+th { background-color: #0B3C5D; color: white; font-weight: bold; }
+.header-title { font-size: 20px; font-weight: bold; color: #0F2C59; }
 .first-prize { background-color: #FEF3C7; font-weight: bold; color: #92400E; }
 </style></head><body>
 <p class="header-title">Kerala Lottery Result Today - Draw Results</p>
@@ -274,7 +274,7 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
       particleCount: 120,
       spread: 90,
       origin: { y: 0.6 },
-      colors: ["#2E7D32", "#FFC107", "#E67E22", "#3B82F6", "#EC4899"],
+      colors: ["#0B3C5D", "#FFC107", "#E67E22", "#3B82F6", "#EC4899"],
     });
 
     setTimeout(() => {
@@ -432,7 +432,7 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                 color: "#4B5563",
                 fontWeight: 700,
                 borderRadius: "6px",
-                "&:hover": { color: "#2E7D32" },
+                "&:hover": { color: "#0B3C5D" },
               }}
             >
               Back to {lotteryInfo.name} Archives
@@ -445,7 +445,7 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                 color: "#4B5563",
                 fontWeight: 700,
                 borderRadius: "6px",
-                "&:hover": { color: "#2E7D32" },
+                "&:hover": { color: "#0B3C5D" },
               }}
             >
               Schedule
@@ -501,14 +501,14 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                   startIcon={<FileDownloadIcon />}
                   endIcon={<KeyboardArrowDownIcon />}
                   sx={{
-                    bgcolor: "#0F5A24",
+                    bgcolor: "#0B3C5D",
                     color: "#FFFFFF",
                     fontWeight: 700,
                     borderRadius: "6px",
                     px: 2.5,
                     py: 1,
                     width: { xs: "100%", sm: "auto" },
-                    "&:hover": { bgcolor: "#15803D" },
+                    "&:hover": { bgcolor: "#0F2C59" },
                   }}
                 >
                   Export Data
@@ -627,7 +627,7 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-            <ConfirmationNumberIcon sx={{ color: "#2E7D32" }} />
+            <ConfirmationNumberIcon sx={{ color: "#0B3C5D" }} />
             <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827" }}>
               Check Ticket Result for {selectedDate}
             </Typography>
@@ -660,13 +660,13 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
               variant="contained"
               startIcon={<CelebrationIcon />}
               sx={{
-                bgcolor: "#2E7D32",
+                bgcolor: "#0B3C5D",
                 color: "#FFFFFF",
                 fontWeight: 800,
                 px: 3.5,
                 py: 1,
                 borderRadius: "8px",
-                "&:hover": { bgcolor: "#1B5E20" },
+                "&:hover": { bgcolor: "#0F2C59" },
               }}
             >
               Check Ticket
@@ -683,9 +683,9 @@ th { background-color: #2E7D32; color: white; font-weight: bold; }
                     p: 2.5,
                     borderRadius: "12px",
                     background:
-                      "linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)",
+                      "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
                     color: "#FFFFFF",
-                    boxShadow: "0 4px 15px rgba(46, 125, 50, 0.3)",
+                    boxShadow: "0 4px 15px rgba(11, 60, 93, 0.3)",
                   }}
                 >
                   <Box

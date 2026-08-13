@@ -392,13 +392,13 @@ export default function AdvancedSearchPage() {
           <Chip
             icon={
               <ConfirmationNumberIcon
-                sx={{ fontSize: "14px !important", color: "#0F5A24" }}
+                sx={{ fontSize: "14px !important", color: "#0B3C5D" }}
               />
             }
-            label="Kerala State Lotteries Official Ticket Checker"
+            label="Kerala State Lotteries Ticket Checker"
             sx={{
-              bgcolor: "#E8F5E9",
-              color: "#0F5A24",
+              bgcolor: "#EBF5FF",
+              color: "#0B3C5D",
               fontWeight: 800,
               px: 1,
               borderRadius: "20px",
@@ -428,7 +428,7 @@ export default function AdvancedSearchPage() {
           variant="h3"
           sx={{
             fontWeight: 900,
-            color: "#0F5A24",
+            color: "#0B3C5D",
             mb: 1,
             fontSize: { xs: "1.5rem", sm: "2.1rem", md: "2.5rem" },
           }}
@@ -488,8 +488,8 @@ export default function AdvancedSearchPage() {
                 textTransform: "none",
                 fontSize: { xs: "0.85rem", sm: "0.95rem" },
               },
-              "& .Mui-selected": { color: "#0F5A24" },
-              "& .MuiTabs-indicator": { bgcolor: "#0F5A24", height: 3 },
+              "& .Mui-selected": { color: "#0B3C5D" },
+              "& .MuiTabs-indicator": { bgcolor: "#0B3C5D", height: 3 },
             }}
           >
             <Tab
@@ -532,7 +532,6 @@ export default function AdvancedSearchPage() {
                     input: {
                       endAdornment: (
                         <Box sx={{ display: "flex", gap: 0.5, pl: 0.5 }}>
-
                           <Tooltip
                             title={
                               isCurrentSaved
@@ -627,7 +626,7 @@ export default function AdvancedSearchPage() {
                       fontWeight: 700,
                       fontSize: "0.75rem",
                       cursor: "pointer",
-                      "&:hover": { bgcolor: "#E8F5E9", color: "#0F5A24" },
+                      "&:hover": { bgcolor: "#EBF5FF", color: "#0B3C5D" },
                     }}
                   />
                 ))}
@@ -661,14 +660,14 @@ export default function AdvancedSearchPage() {
                   )
                 }
                 sx={{
-                  bgcolor: "#0F5A24",
+                  bgcolor: "#0B3C5D",
                   flex: 1,
                   py: 1.5,
                   fontWeight: 800,
                   fontSize: "1rem",
                   borderRadius: "10px",
-                  boxShadow: "0 4px 12px rgba(15,90,36,0.2)",
-                  "&:hover": { bgcolor: "#15803D" },
+                  boxShadow: "0 4px 12px rgba(11,60,93,0.2)",
+                  "&:hover": { bgcolor: "#0F2C59" },
                 }}
               >
                 {isSearching
@@ -713,7 +712,7 @@ export default function AdvancedSearchPage() {
                 variant="subtitle2"
                 sx={{
                   fontWeight: 800,
-                  color: "#0F5A24",
+                  color: "#0B3C5D",
                   mb: 1.5,
                   display: "flex",
                   alignItems: "center",
@@ -762,11 +761,11 @@ export default function AdvancedSearchPage() {
                     fullWidth
                     onClick={handleGenerateRange}
                     sx={{
-                      bgcolor: "#0F5A24",
+                      bgcolor: "#0B3C5D",
                       fontWeight: 800,
                       height: 40,
                       borderRadius: "8px",
-                      "&:hover": { bgcolor: "#15803D" },
+                      "&:hover": { bgcolor: "#0F2C59" },
                     }}
                   >
                     Generate
@@ -856,12 +855,12 @@ export default function AdvancedSearchPage() {
                   )
                 }
                 sx={{
-                  bgcolor: "#0F5A24",
+                  bgcolor: "#0B3C5D",
                   flex: 1,
                   py: 1.5,
                   fontWeight: 900,
                   borderRadius: "10px",
-                  "&:hover": { bgcolor: "#15803D" },
+                  "&:hover": { bgcolor: "#0F2C59" },
                 }}
               >
                 {isSearching
@@ -947,8 +946,8 @@ export default function AdvancedSearchPage() {
                     }
                     label={match.prize_tier}
                     sx={{
-                      bgcolor: "#E8F5E9",
-                      color: "#0F5A24",
+                      bgcolor: "#EBF5FF",
+                      color: "#0B3C5D",
                       fontWeight: 800,
                       borderRadius: "6px",
                     }}
@@ -956,7 +955,7 @@ export default function AdvancedSearchPage() {
                   {match.prize_amount && (
                     <Typography
                       variant="subtitle1"
-                      sx={{ fontWeight: 900, color: "#0F5A24" }}
+                      sx={{ fontWeight: 900, color: "#0B3C5D" }}
                     >
                       Prize Amount: {match.prize_amount}
                     </Typography>
@@ -978,7 +977,7 @@ export default function AdvancedSearchPage() {
                         fontSize: 14,
                         verticalAlign: "middle",
                         mr: 0.5,
-                        color: "#0F5A24",
+                        color: "#0B3C5D",
                       }}
                     />
                     {match.draw_date}
@@ -1003,7 +1002,7 @@ export default function AdvancedSearchPage() {
                   component={Link}
                   href={`/lottery/${match.lottery_code.toLowerCase()}/${encodeURIComponent(match.draw_date)}`}
                   size="small"
-                  sx={{ mt: 2, fontWeight: 800, color: "#0F5A24" }}
+                  sx={{ mt: 2, fontWeight: 800, color: "#0B3C5D" }}
                 >
                   View Full Prize Breakdown for {match.draw_date} →
                 </Button>
@@ -1071,7 +1070,7 @@ export default function AdvancedSearchPage() {
                     sx={{ fontWeight: 900, color: "#111827" }}
                   >
                     Ticket:{" "}
-                    <span style={{ color: "#0F5A24" }}>
+                    <span style={{ color: "#0B3C5D" }}>
                       {item.ticketNumber}
                     </span>
                   </Typography>

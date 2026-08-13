@@ -9,10 +9,10 @@ export async function generateMetadata({
   const resolvedParams = await params;
   const code = resolvedParams.code.toUpperCase();
   const lottery = WEEKLY_LOTTERIES.find((l) => l.code === code);
-  
+
   const lotteryName = lottery ? lottery.name : code;
   const title = `${lotteryName} Result Archives & Info | Kerala State Lottery Result Today`;
-  const description = `Check the latest kl lottery results, historical archives, and draw schedule for the ${lotteryName} lottery. Fast official live kerala jackpot result updates.`;
+  const description = `Check the latest kl lottery results, historical archives, and draw schedule for the ${lotteryName} lottery. Fast  live kerala jackpot result updates.`;
   const url = `https://www.keralalotteryresultstoday.in/lottery/${code.toLowerCase()}`;
 
   return {
@@ -35,7 +35,7 @@ export async function generateMetadata({
           width: 1024,
           height: 1024,
           alt: "Kerala Lottery Result Today Logo",
-        }
+        },
       ],
       locale: "en_IN",
       type: "website",

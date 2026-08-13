@@ -74,7 +74,7 @@ export default function Footer() {
               color: "#4B5563",
               textDecoration: "none",
               fontWeight: 600,
-              "&:hover": { color: "#2E7D32" },
+              "&:hover": { color: "#0B3C5D" },
             }}
           >
             Home
@@ -87,7 +87,7 @@ export default function Footer() {
               color: "#4B5563",
               textDecoration: "none",
               fontWeight: 600,
-              "&:hover": { color: "#2E7D32" },
+              "&:hover": { color: "#0B3C5D" },
             }}
           >
             Weekly Draw Schedule
@@ -100,7 +100,7 @@ export default function Footer() {
               color: "#4B5563",
               textDecoration: "none",
               fontWeight: 600,
-              "&:hover": { color: "#2E7D32" },
+              "&:hover": { color: "#0B3C5D" },
             }}
           >
             Winning Ticket Checker
