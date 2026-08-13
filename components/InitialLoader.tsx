@@ -64,7 +64,7 @@ export default function InitialLoader() {
         variant="h4"
         sx={{
           fontWeight: 900,
-          color: "#1B5E20",
+          color: "#0B3C5D",
           mb: 0.5,
           letterSpacing: "-0.02em",
           textAlign: "center",

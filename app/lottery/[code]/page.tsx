@@ -150,7 +150,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
               color: "#4B5563",
               mb: 2,
               borderRadius: "4px",
-              "&:hover": { color: "#1B5E20" },
+              "&:hover": { color: "#0B3C5D" },
             }}
           >
             Back to Schedule
@@ -334,7 +334,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
                           onClick={() => handleRowClick(row.draw_date)}
                           sx={{
                             cursor: "pointer",
-                            "&:hover": { bgcolor: "#F0FDF4" },
+                            "&:hover": { bgcolor: "#F0F7FF" },
                             transition: "background-color 0.15s ease",
                           }}
                         >

@@ -1053,8 +1053,8 @@ export default function AdvancedSearchPage() {
                 sx={{
                   p: 2.5,
                   borderRadius: "12px",
-                  bgcolor: hasMatch ? "#F4FBF7" : "#FFFFFF",
-                  border: hasMatch ? "2px solid #81C784" : "1px solid #E5E7EB",
+                  bgcolor: hasMatch ? "#EBF5FF" : "#FFFFFF",
+                  border: hasMatch ? "2px solid #BFDBFE" : "1px solid #E5E7EB",
                 }}
               >
                 <Box

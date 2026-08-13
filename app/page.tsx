@@ -487,8 +487,8 @@ export default function HomePage() {
                     label={`WINNING TICKET • ${todayDrawResult.draw_date}`}
                     size="small"
                     sx={{
-                      bgcolor: "#DCFCE7",
-                      color: "#15803D",
+                      bgcolor: "#EBF5FF",
+                      color: "#0B3C5D",
                       fontWeight: 800,
                       fontSize: "0.725rem",
                       borderRadius: "12px",
@@ -1661,10 +1661,10 @@ export default function HomePage() {
                             latestDraw.draw_date === todayISTDate ? (
                               <Box
                                 sx={{
-                                  bgcolor: "#DCFCE7",
+                                  bgcolor: "#EBF5FF",
                                   p: 1.5,
                                   borderRadius: "10px",
-                                  border: "1px solid #86EFAC",
+                                  border: "1px solid #BFDBFE",
                                 }}
                               >
                                 <Box
@@ -1678,7 +1678,7 @@ export default function HomePage() {
                                   <Typography
                                     variant="caption"
                                     sx={{
-                                      color: "#15803D",
+                                      color: "#0B3C5D",
                                       fontWeight: 800,
                                       fontSize: "0.68rem",
                                     }}
@@ -1688,7 +1688,7 @@ export default function HomePage() {
                                   <Typography
                                     variant="caption"
                                     sx={{
-                                      color: "#15803D",
+                                      color: "#0B3C5D",
                                       fontWeight: 700,
                                       fontSize: "0.68rem",
                                     }}
@@ -1701,7 +1701,7 @@ export default function HomePage() {
                                   variant="body2"
                                   sx={{
                                     fontWeight: 800,
-                                    color: "#15803D",
+                                    color: "#0B3C5D",
                                     fontSize: "0.775rem",
                                     display: { xs: "block", md: "none" },
                                   }}

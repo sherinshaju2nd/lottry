@@ -573,7 +573,7 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
               variant="h5"
               sx={{
                 fontWeight: 800,
-                color: "#16A34A",
+                color: "#2563EB",
                 mb: 1.5,
                 fontSize: { xs: "1.25rem", sm: "1.60rem" },
               }}
