@@ -46,10 +46,21 @@ export default function Footer() {
 
         <Typography
           variant="body2"
-          sx={{ color: "#6B7280", mb: 2.5, maxWidth: 600, mx: "auto" }}
+          sx={{
+            color: "#4B5563",
+            mb: 3,
+            maxWidth: 800,
+            mx: "auto",
+            fontWeight: 500,
+            lineHeight: 1.6,
+          }}
         >
-          Your destination for live Kerala lottery results today, Winning ticket
-          number verification, weekly schedule, and historical draw archives.
+          <strong>About Kerala Lottery:</strong> Kerala State Lottery is a
+          government initiative started in 1967 by Finance Minister P.K. Kunju
+          Sahib to provide employment and generate revenue for the state&apos;s
+          development. It has grown to become one of India&apos;s most
+          successful and transparent lottery systems, contributing significantly
+          to Kerala&apos;s economy and social welfare programs.
         </Typography>
 
         {/* <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
@@ -173,9 +184,24 @@ export default function Footer() {
 
         <Typography
           variant="body2"
-          sx={{ color: "#9CA3AF", mb: 3.5, maxWidth: 850, mx: "auto", fontSize: "0.75rem", fontStyle: "italic", lineHeight: 1.6 }}
+          sx={{
+            color: "#9CA3AF",
+            mb: 3.5,
+            maxWidth: 850,
+            mx: "auto",
+            fontSize: "0.75rem",
+            fontStyle: "italic",
+            lineHeight: 1.6,
+          }}
         >
-          Disclaimer: Kerala Lottery Result Today does not represent any government entity. We are not affiliated with any government organization and do not facilitate government services through this app. Our source of information is publicly available data, including official government websites. Users are advised to cross-check all information, including potential winnings, with the official government gazette for confirmation. Please note, this app does not sell lottery tickets and only displays lottery-related data.
+          Disclaimer: Kerala Lottery Result Today does not represent any
+          government entity. We are not affiliated with any government
+          organization and do not facilitate government services through this
+          app. Our source of information is publicly available data, including
+          official government websites. Users are advised to cross-check all
+          information, including potential winnings, with the official
+          government gazette for confirmation. Please note, this app does not
+          sell lottery tickets and only displays lottery-related data.
         </Typography>
 
         <Typography
