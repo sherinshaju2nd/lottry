@@ -106,6 +106,7 @@ export async function GET(
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="kerala-lottery-${code}-${date}.pdf"`,
+      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
