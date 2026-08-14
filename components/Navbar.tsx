@@ -32,6 +32,9 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
+import PaidIcon from "@mui/icons-material/Paid";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import HelpIcon from "@mui/icons-material/Help";
 import { WEEKLY_LOTTERIES, supabase } from "@/lib/supabase";
 
 export default function Navbar() {
@@ -230,16 +233,47 @@ export default function Navbar() {
 
             <Button
               component={Link}
-              href="/#schedule"
-              startIcon={<CalendarMonthIcon />}
+              href="/claim"
+              startIcon={<PaidIcon />}
               sx={{
-                color: "#374151",
-                fontWeight: 600,
+                color: pathname === "/claim" ? "#0B3C5D" : "#374151",
+                fontWeight: pathname === "/claim" ? 800 : 600,
                 borderRadius: "8px",
                 px: 2,
+                bgcolor: pathname === "/claim" ? "#EBF5FF" : "transparent",
               }}
             >
-              Schedule
+              Claim
+            </Button>
+
+            <Button
+              component={Link}
+              href="/guide"
+              startIcon={<MenuBookIcon />}
+              sx={{
+                color: pathname === "/guide" ? "#0B3C5D" : "#374151",
+                fontWeight: pathname === "/guide" ? 800 : 600,
+                borderRadius: "8px",
+                px: 2,
+                bgcolor: pathname === "/guide" ? "#EBF5FF" : "transparent",
+              }}
+            >
+              Guide
+            </Button>
+
+            <Button
+              component={Link}
+              href="/faq"
+              startIcon={<HelpIcon />}
+              sx={{
+                color: pathname === "/faq" ? "#0B3C5D" : "#374151",
+                fontWeight: pathname === "/faq" ? 800 : 600,
+                borderRadius: "8px",
+                px: 2,
+                bgcolor: pathname === "/faq" ? "#EBF5FF" : "transparent",
+              }}
+            >
+              FAQ
             </Button>
 
             <Button
@@ -437,18 +471,66 @@ export default function Navbar() {
                 </Collapse>
               </ListItem>
 
-              {/* Weekly Schedule */}
+              {/* Claim */}
               <ListItem disablePadding sx={{ mb: 1 }}>
                 <ListItemButton
                   component={Link}
-                  href="/#schedule"
+                  href="/claim"
                   onClick={handleDrawerToggle}
-                  sx={{ borderRadius: "12px", py: 1.25, px: 1.5 }}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    bgcolor: pathname === "/claim" ? "#EBF5FF" : "transparent",
+                    color: pathname === "/claim" ? "#0B3C5D" : "#374151",
+                  }}
                 >
-                  <ListItemIcon sx={{ color: "#6B7280", minWidth: 38 }}>
-                    <CalendarMonthIcon />
+                  <ListItemIcon sx={{ color: pathname === "/claim" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
+                    <PaidIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Weekly Schedule" slotProps={{ primary: { sx: { fontWeight: 600 } } }} />
+                  <ListItemText primary="Claim" slotProps={{ primary: { sx: { fontWeight: pathname === "/claim" ? 800 : 600 } } }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Guide */}
+              <ListItem disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  component={Link}
+                  href="/guide"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    bgcolor: pathname === "/guide" ? "#EBF5FF" : "transparent",
+                    color: pathname === "/guide" ? "#0B3C5D" : "#374151",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: pathname === "/guide" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
+                    <MenuBookIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Guide" slotProps={{ primary: { sx: { fontWeight: pathname === "/guide" ? 800 : 600 } } }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* FAQ */}
+              <ListItem disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  component={Link}
+                  href="/faq"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    bgcolor: pathname === "/faq" ? "#EBF5FF" : "transparent",
+                    color: pathname === "/faq" ? "#0B3C5D" : "#374151",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: pathname === "/faq" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
+                    <HelpIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="FAQ" slotProps={{ primary: { sx: { fontWeight: pathname === "/faq" ? 800 : 600 } } }} />
                 </ListItemButton>
               </ListItem>
 

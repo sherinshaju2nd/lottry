@@ -357,10 +357,53 @@ export default function HomePage() {
           overflow: "hidden",
         }}
       >
+        {isLoading && (
+          <Grid container spacing={4} sx={{ position: "relative", zIndex: 1, alignItems: "center" }}>
+            {/* Left Content Skeleton */}
+            <Grid size={{ xs: 12, md: 7, lg: 8 }}>
+              <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+                <Skeleton variant="rounded" width={180} height={28} sx={{ borderRadius: "20px" }} />
+                <Skeleton variant="rounded" width={180} height={28} sx={{ borderRadius: "20px" }} />
+              </Box>
+              <Skeleton variant="text" width="60%" height={48} sx={{ mb: 1 }} />
+              <Skeleton variant="text" width="40%" height={32} sx={{ mb: 2 }} />
+              <Skeleton variant="text" width="85%" height={20} />
+              <Skeleton variant="text" width="80%" height={20} sx={{ mb: 4 }} />
+              
+              <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
+                <Skeleton variant="rounded" width={260} height={44} sx={{ borderRadius: "8px" }} />
+                <Skeleton variant="rounded" width={120} height={44} sx={{ borderRadius: "8px" }} />
+              </Box>
+              <Skeleton variant="rounded" width={200} height={36} sx={{ borderRadius: "8px" }} />
+            </Grid>
+
+            {/* Right Winner Card Skeleton (Desktop only) */}
+            <Grid size={{ xs: 12, md: 5, lg: 4 }} sx={{ display: { xs: "none", md: "block" } }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: "20px",
+                  bgcolor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.04)",
+                }}
+              >
+                <Skeleton variant="rounded" width={160} height={24} sx={{ borderRadius: "12px", mb: 2 }} />
+                <Skeleton variant="text" width="50%" height={16} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="80%" height={48} sx={{ mb: 2 }} />
+                <Skeleton variant="text" width="60%" height={20} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="50%" height={20} sx={{ mb: 2 }} />
+                <Skeleton variant="rounded" width="100%" height={36} sx={{ borderRadius: "8px" }} />
+              </Paper>
+            </Grid>
+          </Grid>
+        )}
+
         {/* Carousel Tab Switcher at Top of Hero Container */}
         <Box
           sx={{
-            display: "flex",
+            display: isLoading ? "none" : "flex",
             alignItems: "center",
             justifyContent: "space-between",
             mb: 3,
@@ -453,7 +496,7 @@ export default function HomePage() {
         </Box>
 
         {/* SLIDE 0: TODAY'S DRAW */}
-        {heroSlideIndex === 0 && (
+        {!isLoading && heroSlideIndex === 0 && (
           <Box sx={{ width: "100%", position: "relative", zIndex: 1 }}>
             {/* Winner Details Card on Right (When Today's Winner Result is Available - Desktop Only) */}
             {hasTodayResult && todayDrawResult ? (
@@ -1150,7 +1193,7 @@ export default function HomePage() {
         )}
 
         {/* SLIDE 1: YESTERDAY'S / PREVIOUS DRAW RESULT */}
-        {heroSlideIndex === 1 && (
+        {!isLoading && heroSlideIndex === 1 && (
           <Box sx={{ width: "100%", position: "relative", zIndex: 1 }}>
             {/* Winner Display Card on Right */}
             <Box

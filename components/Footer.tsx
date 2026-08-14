@@ -107,6 +107,45 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
+            href="/claim"
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            How to Claim
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
+            href="/guide"
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            Complete Guide
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
+            href="/faq"
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            FAQ
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
             href="/terms-conditions"
             sx={{
               color: "#4B5563",
@@ -131,6 +170,13 @@ export default function Footer() {
             Privacy Policy
           </Typography>
         </Box>
+
+        <Typography
+          variant="body2"
+          sx={{ color: "#9CA3AF", mb: 3.5, maxWidth: 850, mx: "auto", fontSize: "0.75rem", fontStyle: "italic", lineHeight: 1.6 }}
+        >
+          Disclaimer: Kerala Lottery Result Today does not represent any government entity. We are not affiliated with any government organization and do not facilitate government services through this app. Our source of information is publicly available data, including official government websites. Users are advised to cross-check all information, including potential winnings, with the official government gazette for confirmation. Please note, this app does not sell lottery tickets and only displays lottery-related data.
+        </Typography>
 
         <Typography
           variant="caption"
