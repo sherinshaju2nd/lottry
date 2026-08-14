@@ -38,14 +38,23 @@ export async function fetchAndSyncLatestLottery(): Promise<{
     let lottery_code = json.draw_code.split("-")[0].toUpperCase();
     let draw_name = json.draw_name || "Kerala Lottery";
 
-    const matched = WEEKLY_LOTTERIES.find(
-      (l) => l.code === lottery_code || l.name.toLowerCase() === draw_name.toLowerCase()
-    );
-
-    if (matched) {
-      lottery_code = matched.code;
-      draw_name = matched.name;
+    // Try to match by code first, then fallback to name
+    let matched = WEEKLY_LOTTERIES.find((l) => l.code === lottery_code);
+    if (!matched) {
+      matched = WEEKLY_LOTTERIES.find(
+        (l) => l.name.toLowerCase() === draw_name.toLowerCase()
+      );
     }
+
+    if (!matched) {
+      return {
+        success: false,
+        error: `Lottery code ${lottery_code} or name "${draw_name}" is not a weekly lottery in our list`,
+      };
+    }
+
+    lottery_code = matched.code;
+    draw_name = matched.name;
 
     const payload = {
       draw_date: json.draw_date,

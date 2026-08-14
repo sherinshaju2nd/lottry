@@ -68,16 +68,21 @@ export async function saveDrawResultToSupabase(data: {
   let lottery_code = data.draw_code.split("-")[0].toUpperCase();
   let draw_name = data.draw_name;
 
-  const matched = WEEKLY_LOTTERIES.find(
-    (l) =>
-      l.code === lottery_code ||
-      l.name.toLowerCase() === data.draw_name.toLowerCase(),
-  );
-
-  if (matched) {
-    lottery_code = matched.code;
-    draw_name = matched.name;
+  // Try to match by code first, then fallback to name
+  let matched = WEEKLY_LOTTERIES.find((l) => l.code === lottery_code);
+  if (!matched) {
+    matched = WEEKLY_LOTTERIES.find(
+      (l) => l.name.toLowerCase() === data.draw_name.toLowerCase()
+    );
   }
+
+  if (!matched) {
+    console.log(`Skipping save: ${lottery_code} (${data.draw_name}) is not in weekly lotteries list.`);
+    return;
+  }
+
+  lottery_code = matched.code;
+  draw_name = matched.name;
 
   const rowPayload = {
     draw_date: data.draw_date,
