@@ -48,9 +48,8 @@ export default function Footer() {
           variant="body2"
           sx={{ color: "#6B7280", mb: 2.5, maxWidth: 600, mx: "auto" }}
         >
-          Your destination for live Kerala lottery results today, 3:10
-          PM winning ticket number verification, weekly schedule, and historical
-          draw archives.
+          Your destination for live Kerala lottery results today, Winning ticket
+          number verification, weekly schedule, and historical draw archives.
         </Typography>
 
         {/* <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
@@ -137,8 +136,10 @@ export default function Footer() {
           variant="caption"
           sx={{ color: "#9CA3AF", display: "block" }}
         >
-          © 2026 Kerala Lottery Result Today • Kerala Lotteries Results &
-          Schedule
+          © 2026 Kerala Lottery Result Today All rights reserved•{" "}
+          <span style={{ color: "red", fontWeight: 700 }}>
+            Important: We never sell tickets. Our role is only to share results.
+          </span>
         </Typography>
       </Container>
     </Box>
