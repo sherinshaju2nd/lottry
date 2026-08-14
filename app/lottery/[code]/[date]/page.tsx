@@ -17,17 +17,12 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import Skeleton from "@mui/material/Skeleton";
-import Menu from "@mui/material/Menu";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import CelebrationIcon from "@mui/icons-material/Celebration";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import TableChartIcon from "@mui/icons-material/TableChart";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import confetti from "canvas-confetti";
 import DrawDetailSkeleton from "@/components/skeletons/DrawDetailSkeleton";
 import ShareButtons from "@/components/ShareButtons";
@@ -81,10 +76,6 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
   const checkerSectionRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
 
-  // Export Menu State
-  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(
-    null,
-  );
 
   useEffect(() => {
     async function loadDatesAndResult() {
@@ -226,115 +217,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     }
   };
 
-  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setExportAnchorEl(event.currentTarget);
-  };
 
-  const handleExportMenuClose = () => {
-    setExportAnchorEl(null);
-  };
-
-  const exportCSV = () => {
-    if (!drawResult) return;
-    let csv = `Kerala Lottery Result Today - Draw Results\n`;
-    csv += `Lottery Name,${drawResult.draw_name}\n`;
-    csv += `Draw Code,${drawResult.draw_code}\n`;
-    csv += `Draw Date,${drawResult.draw_date}\n\n`;
-
-    csv += `Prize Tier,Winning Tickets / Details,Prize Amount\n`;
-    csv += `"1st Prize Winner","${drawResult.first?.ticket || ""} (Location: ${drawResult.first?.location || ""}, Agent: ${drawResult.first?.agent || ""})","${drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-"}"\n`;
-
-    const prizeTiers = [
-      { key: "consolation", label: "Consolation Prize" },
-      { key: "2nd", label: "2nd Prize" },
-      { key: "3rd", label: "3rd Prize" },
-      { key: "4th", label: "4th Prize" },
-      { key: "5th", label: "5th Prize" },
-      { key: "6th", label: "6th Prize" },
-      { key: "7th", label: "7th Prize" },
-      { key: "8th", label: "8th Prize" },
-      { key: "9th", label: "9th Prize" },
-    ] as const;
-
-    for (const tier of prizeTiers) {
-      const nums = drawResult.prizes?.[
-        tier.key as keyof typeof drawResult.prizes
-      ] as string[] | undefined;
-      const amt = drawResult.prizes?.amounts?.[tier.key] || "";
-      if (nums && nums.length > 0) {
-        csv += `"${tier.label}","${nums.join("  ")}","${amt}"\n`;
-      }
-    }
-
-    const blob = new Blob(["\uFEFF" + csv], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `Kerala_Lottery_${drawResult.lottery_code}_${drawResult.draw_date}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    handleExportMenuClose();
-  };
-
-  const exportExcel = () => {
-    if (!drawResult) return;
-    let excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="utf-8"/><style>
-table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
-th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-th { background-color: #0B3C5D; color: white; font-weight: bold; }
-.header-title { font-size: 20px; font-weight: bold; color: #0F2C59; }
-.first-prize { background-color: #FEF3C7; font-weight: bold; color: #92400E; }
-</style></head><body>
-<p class="header-title">Kerala Lottery Result Today - Draw Results</p>
-<p><b>Lottery Name:</b> ${drawResult.draw_name} (${drawResult.draw_code}) | <b>Draw Date:</b> ${drawResult.draw_date}</p>
-<table>
-<thead><tr><th>Prize Category</th><th>Winning Ticket Numbers</th><th>Prize Amount</th></tr></thead>
-<tbody>
-<tr class="first-prize"><td>1st Prize Winner</td><td>${drawResult.first?.ticket || ""} (Location: ${drawResult.first?.location || ""}, Agent: ${drawResult.first?.agent || ""})</td><td>${drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-"}</td></tr>`;
-
-    const prizeTiers = [
-      { key: "consolation", label: "Consolation Prize" },
-      { key: "2nd", label: "2nd Prize" },
-      { key: "3rd", label: "3rd Prize" },
-      { key: "4th", label: "4th Prize" },
-      { key: "5th", label: "5th Prize" },
-      { key: "6th", label: "6th Prize" },
-      { key: "7th", label: "7th Prize" },
-      { key: "8th", label: "8th Prize" },
-      { key: "9th", label: "9th Prize" },
-    ] as const;
-
-    for (const tier of prizeTiers) {
-      const nums = drawResult.prizes?.[
-        tier.key as keyof typeof drawResult.prizes
-      ] as string[] | undefined;
-      const amt = drawResult.prizes?.amounts?.[tier.key] || "";
-      if (nums && nums.length > 0) {
-        excelHtml += `<tr><td><b>${tier.label}</b></td><td>${nums.join(", ")}</td><td>${amt}</td></tr>`;
-      }
-    }
-
-    excelHtml += `</tbody></table></body></html>`;
-
-    const blob = new Blob([excelHtml], {
-      type: "application/vnd.ms-excel;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `Kerala_Lottery_${drawResult.lottery_code}_${drawResult.draw_date}.xls`;
-    a.click();
-    URL.revokeObjectURL(url);
-    handleExportMenuClose();
-  };
-
-  const exportPDF = () => {
-    handleExportMenuClose();
-    window.print();
-  };
 
   const triggerCelebration = () => {
     confetti({
@@ -537,65 +420,28 @@ th { background-color: #0B3C5D; color: white; font-weight: bold; }
               </FormControl>
             )}
 
-            {/* Export Results Dropdown Menu */}
+            {/* Direct PDF Download */}
             {drawResult && (
-              <>
-                <Button
-                  variant="contained"
-                  onClick={handleExportMenuOpen}
-                  startIcon={<FileDownloadIcon />}
-                  endIcon={<KeyboardArrowDownIcon />}
-                  sx={{
-                    bgcolor: "#0B3C5D",
-                    color: "#FFFFFF",
-                    fontWeight: 700,
-                    borderRadius: "6px",
-                    px: 2.5,
-                    py: 1,
-                    width: { xs: "100%", sm: "auto" },
-                    "&:hover": { bgcolor: "#0F2C59" },
-                  }}
-                >
-                  Export Data
-                </Button>
-
-                <Menu
-                  anchorEl={exportAnchorEl}
-                  open={Boolean(exportAnchorEl)}
-                  onClose={handleExportMenuClose}
-                  slotProps={{
-                    paper: {
-                      sx: {
-                        borderRadius: "10px",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-                        mt: 1,
-                      },
-                    },
-                  }}
-                >
-                  <MenuItem
-                    onClick={exportCSV}
-                    sx={{ fontWeight: 600, py: 1, px: 2 }}
-                  >
-                    <InsertDriveFileIcon sx={{ mr: 1.5, color: "#16A085" }} />{" "}
-                    Download CSV (.csv)
-                  </MenuItem>
-                  <MenuItem
-                    onClick={exportExcel}
-                    sx={{ fontWeight: 600, py: 1, px: 2 }}
-                  >
-                    <TableChartIcon sx={{ mr: 1.5, color: "#27AE60" }} />{" "}
-                    Download Excel (.xlsx)
-                  </MenuItem>
-                  <MenuItem
-                    onClick={exportPDF}
-                    sx={{ fontWeight: 600, py: 1, px: 2 }}
-                  >
-                    <PictureAsPdfIcon sx={{ mr: 1.5, color: "#C0392B" }} />{" "}
-                    Download PDF / Print (.pdf)
-                  </MenuItem>
-                </Menu>
-              </>
+              <Button
+                variant="contained"
+                component="a"
+                href={`/api/pdf/${codeParam}/${selectedDate}`}
+                download={`kerala-lottery-${codeParam}-${selectedDate}.pdf`}
+                startIcon={<FileDownloadIcon />}
+                sx={{
+                  bgcolor: "#0B3C5D",
+                  color: "#FFFFFF",
+                  fontWeight: 700,
+                  borderRadius: "6px",
+                  px: 2.5,
+                  py: 1,
+                  width: { xs: "100%", sm: "auto" },
+                  textDecoration: "none",
+                  "&:hover": { bgcolor: "#0F2C59" },
+                }}
+              >
+                Download PDF
+              </Button>
             )}
           </Box>
         </Box>
