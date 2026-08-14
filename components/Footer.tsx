@@ -105,6 +105,32 @@ export default function Footer() {
           >
             Winning Ticket Checker
           </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
+            href="/terms-conditions"
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            Terms & Conditions
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
+            href="/privacy-policy"
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            Privacy Policy
+          </Typography>
         </Box>
 
         <Typography
