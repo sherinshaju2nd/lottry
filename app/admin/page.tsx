@@ -1342,7 +1342,7 @@ export default function AdminDashboardPage() {
                     size="small"
                     startIcon={copiedSql ? <CheckCircleIcon color="success" /> : <ContentCopyIcon />}
                     onClick={() => {
-                      navigator.clipboard.writeText("SELECT cron.schedule('lottery_sync_master_daily', '*/3 8-13 * * *', $$SELECT public.trigger_lottery_sync();$$);");
+                      navigator.clipboard.writeText("SELECT cron.schedule('lottery_sync_master_daily', '* 8-13 * * *', $$SELECT public.trigger_lottery_sync();$$);");
                       setCopiedSql(true);
                       setTimeout(() => setCopiedSql(false), 2000);
                     }}
@@ -1352,10 +1352,10 @@ export default function AdminDashboardPage() {
                   </Button>
                 </Box>
                 <Typography variant="body2" sx={{ color: "#64748B", mb: 1 }}>
-                  Runs automatically every 3 minutes between 1:30 PM and 6:30 PM IST (covering both 2 PM Bumper and 3 PM Weekly draws):
+                  Runs automatically every 1 minute between 1:30 PM and 6:30 PM IST (the interval frequency you set on the left e.g. 1 min, 2 min, 3 min controls actual sync frequency):
                 </Typography>
                 <Box sx={{ p: 2, bgcolor: "#1E293B", color: "#E2E8F0", borderRadius: "8px", fontFamily: "monospace", fontSize: "0.8rem", wordBreak: "break-all" }}>
-                  SELECT cron.schedule(&apos;lottery_sync_master_daily&apos;, &apos;*/3 8-13 * * *&apos;, $$SELECT public.trigger_lottery_sync();$$);
+                  SELECT cron.schedule(&apos;lottery_sync_master_daily&apos;, &apos;* 8-13 * * *&apos;, $$SELECT public.trigger_lottery_sync();$$);
                 </Box>
               </Paper>
             </Grid>

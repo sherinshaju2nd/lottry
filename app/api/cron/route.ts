@@ -129,6 +129,30 @@ async function handleCronExecution(req: NextRequest) {
     );
   }
 
+  // Frequency interval throttle check (e.g. 1 min, 2 min, 3 min, 5 min)
+  const freqMins = parseInt(cronConfig.cron_frequency_mins || "1", 10) || 1;
+  if (freqMins > 1 && !isForced) {
+    if ((currM % freqMins) !== 0) {
+      const executionTimeMs = Date.now() - startTime;
+      const freqMsg = `Cron execution skipped: Configured to run every ${freqMins} minutes.`;
+
+      return NextResponse.json(
+        {
+          success: true,
+          skipped: true,
+          frequencyThrottled: true,
+          timestamp: new Date().toISOString(),
+          executionTimeMs,
+          message: freqMsg,
+        },
+        {
+          status: 200,
+          headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+        }
+      );
+    }
+  }
+
   // 4. Check if Today is marked as Postponed / No-Draw Day
   const postponement = await checkIsDatePostponed(todayIST);
   if (postponement && postponement.disable_cron && !isForced) {

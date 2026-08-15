@@ -117,10 +117,11 @@ $$;
 
 
 
--- 5. Unified pg_cron Schedule (Covers both Weekly 3:00-5:00 PM IST and Bumper 2:00-6:00 PM IST)
--- Runs every 3 minutes from 08:00 UTC (1:30 PM IST) to 13:00 UTC (6:30 PM IST) daily
+-- 5. Unified pg_cron Schedule (Covers both Weekly and Bumper draws)
+-- Runs every 1 minute from 08:00 UTC (1:30 PM IST) to 13:00 UTC (6:30 PM IST) daily
+-- (Dynamic interval frequency is controlled from the Admin Panel: 1 min, 2 min, 3 min, 5 min)
 SELECT cron.schedule(
     'lottery_sync_master_daily',
-    '*/3 8-13 * * *',
+    '* 8-13 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
