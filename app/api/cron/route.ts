@@ -68,44 +68,11 @@ async function handleCronExecution(req: NextRequest) {
     );
   }
 
-  // 3. Check if Today is marked as Postponed / No-Draw Day
+  // 3. Intelligent Active Window Check (Bumper @ 14:00 vs Weekly @ 15:00)
   const todayIST = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
   });
 
-  const postponement = await checkIsDatePostponed(todayIST);
-  if (postponement && postponement.disable_cron) {
-    const executionTimeMs = Date.now() - startTime;
-    const skipMsg = `Cron execution skipped: Draw on ${todayIST} is marked as ${postponement.status.toUpperCase()} (${postponement.reason})${postponement.rescheduled_date ? ` and rescheduled to ${postponement.rescheduled_date}` : ""}.`;
-
-    console.log(`[Cron Skipped] ${skipMsg}`);
-
-    await logCronExecutionInSupabase({
-      trigger_source: isVercelCron ? "vercel_cron" : "pg_cron",
-      status: "skipped",
-      message: skipMsg,
-      details: postponement,
-      duration_ms: executionTimeMs,
-    });
-
-    return NextResponse.json(
-      {
-        success: true,
-        skipped: true,
-        postponed: true,
-        timestamp: new Date().toISOString(),
-        executionTimeMs,
-        message: skipMsg,
-        postponement,
-      },
-      {
-        status: 200,
-        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
-      }
-    );
-  }
-
-  // 4. Intelligent Active Window Check (Bumper @ 14:00 vs Weekly @ 15:00)
   const scheduledBumper = await checkIsBumperDrawDate(todayIST);
   const isBumperDay = Boolean(scheduledBumper);
 
@@ -143,12 +110,6 @@ async function handleCronExecution(req: NextRequest) {
       trigger_source: isVercelCron ? "vercel_cron" : "pg_cron",
       status: "skipped",
       message: windowMsg,
-      details: {
-        isBumperDay,
-        bumperName: scheduledBumper?.name,
-        currentTime: timeStr.slice(0, 5),
-        activeWindow: `${effectiveStartTime} - ${effectiveEndTime}`,
-      },
       duration_ms: executionTimeMs,
     });
 
@@ -157,11 +118,42 @@ async function handleCronExecution(req: NextRequest) {
         success: true,
         skipped: true,
         outsideWindow: true,
-        message: windowMsg,
-        isBumperDay,
-        activeWindow: `${effectiveStartTime} - ${effectiveEndTime}`,
         timestamp: new Date().toISOString(),
         executionTimeMs,
+        message: windowMsg,
+      },
+      {
+        status: 200,
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      }
+    );
+  }
+
+  // 4. Check if Today is marked as Postponed / No-Draw Day
+  const postponement = await checkIsDatePostponed(todayIST);
+  if (postponement && postponement.disable_cron && !isForced) {
+    const executionTimeMs = Date.now() - startTime;
+    const skipMsg = `Cron execution skipped: Draw on ${todayIST} is marked as ${postponement.status.toUpperCase()} (${postponement.reason})${postponement.rescheduled_date ? ` and rescheduled to ${postponement.rescheduled_date}` : ""}.`;
+
+    console.log(`[Cron Skipped] ${skipMsg}`);
+
+    await logCronExecutionInSupabase({
+      trigger_source: isVercelCron ? "vercel_cron" : "pg_cron",
+      status: "skipped",
+      message: skipMsg,
+      details: postponement,
+      duration_ms: executionTimeMs,
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        skipped: true,
+        postponed: true,
+        timestamp: new Date().toISOString(),
+        executionTimeMs,
+        message: skipMsg,
+        postponement,
       },
       {
         status: 200,

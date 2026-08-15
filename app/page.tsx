@@ -39,6 +39,7 @@ import {
   ALL_LOTTERIES,
   StructuredDrawResult,
   PostponedDraw,
+  getLotteryUrl,
   supabase,
 } from "@/lib/supabase";
 import ShareButtons from "@/components/ShareButtons";
@@ -62,11 +63,26 @@ interface SearchMatch {
   ticket_matched: string;
 }
 
+export interface LotteryItem {
+  day: string;
+  name: string;
+  nameMl: string;
+  code: string;
+  is_bumper?: boolean;
+  drawTime?: string;
+  jackpot?: string;
+  ticket_price?: string;
+  draw_season?: string;
+  draw_date?: string;
+}
+
 export default function HomePage() {
-  const [todayLottery, setTodayLottery] = useState(WEEKLY_LOTTERIES[0]);
-  const [lotteriesList, setLotteriesList] = useState(WEEKLY_LOTTERIES);
-  const [bumperLotteriesList, setBumperLotteriesList] = useState(BUMPER_LOTTERIES);
+  const [todayLottery, setTodayLottery] = useState<LotteryItem>(WEEKLY_LOTTERIES[0]);
+  const [lotteriesList, setLotteriesList] = useState<LotteryItem[]>(WEEKLY_LOTTERIES);
+  const [bumperLotteriesList, setBumperLotteriesList] = useState<LotteryItem[]>(BUMPER_LOTTERIES as any);
   const [todayDayName, setTodayDayName] = useState("Sunday");
+  const [isTodayBumper, setIsTodayBumper] = useState(false);
+  const [todayBumperInfo, setTodayBumperInfo] = useState<any>(null);
   const [todayDrawResult, setTodayDrawResult] =
     useState<StructuredDrawResult | null>(null);
   const [todayPostponement, setTodayPostponement] =
@@ -158,7 +174,30 @@ export default function HomePage() {
             }))
             .filter((l: any) => !l.is_bumper && !l.day.toLowerCase().includes("bumper"));
 
-          if (weeklyMapped.length > 0) {
+          // Check if today is a scheduled Bumper Lottery draw day
+          const todayBumper = data.find(
+            (d: any) =>
+              (d.is_bumper || (d.day && d.day.toLowerCase().includes("bumper"))) &&
+              d.draw_date === todayISTDate
+          );
+
+          if (todayBumper) {
+            setIsTodayBumper(true);
+            setTodayBumperInfo(todayBumper);
+            setTodayLottery({
+              day: todayBumper.day || "Bumper Draw",
+              name: todayBumper.name,
+              nameMl: todayBumper.name_ml || todayBumper.name,
+              code: todayBumper.code,
+              drawTime: todayBumper.draw_time || "2:00 PM",
+              is_bumper: true,
+              jackpot: todayBumper.jackpot || "₹25 Crore",
+              ticket_price: todayBumper.ticket_price || "₹500",
+              draw_season: todayBumper.draw_season || todayBumper.day,
+            });
+          } else if (weeklyMapped.length > 0) {
+            setIsTodayBumper(false);
+            setTodayBumperInfo(null);
             setLotteriesList(weeklyMapped);
             const matchedDb =
               weeklyMapped.find(
@@ -220,7 +259,11 @@ export default function HomePage() {
         );
         const json = await res.json();
         if (json.success && json.list && json.list.length > 0) {
-          setTodayPostponement(json.list[0]);
+          // If today is a Bumper day, only apply postponement if it targets this bumper or ALL
+          const validPostpone = json.list.find((p: PostponedDraw) => 
+            p.lottery_code === "ALL" || (todayBumperInfo ? p.lottery_code === todayBumperInfo.code : true)
+          );
+          setTodayPostponement(validPostpone || null);
         } else {
           setTodayPostponement(null);
         }
@@ -402,8 +445,18 @@ export default function HomePage() {
           flexDirection: "column",
           justifyContent: "center",
           borderRadius: { xs: "20px", sm: "28px" },
-          bgcolor: "#F4F6F8",
-          border: "1px solid #E5E7EB",
+          bgcolor:
+            isTodayBumper && heroSlideIndex === 0
+              ? "#FFFDF0"
+              : "#F4F6F8",
+          border:
+            isTodayBumper && heroSlideIndex === 0
+              ? "2px solid #F59E0B"
+              : "1px solid #E5E7EB",
+          boxShadow:
+            isTodayBumper && heroSlideIndex === 0
+              ? "0 12px 35px rgba(245, 158, 11, 0.2)"
+              : "none",
           mb: { xs: 4, sm: 6 },
           position: "relative",
           overflow: "hidden",
@@ -626,7 +679,7 @@ export default function HomePage() {
 
                   <Button
                     component={Link}
-                    href={`/lottery/${todayDrawResult.lottery_code.toLowerCase()}/${encodeURIComponent(todayDrawResult.draw_date)}`}
+                    href={getLotteryUrl(todayDrawResult.lottery_code, todayDrawResult.draw_date)}
                     size="small"
                     variant="outlined"
                     fullWidth
@@ -663,22 +716,24 @@ export default function HomePage() {
                   sx={{
                     p: 3,
                     borderRadius: "20px",
-                    bgcolor: "#FFFFFF",
+                    bgcolor: isTodayBumper ? "#FEF9C3" : "#FFFFFF",
                     mb: 2,
-                    border: "1px solid #E5E7EB",
+                    border: isTodayBumper ? "1.5px solid #F59E0B" : "1px solid #E5E7EB",
                   }}
                 >
                   <Typography
                     variant="subtitle1"
-                    sx={{ color: "#374151", fontWeight: 700 }}
+                    sx={{ color: isTodayBumper ? "#78350F" : "#374151", fontWeight: 800 }}
                   >
-                    കേരള ലോട്ടറി
+                    {todayLottery.nameMl || todayLottery.name}
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: "#D97706", fontWeight: 800, mt: 1 }}
+                    sx={{ color: isTodayBumper ? "#B45309" : "#D97706", fontWeight: 900, mt: 1 }}
                   >
-                    #FFC107 ₹70 Laks
+                    {isTodayBumper
+                      ? `🏆 1st Prize: ${todayLottery.jackpot || "₹25 Crore"}`
+                      : `${todayLottery.name} • 1st Prize ₹70 Lakhs`}
                   </Typography>
                 </Paper>
               </Box>
@@ -686,7 +741,28 @@ export default function HomePage() {
 
             <Box sx={{ maxWidth: { xs: "100%", lg: 650, xl: 720 } }}>
               {/* Badge */}
-              {todayPostponement ? (
+              {isTodayBumper ? (
+                <Chip
+                  icon={
+                    <AutoAwesomeIcon
+                      sx={{ fontSize: "15px !important", color: "#B45309" }}
+                    />
+                  }
+                  label="👑 KERALA BUMPER LOTTERY DRAW TODAY"
+                  sx={{
+                    bgcolor: "#FEF3C7",
+                    color: "#92400E",
+                    fontWeight: 900,
+                    fontSize: { xs: "0.725rem", sm: "0.8rem" },
+                    borderRadius: "20px",
+                    mb: 2,
+                    px: 1.5,
+                    py: 0.35,
+                    border: "1.5px solid #F59E0B",
+                    boxShadow: "0 2px 10px rgba(245, 158, 11, 0.25)",
+                  }}
+                />
+              ) : todayPostponement ? (
                 <Chip
                   icon={
                     <EventBusyIcon
@@ -760,7 +836,7 @@ export default function HomePage() {
                 variant="h3"
                 sx={{
                   fontWeight: 900,
-                  color: "#111827",
+                  color: isTodayBumper ? "#78350F" : "#111827",
                   mb: 0.5,
                   fontSize: {
                     xs: "1.75rem",
@@ -774,6 +850,56 @@ export default function HomePage() {
               >
                 {todayLottery.name} {todayLottery.code}
               </Typography>
+
+              {/* Gold Bumper Highlight Ribbons */}
+              {isTodayBumper && (
+                <Box sx={{ display: "flex", gap: 1.2, flexWrap: "wrap", mb: 2, mt: 1 }}>
+                  <Chip
+                    icon={<EmojiEventsIcon sx={{ fontSize: "16px !important", color: "#FFFFFF" }} />}
+                    label={`1ST PRIZE: ${todayLottery.jackpot || "₹25 Crore"}`}
+                    sx={{
+                      bgcolor: "#D97706",
+                      color: "#FFFFFF",
+                      fontWeight: 900,
+                      fontSize: { xs: "0.775rem", sm: "0.875rem" },
+                      borderRadius: "10px",
+                      py: 1.8,
+                      px: 0.8,
+                      boxShadow: "0 4px 12px rgba(217, 119, 6, 0.3)",
+                    }}
+                  />
+                  {todayLottery.ticket_price && (
+                    <Chip
+                      icon={<ConfirmationNumberIcon sx={{ fontSize: "15px !important", color: "#92400E" }} />}
+                      label={`TICKET: ${todayLottery.ticket_price}`}
+                      sx={{
+                        bgcolor: "#FDE68A",
+                        color: "#78350F",
+                        fontWeight: 800,
+                        fontSize: { xs: "0.775rem", sm: "0.85rem" },
+                        borderRadius: "10px",
+                        py: 1.8,
+                        px: 0.8,
+                        border: "1px solid #F59E0B",
+                      }}
+                    />
+                  )}
+                  <Chip
+                    icon={<AccessTimeIcon sx={{ fontSize: "15px !important", color: "#92400E" }} />}
+                    label={`DRAW TIME: ${todayLottery.drawTime || "2:00 PM"}`}
+                    sx={{
+                      bgcolor: "#FEF3C7",
+                      color: "#78350F",
+                      fontWeight: 800,
+                      fontSize: { xs: "0.775rem", sm: "0.85rem" },
+                      borderRadius: "10px",
+                      py: 1.8,
+                      px: 0.8,
+                      border: "1px solid #FCD34D",
+                    }}
+                  />
+                </Box>
+              )}
 
               {todayPostponement ? (
                 <Typography
@@ -797,21 +923,23 @@ export default function HomePage() {
                     fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
                   }}
                 >
-                  Drawn Today ({todayDrawResult.draw_date}), 3:00 PM
+                  Drawn Today ({todayDrawResult.draw_date}), {todayLottery.drawTime || "3:00 PM"}
                 </Typography>
               ) : (
                 <Typography
                   variant="h6"
                   sx={{
-                    color: isAfter3PM ? "#1E40AF" : "#D97706",
+                    color: isTodayBumper ? "#92400E" : (isAfter3PM ? "#1E40AF" : "#D97706"),
                     fontWeight: 800,
                     mb: 2,
                     fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
                   }}
                 >
-                  {isAfter3PM
-                    ? "Drawing is currently in progress..."
-                    : "Draw Scheduled Today at 3:00 PM • Results Coming Soon"}
+                  {isTodayBumper
+                    ? `Special Bumper Draw Scheduled Today at ${todayLottery.drawTime || "2:00 PM"} (No regular weekly draw today)`
+                    : (isAfter3PM
+                        ? "Drawing is currently in progress..."
+                        : "Draw Scheduled Today at 3:00 PM • Results Coming Soon")}
                 </Typography>
               )}
 
@@ -1008,7 +1136,7 @@ export default function HomePage() {
                   <Box sx={{ pt: 0.5 }}>
                     <Button
                       component={Link}
-                      href={`/lottery/${todayLottery.code.toLowerCase()}/${encodeURIComponent(todayDrawResult.draw_date)}`}
+                      href={getLotteryUrl(todayLottery.code, todayDrawResult.draw_date)}
                       variant="outlined"
                       endIcon={<ArrowForwardIcon />}
                       sx={{
@@ -1569,7 +1697,7 @@ export default function HomePage() {
                 >
                   <Button
                     component={Link}
-                    href={`/lottery/${latestPreviousDraw.lottery_code.toLowerCase()}/${encodeURIComponent(latestPreviousDraw.draw_date)}`}
+                    href={getLotteryUrl(latestPreviousDraw.lottery_code, latestPreviousDraw.draw_date)}
                     variant="contained"
                     endIcon={<ArrowForwardIcon />}
                     sx={{
@@ -1588,7 +1716,7 @@ export default function HomePage() {
 
                   <Button
                     component={Link}
-                    href={`/lottery/${latestPreviousDraw.lottery_code.toLowerCase()}`}
+                    href={getLotteryUrl(latestPreviousDraw.lottery_code)}
                     variant="outlined"
                     sx={{
                       borderColor: "#0B3C5D",
@@ -1721,7 +1849,7 @@ export default function HomePage() {
                     >
                       <CardActionArea
                         component={Link}
-                        href={`/lottery/${item.code.toLowerCase()}`}
+                        href={getLotteryUrl(item.code)}
                         sx={{
                           height: "100%",
                           display: "flex",
@@ -2096,7 +2224,7 @@ export default function HomePage() {
                 >
                   <CardActionArea
                     component={Link}
-                    href={`/lottery/${bumper.code.toLowerCase()}`}
+                    href={getLotteryUrl(bumper.code)}
                     sx={{
                       height: "100%",
                       display: "flex",
@@ -2587,7 +2715,7 @@ export default function HomePage() {
 
                   <Button
                     component={Link}
-                    href={`/lottery/${match.lottery_code.toLowerCase()}/${encodeURIComponent(match.draw_date)}`}
+                    href={getLotteryUrl(match.lottery_code, match.draw_date)}
                     size="small"
                     sx={{ mt: 1.5, fontWeight: 700, color: "#0B3C5D" }}
                   >

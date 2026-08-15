@@ -34,7 +34,7 @@ import HistoryIcon from "@mui/icons-material/History";
 import StyleIcon from "@mui/icons-material/Style";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
-import { ALL_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
+import { ALL_LOTTERIES, StructuredDrawResult, getLotteryUrl } from "@/lib/supabase";
 import ModernDatePicker from "@/components/ModernDatePicker";
 import SavedWatchlistDrawer from "@/components/SavedWatchlistDrawer";
 import ShareButtons from "@/components/ShareButtons";
@@ -921,7 +921,7 @@ export default function AdvancedSearchPage() {
             results.map((match, i) => (
               <Link
                 key={i}
-                href={`/lottery/${match.lottery_code.toLowerCase()}/${encodeURIComponent(match.draw_date)}?highlight=${encodeURIComponent(match.ticket_matched)}`}
+                href={`${getLotteryUrl(match.lottery_code, match.draw_date)}?highlight=${encodeURIComponent(match.ticket_matched)}`}
                 style={{ textDecoration: "none" }}
               >
                 <Paper
@@ -1109,7 +1109,7 @@ export default function AdvancedSearchPage() {
                     {item.matches.map((m, idx) => (
                       <Link
                         key={idx}
-                        href={`/lottery/${m.lottery_code.toLowerCase()}/${encodeURIComponent(m.draw_date)}?highlight=${encodeURIComponent(m.ticket_matched)}`}
+                        href={`${getLotteryUrl(m.lottery_code, m.draw_date)}?highlight=${encodeURIComponent(m.ticket_matched)}`}
                         style={{ textDecoration: "none", display: "block" }}
                       >
                         <Alert

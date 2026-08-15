@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ALL_LOTTERIES } from "@/lib/supabase";
+import { ALL_LOTTERIES, getLotteryUrl } from "@/lib/supabase";
 
 export async function generateMetadata({
   params,
@@ -12,12 +12,15 @@ export async function generateMetadata({
 
   const lotteryName = lottery ? lottery.name : code;
   const title = `${lotteryName} Result Archives & Info | Kerala State Lottery Result Today`;
-  const description = `Check the latest kl lottery results, historical archives, and draw schedule for the ${lotteryName} lottery. Fast  live kerala jackpot result updates.`;
-  const url = `https://www.keralalotteryresultstoday.in/lottery/${code.toLowerCase()}`;
+  const description = `Check the latest kl lottery results, historical archives, and draw schedule for the ${lotteryName} lottery. Fast live kerala jackpot result updates.`;
+  const url = `https://www.keralalotteryresultstoday.in${getLotteryUrl(code)}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title,
       description,

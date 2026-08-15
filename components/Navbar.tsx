@@ -40,6 +40,7 @@ import {
   WEEKLY_LOTTERIES,
   BUMPER_LOTTERIES,
   ALL_LOTTERIES,
+  getLotteryUrl,
   supabase,
 } from "@/lib/supabase";
 
@@ -50,6 +51,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [lotteriesList, setLotteriesList] = useState(ALL_LOTTERIES);
+
+  const isLotteryPage =
+    ALL_LOTTERIES.some((l) => pathname.startsWith(getLotteryUrl(l.code))) ||
+    pathname.startsWith("/lottery/");
 
   React.useEffect(() => {
     async function loadNavbarLotteries() {
@@ -89,7 +94,7 @@ export default function Navbar() {
   const handleLotterySelect = (code: string) => {
     handleMenuClose();
     setMobileOpen(false);
-    router.push(`/lottery/${code.toLowerCase()}`);
+    router.push(getLotteryUrl(code));
   };
 
   const handleDrawerToggle = () => {
@@ -162,11 +167,11 @@ export default function Navbar() {
               endIcon={<KeyboardArrowDownIcon />}
               startIcon={<LocalActivityIcon />}
               sx={{
-                color: pathname.startsWith("/lottery/") ? "#0B3C5D" : "#374151",
-                fontWeight: pathname.startsWith("/lottery/") ? 800 : 700,
+                color: isLotteryPage ? "#0B3C5D" : "#374151",
+                fontWeight: isLotteryPage ? 800 : 700,
                 borderRadius: "8px",
                 px: 2,
-                bgcolor: isMenuOpen || pathname.startsWith("/lottery/") ? "#EBF5FF" : "transparent",
+                bgcolor: isMenuOpen || isLotteryPage ? "#EBF5FF" : "transparent",
               }}
             >
               Kerala Lotteries
@@ -200,7 +205,8 @@ export default function Navbar() {
               </Box>
 
               {WEEKLY_LOTTERIES.map((lottery) => {
-                const isActive = pathname === `/lottery/${lottery.code.toLowerCase()}`;
+                const targetUrl = getLotteryUrl(lottery.code);
+                const isActive = pathname === targetUrl || pathname.startsWith(targetUrl + "/");
                 return (
                   <MenuItem
                     key={lottery.code}
@@ -249,7 +255,8 @@ export default function Navbar() {
               </Box>
 
               {BUMPER_LOTTERIES.map((bumper) => {
-                const isActive = pathname === `/lottery/${bumper.code.toLowerCase()}`;
+                const targetUrl = getLotteryUrl(bumper.code);
+                const isActive = pathname === targetUrl || pathname.startsWith(targetUrl + "/");
                 return (
                   <MenuItem
                     key={bumper.code}
@@ -484,8 +491,8 @@ export default function Navbar() {
                     borderRadius: "12px",
                     py: 1.25,
                     px: 1.5,
-                    bgcolor: pathname.startsWith("/lottery/") ? "#EBF5FF" : "#F9FAFB",
-                    color: pathname.startsWith("/lottery/") ? "#0B3C5D" : "#374151",
+                    bgcolor: isLotteryPage ? "#EBF5FF" : "#F9FAFB",
+                    color: isLotteryPage ? "#0B3C5D" : "#374151",
                   }}
                 >
                   <ListItemIcon sx={{ color: "#0B3C5D", minWidth: 38 }}>
@@ -498,10 +505,11 @@ export default function Navbar() {
                 <Collapse in={mobileSubmenuOpen} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding sx={{ pl: 1, pr: 1, pt: 1 }}>
                     <Typography variant="caption" sx={{ px: 1, color: "#0B3C5D", fontWeight: 800, fontSize: "0.68rem" }}>
-                      WEEKLY LOTTERIES
+                       WEEKLY LOTTERIES
                     </Typography>
                     {WEEKLY_LOTTERIES.map((lottery) => {
-                      const isActive = pathname === `/lottery/${lottery.code.toLowerCase()}`;
+                      const targetUrl = getLotteryUrl(lottery.code);
+                      const isActive = pathname === targetUrl || pathname.startsWith(targetUrl + "/");
                       return (
                         <ListItemButton
                           key={lottery.code}
@@ -546,7 +554,8 @@ export default function Navbar() {
                     </Box>
 
                     {BUMPER_LOTTERIES.map((bumper) => {
-                      const isActive = pathname === `/lottery/${bumper.code.toLowerCase()}`;
+                      const targetUrl = getLotteryUrl(bumper.code);
+                      const isActive = pathname === targetUrl || pathname.startsWith(targetUrl + "/");
                       return (
                         <ListItemButton
                           key={bumper.code}

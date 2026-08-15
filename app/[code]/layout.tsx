@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import { ALL_LOTTERIES, getLotteryUrl } from "@/lib/supabase";
+import { ALL_LOTTERIES, getLotteryCodeFromSlug, getLotterySlug } from "@/lib/supabase";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ code: string; date: string }>;
+  params: Promise<{ code: string }>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const code = resolvedParams.code.toUpperCase();
-  const dateStr = resolvedParams.date;
-  const lottery = ALL_LOTTERIES.find((l) => l.code === code);
+  const rawCode = resolvedParams.code;
+  const lotteryCode = getLotteryCodeFromSlug(rawCode);
+  const slug = getLotterySlug(lotteryCode);
+  const lottery = ALL_LOTTERIES.find((l) => l.code === lotteryCode);
 
-  const lotteryName = lottery ? lottery.name : code;
-  const title = `${lotteryName} Result on ${dateStr} | Kerala State Lottery Result Today`;
-  const description = `Check kerala lottery result today result live! winning numbers for the ${lotteryName} draw on ${dateStr}. Check the 1st prize kerala jackpot result, 2nd prize, and full kl lottery results list fast and easy.`;
-  const url = `https://www.keralalotteryresultstoday.in${getLotteryUrl(code, dateStr)}`;
+  const lotteryName = lottery ? lottery.name : rawCode;
+  const title = `${lotteryName} Result Archives & Info | Kerala State Lottery Result Today`;
+  const description = `Check the latest lottery results, historical archives, and draw schedule for the ${lotteryName} lottery. Fast live kerala jackpot result updates.`;
+  const url = `https://www.keralalotteryresultstoday.in/${slug}`;
 
   return {
     title,
@@ -32,7 +33,7 @@ export async function generateMetadata({
           url: "/website-banner-1600x500.png",
           width: 1600,
           height: 500,
-          alt: `${lotteryName} Result on ${dateStr} Banner`,
+          alt: `${lotteryName} Result Banner`,
         },
         {
           url: "/og-image.png",
@@ -53,7 +54,7 @@ export async function generateMetadata({
   };
 }
 
-export default function LotteryDateLayout({
+export default function LotteryCodeLayout({
   children,
 }: {
   children: React.ReactNode;

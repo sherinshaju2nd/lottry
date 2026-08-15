@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ALL_LOTTERIES, getLotteryUrl } from "@/lib/supabase";
+import { ALL_LOTTERIES, getLotteryCodeFromSlug, getLotterySlug } from "@/lib/supabase";
 
 export async function generateMetadata({
   params,
@@ -7,14 +7,16 @@ export async function generateMetadata({
   params: Promise<{ code: string; date: string }>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const code = resolvedParams.code.toUpperCase();
+  const rawCode = resolvedParams.code;
+  const lotteryCode = getLotteryCodeFromSlug(rawCode);
+  const slug = getLotterySlug(lotteryCode);
   const dateStr = resolvedParams.date;
-  const lottery = ALL_LOTTERIES.find((l) => l.code === code);
+  const lottery = ALL_LOTTERIES.find((l) => l.code === lotteryCode);
 
-  const lotteryName = lottery ? lottery.name : code;
+  const lotteryName = lottery ? lottery.name : rawCode;
   const title = `${lotteryName} Result on ${dateStr} | Kerala State Lottery Result Today`;
-  const description = `Check kerala lottery result today result live! winning numbers for the ${lotteryName} draw on ${dateStr}. Check the 1st prize kerala jackpot result, 2nd prize, and full kl lottery results list fast and easy.`;
-  const url = `https://www.keralalotteryresultstoday.in${getLotteryUrl(code, dateStr)}`;
+  const description = `Check Kerala Lottery result live! Winning numbers for the ${lotteryName} draw on ${dateStr}. Check 1st prize jackpot result, 2nd prize, and full prize list fast.`;
+  const url = `https://www.keralalotteryresultstoday.in/${slug}/${dateStr}`;
 
   return {
     title,

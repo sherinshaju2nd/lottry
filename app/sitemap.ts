@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { ALL_LOTTERIES, fetchDrawResultsForSitemap } from "@/lib/supabase";
+import { ALL_LOTTERIES, fetchDrawResultsForSitemap, getLotteryUrl } from "@/lib/supabase";
 
 export const revalidate = 3600; // Revalidate sitemap cache every hour
 
@@ -54,7 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 2. Weekly and Bumper lottery archives categories
   const lotteryPages = ALL_LOTTERIES.map((l) => ({
-    url: `${baseUrl}/lottery/${l.code.toLowerCase()}`,
+    url: `${baseUrl}${getLotteryUrl(l.code)}`,
     lastModified: new Date(),
     changeFrequency: "daily" as const,
     priority: 0.9,
@@ -65,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const draws = await fetchDrawResultsForSitemap();
     drawPages = draws.map((d) => ({
-      url: `${baseUrl}/lottery/${d.lottery_code.toLowerCase()}/${d.draw_date}`,
+      url: `${baseUrl}${getLotteryUrl(d.lottery_code, d.draw_date)}`,
       lastModified: d.created_at ? new Date(d.created_at) : new Date(d.draw_date),
       changeFrequency: "monthly" as const,
       priority: 0.7,

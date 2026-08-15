@@ -1336,26 +1336,26 @@ export default function AdminDashboardPage() {
               <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#1E293B" }}>
-                    Supabase pg_cron SQL Trigger
+                    Supabase pg_cron Continuous Schedule SQL
                   </Typography>
                   <Button
                     size="small"
                     startIcon={copiedSql ? <CheckCircleIcon color="success" /> : <ContentCopyIcon />}
                     onClick={() => {
-                      navigator.clipboard.writeText("SELECT public.trigger_lottery_sync();");
+                      navigator.clipboard.writeText("SELECT cron.schedule('lottery_sync_master_daily', '*/3 8-13 * * *', $$SELECT public.trigger_lottery_sync();$$);");
                       setCopiedSql(true);
                       setTimeout(() => setCopiedSql(false), 2000);
                     }}
                     sx={{ textTransform: "none", fontWeight: 700 }}
                   >
-                    {copiedSql ? "Copied!" : "Copy SQL"}
+                    {copiedSql ? "Copied!" : "Copy Schedule SQL"}
                   </Button>
                 </Box>
                 <Typography variant="body2" sx={{ color: "#64748B", mb: 1 }}>
-                  Supabase database automatically triggers the Next.js API cron endpoint at <code>/api/cron</code>.
+                  Runs automatically every 3 minutes between 1:30 PM and 6:30 PM IST (covering both 2 PM Bumper and 3 PM Weekly draws):
                 </Typography>
-                <Box sx={{ p: 2, bgcolor: "#1E293B", color: "#E2E8F0", borderRadius: "8px", fontFamily: "monospace", fontSize: "0.85rem" }}>
-                  SELECT public.trigger_lottery_sync();
+                <Box sx={{ p: 2, bgcolor: "#1E293B", color: "#E2E8F0", borderRadius: "8px", fontFamily: "monospace", fontSize: "0.8rem", wordBreak: "break-all" }}>
+                  SELECT cron.schedule(&apos;lottery_sync_master_daily&apos;, &apos;*/3 8-13 * * *&apos;, $$SELECT public.trigger_lottery_sync();$$);
                 </Box>
               </Paper>
             </Grid>
