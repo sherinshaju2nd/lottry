@@ -426,6 +426,7 @@ export default function AdvancedSearchPage() {
 
         <Typography
           variant="h3"
+          component="h1"
           sx={{
             fontWeight: 900,
             color: "#0B3C5D",

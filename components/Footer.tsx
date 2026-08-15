@@ -8,6 +8,8 @@ import Link from "next/link";
 
 import ShareButtons from "./ShareButtons";
 
+import { WEEKLY_LOTTERIES, BUMPER_LOTTERIES, getLotteryUrl } from "@/lib/supabase";
+
 export default function Footer() {
   return (
     <Box
@@ -63,17 +65,14 @@ export default function Footer() {
           to Kerala&apos;s economy and social welfare programs.
         </Typography>
 
-        {/* <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
-          <ShareButtons variant="compact" />
-        </Box> */}
-
+        {/* 1. Core Page Links */}
         <Box
           sx={{
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "center",
-            gap: 3,
-            mb: 3,
+            gap: { xs: 2, sm: 3 },
+            mb: 2.5,
           }}
         >
           <Typography
@@ -180,6 +179,74 @@ export default function Footer() {
           >
             Privacy Policy
           </Typography>
+        </Box>
+
+        {/* 2. Weekly Lotteries Direct Links */}
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: { xs: 1.5, sm: 2 },
+            mb: 2,
+            px: 2,
+          }}
+        >
+          <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Weekly Lotteries:
+          </Typography>
+          {WEEKLY_LOTTERIES.map((lottery) => (
+            <Typography
+              key={lottery.code}
+              variant="body2"
+              component={Link}
+              href={getLotteryUrl(lottery.code)}
+              sx={{
+                color: "#6B7280",
+                textDecoration: "none",
+                fontSize: "0.825rem",
+                fontWeight: 500,
+                "&:hover": { color: "#0B3C5D", textDecoration: "underline" },
+              }}
+            >
+              {lottery.name}
+            </Typography>
+          ))}
+        </Box>
+
+        {/* 3. Bumper Lotteries Direct Links */}
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: { xs: 1.5, sm: 2 },
+            mb: 3.5,
+            px: 2,
+          }}
+        >
+          <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Bumper Lotteries:
+          </Typography>
+          {BUMPER_LOTTERIES.map((bumper) => (
+            <Typography
+              key={bumper.code}
+              variant="body2"
+              component={Link}
+              href={getLotteryUrl(bumper.code)}
+              sx={{
+                color: "#6B7280",
+                textDecoration: "none",
+                fontSize: "0.825rem",
+                fontWeight: 500,
+                "&:hover": { color: "#0B3C5D", textDecoration: "underline" },
+              }}
+            >
+              {bumper.name}
+            </Typography>
+          ))}
         </Box>
 
         <Typography

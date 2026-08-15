@@ -1,12 +1,17 @@
 import React from "react";
+import type { Metadata } from "next";
 import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
-export const metadata = {
-  title: "Privacy Policy | Kerala Lottery Result Today",
-  description: "Read the Privacy Policy for Kerala Lottery Result Today.",
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "Read the official Privacy Policy for Kerala Lottery Result Today to understand how user information and cookies are handled on our website and app.",
+  alternates: {
+    canonical: "https://www.keralalotteryresultstoday.in/privacy-policy",
+  },
 };
 
 export default function PrivacyPolicyPage() {
@@ -23,6 +28,7 @@ export default function PrivacyPolicyPage() {
       >
         <Typography
           variant="h3"
+          component="h1"
           sx={{ fontWeight: 900, mb: 1, color: "#111827", fontSize: { xs: "2rem", md: "3rem" } }}
         >
           Privacy Policy

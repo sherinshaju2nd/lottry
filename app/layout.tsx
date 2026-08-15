@@ -15,11 +15,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.keralalotteryresultstoday.in"),
   title: {
-    default: "Kerala Lottery Ticket Search Engine | Live Results Today Checker",
-    template: "%s | Kerala State Lottery Result Today",
+    default: "Kerala Lottery Results Today | Live Ticket Search & Checker",
+    template: "%s | Kerala Lottery",
   },
   description:
-    "Check kerala lottery results using our fast lottery ticket search engine and checker. Enter your ticket number to instantly verify winning results, check kerala jackpot, and view draw tables.",
+    "Check Kerala Lottery results instantly with our fast ticket search engine. Verify live draw winning results, jackpot prizes, and historical draw archives.",
   keywords: [
     "kerala lottery ticket search",
     "kerala lottery ticket search engine",
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: "/",
+    canonical: "https://www.keralalotteryresultstoday.in",
   },
   openGraph: {
     title: "Kerala Lottery Ticket Search Engine - Live Results Today & Checker",

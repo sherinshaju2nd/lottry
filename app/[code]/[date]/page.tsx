@@ -423,6 +423,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
         <Box sx={{ mb: 2 }}>
           <Typography
             variant="h4"
+            component="h1"
             sx={{
               fontWeight: 900,
               color: "#111827",

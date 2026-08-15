@@ -210,7 +210,9 @@ export default function Navbar() {
                 return (
                   <MenuItem
                     key={lottery.code}
-                    onClick={() => handleLotterySelect(lottery.code)}
+                    component={Link}
+                    href={targetUrl}
+                    onClick={handleMenuClose}
                     sx={{
                       borderRadius: "8px",
                       py: 0.75,
@@ -218,6 +220,8 @@ export default function Navbar() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      textDecoration: "none",
+                      color: "inherit",
                       bgcolor: isActive ? "#EBF5FF" : "transparent",
                       "&:hover": { bgcolor: "#F0F7FF" },
                     }}
@@ -260,7 +264,9 @@ export default function Navbar() {
                 return (
                   <MenuItem
                     key={bumper.code}
-                    onClick={() => handleLotterySelect(bumper.code)}
+                    component={Link}
+                    href={targetUrl}
+                    onClick={handleMenuClose}
                     sx={{
                       borderRadius: "8px",
                       py: 0.75,
@@ -268,6 +274,8 @@ export default function Navbar() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      textDecoration: "none",
+                      color: "inherit",
                       bgcolor: isActive ? "#EBF5FF" : "transparent",
                       "&:hover": { bgcolor: "#F0F7FF" },
                     }}

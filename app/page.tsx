@@ -834,6 +834,7 @@ export default function HomePage() {
 
               <Typography
                 variant="h3"
+                component="h1"
                 sx={{
                   fontWeight: 900,
                   color: isTodayBumper ? "#78350F" : "#111827",
@@ -1528,6 +1529,7 @@ export default function HomePage() {
 
               <Typography
                 variant="h3"
+                component="h1"
                 sx={{
                   fontWeight: 900,
                   color: "#111827",

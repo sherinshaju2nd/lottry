@@ -1,12 +1,17 @@
 import React from "react";
+import type { Metadata } from "next";
 import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
-export const metadata = {
-  title: "Terms and Conditions | Kerala Lottery Result Today",
-  description: "Read the Terms and Conditions for Kerala Lottery Result Today.",
+export const metadata: Metadata = {
+  title: "Terms & Conditions",
+  description:
+    "Read the Terms and Conditions for Kerala Lottery Result Today, including informational service disclaimers, user eligibility, and usage guidelines.",
+  alternates: {
+    canonical: "https://www.keralalotteryresultstoday.in/terms-conditions",
+  },
 };
 
 export default function TermsConditionsPage() {
@@ -23,6 +28,7 @@ export default function TermsConditionsPage() {
       >
         <Typography
           variant="h3"
+          component="h1"
           sx={{ fontWeight: 900, mb: 1, color: "#111827", fontSize: { xs: "2rem", md: "3rem" } }}
         >
           Terms & Conditions

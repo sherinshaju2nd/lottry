@@ -170,6 +170,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
             <Box sx={{ maxWidth: { xs: "100%", md: "70%" } }}>
               <Typography
                 variant="h3"
+                component="h1"
                 sx={{
                   fontWeight: 900,
                   color: "#111827",
