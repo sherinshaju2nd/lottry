@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { ALL_LOTTERIES, fetchAllDrawResultsFromSupabase } from "@/lib/supabase";
+import { ALL_LOTTERIES, fetchDrawResultsForSitemap } from "@/lib/supabase";
 
 export const revalidate = 3600; // Revalidate sitemap cache every hour
 
@@ -63,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 3. Dynamic historic draw results pages
   let drawPages: MetadataRoute.Sitemap = [];
   try {
-    const draws = await fetchAllDrawResultsFromSupabase();
+    const draws = await fetchDrawResultsForSitemap();
     drawPages = draws.map((d) => ({
       url: `${baseUrl}/lottery/${d.lottery_code.toLowerCase()}/${d.draw_date}`,
       lastModified: d.created_at ? new Date(d.created_at) : new Date(d.draw_date),
