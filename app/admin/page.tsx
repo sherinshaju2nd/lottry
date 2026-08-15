@@ -136,10 +136,15 @@ export default function AdminDashboardPage() {
   const [cronConfig, setCronConfig] = useState<CronConfig>({
     cron_enabled: true,
     cron_start_time: "15:00",
+    cron_phase1_end_time: "16:00",
     cron_end_time: "17:00",
+    cron_frequency_mins: "1",
+    cron_phase2_frequency_mins: "5",
     cron_bumper_start_time: "14:00",
+    cron_bumper_phase1_end_time: "16:00",
     cron_bumper_end_time: "18:00",
-    cron_frequency_mins: "3",
+    cron_bumper_frequency_mins: "1",
+    cron_bumper_phase2_frequency_mins: "5",
     app_url: "https://www.keralalotteryresultstoday.in",
     cron_secret: "kerala_lottery_cron_secret_2026",
   });
@@ -1158,84 +1163,163 @@ export default function AdminDashboardPage() {
                 <Divider sx={{ my: 2 }} />
 
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#1E293B", mb: 1.5 }}>
-                  Schedule Parameters
+                  Multi-Phase Split Schedule Controls
                 </Typography>
 
-                {/* Dynamic Draw Detection Info Box */}
-                {isBumperToday ? (
-                  <Box sx={{ p: 2, mb: 2.5, borderRadius: "10px", bgcolor: "#FAF5FF", border: "1px solid #E9D5FF" }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: "#7E22CE", display: "block" }}>
-                      ⚡ BUMPER DRAW SCHEDULED TODAY
+                {/* 1. WEEKLY MULTI-PHASE SCHEDULE */}
+                <Box sx={{ p: 2, mb: 2.5, borderRadius: "12px", bgcolor: "#F0F9FF", border: "1px solid #BAE6FD" }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0369A1" }}>
+                      📅 Regular Weekly Draw (Split Phases)
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: "#581C87", mt: 0.3 }}>
-                      {todayBumperInfo?.name || "Kerala Bumper Lottery"} ({todayBumperInfo?.code || "BUMPER"})
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "#6B21A8", display: "block", mt: 0.5 }}>
-                      Active Bumper cron sync window: <strong>{cronConfig.cron_bumper_start_time || "14:00"} - {cronConfig.cron_bumper_end_time || "18:00"} IST</strong> (2:00 PM - 6:00 PM).
-                    </Typography>
+                    <Chip label="2-Hour Window" size="small" sx={{ bgcolor: "#E0F2FE", color: "#0369A1", fontWeight: 800, fontSize: "0.7rem" }} />
                   </Box>
-                ) : (
-                  <Box sx={{ p: 1.5, mb: 2.5, borderRadius: "10px", bgcolor: "#F0F9FF", border: "1px solid #BAE6FD" }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: "#0369A1", display: "block" }}>
-                      📅 REGULAR WEEKLY SCHEDULE
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "#0C4A6E", display: "block", mt: 0.3 }}>
-                      Standard weekly sync window: <strong>{cronConfig.cron_start_time || "15:00"} - {cronConfig.cron_end_time || "17:00"} IST</strong> (3:00 PM - 5:00 PM). Bumper draws run from <strong>{cronConfig.cron_bumper_start_time || "14:00"} - {cronConfig.cron_bumper_end_time || "18:00"} IST</strong>.
-                    </Typography>
-                  </Box>
-                )}
 
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Weekly Start Time (IST)"
-                      value={cronConfig.cron_start_time}
-                      onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_start_time: e.target.value }))}
-                      helperText="e.g. 15:00 (3:00 PM)"
-                    />
+                  <Grid container spacing={1.5}>
+                    {/* Phase 1 Live Draw */}
+                    <Grid size={{ xs: 12 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#0B3C5D", display: "block", mb: 0.5 }}>
+                        ⚡ Phase 1: Live Draw Fast Polling
+                      </Typography>
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P1 Start (IST)"
+                        value={cronConfig.cron_start_time}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_start_time: e.target.value }))}
+                        helperText="e.g. 15:00"
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P1 End (IST)"
+                        value={cronConfig.cron_phase1_end_time || "16:00"}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_phase1_end_time: e.target.value }))}
+                        helperText="e.g. 16:00"
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P1 Frequency"
+                        value={cronConfig.cron_frequency_mins}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_frequency_mins: e.target.value }))}
+                        helperText="Minutes (e.g. 1)"
+                      />
+                    </Grid>
+
+                    {/* Phase 2 Verification */}
+                    <Grid size={{ xs: 12 }} sx={{ mt: 0.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#0B3C5D", display: "block", mb: 0.5 }}>
+                        🔍 Phase 2: Post-Draw Verification & Full Book
+                      </Typography>
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P2 End Time (IST)"
+                        value={cronConfig.cron_end_time}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_end_time: e.target.value }))}
+                        helperText="e.g. 17:00 (5:00 PM)"
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P2 Frequency"
+                        value={cronConfig.cron_phase2_frequency_mins || "5"}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_phase2_frequency_mins: e.target.value }))}
+                        helperText="Minutes (e.g. 5)"
+                      />
+                    </Grid>
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Weekly End Time (IST)"
-                      value={cronConfig.cron_end_time}
-                      onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_end_time: e.target.value }))}
-                      helperText="e.g. 17:00 (5:00 PM)"
-                    />
+                </Box>
+
+                {/* 2. BUMPER MULTI-PHASE SCHEDULE */}
+                <Box sx={{ p: 2, mb: 2.5, borderRadius: "12px", bgcolor: "#FAF5FF", border: "1px solid #E9D5FF" }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#7E22CE" }}>
+                      👑 Kerala Bumper Draw (Split Phases)
+                    </Typography>
+                    <Chip label="4-Hour Window" size="small" sx={{ bgcolor: "#F3E8FF", color: "#7E22CE", fontWeight: 800, fontSize: "0.7rem" }} />
+                  </Box>
+
+                  <Grid container spacing={1.5}>
+                    {/* Bumper Phase 1 */}
+                    <Grid size={{ xs: 12 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#6B21A8", display: "block", mb: 0.5 }}>
+                        ⚡ Bumper Phase 1: Live Mega Draw
+                      </Typography>
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P1 Start (IST)"
+                        value={cronConfig.cron_bumper_start_time}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_start_time: e.target.value }))}
+                        helperText="e.g. 14:00"
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P1 End (IST)"
+                        value={cronConfig.cron_bumper_phase1_end_time || "16:00"}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_phase1_end_time: e.target.value }))}
+                        helperText="e.g. 16:00"
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P1 Frequency"
+                        value={cronConfig.cron_bumper_frequency_mins || "1"}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_frequency_mins: e.target.value }))}
+                        helperText="Minutes (e.g. 1)"
+                      />
+                    </Grid>
+
+                    {/* Bumper Phase 2 */}
+                    <Grid size={{ xs: 12 }} sx={{ mt: 0.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#6B21A8", display: "block", mb: 0.5 }}>
+                        🏆 Bumper Phase 2: Complete Prize Book & PDF
+                      </Typography>
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P2 End Time (IST)"
+                        value={cronConfig.cron_bumper_end_time}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_end_time: e.target.value }))}
+                        helperText="e.g. 18:00 (6:00 PM)"
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="P2 Frequency"
+                        value={cronConfig.cron_bumper_phase2_frequency_mins || "5"}
+                        onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_phase2_frequency_mins: e.target.value }))}
+                        helperText="Minutes (e.g. 5)"
+                      />
+                    </Grid>
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Bumper Start Time (IST)"
-                      value={cronConfig.cron_bumper_start_time}
-                      onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_start_time: e.target.value }))}
-                      helperText="e.g. 14:00 (2:00 PM)"
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Bumper End Time (IST)"
-                      value={cronConfig.cron_bumper_end_time}
-                      onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_end_time: e.target.value }))}
-                      helperText="e.g. 18:00 (6:00 PM)"
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Interval / Frequency (Minutes)"
-                      value={cronConfig.cron_frequency_mins}
-                      onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_frequency_mins: e.target.value }))}
-                      helperText="Polling interval in minutes during draw hours"
-                    />
-                  </Grid>
+                </Box>
+
+                {/* 3. APP URL & CRON SECRET */}
+                <Grid container spacing={1.5}>
                   <Grid size={{ xs: 12 }}>
                     <TextField
                       fullWidth
@@ -1264,7 +1348,7 @@ export default function AdminDashboardPage() {
                   variant="contained"
                   sx={{ mt: 3, bgcolor: "#0B3C5D", color: "#FFFFFF", fontWeight: 800, borderRadius: "8px", textTransform: "none" }}
                 >
-                  {isSavingCronConfig ? "Saving..." : "Save Settings to Database"}
+                  {isSavingCronConfig ? "Saving..." : "Save Split Multi-Phase Settings to Database"}
                 </Button>
               </Paper>
             </Grid>

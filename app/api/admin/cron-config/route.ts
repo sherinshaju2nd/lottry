@@ -48,10 +48,15 @@ export async function POST(req: NextRequest) {
       const {
         cron_enabled,
         cron_start_time,
+        cron_phase1_end_time,
         cron_end_time,
-        cron_bumper_start_time,
-        cron_bumper_end_time,
         cron_frequency_mins,
+        cron_phase2_frequency_mins,
+        cron_bumper_start_time,
+        cron_bumper_phase1_end_time,
+        cron_bumper_end_time,
+        cron_bumper_frequency_mins,
+        cron_bumper_phase2_frequency_mins,
         app_url,
         cron_secret,
       } = body;
@@ -59,10 +64,15 @@ export async function POST(req: NextRequest) {
 
       if (cron_enabled !== undefined) updates.cron_enabled = String(cron_enabled);
       if (cron_start_time) updates.cron_start_time = cron_start_time;
+      if (cron_phase1_end_time) updates.cron_phase1_end_time = cron_phase1_end_time;
       if (cron_end_time) updates.cron_end_time = cron_end_time;
-      if (cron_bumper_start_time) updates.cron_bumper_start_time = cron_bumper_start_time;
-      if (cron_bumper_end_time) updates.cron_bumper_end_time = cron_bumper_end_time;
       if (cron_frequency_mins) updates.cron_frequency_mins = String(cron_frequency_mins);
+      if (cron_phase2_frequency_mins) updates.cron_phase2_frequency_mins = String(cron_phase2_frequency_mins);
+      if (cron_bumper_start_time) updates.cron_bumper_start_time = cron_bumper_start_time;
+      if (cron_bumper_phase1_end_time) updates.cron_bumper_phase1_end_time = cron_bumper_phase1_end_time;
+      if (cron_bumper_end_time) updates.cron_bumper_end_time = cron_bumper_end_time;
+      if (cron_bumper_frequency_mins) updates.cron_bumper_frequency_mins = String(cron_bumper_frequency_mins);
+      if (cron_bumper_phase2_frequency_mins) updates.cron_bumper_phase2_frequency_mins = String(cron_bumper_phase2_frequency_mins);
       if (app_url) updates.app_url = app_url;
       if (cron_secret) updates.cron_secret = cron_secret;
 

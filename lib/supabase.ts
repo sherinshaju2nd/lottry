@@ -657,11 +657,20 @@ export interface CronLog {
 
 export interface CronConfig {
   cron_enabled: boolean;
-  cron_start_time: string;
-  cron_end_time: string;
-  cron_bumper_start_time: string;
-  cron_bumper_end_time: string;
-  cron_frequency_mins: string;
+  // Weekly Multi-Phase Settings
+  cron_start_time: string; // Phase 1 Start (e.g. 15:00)
+  cron_phase1_end_time?: string; // Phase 1 End / Phase 2 Start (e.g. 16:00)
+  cron_end_time: string; // Phase 2 End (e.g. 17:00)
+  cron_frequency_mins: string; // Phase 1 Interval Mins (e.g. 1)
+  cron_phase2_frequency_mins?: string; // Phase 2 Interval Mins (e.g. 5)
+
+  // Bumper Multi-Phase Settings
+  cron_bumper_start_time: string; // Bumper Phase 1 Start (e.g. 14:00)
+  cron_bumper_phase1_end_time?: string; // Bumper Phase 1 End / Phase 2 Start (e.g. 16:00)
+  cron_bumper_end_time: string; // Bumper Phase 2 End (e.g. 18:00)
+  cron_bumper_frequency_mins?: string; // Bumper Phase 1 Interval Mins (e.g. 1)
+  cron_bumper_phase2_frequency_mins?: string; // Bumper Phase 2 Interval Mins (e.g. 5)
+
   app_url?: string;
   cron_secret?: string;
 }
@@ -965,10 +974,15 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
   const defaultConfig: CronConfig = {
     cron_enabled: true,
     cron_start_time: "15:00",
+    cron_phase1_end_time: "16:00",
     cron_end_time: "17:00",
+    cron_frequency_mins: "1",
+    cron_phase2_frequency_mins: "5",
     cron_bumper_start_time: "14:00",
+    cron_bumper_phase1_end_time: "16:00",
     cron_bumper_end_time: "18:00",
-    cron_frequency_mins: "3",
+    cron_bumper_frequency_mins: "1",
+    cron_bumper_phase2_frequency_mins: "5",
     app_url: "https://www.keralalotteryresultstoday.in",
     cron_secret: "kerala_lottery_cron_secret_2026",
   };
@@ -984,10 +998,15 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
       return {
         cron_enabled: configMap["cron_enabled"] !== "false",
         cron_start_time: configMap["cron_start_time"] || defaultConfig.cron_start_time,
+        cron_phase1_end_time: configMap["cron_phase1_end_time"] || defaultConfig.cron_phase1_end_time,
         cron_end_time: configMap["cron_end_time"] || defaultConfig.cron_end_time,
-        cron_bumper_start_time: configMap["cron_bumper_start_time"] || defaultConfig.cron_bumper_start_time,
-        cron_bumper_end_time: configMap["cron_bumper_end_time"] || defaultConfig.cron_bumper_end_time,
         cron_frequency_mins: configMap["cron_frequency_mins"] || defaultConfig.cron_frequency_mins,
+        cron_phase2_frequency_mins: configMap["cron_phase2_frequency_mins"] || defaultConfig.cron_phase2_frequency_mins,
+        cron_bumper_start_time: configMap["cron_bumper_start_time"] || defaultConfig.cron_bumper_start_time,
+        cron_bumper_phase1_end_time: configMap["cron_bumper_phase1_end_time"] || defaultConfig.cron_bumper_phase1_end_time,
+        cron_bumper_end_time: configMap["cron_bumper_end_time"] || defaultConfig.cron_bumper_end_time,
+        cron_bumper_frequency_mins: configMap["cron_bumper_frequency_mins"] || defaultConfig.cron_bumper_frequency_mins,
+        cron_bumper_phase2_frequency_mins: configMap["cron_bumper_phase2_frequency_mins"] || defaultConfig.cron_bumper_phase2_frequency_mins,
         app_url: configMap["app_url"] || defaultConfig.app_url,
         cron_secret: configMap["cron_secret"] || defaultConfig.cron_secret,
       };

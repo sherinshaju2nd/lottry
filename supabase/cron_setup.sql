@@ -1,12 +1,10 @@
 -- ==============================================================================
--- SUPABASE PG_CRON & PG_NET SETUP FOR KERALA LOTTERY SYNC
+-- PRODUCTION SUPABASE PG_CRON & PG_NET SETUP FOR KERALA LOTTERY
 -- ==============================================================================
--- Target Domain: https://lottry-fawn.vercel.app
---
--- How it works:
--- 1. Website domain and CRON_SECRET are stored dynamically in `public.app_config`.
--- 2. If your website domain changes in the future, you only need to run:
---    UPDATE public.app_config SET value = 'https://new-domain.com' WHERE key = 'app_url';
+-- Features:
+-- 1. Automated 1-minute cron ping (08:00 to 13:00 UTC = 1:30 PM to 6:30 PM IST).
+-- 2. Fully dynamic: reads app_url, secret, and timing parameters from app_config.
+-- 3. Idempotent: can be executed repeatedly in Supabase SQL Editor with 0 errors.
 -- ==============================================================================
 
 -- 1. Enable required PostgreSQL extensions
@@ -20,40 +18,49 @@ CREATE TABLE IF NOT EXISTS public.app_config (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable RLS for app_config table
+-- Enable RLS and grant full read/write access for admin operations
 ALTER TABLE public.app_config ENABLE ROW LEVEL SECURITY;
 
 DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM pg_policies WHERE tablename = 'app_config' AND policyname = 'Allow public read access on app_config'
+        SELECT 1 FROM pg_policies WHERE tablename = 'app_config' AND policyname = 'Allow public full access on app_config'
     ) THEN
-        CREATE POLICY "Allow public read access on app_config" ON public.app_config FOR SELECT USING (true);
+        CREATE POLICY "Allow public full access on app_config" ON public.app_config FOR ALL USING (true);
     END IF;
 END $$;
 
--- Seed initial App URL & Cron Secret
+-- Seed default configuration keys into app_config
 INSERT INTO public.app_config (key, value)
 VALUES 
     ('app_url', 'https://www.keralalotteryresultstoday.in'),
-    ('cron_secret', 'kerala_lottery_cron_secret_2026')
-ON CONFLICT (key) DO UPDATE SET 
-    value = EXCLUDED.value,
-    updated_at = NOW();
+    ('cron_secret', 'kerala_lottery_cron_secret_2026'),
+    ('cron_enabled', 'true'),
+    ('cron_start_time', '15:00'),
+    ('cron_phase1_end_time', '16:00'),
+    ('cron_end_time', '17:00'),
+    ('cron_frequency_mins', '1'),
+    ('cron_phase2_frequency_mins', '5'),
+    ('cron_bumper_start_time', '14:00'),
+    ('cron_bumper_phase1_end_time', '16:00'),
+    ('cron_bumper_end_time', '18:00'),
+    ('cron_bumper_frequency_mins', '1'),
+    ('cron_bumper_phase2_frequency_mins', '5')
+ON CONFLICT (key) DO NOTHING;
 
--- 3. Clean up existing lottery sync cron jobs (prevents duplicates)
+-- 3. Clean up existing lottery sync cron jobs (prevents duplicate job errors)
 DO $$
 DECLARE
     r RECORD;
 BEGIN
-    FOR r IN SELECT jobname FROM cron.job WHERE jobname LIKE 'lottery_sync_%' LOOP
+    FOR r IN SELECT jobname FROM cron.job WHERE jobname LIKE 'lottery_sync%' OR jobname LIKE 'kerala_lottery%' LOOP
         PERFORM cron.unschedule(r.jobname);
     END LOOP;
 EXCEPTION WHEN OTHERS THEN
     RAISE NOTICE 'pg_cron job cleanup notice: %', SQLERRM;
 END $$;
 
--- 4. Create stored function to trigger Next.js API /api/cron route via pg_net (GET method)
+-- 4. Create stored function to trigger Next.js API /api/cron route via pg_net
 CREATE OR REPLACE FUNCTION public.trigger_lottery_sync(
     target_app_url TEXT DEFAULT NULL,
     target_secret TEXT DEFAULT NULL
@@ -70,14 +77,14 @@ DECLARE
     target_endpoint text;
     req_headers jsonb;
 BEGIN
-    -- Fetch app_url dynamically from app_config if not passed explicitly
+    -- Fetch app_url dynamically from app_config
     IF target_app_url IS NULL OR target_app_url = '' THEN
         SELECT value INTO final_app_url FROM public.app_config WHERE key = 'app_url';
     ELSE
         final_app_url := target_app_url;
     END IF;
 
-    -- Fetch cron_secret dynamically from app_config if not passed explicitly
+    -- Fetch cron_secret dynamically from app_config
     IF target_secret IS NULL OR target_secret = '' THEN
         SELECT value INTO final_secret FROM public.app_config WHERE key = 'cron_secret';
     ELSE
@@ -102,7 +109,7 @@ BEGIN
         );
     END IF;
 
-    -- Send non-blocking HTTP GET request (compatible with live Vercel deployment & future builds)
+    -- Send non-blocking HTTP GET request to /api/cron
     SELECT net.http_get(
         url := target_endpoint,
         headers := req_headers
@@ -115,11 +122,7 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
-
-
--- 5. Unified pg_cron Schedule (Covers both Weekly and Bumper draws)
--- Runs every 1 minute from 08:00 UTC (1:30 PM IST) to 13:00 UTC (6:30 PM IST) daily
--- (Dynamic interval frequency is controlled from the Admin Panel: 1 min, 2 min, 3 min, 5 min)
+-- 5. Schedule continuous 1-minute cron job (08:00 to 13:00 UTC = 1:30 PM to 6:30 PM IST daily)
 SELECT cron.schedule(
     'lottery_sync_master_daily',
     '* 8-13 * * *',

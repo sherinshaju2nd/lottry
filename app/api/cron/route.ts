@@ -68,7 +68,7 @@ async function handleCronExecution(req: NextRequest) {
     );
   }
 
-  // 3. Intelligent Active Window Check (Bumper @ 14:00 vs Weekly @ 15:00)
+  // 3. Intelligent Multi-Phase Active Window Check (Phase 1 vs Phase 2)
   const todayIST = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
   });
@@ -76,12 +76,25 @@ async function handleCronExecution(req: NextRequest) {
   const scheduledBumper = await checkIsBumperDrawDate(todayIST);
   const isBumperDay = Boolean(scheduledBumper);
 
-  const effectiveStartTime = isBumperDay
+  // Overall Start, Phase 1 End (Phase 2 Start), and Phase 2 End
+  const phase1Start = isBumperDay
     ? (cronConfig.cron_bumper_start_time || "14:00")
     : (cronConfig.cron_start_time || "15:00");
-  const effectiveEndTime = isBumperDay
+  const phase1End = isBumperDay
+    ? (cronConfig.cron_bumper_phase1_end_time || "16:00")
+    : (cronConfig.cron_phase1_end_time || "16:00");
+  const phase2End = isBumperDay
     ? (cronConfig.cron_bumper_end_time || "18:00")
     : (cronConfig.cron_end_time || "17:00");
+
+  const phase1Freq = parseInt(
+    (isBumperDay ? cronConfig.cron_bumper_frequency_mins : cronConfig.cron_frequency_mins) || "1",
+    10
+  ) || 1;
+  const phase2Freq = parseInt(
+    (isBumperDay ? cronConfig.cron_bumper_phase2_frequency_mins : cronConfig.cron_phase2_frequency_mins) || "5",
+    10
+  ) || 5;
 
   const nowIST = new Date();
   const timeStr = nowIST.toLocaleTimeString("en-GB", {
@@ -91,18 +104,23 @@ async function handleCronExecution(req: NextRequest) {
   const [currH, currM] = timeStr.split(":").map(Number);
   const currentMinutes = (currH || 0) * 60 + (currM || 0);
 
-  const [startH, startM] = effectiveStartTime.split(":").map(Number);
-  const startMinutes = (startH || 15) * 60 + (startM || 0);
+  const [p1StartH, p1StartM] = phase1Start.split(":").map(Number);
+  const p1StartMins = (p1StartH || 15) * 60 + (p1StartM || 0);
 
-  const [endH, endM] = effectiveEndTime.split(":").map(Number);
-  const endMinutes = (endH || 17) * 60 + (endM || 0);
+  const [p1EndH, p1EndM] = phase1End.split(":").map(Number);
+  const p1EndMins = (p1EndH || 16) * 60 + (p1EndM || 0);
 
-  const isInsideWindow = currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  const [p2EndH, p2EndM] = phase2End.split(":").map(Number);
+  const p2EndMins = (p2EndH || 17) * 60 + (p2EndM || 0);
+
   const isForced = req.nextUrl.searchParams.get("force") === "true";
+
+  // Check if inside entire active window (Phase 1 Start to Phase 2 End)
+  const isInsideWindow = currentMinutes >= p1StartMins && currentMinutes <= p2EndMins;
 
   if (!isInsideWindow && !isForced) {
     const executionTimeMs = Date.now() - startTime;
-    const windowMsg = `Cron execution skipped: Current IST time (${timeStr.slice(0, 5)}) is outside active ${isBumperDay ? `Bumper (${scheduledBumper?.name})` : "Weekly"} draw window (${effectiveStartTime} - ${effectiveEndTime} IST).`;
+    const windowMsg = `Cron execution skipped: Current IST time (${timeStr.slice(0, 5)}) is outside active ${isBumperDay ? `Bumper (${scheduledBumper?.name})` : "Weekly"} draw window (${phase1Start} - ${phase2End} IST).`;
 
     console.log(`[Cron Outside Window] ${windowMsg}`);
 
@@ -129,18 +147,31 @@ async function handleCronExecution(req: NextRequest) {
     );
   }
 
-  // Frequency interval throttle check (e.g. 1 min, 2 min, 3 min, 5 min)
-  const freqMins = parseInt(cronConfig.cron_frequency_mins || "1", 10) || 1;
-  if (freqMins > 1 && !isForced) {
-    if ((currM % freqMins) !== 0) {
+  // Determine current active phase and applicable frequency
+  let activePhaseName = "Phase 1 (Live Draw)";
+  let currentEffectiveFreq = phase1Freq;
+
+  if (currentMinutes >= p1StartMins && currentMinutes < p1EndMins) {
+    activePhaseName = `Phase 1 [Live Draw: ${phase1Start} - ${phase1End}]`;
+    currentEffectiveFreq = phase1Freq;
+  } else if (currentMinutes >= p1EndMins && currentMinutes <= p2EndMins) {
+    activePhaseName = `Phase 2 [Verification / Final: ${phase1End} - ${phase2End}]`;
+    currentEffectiveFreq = phase2Freq;
+  }
+
+  // Frequency interval throttle check for the active phase
+  if (currentEffectiveFreq > 1 && !isForced) {
+    if ((currM % currentEffectiveFreq) !== 0) {
       const executionTimeMs = Date.now() - startTime;
-      const freqMsg = `Cron execution skipped: Configured to run every ${freqMins} minutes.`;
+      const freqMsg = `Cron execution skipped: In ${activePhaseName}, running on ${currentEffectiveFreq}-minute interval.`;
 
       return NextResponse.json(
         {
           success: true,
           skipped: true,
           frequencyThrottled: true,
+          activePhase: activePhaseName,
+          frequencyMins: currentEffectiveFreq,
           timestamp: new Date().toISOString(),
           executionTimeMs,
           message: freqMsg,
