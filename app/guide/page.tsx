@@ -15,7 +15,8 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import InfoIcon from "@mui/icons-material/Info";
-import { WEEKLY_LOTTERIES, supabase } from "@/lib/supabase";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { WEEKLY_LOTTERIES, BUMPER_LOTTERIES, supabase } from "@/lib/supabase";
 
 const DAY_ORDER: Record<string, number> = {
   monday: 1,
@@ -43,6 +44,7 @@ export default function GuidePage() {
             name: d.name,
             nameMl: d.name_ml || d.name,
             code: d.code,
+            is_bumper: d.is_bumper ?? false,
           })).sort((a: any, b: any) => {
             const orderA = DAY_ORDER[a.day.toLowerCase()] || 99;
             const orderB = DAY_ORDER[b.day.toLowerCase()] || 99;
@@ -192,6 +194,52 @@ export default function GuidePage() {
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 800, color: "#111827" }}>
                       {item.name} ({item.code})
+                    </Typography>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+
+            {/* Bumper Lotteries */}
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 800,
+                color: "#1F2937",
+                mt: 4,
+                mb: 1.5,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <AutoAwesomeIcon sx={{ color: "#0B3C5D", fontSize: 20 }} /> Kerala Bumper Lotteries
+            </Typography>
+
+            <Grid container spacing={2}>
+              {BUMPER_LOTTERIES.map((bumper, idx) => (
+                <Grid size={{ xs: 12, sm: 6 }} key={idx}>
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      borderRadius: "8px",
+                      bgcolor: "#FFFFFF",
+                      border: "1px solid #E5E7EB",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 0.5,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 800 }}>
+                        {bumper.draw_season}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 900 }}>
+                        {bumper.jackpot}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: 800, color: "#111827" }}>
+                      {bumper.name} ({bumper.code})
                     </Typography>
                   </Box>
                 </Grid>

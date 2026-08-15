@@ -34,7 +34,7 @@ import HistoryIcon from "@mui/icons-material/History";
 import StyleIcon from "@mui/icons-material/Style";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
-import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
+import { ALL_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 import ModernDatePicker from "@/components/ModernDatePicker";
 import SavedWatchlistDrawer from "@/components/SavedWatchlistDrawer";
 import ShareButtons from "@/components/ShareButtons";
@@ -571,7 +571,7 @@ export default function AdvancedSearchPage() {
                     label="Filter by Lottery"
                   >
                     <MenuItem value="ALL">All Lotteries</MenuItem>
-                    {WEEKLY_LOTTERIES.map((l) => (
+                    {ALL_LOTTERIES.map((l) => (
                       <MenuItem key={l.code} value={l.code}>
                         {l.name} ({l.code})
                       </MenuItem>
@@ -821,7 +821,7 @@ export default function AdvancedSearchPage() {
                     label="Filter by Lottery"
                   >
                     <MenuItem value="ALL">All Lotteries</MenuItem>
-                    {WEEKLY_LOTTERIES.map((l) => (
+                    {ALL_LOTTERIES.map((l) => (
                       <MenuItem key={l.code} value={l.code}>
                         {l.name} ({l.code})
                       </MenuItem>

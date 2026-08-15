@@ -26,7 +26,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import confetti from "canvas-confetti";
 import DrawDetailSkeleton from "@/components/skeletons/DrawDetailSkeleton";
 import ShareButtons from "@/components/ShareButtons";
-import { WEEKLY_LOTTERIES, StructuredDrawResult, supabase, validateTicketMatch } from "@/lib/supabase";
+import { ALL_LOTTERIES, StructuredDrawResult, supabase, validateTicketMatch } from "@/lib/supabase";
 
 interface SingleCheckerMatch {
   tier: string;
@@ -53,7 +53,7 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     timeZone: "Asia/Kolkata",
   });
 
-  const lotteryInfo = WEEKLY_LOTTERIES.find((l) => l.code === codeParam) || {
+  const lotteryInfo = ALL_LOTTERIES.find((l) => l.code === codeParam) || {
     name: `${codeParam} Lottery`,
     nameMl: "",
     code: codeParam,

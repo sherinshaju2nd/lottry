@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { WEEKLY_LOTTERIES } from "@/lib/supabase";
+import { ALL_LOTTERIES } from "@/lib/supabase";
 
 export async function generateMetadata({
   params,
@@ -9,7 +9,7 @@ export async function generateMetadata({
   const resolvedParams = await params;
   const code = resolvedParams.code.toUpperCase();
   const dateStr = resolvedParams.date;
-  const lottery = WEEKLY_LOTTERIES.find((l) => l.code === code);
+  const lottery = ALL_LOTTERIES.find((l) => l.code === code);
 
   const lotteryName = lottery ? lottery.name : code;
   const title = `${lotteryName} Result on ${dateStr} | Kerala State Lottery Result Today`;

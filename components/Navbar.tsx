@@ -35,7 +35,13 @@ import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import PaidIcon from "@mui/icons-material/Paid";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import HelpIcon from "@mui/icons-material/Help";
-import { WEEKLY_LOTTERIES, supabase } from "@/lib/supabase";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import {
+  WEEKLY_LOTTERIES,
+  BUMPER_LOTTERIES,
+  ALL_LOTTERIES,
+  supabase,
+} from "@/lib/supabase";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -43,7 +49,7 @@ export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const pathname = usePathname();
   const router = useRouter();
-  const [lotteriesList, setLotteriesList] = useState(WEEKLY_LOTTERIES);
+  const [lotteriesList, setLotteriesList] = useState(ALL_LOTTERIES);
 
   React.useEffect(() => {
     async function loadNavbarLotteries() {
@@ -59,6 +65,7 @@ export default function Navbar() {
             nameMl: d.name_ml || d.name,
             code: d.code,
             drawTime: d.draw_time || "3:00 PM",
+            is_bumper: d.is_bumper ?? false,
           }));
           setLotteriesList(mapped);
         }
@@ -174,22 +181,25 @@ export default function Navbar() {
                 paper: {
                   sx: {
                     mt: 1,
-                    borderRadius: "12px",
-                    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                    borderRadius: "14px",
+                    boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
                     border: "1px solid #E5E7EB",
-                    minWidth: 260,
+                    minWidth: 320,
+                    maxWidth: 380,
                     p: 1,
+                    maxHeight: 520,
                   },
                 },
               }}
             >
-              <Box sx={{ px: 1.5, py: 1, borderBottom: "1px solid #F3F4F6", mb: 0.5 }}>
-                <Typography variant="caption" sx={{ color: "#9CA3AF", fontWeight: 800, letterSpacing: "0.05em" }}>
-                  SELECT KERALA WEEKLY LOTTERY
+              {/* 1. Weekly Lotteries */}
+              <Box sx={{ px: 1.5, py: 0.75, borderBottom: "1px solid #F3F4F6", mb: 0.5 }}>
+                <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 800, letterSpacing: "0.05em", fontSize: "0.7rem" }}>
+                  WEEKLY DRAWS (DAILY 3:00 PM)
                 </Typography>
               </Box>
 
-              {lotteriesList.map((lottery) => {
+              {WEEKLY_LOTTERIES.map((lottery) => {
                 const isActive = pathname === `/lottery/${lottery.code.toLowerCase()}`;
                 return (
                   <MenuItem
@@ -197,7 +207,7 @@ export default function Navbar() {
                     onClick={() => handleLotterySelect(lottery.code)}
                     sx={{
                       borderRadius: "8px",
-                      py: 1,
+                      py: 0.75,
                       px: 1.5,
                       display: "flex",
                       justifyContent: "space-between",
@@ -214,8 +224,8 @@ export default function Navbar() {
                           fontWeight: 800,
                           bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
                           color: isActive ? "#FFFFFF" : "#0369A1",
-                          fontSize: "0.75rem",
-                          height: 22,
+                          fontSize: "0.725rem",
+                          height: 20,
                         }}
                       />
                       <Typography variant="body2" sx={{ fontWeight: isActive ? 800 : 700, color: "#111827" }}>
@@ -226,6 +236,63 @@ export default function Navbar() {
                     <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600 }}>
                       {lottery.day}
                     </Typography>
+                  </MenuItem>
+                );
+              })}
+
+              {/* 2. Bumper Lotteries */}
+              <Box sx={{ px: 1.5, py: 0.75, borderBottom: "1px solid #E5E7EB", bgcolor: "#F9FAFB", borderRadius: "8px", mt: 1, mb: 0.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Typography variant="caption" sx={{ color: "#374151", fontWeight: 800, letterSpacing: "0.05em", fontSize: "0.7rem" }}>
+                  BUMPER LOTTERIES (ANNUAL)
+                </Typography>
+                <AutoAwesomeIcon sx={{ fontSize: 14, color: "#0B3C5D" }} />
+              </Box>
+
+              {BUMPER_LOTTERIES.map((bumper) => {
+                const isActive = pathname === `/lottery/${bumper.code.toLowerCase()}`;
+                return (
+                  <MenuItem
+                    key={bumper.code}
+                    onClick={() => handleLotterySelect(bumper.code)}
+                    sx={{
+                      borderRadius: "8px",
+                      py: 0.75,
+                      px: 1.5,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      bgcolor: isActive ? "#EBF5FF" : "transparent",
+                      "&:hover": { bgcolor: "#F0F7FF" },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Chip
+                        label={bumper.code}
+                        size="small"
+                        sx={{
+                          fontWeight: 800,
+                          bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
+                          color: isActive ? "#FFFFFF" : "#0369A1",
+                          fontSize: "0.725rem",
+                          height: 20,
+                        }}
+                      />
+                      <Typography variant="body2" sx={{ fontWeight: isActive ? 800 : 700, color: "#111827" }}>
+                        {bumper.name}
+                      </Typography>
+                    </Box>
+
+                    <Chip
+                      label={bumper.jackpot}
+                      size="small"
+                      sx={{
+                        fontWeight: 800,
+                        bgcolor: "#EBF5FF",
+                        color: "#0B3C5D",
+                        fontSize: "0.68rem",
+                        height: 18,
+                      }}
+                    />
                   </MenuItem>
                 );
               })}
@@ -429,8 +496,11 @@ export default function Navbar() {
                 </ListItemButton>
 
                 <Collapse in={mobileSubmenuOpen} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding sx={{ pl: 2, pt: 1 }}>
-                    {lotteriesList.map((lottery) => {
+                  <List component="div" disablePadding sx={{ pl: 1, pr: 1, pt: 1 }}>
+                    <Typography variant="caption" sx={{ px: 1, color: "#0B3C5D", fontWeight: 800, fontSize: "0.68rem" }}>
+                      WEEKLY LOTTERIES
+                    </Typography>
+                    {WEEKLY_LOTTERIES.map((lottery) => {
                       const isActive = pathname === `/lottery/${lottery.code.toLowerCase()}`;
                       return (
                         <ListItemButton
@@ -438,7 +508,7 @@ export default function Navbar() {
                           onClick={() => handleLotterySelect(lottery.code)}
                           sx={{
                             borderRadius: "8px",
-                            py: 1,
+                            py: 0.75,
                             mb: 0.5,
                             px: 1.5,
                             bgcolor: isActive ? "#EBF5FF" : "transparent",
@@ -462,6 +532,51 @@ export default function Navbar() {
                             slotProps={{
                               primary: { sx: { fontWeight: isActive ? 800 : 600, fontSize: "0.85rem", color: isActive ? "#0B3C5D" : "#111827" } },
                               secondary: { sx: { fontSize: "0.7rem" } },
+                            }}
+                          />
+                        </ListItemButton>
+                      );
+                    })}
+
+                    <Box sx={{ mt: 1, mb: 0.5, px: 1, py: 0.5, bgcolor: "#F3F4F6", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <Typography variant="caption" sx={{ color: "#374151", fontWeight: 800, fontSize: "0.68rem" }}>
+                        BUMPER LOTTERIES
+                      </Typography>
+                      <AutoAwesomeIcon sx={{ fontSize: 12, color: "#0B3C5D" }} />
+                    </Box>
+
+                    {BUMPER_LOTTERIES.map((bumper) => {
+                      const isActive = pathname === `/lottery/${bumper.code.toLowerCase()}`;
+                      return (
+                        <ListItemButton
+                          key={bumper.code}
+                          onClick={() => handleLotterySelect(bumper.code)}
+                          sx={{
+                            borderRadius: "8px",
+                            py: 0.75,
+                            mb: 0.5,
+                            px: 1.5,
+                            bgcolor: isActive ? "#EBF5FF" : "transparent",
+                          }}
+                        >
+                          <Chip
+                            label={bumper.code}
+                            size="small"
+                            sx={{
+                              mr: 1.5,
+                              fontWeight: 800,
+                              bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
+                              color: isActive ? "#FFFFFF" : "#0369A1",
+                              height: 20,
+                              fontSize: "0.7rem",
+                            }}
+                          />
+                          <ListItemText
+                            primary={bumper.name}
+                            secondary={`${bumper.jackpot} • ${bumper.draw_season}`}
+                            slotProps={{
+                              primary: { sx: { fontWeight: isActive ? 800 : 600, fontSize: "0.85rem", color: isActive ? "#0B3C5D" : "#111827" } },
+                              secondary: { sx: { fontSize: "0.7rem", color: "#6B7280", fontWeight: 600 } },
                             }}
                           />
                         </ListItemButton>

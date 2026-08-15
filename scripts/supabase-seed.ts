@@ -1,18 +1,19 @@
-import { supabase, WEEKLY_LOTTERIES } from "../lib/supabase";
+import { supabase, ALL_LOTTERIES } from "../lib/supabase";
 import { fetchAndSyncLatestLottery } from "../lib/lottery-sync";
 
 async function runSupabaseMigrationAndSeed() {
   console.log("🚀 Starting Supabase Migration & Seeding Script...");
 
-  // 1. Seed Master Lotteries Table
-  console.log("📌 Seeding 7 Weekly Lotteries into Supabase `lotteries` table...");
-  for (const item of WEEKLY_LOTTERIES) {
+  // 1. Seed Master Lotteries Table (Weekly + Bumper)
+  console.log("📌 Seeding Weekly & Bumper Lotteries into Supabase `lotteries` table...");
+  for (const item of ALL_LOTTERIES) {
     const { error } = await supabase.from("lotteries").upsert(
       {
         day: item.day,
         name: item.name,
+        name_ml: item.nameMl,
         code: item.code,
-        draw_time: "3:00 PM",
+        draw_time: item.is_bumper ? "2:00 PM (Bumper)" : "3:00 PM",
       },
       { onConflict: "code" }
     );

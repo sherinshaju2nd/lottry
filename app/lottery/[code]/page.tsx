@@ -32,7 +32,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import LotteryCardSkeleton from "@/components/skeletons/LotteryCardSkeleton";
 import ShareButtons from "@/components/ShareButtons";
-import { WEEKLY_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
+import { ALL_LOTTERIES, StructuredDrawResult } from "@/lib/supabase";
 
 interface PageProps {
   params: Promise<{ code: string }>;
@@ -43,7 +43,7 @@ export default function LotteryDetailsPage({ params }: PageProps) {
   const codeParam = resolvedParams.code.toUpperCase();
   const router = useRouter();
 
-  const lotteryInfo = WEEKLY_LOTTERIES.find((l) => l.code === codeParam) || {
+  const lotteryInfo = ALL_LOTTERIES.find((l) => l.code === codeParam) || {
     name: `${codeParam} Lottery`,
     code: codeParam,
     day: "Scheduled Draw",

@@ -1,5 +1,5 @@
-import { MetadataRoute } from "next";
-import { WEEKLY_LOTTERIES, fetchAllDrawResultsFromSupabase } from "@/lib/supabase";
+import type { MetadataRoute } from "next";
+import { ALL_LOTTERIES, fetchAllDrawResultsFromSupabase } from "@/lib/supabase";
 
 export const revalidate = 3600; // Revalidate sitemap cache every hour
 
@@ -52,8 +52,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // 2. Weekly lottery archives categories
-  const lotteryPages = WEEKLY_LOTTERIES.map((l) => ({
+  // 2. Weekly and Bumper lottery archives categories
+  const lotteryPages = ALL_LOTTERIES.map((l) => ({
     url: `${baseUrl}/lottery/${l.code.toLowerCase()}`,
     lastModified: new Date(),
     changeFrequency: "daily" as const,

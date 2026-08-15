@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://dqsoseefmiwyjkgqmphh.supabase.co";
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_bF2JcJ0IPvCaVgeybXJKGw_JBtrS7sx";
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -39,14 +39,73 @@ export interface StructuredDrawResult {
 }
 
 export const WEEKLY_LOTTERIES = [
-  { day: "Monday", name: "Bhagyathara", nameMl: "ഭാഗ്യതാരാ", code: "BT" },
-  { day: "Tuesday", name: "Sthree Sakthi", nameMl: "സ്ത്രീശക്തി", code: "SS" },
-  { day: "Wednesday", name: "Dhanalekshmi", nameMl: "ധനലക്ഷ്മി", code: "DL" },
-  { day: "Thursday", name: "Karunya Plus", nameMl: "കാരുണ്യ പ്ലസ്", code: "KN" },
-  { day: "Friday", name: "Suvarna Keralam", nameMl: "സുവർണ്ണ കേരളം", code: "SK" },
-  { day: "Saturday", name: "Karunya", nameMl: "കാരുണ്യ", code: "KR" },
-  { day: "Sunday", name: "Samrudhi", nameMl: "സമൃദ്ധി", code: "SM" },
+  { day: "Monday", name: "Bhagyathara", nameMl: "ഭാഗ്യതാരാ", code: "BT", is_bumper: false },
+  { day: "Tuesday", name: "Sthree Sakthi", nameMl: "സ്ത്രീശക്തി", code: "SS", is_bumper: false },
+  { day: "Wednesday", name: "Dhanalekshmi", nameMl: "ധനലക്ഷ്മി", code: "DL", is_bumper: false },
+  { day: "Thursday", name: "Karunya Plus", nameMl: "കാരുണ്യ പ്ലസ്", code: "KN", is_bumper: false },
+  { day: "Friday", name: "Suvarna Keralam", nameMl: "സുവർണ്ണ കേരളം", code: "SK", is_bumper: false },
+  { day: "Saturday", name: "Karunya", nameMl: "കാരുണ്യ", code: "KR", is_bumper: false },
+  { day: "Sunday", name: "Samrudhi", nameMl: "സമൃദ്ധി", code: "SM", is_bumper: false },
 ];
+
+export const BUMPER_LOTTERIES = [
+  {
+    day: "Bumper (September)",
+    name: "Thiruvonam Bumper",
+    nameMl: "തിരുവോണം ബംപർ",
+    code: "TH",
+    is_bumper: true,
+    jackpot: "₹25 Crore",
+    draw_season: "September (Onam)",
+  },
+  {
+    day: "Bumper (January)",
+    name: "Christmas New Year Bumper",
+    nameMl: "ക്രിസ്മസ് ന്യൂ ഇയർ ബംപർ",
+    code: "XN",
+    is_bumper: true,
+    jackpot: "₹20 Crore",
+    draw_season: "January",
+  },
+  {
+    day: "Bumper (May)",
+    name: "Vishu Bumper",
+    nameMl: "വിഷു ബംപർ",
+    code: "VB",
+    is_bumper: true,
+    jackpot: "₹12 Crore",
+    draw_season: "May (Vishu)",
+  },
+  {
+    day: "Bumper (November)",
+    name: "Pooja Bumper",
+    nameMl: "പൂജ ബംപർ",
+    code: "PB",
+    is_bumper: true,
+    jackpot: "₹12 Crore",
+    draw_season: "November (Pooja/Diwali)",
+  },
+  {
+    day: "Bumper (July)",
+    name: "Monsoon Bumper",
+    nameMl: "മൺസൂൺ ബംപർ",
+    code: "MB",
+    is_bumper: true,
+    jackpot: "₹10 Crore",
+    draw_season: "July (Monsoon)",
+  },
+  {
+    day: "Bumper (March)",
+    name: "Summer Bumper",
+    nameMl: "സമ്മർ ബംപർ",
+    code: "SB",
+    is_bumper: true,
+    jackpot: "₹10 Crore",
+    draw_season: "March (Summer)",
+  },
+];
+
+export const ALL_LOTTERIES = [...WEEKLY_LOTTERIES, ...BUMPER_LOTTERIES];
 
 let cachedDrawResults: StructuredDrawResult[] | null = null;
 let lastCacheTime = 0;
@@ -68,16 +127,33 @@ export async function saveDrawResultToSupabase(data: {
   let lottery_code = data.draw_code.split("-")[0].toUpperCase();
   let draw_name = data.draw_name;
 
-  // Try to match by code first, then fallback to name
-  let matched = WEEKLY_LOTTERIES.find((l) => l.code === lottery_code);
+  // Try to match by code first, then fallback to name against ALL lotteries
+  let matched = ALL_LOTTERIES.find((l) => l.code === lottery_code);
   if (!matched) {
-    matched = WEEKLY_LOTTERIES.find(
+    matched = ALL_LOTTERIES.find(
       (l) => l.name.toLowerCase() === data.draw_name.toLowerCase()
     );
   }
 
   if (!matched) {
-    console.log(`Skipping save: ${lottery_code} (${data.draw_name}) is not in weekly lotteries list.`);
+    // Special alias matching for bumper draws (e.g. BR code prefixes)
+    if (data.draw_name.toLowerCase().includes("thiruvonam") || data.draw_name.toLowerCase().includes("onam")) {
+      matched = BUMPER_LOTTERIES[0];
+    } else if (data.draw_name.toLowerCase().includes("christmas") || data.draw_name.toLowerCase().includes("new year")) {
+      matched = BUMPER_LOTTERIES[1];
+    } else if (data.draw_name.toLowerCase().includes("vishu")) {
+      matched = BUMPER_LOTTERIES[2];
+    } else if (data.draw_name.toLowerCase().includes("pooja")) {
+      matched = BUMPER_LOTTERIES[3];
+    } else if (data.draw_name.toLowerCase().includes("monsoon")) {
+      matched = BUMPER_LOTTERIES[4];
+    } else if (data.draw_name.toLowerCase().includes("summer")) {
+      matched = BUMPER_LOTTERIES[5];
+    }
+  }
+
+  if (!matched) {
+    console.log(`Skipping save: ${lottery_code} (${data.draw_name}) is not recognized in lotteries list.`);
     return;
   }
 
