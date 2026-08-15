@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchAndSyncLatestLottery } from "@/lib/lottery-sync";
 import {
   checkIsDatePostponed,
+  checkIsBumperDrawDate,
   getCronConfigFromSupabase,
   logCronExecutionInSupabase,
 } from "@/lib/supabase";
@@ -104,7 +105,72 @@ async function handleCronExecution(req: NextRequest) {
     );
   }
 
-  // 4. Execute lottery sync
+  // 4. Intelligent Active Window Check (Bumper @ 14:00 vs Weekly @ 15:00)
+  const scheduledBumper = await checkIsBumperDrawDate(todayIST);
+  const isBumperDay = Boolean(scheduledBumper);
+
+  const effectiveStartTime = isBumperDay
+    ? (cronConfig.cron_bumper_start_time || "14:00")
+    : (cronConfig.cron_start_time || "15:00");
+  const effectiveEndTime = isBumperDay
+    ? (cronConfig.cron_bumper_end_time || "18:00")
+    : (cronConfig.cron_end_time || "17:00");
+
+  const nowIST = new Date();
+  const timeStr = nowIST.toLocaleTimeString("en-GB", {
+    timeZone: "Asia/Kolkata",
+    hour12: false,
+  });
+  const [currH, currM] = timeStr.split(":").map(Number);
+  const currentMinutes = (currH || 0) * 60 + (currM || 0);
+
+  const [startH, startM] = effectiveStartTime.split(":").map(Number);
+  const startMinutes = (startH || 15) * 60 + (startM || 0);
+
+  const [endH, endM] = effectiveEndTime.split(":").map(Number);
+  const endMinutes = (endH || 17) * 60 + (endM || 0);
+
+  const isInsideWindow = currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  const isForced = req.nextUrl.searchParams.get("force") === "true";
+
+  if (!isInsideWindow && !isForced) {
+    const executionTimeMs = Date.now() - startTime;
+    const windowMsg = `Cron execution skipped: Current IST time (${timeStr.slice(0, 5)}) is outside active ${isBumperDay ? `Bumper (${scheduledBumper?.name})` : "Weekly"} draw window (${effectiveStartTime} - ${effectiveEndTime} IST).`;
+
+    console.log(`[Cron Outside Window] ${windowMsg}`);
+
+    await logCronExecutionInSupabase({
+      trigger_source: isVercelCron ? "vercel_cron" : "pg_cron",
+      status: "skipped",
+      message: windowMsg,
+      details: {
+        isBumperDay,
+        bumperName: scheduledBumper?.name,
+        currentTime: timeStr.slice(0, 5),
+        activeWindow: `${effectiveStartTime} - ${effectiveEndTime}`,
+      },
+      duration_ms: executionTimeMs,
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        skipped: true,
+        outsideWindow: true,
+        message: windowMsg,
+        isBumperDay,
+        activeWindow: `${effectiveStartTime} - ${effectiveEndTime}`,
+        timestamp: new Date().toISOString(),
+        executionTimeMs,
+      },
+      {
+        status: 200,
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      }
+    );
+  }
+
+  // 5. Execute lottery sync
   let attempts = 0;
   const maxAttempts = 2; // 1 initial attempt + 1 retry on error
   let lastResult: { success: boolean; data?: any; error?: string } = {

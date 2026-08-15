@@ -555,9 +555,27 @@ export interface CronConfig {
   cron_enabled: boolean;
   cron_start_time: string;
   cron_end_time: string;
+  cron_bumper_start_time: string;
+  cron_bumper_end_time: string;
   cron_frequency_mins: string;
   app_url?: string;
   cron_secret?: string;
+}
+
+/**
+ * Check if a given date has a Bumper Lottery scheduled in Supabase
+ */
+export async function checkIsBumperDrawDate(date: string): Promise<LotteryRecord | null> {
+  try {
+    const lotteries = await getLotteriesFromSupabase();
+    const bumper = lotteries.find(
+      (l) => l.is_bumper && l.draw_date === date
+    );
+    return bumper || null;
+  } catch (e) {
+    console.warn("checkIsBumperDrawDate error:", e);
+    return null;
+  }
 }
 
 /**
@@ -844,6 +862,8 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
     cron_enabled: true,
     cron_start_time: "15:00",
     cron_end_time: "17:00",
+    cron_bumper_start_time: "14:00",
+    cron_bumper_end_time: "18:00",
     cron_frequency_mins: "3",
     app_url: "https://www.keralalotteryresultstoday.in",
     cron_secret: "kerala_lottery_cron_secret_2026",
@@ -861,6 +881,8 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
         cron_enabled: configMap["cron_enabled"] !== "false",
         cron_start_time: configMap["cron_start_time"] || defaultConfig.cron_start_time,
         cron_end_time: configMap["cron_end_time"] || defaultConfig.cron_end_time,
+        cron_bumper_start_time: configMap["cron_bumper_start_time"] || defaultConfig.cron_bumper_start_time,
+        cron_bumper_end_time: configMap["cron_bumper_end_time"] || defaultConfig.cron_bumper_end_time,
         cron_frequency_mins: configMap["cron_frequency_mins"] || defaultConfig.cron_frequency_mins,
         app_url: configMap["app_url"] || defaultConfig.app_url,
         cron_secret: configMap["cron_secret"] || defaultConfig.cron_secret,
@@ -878,7 +900,7 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
  */
 export async function updateCronConfigInSupabase(
   configs: Record<string, string>
-): Promise<boolean> {
+): Promise<{ success: boolean; error?: string }> {
   try {
     const upsertRows = Object.entries(configs).map(([key, value]) => ({
       key,
@@ -890,10 +912,15 @@ export async function updateCronConfigInSupabase(
       .from("app_config")
       .upsert(upsertRows, { onConflict: "key" });
 
-    return !error;
-  } catch (e) {
+    if (error) {
+      console.error("updateCronConfigInSupabase error:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (e: any) {
     console.warn("updateCronConfigInSupabase error:", e);
-    return false;
+    return { success: false, error: e?.message || "Unknown update error" };
   }
 }
 

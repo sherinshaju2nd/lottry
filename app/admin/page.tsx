@@ -137,11 +137,15 @@ export default function AdminDashboardPage() {
     cron_enabled: true,
     cron_start_time: "15:00",
     cron_end_time: "17:00",
+    cron_bumper_start_time: "14:00",
+    cron_bumper_end_time: "18:00",
     cron_frequency_mins: "3",
     app_url: "https://www.keralalotteryresultstoday.in",
     cron_secret: "kerala_lottery_cron_secret_2026",
   });
   const [cronLogs, setCronLogs] = useState<CronLog[]>([]);
+  const [isBumperToday, setIsBumperToday] = useState(false);
+  const [todayBumperInfo, setTodayBumperInfo] = useState<any>(null);
   const [isLoadingCron, setIsLoadingCron] = useState(true);
   const [isTestingCron, setIsTestingCron] = useState(false);
   const [isSavingCronConfig, setIsSavingCronConfig] = useState(false);
@@ -194,6 +198,8 @@ export default function AdminDashboardPage() {
       const json = await res.json();
       if (json.config) setCronConfig(json.config);
       if (json.logs) setCronLogs(json.logs || []);
+      setIsBumperToday(Boolean(json.is_bumper_today));
+      setTodayBumperInfo(json.today_bumper_info || null);
     } catch {
       // ignore
     } finally {
@@ -588,14 +594,14 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleTestCronRun = async () => {
+  const handleTestCronRun = async (force: boolean = false) => {
     setIsTestingCron(true);
     setSyncStatus(null);
     try {
       const res = await fetch("/api/admin/cron-config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "test_run" }),
+        body: JSON.stringify({ action: "test_run", force }),
       });
       const json = await res.json();
       if (json.success) {
@@ -1107,52 +1113,117 @@ export default function AdminDashboardPage() {
                   />
                 </Box>
 
-                {/* Test Run Button */}
-                <Button
-                  fullWidth
-                  onClick={handleTestCronRun}
-                  disabled={isTestingCron}
-                  variant="contained"
-                  startIcon={isTestingCron ? <CircularProgress size={18} color="inherit" /> : <PlayArrowIcon />}
-                  sx={{
-                    bgcolor: "#D97706",
-                    color: "#FFFFFF",
-                    fontWeight: 800,
-                    py: 1.2,
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    mb: 3,
-                    "&:hover": { bgcolor: "#B45309" },
-                  }}
-                >
-                  {isTestingCron ? "Running Test Verification..." : "Run Immediate Cron Sync Test"}
-                </Button>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
+                  <Button
+                    fullWidth
+                    disabled={isTestingCron}
+                    onClick={() => handleTestCronRun(false)}
+                    variant="contained"
+                    startIcon={isTestingCron ? <CircularProgress size={18} color="inherit" /> : <PlayArrowIcon />}
+                    sx={{
+                      bgcolor: "#D97706",
+                      color: "#FFFFFF",
+                      fontWeight: 800,
+                      py: 1.2,
+                      borderRadius: "8px",
+                      textTransform: "none",
+                      "&:hover": { bgcolor: "#B45309" },
+                    }}
+                  >
+                    {isTestingCron ? "Running Test Verification..." : "Run Immediate Cron Sync Test"}
+                  </Button>
+
+                  {todayPostponed && (
+                    <Button
+                      fullWidth
+                      disabled={isTestingCron}
+                      onClick={() => handleTestCronRun(true)}
+                      variant="outlined"
+                      sx={{
+                        borderColor: "#D97706",
+                        color: "#B45309",
+                        fontWeight: 700,
+                        py: 0.8,
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontSize: "0.82rem",
+                        "&:hover": { bgcolor: "#FEF3C7" },
+                      }}
+                    >
+                      ⚡ Force Sync (Bypass Today's Cancellation)
+                    </Button>
+                  )}
+                </Box>
 
                 <Divider sx={{ my: 2 }} />
 
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#1E293B", mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#1E293B", mb: 1.5 }}>
                   Schedule Parameters
                 </Typography>
+
+                {/* Dynamic Draw Detection Info Box */}
+                {isBumperToday ? (
+                  <Box sx={{ p: 2, mb: 2.5, borderRadius: "10px", bgcolor: "#FAF5FF", border: "1px solid #E9D5FF" }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: "#7E22CE", display: "block" }}>
+                      ⚡ BUMPER DRAW SCHEDULED TODAY
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 800, color: "#581C87", mt: 0.3 }}>
+                      {todayBumperInfo?.name || "Kerala Bumper Lottery"} ({todayBumperInfo?.code || "BUMPER"})
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "#6B21A8", display: "block", mt: 0.5 }}>
+                      Active Bumper cron sync window: <strong>{cronConfig.cron_bumper_start_time || "14:00"} - {cronConfig.cron_bumper_end_time || "18:00"} IST</strong> (2:00 PM - 6:00 PM).
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ p: 1.5, mb: 2.5, borderRadius: "10px", bgcolor: "#F0F9FF", border: "1px solid #BAE6FD" }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: "#0369A1", display: "block" }}>
+                      📅 REGULAR WEEKLY SCHEDULE
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "#0C4A6E", display: "block", mt: 0.3 }}>
+                      Standard weekly sync window: <strong>{cronConfig.cron_start_time || "15:00"} - {cronConfig.cron_end_time || "17:00"} IST</strong> (3:00 PM - 5:00 PM). Bumper draws run from <strong>{cronConfig.cron_bumper_start_time || "14:00"} - {cronConfig.cron_bumper_end_time || "18:00"} IST</strong>.
+                    </Typography>
+                  </Box>
+                )}
 
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 6 }}>
                     <TextField
                       fullWidth
                       size="small"
-                      label="Active Start Time (IST)"
+                      label="Weekly Start Time (IST)"
                       value={cronConfig.cron_start_time}
                       onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_start_time: e.target.value }))}
-                      helperText="e.g. 15:00"
+                      helperText="e.g. 15:00 (3:00 PM)"
                     />
                   </Grid>
                   <Grid size={{ xs: 6 }}>
                     <TextField
                       fullWidth
                       size="small"
-                      label="Active End Time (IST)"
+                      label="Weekly End Time (IST)"
                       value={cronConfig.cron_end_time}
                       onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_end_time: e.target.value }))}
-                      helperText="e.g. 17:00"
+                      helperText="e.g. 17:00 (5:00 PM)"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Bumper Start Time (IST)"
+                      value={cronConfig.cron_bumper_start_time}
+                      onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_start_time: e.target.value }))}
+                      helperText="e.g. 14:00 (2:00 PM)"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Bumper End Time (IST)"
+                      value={cronConfig.cron_bumper_end_time}
+                      onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_bumper_end_time: e.target.value }))}
+                      helperText="e.g. 18:00 (6:00 PM)"
                     />
                   </Grid>
                   <Grid size={{ xs: 12 }}>
@@ -1162,7 +1233,7 @@ export default function AdminDashboardPage() {
                       label="Interval / Frequency (Minutes)"
                       value={cronConfig.cron_frequency_mins}
                       onChange={(e) => setCronConfig((prev) => ({ ...prev, cron_frequency_mins: e.target.value }))}
-                      helperText="Polling frequency during draw hours"
+                      helperText="Polling interval in minutes during draw hours"
                     />
                   </Grid>
                   <Grid size={{ xs: 12 }}>

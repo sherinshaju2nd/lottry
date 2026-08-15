@@ -107,11 +107,25 @@ ON CONFLICT (code) DO UPDATE SET
   ticket_price = EXCLUDED.ticket_price,
   draw_season = EXCLUDED.draw_season;
 
--- 5. Seed Cron Configuration in `app_config`
+-- 5. Seed Cron Configuration in `app_config` & Grant Update Permissions
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE tablename = 'app_config' AND policyname = 'Allow public full access on app_config'
+    ) THEN
+        CREATE POLICY "Allow public full access on app_config" ON public.app_config FOR ALL USING (true);
+    END IF;
+END $$;
+
 INSERT INTO public.app_config (key, value)
 VALUES 
   ('cron_enabled', 'true'),
   ('cron_start_time', '15:00'),
   ('cron_end_time', '17:00'),
+  ('cron_bumper_start_time', '14:00'),
+  ('cron_bumper_end_time', '18:00'),
   ('cron_frequency_mins', '3')
 ON CONFLICT (key) DO NOTHING;
+
+
+
