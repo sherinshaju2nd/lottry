@@ -3,8 +3,12 @@ import {
   getDrawResultFromSupabase,
   getDrawDatesFromSupabase,
   fetchAllDrawResultsFromSupabase,
-  StructuredDrawResult,
+  getPostponedDraws,
+  checkIsDatePostponed,
+  getLotteriesFromSupabase,
 } from "@/lib/supabase";
+
+export const dynamic = "force-dynamic";
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -21,11 +25,17 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const date = searchParams.get("date");
-  const type = searchParams.get("type"); // "dates" | "single" | "all" | "history"
+  const type = searchParams.get("type"); // "dates" | "single" | "all" | "history" | "postponed" | "lotteries"
 
   let responseData: any = {};
 
-  if (type === "history" && code) {
+  if (type === "postponed") {
+    const list = await getPostponedDraws(date || undefined);
+    responseData = { success: true, list };
+  } else if (type === "lotteries") {
+    const lotteries = await getLotteriesFromSupabase();
+    responseData = { success: true, lotteries };
+  } else if (type === "history" && code) {
     const supabaseResults = await fetchAllDrawResultsFromSupabase();
     const results = supabaseResults.filter(
       (r) => r.lottery_code.toLowerCase() === code.toLowerCase()
@@ -41,7 +51,11 @@ export async function GET(req: NextRequest) {
     responseData = { success: true, results };
   } else if (code) {
     const result = await getDrawResultFromSupabase(code, date || undefined);
-    responseData = { success: true, result };
+    let postponement = null;
+    if (date) {
+      postponement = await checkIsDatePostponed(date, code);
+    }
+    responseData = { success: true, result, postponement };
   } else {
     const results = await fetchAllDrawResultsFromSupabase();
     responseData = { success: true, results };

@@ -31,12 +31,14 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import EventBusyIcon from "@mui/icons-material/EventBusy";
 import confetti from "canvas-confetti";
 import {
   WEEKLY_LOTTERIES,
   BUMPER_LOTTERIES,
   ALL_LOTTERIES,
   StructuredDrawResult,
+  PostponedDraw,
   supabase,
 } from "@/lib/supabase";
 import ShareButtons from "@/components/ShareButtons";
@@ -67,6 +69,8 @@ export default function HomePage() {
   const [todayDayName, setTodayDayName] = useState("Sunday");
   const [todayDrawResult, setTodayDrawResult] =
     useState<StructuredDrawResult | null>(null);
+  const [todayPostponement, setTodayPostponement] =
+    useState<PostponedDraw | null>(null);
 
   const [searchResults, setSearchResults] = useState<SearchMatch[] | null>(
     null,
@@ -209,6 +213,22 @@ export default function HomePage() {
       setHeroSlideIndex(1);
     }
 
+    async function checkTodayPostponement() {
+      try {
+        const res = await fetch(
+          `/api/draws?type=postponed&date=${todayISTDate}&t=${Date.now()}`,
+        );
+        const json = await res.json();
+        if (json.success && json.list && json.list.length > 0) {
+          setTodayPostponement(json.list[0]);
+        } else {
+          setTodayPostponement(null);
+        }
+      } catch {
+        setTodayPostponement(null);
+      }
+    }
+
     async function checkTodayData() {
       try {
         const res = await fetch(
@@ -260,7 +280,7 @@ export default function HomePage() {
       }
     }
 
-    Promise.all([checkTodayData(), loadRecentDrawsMap()]).finally(() => {
+    Promise.all([checkTodayData(), loadRecentDrawsMap(), checkTodayPostponement()]).finally(() => {
       setIsLoading(false);
     });
 
@@ -278,6 +298,7 @@ export default function HomePage() {
           }
           checkTodayData();
           loadRecentDrawsMap();
+          checkTodayPostponement();
         },
       )
       .subscribe();
@@ -665,7 +686,27 @@ export default function HomePage() {
 
             <Box sx={{ maxWidth: { xs: "100%", lg: 650, xl: 720 } }}>
               {/* Badge */}
-              {hasTodayResult ? (
+              {todayPostponement ? (
+                <Chip
+                  icon={
+                    <EventBusyIcon
+                      sx={{ fontSize: "14px !important", color: "#DC2626" }}
+                    />
+                  }
+                  label={`DRAW ${todayPostponement.status.toUpperCase()} TODAY`}
+                  sx={{
+                    bgcolor: "#FEE2E2",
+                    color: "#991B1B",
+                    fontWeight: 800,
+                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                    borderRadius: "20px",
+                    mb: 2,
+                    px: 1,
+                    py: 0.25,
+                    border: "1px solid #FCA5A5",
+                  }}
+                />
+              ) : hasTodayResult ? (
                 <Chip
                   icon={
                     <EmojiEventsIcon
@@ -734,7 +775,19 @@ export default function HomePage() {
                 {todayLottery.name} {todayLottery.code}
               </Typography>
 
-              {hasTodayResult ? (
+              {todayPostponement ? (
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "#DC2626",
+                    fontWeight: 800,
+                    mb: 2,
+                    fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
+                  }}
+                >
+                  Draw {todayPostponement.status.toUpperCase()} ({todayISTDate})
+                </Typography>
+              ) : hasTodayResult ? (
                 <Typography
                   variant="h6"
                   sx={{
@@ -762,24 +815,48 @@ export default function HomePage() {
                 </Typography>
               )}
 
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "#4B5563",
-                  mb: 3,
-                  lineHeight: 1.6,
-                  fontSize: { xs: "0.875rem", sm: "1rem" },
-                  maxWidth: 600,
-                }}
-              >
-                {hasTodayResult
-                  ? `The results for the ${todayLottery.name} ${todayLottery.code} lottery (${todayDrawResult.draw_code}) have been published. Check your ticket number or view full prize breakdown below.`
-                  : isAfter3PM
-                    ? `Today's draw for ${todayLottery.name} ${todayLottery.code} is currently in progress. Results will update shortly.`
-                    : `Today's draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:10 PM.`}
-              </Typography>
+              {todayPostponement ? (
+                <Alert
+                  severity="warning"
+                  sx={{
+                    mb: 3,
+                    borderRadius: "14px",
+                    maxWidth: 600,
+                    bgcolor: "#FFFBEB",
+                    border: "1px solid #FCD34D",
+                    color: "#92400E",
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5 }}>
+                    📢 Public Notice: {todayPostponement.reason}
+                  </Typography>
+                  {todayPostponement.rescheduled_date && (
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                      🗓️ Rescheduled Draw Date: {todayPostponement.rescheduled_date}
+                    </Typography>
+                  )}
+                </Alert>
+              ) : (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#4B5563",
+                    mb: 3,
+                    lineHeight: 1.6,
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
+                    maxWidth: 600,
+                  }}
+                >
+                  {hasTodayResult
+                    ? `The results for the ${todayLottery.name} ${todayLottery.code} lottery (${todayDrawResult.draw_code}) have been published. Check your ticket number or view full prize breakdown below.`
+                    : isAfter3PM
+                      ? `Today's draw for ${todayLottery.name} ${todayLottery.code} is currently in progress. Results will update shortly.`
+                      : `Today's draw for ${todayLottery.name} ${todayLottery.code} will take place at 3:00 PM. Full winning results will be published automatically at 3:10 PM.`}
+                </Typography>
+              )}
 
-              {isAfter3PM &&
+              {!todayPostponement &&
+                isAfter3PM &&
                 (!hasTodayResult || !todayDrawResult?.first?.ticket) && (
                   <Alert
                     severity="info"

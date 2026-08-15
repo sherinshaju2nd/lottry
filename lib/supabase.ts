@@ -512,3 +512,429 @@ export async function searchTicketsInSupabase(queryTicket: string) {
 
   return matches;
 }
+
+export interface PostponedDraw {
+  id?: number;
+  draw_date: string;
+  lottery_code: string;
+  status: string; // 'postponed' | 'cancelled' | 'no_draw' | 'holiday'
+  reason: string;
+  rescheduled_date?: string | null;
+  disable_cron: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface LotteryRecord {
+  id?: number;
+  day: string;
+  name: string;
+  name_ml?: string;
+  code: string;
+  draw_time?: string;
+  is_bumper?: boolean;
+  jackpot?: string;
+  ticket_price?: string;
+  draw_date?: string;
+  draw_season?: string;
+  created_at?: string;
+}
+
+export interface CronLog {
+  id?: number;
+  execution_time?: string;
+  trigger_source: string;
+  status: "success" | "skipped" | "failed";
+  message: string;
+  details?: any;
+  duration_ms?: number;
+  created_at?: string;
+}
+
+export interface CronConfig {
+  cron_enabled: boolean;
+  cron_start_time: string;
+  cron_end_time: string;
+  cron_frequency_mins: string;
+  app_url?: string;
+  cron_secret?: string;
+}
+
+/**
+ * Fetch list of postponed/no-draw dates from Supabase
+ */
+export async function getPostponedDraws(date?: string): Promise<PostponedDraw[]> {
+  try {
+    let query = supabase
+      .from("postponed_draws")
+      .select("*")
+      .order("draw_date", { ascending: false });
+
+    if (date) {
+      query = query.eq("draw_date", date);
+    }
+
+    const { data, error } = await query;
+    if (!error && data) {
+      return data as PostponedDraw[];
+    }
+  } catch (e) {
+    console.warn("Supabase getPostponedDraws note:", e);
+  }
+  return [];
+}
+
+/**
+ * Check if a specific date or lottery is marked as postponed/no-draw
+ */
+export async function checkIsDatePostponed(
+  date: string,
+  lotteryCode?: string
+): Promise<PostponedDraw | null> {
+  try {
+    const list = await getPostponedDraws(date);
+    if (!list || list.length === 0) return null;
+
+    if (lotteryCode) {
+      const codeUpper = lotteryCode.toUpperCase();
+      const specific = list.find(
+        (p) => p.lottery_code.toUpperCase() === codeUpper || p.lottery_code.toUpperCase() === "ALL"
+      );
+      return specific || null;
+    }
+
+    return list[0] || null;
+  } catch (e) {
+    console.warn("checkIsDatePostponed error:", e);
+    return null;
+  }
+}
+
+/**
+ * Save or update a postponed draw entry
+ */
+export async function savePostponedDraw(
+  item: Omit<PostponedDraw, "id" | "created_at" | "updated_at"> & { id?: number }
+): Promise<{ success: boolean; data?: PostponedDraw; error?: string }> {
+  try {
+    const payload = {
+      draw_date: item.draw_date,
+      lottery_code: (item.lottery_code || "ALL").toUpperCase(),
+      status: item.status || "postponed",
+      reason: item.reason,
+      rescheduled_date: item.rescheduled_date || null,
+      disable_cron: item.disable_cron ?? true,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (item.id) {
+      const { data, error } = await supabase
+        .from("postponed_draws")
+        .update(payload)
+        .eq("id", item.id)
+        .select();
+
+      if (error) return { success: false, error: error.message };
+      return { success: true, data: data?.[0] };
+    } else {
+      const { data, error } = await supabase
+        .from("postponed_draws")
+        .upsert(payload, { onConflict: "draw_date,lottery_code" })
+        .select();
+
+      if (error) {
+        // Fallback insert
+        const { data: insData, error: insErr } = await supabase
+          .from("postponed_draws")
+          .insert(payload)
+          .select();
+        if (insErr) return { success: false, error: insErr.message };
+        return { success: true, data: insData?.[0] };
+      }
+      return { success: true, data: data?.[0] };
+    }
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to save postponed draw",
+    };
+  }
+}
+
+/**
+ * Delete a postponed draw entry
+ */
+export async function deletePostponedDraw(id: number): Promise<boolean> {
+  try {
+    const { error } = await supabase.from("postponed_draws").delete().eq("id", id);
+    return !error;
+  } catch (e) {
+    console.warn("deletePostponedDraw error:", e);
+    return false;
+  }
+}
+
+/**
+ * Fetch all lotteries (weekly + bumper) from Supabase
+ */
+export async function getLotteriesFromSupabase(): Promise<LotteryRecord[]> {
+  try {
+    const { data, error } = await supabase
+      .from("lotteries")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      return data as LotteryRecord[];
+    }
+  } catch (e) {
+    console.warn("getLotteriesFromSupabase error:", e);
+  }
+  // Fallback to static lists
+  return ALL_LOTTERIES.map((l, idx) => ({
+    id: idx + 1,
+    day: l.day,
+    name: l.name,
+    name_ml: l.nameMl,
+    code: l.code,
+    draw_time: "3:00 PM",
+    is_bumper: l.is_bumper,
+    jackpot: "jackpot" in l ? (l as any).jackpot : undefined,
+    draw_season: "draw_season" in l ? (l as any).draw_season : undefined,
+  }));
+}
+
+/**
+ * Save or update lottery definition (weekly or bumper)
+ */
+export async function saveLotteryToSupabase(
+  lottery: Partial<LotteryRecord>
+): Promise<{ success: boolean; data?: LotteryRecord; error?: string }> {
+  try {
+    const payload = {
+      day: lottery.day || (lottery.is_bumper ? `Bumper (${lottery.draw_season || "Special"})` : "Daily"),
+      name: lottery.name,
+      name_ml: lottery.name_ml || lottery.name,
+      code: (lottery.code || "").toUpperCase(),
+      draw_time: lottery.draw_time || (lottery.is_bumper ? "2:00 PM" : "3:00 PM"),
+      is_bumper: !!lottery.is_bumper,
+      jackpot: lottery.jackpot || null,
+      ticket_price: lottery.ticket_price || null,
+      draw_date: lottery.draw_date || null,
+      draw_season: lottery.draw_season || null,
+    };
+
+    if (lottery.id) {
+      const { data, error } = await supabase
+        .from("lotteries")
+        .update(payload)
+        .eq("id", lottery.id)
+        .select();
+
+      if (error) return { success: false, error: error.message };
+      return { success: true, data: data?.[0] };
+    } else {
+      const { data, error } = await supabase
+        .from("lotteries")
+        .upsert(payload, { onConflict: "code" })
+        .select();
+
+      if (error) {
+        const { data: insData, error: insErr } = await supabase
+          .from("lotteries")
+          .insert(payload)
+          .select();
+        if (insErr) return { success: false, error: insErr.message };
+        return { success: true, data: insData?.[0] };
+      }
+      return { success: true, data: data?.[0] };
+    }
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to save lottery",
+    };
+  }
+}
+
+/**
+ * Delete lottery definition from Supabase
+ */
+export async function deleteLotteryFromSupabase(id: number): Promise<boolean> {
+  try {
+    const { error } = await supabase.from("lotteries").delete().eq("id", id);
+    return !error;
+  } catch (e) {
+    console.warn("deleteLotteryFromSupabase error:", e);
+    return false;
+  }
+}
+
+/**
+ * Delete draw result from Supabase
+ */
+export async function deleteDrawResultFromSupabase(id: number): Promise<boolean> {
+  try {
+    bustDrawResultsCache();
+    const { error } = await supabase.from("draw_results").delete().eq("id", id);
+    return !error;
+  } catch (e) {
+    console.warn("deleteDrawResultFromSupabase error:", e);
+    return false;
+  }
+}
+
+/**
+ * Save manual draw result (Weekly or Bumper) with complete prize structure
+ */
+export async function saveManualDrawResultToSupabase(
+  data: StructuredDrawResult
+): Promise<{ success: boolean; data?: StructuredDrawResult; error?: string }> {
+  try {
+    bustDrawResultsCache();
+    const rowPayload = {
+      draw_date: data.draw_date,
+      draw_name: data.draw_name,
+      draw_code: data.draw_code,
+      lottery_code: data.lottery_code.toUpperCase(),
+      first_prize: data.first || {},
+      prizes: data.prizes || {},
+      created_at: new Date().toISOString(),
+    };
+
+    if (data.id) {
+      const { data: updated, error } = await supabase
+        .from("draw_results")
+        .update(rowPayload)
+        .eq("id", data.id)
+        .select();
+
+      if (error) return { success: false, error: error.message };
+      return { success: true, data: updated?.[0] };
+    }
+
+    const { data: upserted, error } = await supabase
+      .from("draw_results")
+      .upsert(rowPayload, { onConflict: "draw_date,lottery_code" })
+      .select();
+
+    if (error) {
+      const { data: inserted, error: insErr } = await supabase
+        .from("draw_results")
+        .insert(rowPayload)
+        .select();
+      if (insErr) return { success: false, error: insErr.message };
+      return { success: true, data: inserted?.[0] };
+    }
+
+    return { success: true, data: upserted?.[0] };
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to save draw result",
+    };
+  }
+}
+
+/**
+ * Fetch dynamic Cron & App configurations from `app_config`
+ */
+export async function getCronConfigFromSupabase(): Promise<CronConfig> {
+  const defaultConfig: CronConfig = {
+    cron_enabled: true,
+    cron_start_time: "15:00",
+    cron_end_time: "17:00",
+    cron_frequency_mins: "3",
+    app_url: "https://www.keralalotteryresultstoday.in",
+    cron_secret: "kerala_lottery_cron_secret_2026",
+  };
+
+  try {
+    const { data, error } = await supabase.from("app_config").select("*");
+    if (!error && data) {
+      const configMap: Record<string, string> = {};
+      data.forEach((row: { key: string; value: string }) => {
+        configMap[row.key] = row.value;
+      });
+
+      return {
+        cron_enabled: configMap["cron_enabled"] !== "false",
+        cron_start_time: configMap["cron_start_time"] || defaultConfig.cron_start_time,
+        cron_end_time: configMap["cron_end_time"] || defaultConfig.cron_end_time,
+        cron_frequency_mins: configMap["cron_frequency_mins"] || defaultConfig.cron_frequency_mins,
+        app_url: configMap["app_url"] || defaultConfig.app_url,
+        cron_secret: configMap["cron_secret"] || defaultConfig.cron_secret,
+      };
+    }
+  } catch (e) {
+    console.warn("getCronConfigFromSupabase note:", e);
+  }
+
+  return defaultConfig;
+}
+
+/**
+ * Update Cron & App configurations in `app_config`
+ */
+export async function updateCronConfigInSupabase(
+  configs: Record<string, string>
+): Promise<boolean> {
+  try {
+    const upsertRows = Object.entries(configs).map(([key, value]) => ({
+      key,
+      value: String(value),
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { error } = await supabase
+      .from("app_config")
+      .upsert(upsertRows, { onConflict: "key" });
+
+    return !error;
+  } catch (e) {
+    console.warn("updateCronConfigInSupabase error:", e);
+    return false;
+  }
+}
+
+/**
+ * Log cron execution to `cron_logs` table
+ */
+export async function logCronExecutionInSupabase(
+  log: Omit<CronLog, "id" | "created_at">
+): Promise<void> {
+  try {
+    await supabase.from("cron_logs").insert({
+      execution_time: log.execution_time || new Date().toISOString(),
+      trigger_source: log.trigger_source || "cron",
+      status: log.status,
+      message: log.message,
+      details: log.details || {},
+      duration_ms: log.duration_ms || 0,
+      created_at: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.warn("logCronExecutionInSupabase note:", e);
+  }
+}
+
+/**
+ * Get recent cron execution logs
+ */
+export async function getCronLogsFromSupabase(limit = 30): Promise<CronLog[]> {
+  try {
+    const { data, error } = await supabase
+      .from("cron_logs")
+      .select("*")
+      .order("execution_time", { ascending: false })
+      .limit(limit);
+
+    if (!error && data) {
+      return data as CronLog[];
+    }
+  } catch (e) {
+    console.warn("getCronLogsFromSupabase note:", e);
+  }
+  return [];
+}
+
