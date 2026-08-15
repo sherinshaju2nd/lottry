@@ -50,15 +50,6 @@ export const WEEKLY_LOTTERIES = [
 
 export const BUMPER_LOTTERIES = [
   {
-    day: "Bumper (September)",
-    name: "Thiruvonam Bumper",
-    nameMl: "തിരുവോണം ബംപർ",
-    code: "TH",
-    is_bumper: true,
-    jackpot: "₹25 Crore",
-    draw_season: "September (Onam)",
-  },
-  {
     day: "Bumper (January)",
     name: "Christmas New Year Bumper",
     nameMl: "ക്രിസ്മസ് ന്യൂ ഇയർ ബംപർ",
@@ -66,6 +57,15 @@ export const BUMPER_LOTTERIES = [
     is_bumper: true,
     jackpot: "₹20 Crore",
     draw_season: "January",
+  },
+  {
+    day: "Bumper (March)",
+    name: "Summer Bumper",
+    nameMl: "സമ്മർ ബംപർ",
+    code: "SB",
+    is_bumper: true,
+    jackpot: "₹10 Crore",
+    draw_season: "March (Summer)",
   },
   {
     day: "Bumper (May)",
@@ -77,15 +77,6 @@ export const BUMPER_LOTTERIES = [
     draw_season: "May (Vishu)",
   },
   {
-    day: "Bumper (November)",
-    name: "Pooja Bumper",
-    nameMl: "പൂജ ബംപർ",
-    code: "PB",
-    is_bumper: true,
-    jackpot: "₹12 Crore",
-    draw_season: "November (Pooja/Diwali)",
-  },
-  {
     day: "Bumper (July)",
     name: "Monsoon Bumper",
     nameMl: "മൺസൂൺ ബംപർ",
@@ -95,13 +86,22 @@ export const BUMPER_LOTTERIES = [
     draw_season: "July (Monsoon)",
   },
   {
-    day: "Bumper (March)",
-    name: "Summer Bumper",
-    nameMl: "സമ്മർ ബംപർ",
-    code: "SB",
+    day: "Bumper (September)",
+    name: "Thiruvonam Bumper",
+    nameMl: "തിരുവോണം ബംപർ",
+    code: "TH",
     is_bumper: true,
-    jackpot: "₹10 Crore",
-    draw_season: "March (Summer)",
+    jackpot: "₹25 Crore",
+    draw_season: "September (Onam)",
+  },
+  {
+    day: "Bumper (November)",
+    name: "Pooja Bumper",
+    nameMl: "പൂജ ബംപർ",
+    code: "PB",
+    is_bumper: true,
+    jackpot: "₹12 Crore",
+    draw_season: "November (Pooja/Diwali)",
   },
 ];
 

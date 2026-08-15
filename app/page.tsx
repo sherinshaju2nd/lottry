@@ -63,6 +63,7 @@ interface SearchMatch {
 export default function HomePage() {
   const [todayLottery, setTodayLottery] = useState(WEEKLY_LOTTERIES[0]);
   const [lotteriesList, setLotteriesList] = useState(WEEKLY_LOTTERIES);
+  const [bumperLotteriesList, setBumperLotteriesList] = useState(BUMPER_LOTTERIES);
   const [todayDayName, setTodayDayName] = useState("Sunday");
   const [todayDrawResult, setTodayDrawResult] =
     useState<StructuredDrawResult | null>(null);
@@ -142,7 +143,7 @@ export default function HomePage() {
           .select("*")
           .order("id", { ascending: true });
         if (!error && data && data.length > 0) {
-          const mapped = data
+          const weeklyMapped = data
             .map((d: any) => ({
               day: d.day,
               name: d.name,
@@ -153,14 +154,37 @@ export default function HomePage() {
             }))
             .filter((l: any) => !l.is_bumper && !l.day.toLowerCase().includes("bumper"));
 
-          setLotteriesList(mapped);
+          if (weeklyMapped.length > 0) {
+            setLotteriesList(weeklyMapped);
+            const matchedDb =
+              weeklyMapped.find(
+                (l: any) => l.day.toLowerCase() === istDayName.toLowerCase(),
+              ) || weeklyMapped[0] || WEEKLY_LOTTERIES[0];
+            setTodayLottery(matchedDb);
+          }
 
-          // Update today's matched lottery dynamically
-          const matchedDb =
-            mapped.find(
-              (l: any) => l.day.toLowerCase() === istDayName.toLowerCase(),
-            ) || mapped[0] || WEEKLY_LOTTERIES[0];
-          setTodayLottery(matchedDb);
+          const bumperMapped = data
+            .map((d: any) => ({
+              day: d.day,
+              name: d.name,
+              nameMl: d.name_ml || d.name,
+              code: d.code,
+              drawTime: d.draw_time || "2:00 PM",
+              is_bumper: d.is_bumper ?? d.day.toLowerCase().includes("bumper"),
+              jackpot: d.jackpot || (BUMPER_LOTTERIES.find((b) => b.code === d.code)?.jackpot || "₹10 Crore"),
+              draw_season: d.draw_season || (BUMPER_LOTTERIES.find((b) => b.code === d.code)?.draw_season || d.day),
+            }))
+            .filter((l: any) => l.is_bumper || l.day.toLowerCase().includes("bumper"));
+
+          if (bumperMapped.length > 0) {
+            const monthOrder = ["XN", "SB", "VB", "MB", "TH", "PB"];
+            bumperMapped.sort((a: any, b: any) => {
+              const ai = monthOrder.indexOf(a.code);
+              const bi = monthOrder.indexOf(b.code);
+              return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+            });
+            setBumperLotteriesList(bumperMapped);
+          }
         }
       } catch (e) {
         console.warn("Error fetching lotteries:", e);
@@ -1936,11 +1960,42 @@ export default function HomePage() {
         </Typography>
 
         <Grid container spacing={{ xs: 2.5, sm: 3 }}>
-          {BUMPER_LOTTERIES.map((bumper) => {
-            const latestDraw = recentDrawsMap[bumper.code];
+          {isLoading ? (
+            [1, 2, 3, 4, 5, 6].map((i) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+                <Card
+                  elevation={0}
+                  sx={{
+                    borderRadius: "16px",
+                    border: "1px solid #E5E7EB",
+                    p: 2.5,
+                    bgcolor: "#FFFFFF",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                      <Skeleton variant="rounded" width={95} height={24} sx={{ borderRadius: "12px" }} />
+                      <Skeleton variant="rounded" width={36} height={24} sx={{ borderRadius: "8px" }} />
+                    </Box>
+                    <Skeleton variant="text" width="70%" height={32} sx={{ mb: 0.5 }} />
+                    <Skeleton variant="text" width="45%" height={22} sx={{ mb: 2 }} />
+                    <Skeleton variant="rounded" height={52} sx={{ borderRadius: "10px", mb: 2 }} />
+                    <Skeleton variant="rounded" height={44} sx={{ borderRadius: "10px" }} />
+                  </Box>
+                  <Skeleton variant="rounded" height={36} sx={{ mt: 2, borderRadius: "6px" }} />
+                </Card>
+              </Grid>
+            ))
+          ) : (
+            bumperLotteriesList.map((bumper) => {
+              const latestDraw = recentDrawsMap[bumper.code];
 
-            return (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={bumper.code}>
+              return (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={bumper.code}>
                 <Card
                   elevation={0}
                   sx={{
@@ -2159,29 +2214,30 @@ export default function HomePage() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        borderTop: "1px solid #FDE68A",
-                        bgcolor: "#FEF3C7",
+                        borderTop: "1px solid #F3F4F6",
+                        bgcolor: "#FAFAFA",
                       }}
                     >
                       <Typography
                         variant="caption"
                         sx={{
-                          color: "#92400E",
-                          fontWeight: 900,
+                          color: "#0B3C5D",
+                          fontWeight: 800,
                           fontSize: "0.78rem",
                         }}
                       >
                         View Bumper Draw & Breakdown
                       </Typography>
                       <ArrowForwardIcon
-                        sx={{ color: "#92400E", fontSize: 16 }}
+                        sx={{ color: "#0B3C5D", fontSize: 16 }}
                       />
                     </Box>
                   </CardActionArea>
                 </Card>
               </Grid>
             );
-          })}
+          })
+        )}
         </Grid>
       </Box>
 
