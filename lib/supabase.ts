@@ -1048,24 +1048,14 @@ export async function updateCronConfigInSupabase(
 }
 
 /**
- * Log cron execution to `cron_logs` table
+ * Log cron execution to `cron_logs` table (Disabled to stop writing logs)
  */
 export async function logCronExecutionInSupabase(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   log: Omit<CronLog, "id" | "created_at">
 ): Promise<void> {
-  try {
-    await supabase.from("cron_logs").insert({
-      execution_time: log.execution_time || new Date().toISOString(),
-      trigger_source: log.trigger_source || "cron",
-      status: log.status,
-      message: log.message,
-      details: log.details || {},
-      duration_ms: log.duration_ms || 0,
-      created_at: new Date().toISOString(),
-    });
-  } catch (e) {
-    console.warn("logCronExecutionInSupabase note:", e);
-  }
+  // Logging disabled
+  return;
 }
 
 /**
