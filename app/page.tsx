@@ -195,6 +195,7 @@ export default function HomePage() {
               ticket_price: todayBumper.ticket_price || "₹500",
               draw_season: todayBumper.draw_season || todayBumper.day,
             });
+            checkTodayData(todayBumper.code);
           } else if (weeklyMapped.length > 0) {
             setIsTodayBumper(false);
             setTodayBumperInfo(null);
@@ -204,6 +205,7 @@ export default function HomePage() {
                 (l: any) => l.day.toLowerCase() === istDayName.toLowerCase(),
               ) || weeklyMapped[0] || WEEKLY_LOTTERIES[0];
             setTodayLottery(matchedDb);
+            checkTodayData(matchedDb.code);
           }
 
           const bumperMapped = data
@@ -216,6 +218,8 @@ export default function HomePage() {
               is_bumper: d.is_bumper ?? d.day.toLowerCase().includes("bumper"),
               jackpot: d.jackpot || (BUMPER_LOTTERIES.find((b) => b.code === d.code)?.jackpot || "₹10 Crore"),
               draw_season: d.draw_season || (BUMPER_LOTTERIES.find((b) => b.code === d.code)?.draw_season || d.day),
+              draw_date: d.draw_date || undefined,
+              ticket_price: d.ticket_price || undefined,
             }))
             .filter((l: any) => l.is_bumper || l.day.toLowerCase().includes("bumper"));
 
@@ -272,13 +276,19 @@ export default function HomePage() {
       }
     }
 
-    async function checkTodayData() {
+    async function checkTodayData(codeToFetch?: string) {
       try {
+        const targetCode = codeToFetch || matched.code;
         const res = await fetch(
-          `/api/draws?code=${matched.code}&t=${Date.now()}`,
+          `/api/draws?code=${targetCode}&date=${todayISTDate}&t=${Date.now()}`,
         );
         const json = await res.json();
-        if (json.success && json.result) {
+        if (
+          json.success &&
+          json.result &&
+          json.result.draw_date === todayISTDate &&
+          json.result.first?.ticket
+        ) {
           setTodayDrawResult(json.result);
         } else {
           setTodayDrawResult(null);
@@ -335,9 +345,11 @@ export default function HomePage() {
         (payload) => {
           if (payload.new) {
             const newRow = payload.new as any;
-            setRealtimeNotification(
-              `🎉 Live Update: ${newRow.draw_name || "Lottery"} (${newRow.draw_code || ""}) updated for ${newRow.draw_date || "today"}`,
-            );
+            if (newRow.draw_date === todayISTDate) {
+              setRealtimeNotification(
+                `🎉 Live Update: ${newRow.draw_name || "Lottery"} (${newRow.draw_code || ""}) updated for today!`,
+              );
+            }
           }
           checkTodayData();
           loadRecentDrawsMap();
@@ -371,7 +383,7 @@ export default function HomePage() {
         ? todayLottery.code
         : latestPreviousDraw?.lottery_code || "";
     const targetDrawDate =
-      heroSlideIndex === 1 ? latestPreviousDraw?.draw_date : undefined;
+      heroSlideIndex === 0 ? todayISTDate : latestPreviousDraw?.draw_date;
 
     try {
       const res = await fetch(
@@ -417,7 +429,10 @@ export default function HomePage() {
     return { bgcolor: "#F3F4F6", color: "#4B5563" };
   };
 
-  const hasTodayResult = !!todayDrawResult && !!todayDrawResult.first?.ticket;
+  const hasTodayResult =
+    !!todayDrawResult &&
+    !!todayDrawResult.first?.ticket &&
+    todayDrawResult.draw_date === todayISTDate;
 
   return (
     <Container
@@ -1133,7 +1148,7 @@ export default function HomePage() {
                   )}
                 </Box>
 
-                {hasTodayResult && (
+                {hasTodayResult && todayDrawResult && (
                   <Box sx={{ pt: 0.5 }}>
                     <Button
                       component={Link}
@@ -1942,8 +1957,8 @@ export default function HomePage() {
                           </Typography>
 
                           {/* Previous Draw / 1st Prize Winner Highlight Box */}
-                          {latestDraw ? (
-                            latestDraw.draw_date === todayISTDate ? (
+                          {isActiveToday ? (
+                            latestDraw && latestDraw.draw_date === todayISTDate && latestDraw.first?.ticket ? (
                               <Box
                                 sx={{
                                   bgcolor: "#EBF5FF",
@@ -2010,10 +2025,10 @@ export default function HomePage() {
                             ) : (
                               <Box
                                 sx={{
-                                  bgcolor: "#EBF5FF",
+                                  bgcolor: "#FFFBEB",
                                   p: 1.5,
                                   borderRadius: "10px",
-                                  border: "1px solid #BFDBFE",
+                                  border: "1px solid #FCD34D",
                                 }}
                               >
                                 <Box
@@ -2027,37 +2042,88 @@ export default function HomePage() {
                                   <Typography
                                     variant="caption"
                                     sx={{
-                                      color: "#0B3C5D",
+                                      color: "#B45309",
                                       fontWeight: 800,
                                       fontSize: "0.68rem",
                                     }}
                                   >
-                                    LATEST 1ST PRIZE
+                                    {isAfter3PM ? "DRAWING IN PROGRESS" : "DRAW SCHEDULED TODAY"}
                                   </Typography>
                                   <Typography
                                     variant="caption"
                                     sx={{
-                                      color: "#0B3C5D",
+                                      color: "#92400E",
                                       fontWeight: 700,
                                       fontSize: "0.68rem",
                                     }}
                                   >
-                                    {latestDraw.draw_date}
+                                    {item.drawTime || "3:00 PM"}
                                   </Typography>
                                 </Box>
                                 <Typography
-                                  variant="body1"
+                                  variant="body2"
                                   sx={{
-                                    fontFamily: "monospace",
-                                    fontWeight: 900,
-                                    color: "#0B3C5D",
-                                    letterSpacing: "0.03em",
+                                    fontWeight: 800,
+                                    color: "#92400E",
+                                    fontSize: "0.775rem",
                                   }}
                                 >
-                                  {latestDraw.first?.ticket || "N/A"}
+                                  {isAfter3PM
+                                    ? "Live draw in progress • Results soon →"
+                                    : "Results publish today at 3:10 PM →"}
                                 </Typography>
                               </Box>
                             )
+                          ) : latestDraw ? (
+                            <Box
+                              sx={{
+                                bgcolor: "#EBF5FF",
+                                p: 1.5,
+                                borderRadius: "10px",
+                                border: "1px solid #BFDBFE",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  mb: 0.5,
+                                }}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#0B3C5D",
+                                    fontWeight: 800,
+                                    fontSize: "0.68rem",
+                                  }}
+                                >
+                                  LATEST 1ST PRIZE
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#0B3C5D",
+                                    fontWeight: 700,
+                                    fontSize: "0.68rem",
+                                  }}
+                                >
+                                  {latestDraw.draw_date}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontFamily: "monospace",
+                                  fontWeight: 900,
+                                  color: "#0B3C5D",
+                                  letterSpacing: "0.03em",
+                                }}
+                              >
+                                {latestDraw.first?.ticket || "N/A"}
+                              </Typography>
+                            </Box>
                           ) : (
                             <Box
                               sx={{
@@ -2200,6 +2266,9 @@ export default function HomePage() {
           ) : (
             bumperLotteriesList.map((bumper) => {
               const latestDraw = recentDrawsMap[bumper.code];
+              const isAnnouncedUpcoming =
+                !!bumper.draw_date && bumper.draw_date >= todayISTDate;
+              const isDrawToday = bumper.draw_date === todayISTDate;
 
               return (
                 <Grid size={{ xs: 12, sm: 6, md: 4 }} key={bumper.code}>
@@ -2207,9 +2276,13 @@ export default function HomePage() {
                   elevation={0}
                   sx={{
                     borderRadius: "16px",
-                    border: "1px solid #E5E7EB",
-                    bgcolor: "#FFFFFF",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+                    border: isAnnouncedUpcoming
+                      ? "2px solid #F59E0B"
+                      : "1px solid #E5E7EB",
+                    bgcolor: isAnnouncedUpcoming ? "#FFFDF0" : "#FFFFFF",
+                    boxShadow: isAnnouncedUpcoming
+                      ? "0 8px 25px rgba(245, 158, 11, 0.18)"
+                      : "0 2px 10px rgba(0,0,0,0.03)",
                     position: "relative",
                     overflow: "hidden",
                     height: "100%",
@@ -2219,8 +2292,10 @@ export default function HomePage() {
                     transition: "all 0.2s ease-in-out",
                     "&:hover": {
                       transform: "translateY(-3px)",
-                      borderColor: "#0B3C5D",
-                      boxShadow: "0 10px 24px rgba(11, 60, 93, 0.12)",
+                      borderColor: isAnnouncedUpcoming ? "#D97706" : "#0B3C5D",
+                      boxShadow: isAnnouncedUpcoming
+                        ? "0 12px 30px rgba(245, 158, 11, 0.28)"
+                        : "0 10px 24px rgba(11, 60, 93, 0.12)",
                     },
                   }}
                 >
@@ -2237,7 +2312,7 @@ export default function HomePage() {
                     }}
                   >
                     <CardContent sx={{ p: 2.5, width: "100%" }}>
-                      {/* Top Row: Draw Season Badge & Code Pill */}
+                      {/* Top Row: Draw Season / Announced Date Badge & Code Pill */}
                       <Box
                         sx={{
                           display: "flex",
@@ -2246,26 +2321,51 @@ export default function HomePage() {
                           mb: 1.5,
                         }}
                       >
-                        <Chip
-                          label={bumper.draw_season}
-                          size="small"
-                          sx={{
-                            bgcolor: "#F3F4F6",
-                            color: "#374151",
-                            border: "1px solid #E5E7EB",
-                            fontWeight: 800,
-                            fontSize: "0.725rem",
-                            borderRadius: "12px",
-                            px: 1,
-                          }}
-                        />
+                        {isAnnouncedUpcoming ? (
+                          <Chip
+                            icon={
+                              <AutoAwesomeIcon
+                                sx={{ fontSize: "14px !important", color: "#B45309" }}
+                              />
+                            }
+                            label={
+                              isDrawToday
+                                ? "👑 DRAWS TODAY"
+                                : `👑 DRAW DATE: ${bumper.draw_date}`
+                            }
+                            size="small"
+                            sx={{
+                              bgcolor: "#FEF3C7",
+                              color: "#92400E",
+                              border: "1.5px solid #F59E0B",
+                              fontWeight: 900,
+                              fontSize: "0.725rem",
+                              borderRadius: "12px",
+                              px: 0.5,
+                            }}
+                          />
+                        ) : (
+                          <Chip
+                            label={bumper.draw_season}
+                            size="small"
+                            sx={{
+                              bgcolor: "#F3F4F6",
+                              color: "#374151",
+                              border: "1px solid #E5E7EB",
+                              fontWeight: 800,
+                              fontSize: "0.725rem",
+                              borderRadius: "12px",
+                              px: 1,
+                            }}
+                          />
+                        )}
 
                         <Chip
                           label={bumper.code}
                           size="small"
                           sx={{
                             fontWeight: 900,
-                            bgcolor: "#0B3C5D",
+                            bgcolor: isAnnouncedUpcoming ? "#D97706" : "#0B3C5D",
                             color: "#FFFFFF",
                             borderRadius: "8px",
                             fontSize: "0.725rem",
@@ -2280,7 +2380,7 @@ export default function HomePage() {
                         variant="h5"
                         sx={{
                           fontWeight: 900,
-                          color: "#111827",
+                          color: isAnnouncedUpcoming ? "#78350F" : "#111827",
                           mb: 0.2,
                           fontSize: "1.25rem",
                         }}
@@ -2292,7 +2392,7 @@ export default function HomePage() {
                         variant="subtitle2"
                         sx={{
                           fontWeight: 700,
-                          color: "#0B3C5D",
+                          color: isAnnouncedUpcoming ? "#B45309" : "#0B3C5D",
                           mb: 1.5,
                           fontSize: "0.95rem",
                         }}
@@ -2306,19 +2406,26 @@ export default function HomePage() {
                           display: "flex",
                           alignItems: "center",
                           gap: 1,
-                          bgcolor: "#EBF5FF",
+                          bgcolor: isAnnouncedUpcoming ? "#FEF3C7" : "#EBF5FF",
                           p: 1.25,
                           borderRadius: "10px",
-                          border: "1px solid #BFDBFE",
+                          border: isAnnouncedUpcoming
+                            ? "1px solid #FCD34D"
+                            : "1px solid #BFDBFE",
                           mb: 2,
                         }}
                       >
-                        <EmojiEventsIcon sx={{ color: "#0B3C5D", fontSize: 20 }} />
+                        <EmojiEventsIcon
+                          sx={{
+                            color: isAnnouncedUpcoming ? "#D97706" : "#0B3C5D",
+                            fontSize: 20,
+                          }}
+                        />
                         <Box>
                           <Typography
                             variant="caption"
                             sx={{
-                              color: "#0B3C5D",
+                              color: isAnnouncedUpcoming ? "#92400E" : "#0B3C5D",
                               fontWeight: 700,
                               fontSize: "0.7rem",
                               display: "block",
@@ -2330,7 +2437,7 @@ export default function HomePage() {
                           <Typography
                             variant="body2"
                             sx={{
-                              color: "#0B3C5D",
+                              color: isAnnouncedUpcoming ? "#78350F" : "#0B3C5D",
                               fontWeight: 900,
                               fontSize: "0.95rem",
                             }}
@@ -2340,8 +2447,125 @@ export default function HomePage() {
                         </Box>
                       </Box>
 
-                      {/* Previous Result / Status */}
-                      {latestDraw ? (
+                      {/* Announced Date vs Result Box */}
+                      {isAnnouncedUpcoming ? (
+                        isDrawToday && latestDraw && latestDraw.draw_date === todayISTDate && latestDraw.first?.ticket ? (
+                          <Box
+                            sx={{
+                              bgcolor: "#EBF5FF",
+                              p: 1.5,
+                              borderRadius: "10px",
+                              border: "1px solid #BFDBFE",
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mb: 0.5,
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#0B3C5D",
+                                  fontWeight: 800,
+                                  fontSize: "0.68rem",
+                                }}
+                              >
+                                TODAY&apos;S BUMPER RESULT
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#0B3C5D",
+                                  fontWeight: 700,
+                                  fontSize: "0.68rem",
+                                }}
+                              >
+                                {latestDraw.draw_date}
+                              </Typography>
+                            </Box>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontFamily: "monospace",
+                                fontWeight: 900,
+                                color: "#0B3C5D",
+                              }}
+                            >
+                              {latestDraw.first?.ticket || "Published"}
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              bgcolor: "#FFFFFF",
+                              p: 1.5,
+                              borderRadius: "10px",
+                              border: "1.5px solid #F59E0B",
+                              boxShadow: "0 2px 8px rgba(245, 158, 11, 0.1)",
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mb: 0.5,
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#B45309",
+                                  fontWeight: 900,
+                                  fontSize: "0.7rem",
+                                }}
+                              >
+                                🗓️ ANNOUNCED DRAW DATE
+                              </Typography>
+                              <Chip
+                                label={isDrawToday ? "DRAWS TODAY" : "UPCOMING"}
+                                size="small"
+                                sx={{
+                                  bgcolor: isDrawToday ? "#DC2626" : "#D97706",
+                                  color: "#FFFFFF",
+                                  fontWeight: 900,
+                                  fontSize: "0.65rem",
+                                  height: 20,
+                                  borderRadius: "6px",
+                                }}
+                              />
+                            </Box>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: "#78350F",
+                                fontWeight: 900,
+                                fontSize: "0.875rem",
+                              }}
+                            >
+                              {bumper.draw_date} • {bumper.drawTime || "2:00 PM"}
+                            </Typography>
+                            {bumper.ticket_price && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#92400E",
+                                  fontWeight: 700,
+                                  fontSize: "0.725rem",
+                                  display: "block",
+                                  mt: 0.25,
+                                }}
+                              >
+                                Ticket: {bumper.ticket_price}
+                              </Typography>
+                            )}
+                          </Box>
+                        )
+                      ) : latestDraw ? (
                         <Box
                           sx={{
                             bgcolor: "#FFFFFF",
