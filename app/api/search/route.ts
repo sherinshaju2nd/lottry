@@ -10,21 +10,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Search query required" }, { status: 400 });
   }
 
-  // Auto-sync if Supabase has no draw results yet
+  // Auto-sync only if Supabase has no draw results recorded at all
   const currentDraws = await fetchAllDrawResultsFromSupabase();
   if (currentDraws.length === 0) {
     await fetchAndSyncLatestLottery();
   }
 
-  let results = await searchTicketsInSupabase(q);
-
-  // If no results found, trigger live sync and search once more
-  if (results.length === 0) {
-    const syncRes = await fetchAndSyncLatestLottery();
-    if (syncRes.success) {
-      results = await searchTicketsInSupabase(q);
-    }
-  }
+  const results = await searchTicketsInSupabase(q);
 
   return NextResponse.json({
     success: true,

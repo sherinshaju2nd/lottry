@@ -491,36 +491,39 @@ export interface PrizeMatchResult {
 }
 
 export function validateTicketMatch(
-  queryInput: string,
-  prizeNumberStr: string
-): PrizeMatchResult {
-  const rawQuery = queryInput.trim().toUpperCase();
-  const rawPrize = prizeNumberStr.trim().toUpperCase();
-
+  rawQuery: string,
+  rawPrize: string,
+): { isMatch: boolean; exactSeriesMatch: boolean; seriesNote?: string } {
   const queryDigits = rawQuery.replace(/\D/g, "");
-  const querySeries = rawQuery.replace(/[^A-Z]/gi, "").trim();
+  const querySeries = rawQuery.replace(/[^A-Z]/gi, "").trim().toUpperCase();
 
   const prizeDigits = rawPrize.replace(/\D/g, "");
-  const prizeSeries = rawPrize.replace(/[^A-Z]/gi, "").trim();
+  const prizeSeries = rawPrize.replace(/[^A-Z]/gi, "").trim().toUpperCase();
 
   if (!queryDigits || !prizeDigits || queryDigits.length < 4) {
     return { isMatch: false, exactSeriesMatch: false };
   }
 
-  // 1. Check Digits Match
+  // 1. Check Digits Match (Strict Kerala Lottery Rules)
   let digitsMatch = false;
 
-  if (queryDigits === prizeDigits) {
-    digitsMatch = true;
-  } else if (queryDigits.length === 6 && prizeDigits.length < 6 && prizeDigits.length >= 2) {
-    // User typed 6-digit ticket (e.g. 120417), prize is last 4/3/2 digits (e.g. 0417)
-    digitsMatch = queryDigits.endsWith(prizeDigits);
-  } else if (queryDigits.length < 6 && prizeDigits.length === 6 && queryDigits.length >= 4) {
-    // User typed last 4 or 5 digits (e.g. 3322 or 63322), prize is 6-digit (e.g. 263322)
-    digitsMatch = prizeDigits.endsWith(queryDigits);
-  } else if (queryDigits.length < 6 && prizeDigits.length < 6 && queryDigits.length >= 4 && prizeDigits.length >= 4) {
-    // Both are partial (e.g. 4-digit vs 4-digit)
-    digitsMatch = queryDigits.endsWith(prizeDigits) || prizeDigits.endsWith(queryDigits);
+  if (prizeDigits.length === 6) {
+    // 6-digit prize (1st, 2nd, 3rd, Consolation) STRICTLY requires full 6-digit ticket from user
+    if (queryDigits.length === 6 && queryDigits === prizeDigits) {
+      digitsMatch = true;
+    } else {
+      return { isMatch: false, exactSeriesMatch: false };
+    }
+  } else {
+    // 4-digit or partial prize (4th to 9th Prize)
+    if (queryDigits === prizeDigits) {
+      digitsMatch = true;
+    } else if (queryDigits.length >= prizeDigits.length) {
+      // User entered 6-digit ticket or 5-digit number matching the last 4 digits
+      digitsMatch = queryDigits.endsWith(prizeDigits);
+    } else {
+      return { isMatch: false, exactSeriesMatch: false };
+    }
   }
 
   if (!digitsMatch) {
@@ -537,7 +540,7 @@ export function validateTicketMatch(
         return { isMatch: false, exactSeriesMatch: false };
       }
     } else {
-      // User entered no series (e.g. 263322). Digits match, but series requirement exists
+      // User entered 6 digits without series. Digits match, but series requirement exists
       return {
         isMatch: true,
         exactSeriesMatch: false,
@@ -563,20 +566,44 @@ export async function searchTicketsInSupabase(queryTicket: string) {
     series_note?: string;
   }> = [];
 
+  const rawQuery = queryTicket.trim().toUpperCase();
+  const queryDigits = rawQuery.replace(/\D/g, "");
+  const querySeries = rawQuery.replace(/[^A-Z]/gi, "").trim();
+
   for (const draw of allResults) {
     if (draw.first?.ticket) {
-      const matchRes = validateTicketMatch(queryTicket, draw.first.ticket);
-      if (matchRes.isMatch) {
-        matches.push({
-          draw_date: draw.draw_date,
-          draw_name: draw.draw_name,
-          draw_code: draw.draw_code,
-          lottery_code: draw.lottery_code,
-          prize_tier: "1st Prize Winner",
-          prize_amount: draw.prizes.amounts?.["1st"] || "1,00,00,000/-",
-          ticket_matched: draw.first.ticket,
-          series_note: matchRes.seriesNote,
-        });
+      const firstRaw = draw.first.ticket.toUpperCase();
+      const firstDigits = firstRaw.replace(/\D/g, "");
+      const firstSeries = firstRaw.replace(/[^A-Z]/gi, "").trim();
+
+      if (queryDigits.length === 6 && queryDigits === firstDigits) {
+        if (querySeries && firstSeries && querySeries !== firstSeries) {
+          // Exact 6 digits match 1st prize but different series => Consolation Prize!
+          matches.push({
+            draw_date: draw.draw_date,
+            draw_name: draw.draw_name,
+            draw_code: draw.draw_code,
+            lottery_code: draw.lottery_code,
+            prize_tier: "Consolation Prize",
+            prize_amount: draw.prizes?.amounts?.["consolation"] || "₹8,000/-",
+            ticket_matched: `${querySeries} ${queryDigits}`,
+            series_note: `Consolation prize for matching 1st prize digits with series '${querySeries}' (1st prize was '${firstSeries} ${firstDigits}')`,
+          });
+        } else {
+          const matchRes = validateTicketMatch(queryTicket, draw.first.ticket);
+          if (matchRes.isMatch) {
+            matches.push({
+              draw_date: draw.draw_date,
+              draw_name: draw.draw_name,
+              draw_code: draw.draw_code,
+              lottery_code: draw.lottery_code,
+              prize_tier: "1st Prize Winner",
+              prize_amount: draw.prizes.amounts?.["1st"] || "1,00,00,000/-",
+              ticket_matched: draw.first.ticket,
+              series_note: matchRes.seriesNote,
+            });
+          }
+        }
       }
     }
 

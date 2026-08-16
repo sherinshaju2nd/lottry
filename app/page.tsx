@@ -146,9 +146,12 @@ export default function HomePage() {
           timeZone: "Asia/Kolkata",
           hour12: false,
         });
-        const [hStr] = timeStr.split(":");
+        const [hStr, mStr] = timeStr.split(":");
         const hours = parseInt(hStr, 10);
-        setIsAfter3PM(hours >= 15);
+        const minutes = parseInt(mStr, 10);
+        const totalMinutes = hours * 60 + minutes;
+        const targetDrawMinutes = isTodayBumper ? 14 * 60 : 15 * 60;
+        setIsAfter3PM(totalMinutes >= targetDrawMinutes);
       } catch {
         setIsAfter3PM(false);
       }
