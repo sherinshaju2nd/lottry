@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import InitialLoader from "@/components/InitialLoader";
 import ConsentModal from "@/components/ConsentModal";
+import ScrollRestorer from "@/components/ScrollRestorer";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -215,6 +216,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <MuiProvider>
+          <ScrollRestorer />
           <InitialLoader />
           <ConsentModal />
           <div
