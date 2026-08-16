@@ -1,4 +1,4 @@
-import { saveDrawResultToSupabase, StructuredDrawResult, WEEKLY_LOTTERIES } from "./supabase";
+import { saveDrawResultToSupabase, StructuredDrawResult, ALL_LOTTERIES } from "./supabase";
 
 export async function fetchAndSyncLatestLottery(): Promise<{
   success: boolean;
@@ -35,21 +35,25 @@ export async function fetchAndSyncLatestLottery(): Promise<{
       };
     }
 
-    let lottery_code = json.draw_code.split("-")[0].toUpperCase();
+    const rawDrawCode = String(json.draw_code).trim().toUpperCase();
+    const codeMatch = rawDrawCode.match(/^([A-Z]{2,3})/);
+    let lottery_code = codeMatch ? codeMatch[1] : rawDrawCode.split("-")[0];
     let draw_name = json.draw_name || "Kerala Lottery";
 
-    // Try to match by code first, then fallback to name
-    let matched = WEEKLY_LOTTERIES.find((l) => l.code === lottery_code);
+    // Try to match by code first, then fallback to name against ALL lotteries (Weekly + Bumper)
+    let matched = ALL_LOTTERIES.find((l) => l.code === lottery_code);
     if (!matched) {
-      matched = WEEKLY_LOTTERIES.find(
-        (l) => l.name.toLowerCase() === draw_name.toLowerCase()
-      );
+      const cleanDrawName = draw_name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      matched = ALL_LOTTERIES.find((l) => {
+        const cleanName = l.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+        return cleanName === cleanDrawName || cleanDrawName.includes(cleanName) || cleanName.includes(cleanDrawName);
+      });
     }
 
     if (!matched) {
       return {
         success: false,
-        error: `Lottery code ${lottery_code} or name "${draw_name}" is not a weekly lottery in our list`,
+        error: `Lottery code ${lottery_code} or name "${draw_name}" is not a recognized Kerala lottery in our list`,
       };
     }
 

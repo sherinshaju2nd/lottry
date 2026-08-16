@@ -8,6 +8,7 @@ import {
 } from "@/lib/supabase";
 import { fetchAndSyncLatestLottery } from "@/lib/lottery-sync";
 import { logCronExecutionInSupabase, checkIsDatePostponed } from "@/lib/supabase";
+import { isAuthorizedAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAuthorizedAdmin(req)) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized: Admin session required" },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await req.json();
     const action = body.action || "update_config";

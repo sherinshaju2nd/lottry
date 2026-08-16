@@ -79,15 +79,20 @@ export async function GET(
     doc.fillColor(primaryColor).fontSize(16).font("Helvetica-Bold").text("PRIZE DRAW DETAILS", 40, doc.y);
     doc.moveDown(0.5);
 
-    // Render other prizes dynamically
-    const prizes = (result.prizes || {}) as Record<string, string[]>;
-    for (const [tier, numbers] of Object.entries(prizes)) {
+    // Render other prizes in official chronological tier order
+    const tierOrder = ["consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"] as const;
+    const amounts = (result.prizes?.amounts || {}) as Record<string, string>;
+
+    for (const tier of tierOrder) {
+      const numbers = (result.prizes as any)?.[tier] as string[] | undefined;
       if (Array.isArray(numbers) && numbers.length > 0) {
         // Prevent drawing text off-page
         if (doc.y > 670) {
           doc.addPage();
         }
-        doc.fillColor(primaryColor).fontSize(13).font("Helvetica-Bold").text(`${tier} Prize:`, 40, doc.y);
+        const label = tier === "consolation" ? "Consolation Prize" : `${tier} Prize`;
+        const amountStr = amounts[tier] ? ` (${amounts[tier]})` : "";
+        doc.fillColor(primaryColor).fontSize(13).font("Helvetica-Bold").text(`${label}${amountStr}:`, 40, doc.y);
         doc.moveDown(0.3);
         doc.fillColor(darkText).fontSize(11).font("Helvetica").text(numbers.join(", "), 40, doc.y, { width: 515 });
         doc.moveDown(1.0);

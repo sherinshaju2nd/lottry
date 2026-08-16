@@ -4,6 +4,7 @@ import {
   savePostponedDraw,
   deletePostponedDraw,
 } from "@/lib/supabase";
+import { isAuthorizedAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAuthorizedAdmin(req)) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized: Admin session required" },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await req.json();
     if (!body.draw_date || !body.reason) {
@@ -55,6 +63,13 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!isAuthorizedAdmin(req)) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized: Admin session required" },
+      { status: 401 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const idParam = searchParams.get("id");
