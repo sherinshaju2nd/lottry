@@ -34,7 +34,12 @@ import HistoryIcon from "@mui/icons-material/History";
 import StyleIcon from "@mui/icons-material/Style";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "next/link";
-import { ALL_LOTTERIES, StructuredDrawResult, getLotteryUrl } from "@/lib/supabase";
+import {
+  ALL_LOTTERIES,
+  StructuredDrawResult,
+  getLotteryUrl,
+  formatTicketSearchInput,
+} from "@/lib/supabase";
 import ModernDatePicker from "@/components/ModernDatePicker";
 import SavedWatchlistDrawer from "@/components/SavedWatchlistDrawer";
 import ShareButtons from "@/components/ShareButtons";
@@ -519,9 +524,14 @@ export default function AdvancedSearchPage() {
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 5 }}>
                 <TextField
-                  {...register("ticketNumber")}
+                  {...register("ticketNumber", {
+                    onChange: (e) => {
+                      const formatted = formatTicketSearchInput(e.target.value);
+                      setValue("ticketNumber", formatted, { shouldValidate: true });
+                    },
+                  })}
                   label="Ticket Number"
-                  placeholder="e.g. BT 236935 or 6935"
+                  placeholder="e.g. MJ 136429, 136429, or 6429"
                   fullWidth
                   error={!!errors.ticketNumber}
                   helperText={errors.ticketNumber?.message}

@@ -41,14 +41,19 @@ import {
   PostponedDraw,
   getLotteryUrl,
   supabase,
+  formatTicketSearchInput,
 } from "@/lib/supabase";
 import ShareButtons from "@/components/ShareButtons";
 
 const searchSchema = yup.object({
   ticketNumber: yup
     .string()
-    .required("Please enter a ticket number")
-    .min(1, "Please enter a ticket number"),
+    .required("Please enter a ticket number or last 4 digits")
+    .test(
+      "min-digits",
+      "Please enter at least 4 digits (e.g. 6429, 136429, or MJ 136429)",
+      (val) => Boolean(val && val.replace(/\D/g, "").length >= 4),
+    ),
 });
 
 type SearchFormData = yup.InferType<typeof searchSchema>;
@@ -113,6 +118,7 @@ export default function HomePage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<SearchFormData>({
     resolver: yupResolver(searchSchema),
@@ -1084,11 +1090,16 @@ export default function HomePage() {
                         <ConfirmationNumberIcon fontSize="small" />
                       </Box>
                       <TextField
-                        {...register("ticketNumber")}
+                        {...register("ticketNumber", {
+                          onChange: (e) => {
+                            const formatted = formatTicketSearchInput(e.target.value);
+                            setValue("ticketNumber", formatted, { shouldValidate: true });
+                          },
+                        })}
                         disabled={!hasTodayResult || isSearching}
                         placeholder={
                           hasTodayResult
-                            ? `Enter 6-digit ticket for ${todayLottery.name} (${todayLottery.code})...`
+                            ? `Enter ticket e.g. MJ 136429, 136429, or 6429 for ${todayLottery.name}...`
                             : `Ticket checker activates at 3:10 PM once results are published`
                         }
                         variant="standard"
@@ -1663,9 +1674,14 @@ export default function HomePage() {
                         <ConfirmationNumberIcon fontSize="small" />
                       </Box>
                       <TextField
-                        {...register("ticketNumber")}
+                        {...register("ticketNumber", {
+                          onChange: (e) => {
+                            const formatted = formatTicketSearchInput(e.target.value);
+                            setValue("ticketNumber", formatted, { shouldValidate: true });
+                          },
+                        })}
                         disabled={isSearching}
-                        placeholder={`Enter 6-digit ticket for ${latestPreviousDraw?.draw_name || "Previous Draw"} (${latestPreviousDraw?.draw_code || ""})...`}
+                        placeholder={`Enter ticket e.g. MJ 136429, 136429, or 6429 for ${latestPreviousDraw?.draw_name || "Previous Draw"}...`}
                         variant="standard"
                         fullWidth
                         slotProps={{ input: { disableUnderline: true } }}

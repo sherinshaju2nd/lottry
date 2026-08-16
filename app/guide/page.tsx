@@ -40,6 +40,7 @@ export default function GuidePage() {
           .order("id", { ascending: true });
         if (!error && data && data.length > 0) {
           const mapped = data
+            .filter((d: any) => !d.is_bumper && !d.day?.toLowerCase().startsWith("bumper"))
             .map((d: any) => ({
               day: d.day,
               name: d.name,

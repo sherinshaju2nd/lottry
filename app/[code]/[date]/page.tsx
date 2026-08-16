@@ -41,6 +41,7 @@ import {
   getLotteryCodeFromSlug,
   getLotterySlug,
   getLotteryUrl,
+  formatTicketSearchInput,
 } from "@/lib/supabase";
 
 interface SingleCheckerMatch {
@@ -753,9 +754,9 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
                     <TextField
                       fullWidth
                       size="small"
-                      placeholder="Enter ticket number (e.g. AB 123456 or last 4 digits 3456)..."
+                      placeholder="Enter ticket e.g. MJ 136429, 136429, or 6429..."
                       value={checkerTicketInput}
-                      onChange={(e) => setCheckerTicketInput(e.target.value)}
+                      onChange={(e) => setCheckerTicketInput(formatTicketSearchInput(e.target.value))}
                       slotProps={{
                         input: {
                           sx: {
