@@ -356,6 +356,22 @@ export default function HomePage() {
           checkTodayPostponement();
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "postponed_draws" },
+        () => {
+          checkTodayPostponement();
+          checkTodayData();
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "lotteries" },
+        () => {
+          loadLotteriesFromDb();
+          checkTodayData();
+        },
+      )
       .subscribe();
 
     return () => {

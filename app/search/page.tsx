@@ -1022,12 +1022,23 @@ export default function AdvancedSearchPage() {
             ))
           ) : (
             <Alert
-              severity="info"
-              sx={{ borderRadius: "12px", border: "1px solid #B3E5FC" }}
+              severity={selectedDate && selectedDate >= new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }) ? "warning" : "info"}
+              sx={{ borderRadius: "12px", border: "1px solid" }}
             >
-              No winning tickets matched your search query &quot;
-              {searchedTicket}&quot;. Try selecting &quot;All Lotteries&quot; or
-              searching with fewer digits (e.g. 4-digit last numbers).
+              {selectedDate === new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }) ? (
+                <span>
+                  <strong>Draw for Today ({selectedDate}) in Progress:</strong> Results are drawn at 3:00 PM and published at 3:10 PM. If today&apos;s draw is not finished yet, please check back shortly!
+                </span>
+              ) : selectedDate && selectedDate > new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }) ? (
+                <span>
+                  <strong>Upcoming Draw:</strong> The draw date selected ({selectedDate}) is in the future. Winning numbers have not been drawn yet.
+                </span>
+              ) : (
+                <span>
+                  No winning tickets matched your search query &quot;
+                  {searchedTicket}&quot;. Try selecting &quot;All Lotteries&quot;, clearing the date filter, or searching with fewer digits (e.g. 4-digit last numbers).
+                </span>
+              )}
             </Alert>
           )}
         </Box>

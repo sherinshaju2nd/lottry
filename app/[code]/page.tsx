@@ -33,6 +33,7 @@ import LotteryCardSkeleton from "@/components/skeletons/LotteryCardSkeleton";
 import {
   ALL_LOTTERIES,
   StructuredDrawResult,
+  supabase,
   getLotteryCodeFromSlug,
   getLotterySlug,
   getLotteryUrl,
@@ -55,8 +56,13 @@ export default function LotteryDetailsPage({ params }: PageProps) {
     day: "Scheduled Draw",
   };
 
+  const todayISTDate = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata",
+  });
+
   const [drawHistory, setDrawHistory] = useState<StructuredDrawResult[]>([]);
   const [filteredDraws, setFilteredDraws] = useState<StructuredDrawResult[]>([]);
+  const [lotteryDbMeta, setLotteryDbMeta] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
@@ -68,11 +74,21 @@ export default function LotteryDetailsPage({ params }: PageProps) {
     async function loadHistory() {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/draws?code=${lotteryCode}&type=history`);
+        const [res, lotRes] = await Promise.all([
+          fetch(`/api/draws?code=${lotteryCode}&type=history`),
+          supabase
+            .from("lotteries")
+            .select("*")
+            .eq("code", lotteryCode)
+            .maybeSingle(),
+        ]);
         const json = await res.json();
         const results: StructuredDrawResult[] = json.results || [];
         setDrawHistory(results);
         setFilteredDraws(results);
+        if (lotRes.data) {
+          setLotteryDbMeta(lotRes.data);
+        }
       } catch {
         setDrawHistory([]);
         setFilteredDraws([]);
@@ -232,6 +248,63 @@ export default function LotteryDetailsPage({ params }: PageProps) {
             </ToggleButtonGroup>
           </Box>
         </Box>
+
+        {/* Upcoming Announced Draw Banner */}
+        {lotteryDbMeta?.draw_date && lotteryDbMeta.draw_date >= todayISTDate && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 2.5, sm: 3 },
+              mb: 4,
+              borderRadius: "16px",
+              border: "2px solid #F59E0B",
+              bgcolor: "#FFFDF0",
+              boxShadow: "0 4px 20px rgba(245, 158, 11, 0.15)",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Chip
+                label={lotteryDbMeta.draw_date === todayISTDate ? "👑 DRAWS TODAY" : `👑 DRAW ANNOUNCED: ${lotteryDbMeta.draw_date}`}
+                size="small"
+                sx={{
+                  bgcolor: "#FEF3C7",
+                  color: "#92400E",
+                  fontWeight: 900,
+                  fontSize: "0.75rem",
+                  mb: 1,
+                  border: "1px solid #F59E0B",
+                }}
+              />
+              <Typography variant="h5" sx={{ fontWeight: 900, color: "#78350F" }}>
+                Next Scheduled Draw: {lotteryDbMeta.draw_date}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#92400E", fontWeight: 600, mt: 0.5 }}>
+                Draw Time: {lotteryDbMeta.draw_time || (lotteryInfo.code.startsWith("Bumper") ? "2:00 PM" : "3:00 PM")} {lotteryDbMeta.jackpot ? `• Jackpot: ${lotteryDbMeta.jackpot}` : ""} {lotteryDbMeta.ticket_price ? `• Ticket: ${lotteryDbMeta.ticket_price}` : ""}
+              </Typography>
+            </Box>
+            <Button
+              component={Link}
+              href={`/${lotterySlug}/${lotteryDbMeta.draw_date}`}
+              variant="contained"
+              sx={{
+                bgcolor: "#D97706",
+                color: "#FFFFFF",
+                fontWeight: 800,
+                borderRadius: "8px",
+                px: 3,
+                py: 1,
+                "&:hover": { bgcolor: "#B45309" },
+              }}
+            >
+              View Draw Details →
+            </Button>
+          </Paper>
+        )}
 
         {/* Filter Bar */}
         <Paper

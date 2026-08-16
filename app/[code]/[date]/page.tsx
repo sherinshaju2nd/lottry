@@ -28,6 +28,7 @@ import ShareButtons from "@/components/ShareButtons";
 import {
   ALL_LOTTERIES,
   StructuredDrawResult,
+  PostponedDraw,
   supabase,
   validateTicketMatch,
   getLotteryCodeFromSlug,
@@ -67,9 +68,14 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     day: "Scheduled Draw",
   };
 
+  const todayISTDate = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata",
+  });
+
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(dateParam);
   const [drawResult, setDrawResult] = useState<StructuredDrawResult | null>(null);
+  const [postponement, setPostponement] = useState<PostponedDraw | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAfter3PM, setIsAfter3PM] = useState(false);
 
@@ -93,8 +99,10 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
         );
         const resultJson = await resultRes.json();
         setDrawResult(resultJson.result || null);
+        setPostponement(resultJson.postponement || null);
       } catch {
         setDrawResult(null);
+        setPostponement(null);
       } finally {
         setIsLoading(false);
       }
@@ -119,8 +127,9 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
 
     loadDatesAndResult();
 
+    const channelName = `realtime-details-${lotteryCode}-${dateParam}-${Date.now()}`;
     const channel = supabase
-      .channel(`realtime-details-${lotteryCode}-${dateParam}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
@@ -134,6 +143,17 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
           if (newRow && newRow.draw_date === dateParam) {
             loadDatesAndResult();
           }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "postponed_draws",
+        },
+        () => {
+          loadDatesAndResult();
         }
       )
       .subscribe();
@@ -443,35 +463,130 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
         {isLoading ? (
           <DrawDetailSkeleton />
         ) : !drawResult ? (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 6,
-              textAlign: "center",
-              borderRadius: "12px",
-              border: "1px solid #E5E7EB",
-              bgcolor: "#FFFFFF",
-              mt: 3,
-            }}
-          >
-            <Typography variant="h6" sx={{ color: "#374151", mb: 1 }}>
-              {isAfter3PM
-                ? "Draw Results Are Being Published..."
-                : "Results Not Yet Published For This Date"}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#6B7280", mb: 3 }}>
-              {isAfter3PM
-                ? "Live lottery drawing is in progress. Check back in a few minutes or click the refresh button below."
-                : `Official results for ${selectedDate} will be updated automatically around 3:00 PM.`}
-            </Typography>
-            <Button
-              variant="outlined"
-              onClick={() => window.location.reload()}
-              sx={{ borderRadius: "8px", textTransform: "none", fontWeight: 700 }}
+          postponement ? (
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, sm: 5 },
+                textAlign: "center",
+                borderRadius: "16px",
+                border: "1.5px solid #FCA5A5",
+                bgcolor: "#FFF1F2",
+                mt: 3,
+                maxWidth: 720,
+                mx: "auto",
+              }}
             >
-              Refresh Results Page
-            </Button>
-          </Paper>
+              <Chip
+                label={`DRAW ${postponement.status.toUpperCase()}`}
+                sx={{
+                  bgcolor: "#FEE2E2",
+                  color: "#991B1B",
+                  fontWeight: 900,
+                  fontSize: "0.8rem",
+                  mb: 2,
+                }}
+              />
+              <Typography variant="h5" sx={{ color: "#991B1B", fontWeight: 900, mb: 1 }}>
+                {postponement.status === "holiday"
+                  ? "Official Kerala Lottery Holiday"
+                  : `Draw Postponed for ${selectedDate}`}
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#881337", fontWeight: 600, mb: 2 }}>
+                📢 Reason: {postponement.reason}
+              </Typography>
+              {postponement.rescheduled_date && (
+                <Box
+                  sx={{
+                    bgcolor: "#FFFFFF",
+                    p: 2,
+                    borderRadius: "10px",
+                    border: "1px solid #FECDD3",
+                    display: "inline-block",
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: "#9F1239", fontWeight: 800 }}>
+                    🗓️ Rescheduled Draw Date: <strong>{postponement.rescheduled_date}</strong>
+                  </Typography>
+                </Box>
+              )}
+            </Paper>
+          ) : selectedDate > todayISTDate ? (
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, sm: 5 },
+                textAlign: "center",
+                borderRadius: "16px",
+                border: "1.5px solid #FCD34D",
+                bgcolor: "#FFFDF0",
+                mt: 3,
+                maxWidth: 720,
+                mx: "auto",
+              }}
+            >
+              <Chip
+                label="👑 UPCOMING SCHEDULED DRAW"
+                sx={{
+                  bgcolor: "#FEF3C7",
+                  color: "#92400E",
+                  fontWeight: 900,
+                  fontSize: "0.8rem",
+                  mb: 2,
+                  border: "1px solid #F59E0B",
+                }}
+              />
+              <Typography variant="h5" sx={{ color: "#78350F", fontWeight: 900, mb: 1 }}>
+                Upcoming Draw Scheduled for {selectedDate}
+              </Typography>
+              <Typography variant="body1" sx={{ color: "#92400E", fontWeight: 600, mb: 3 }}>
+                This {lotteryInfo.name} draw is scheduled to be conducted on {selectedDate} at {(lotteryInfo as any).drawTime || "3:00 PM"}. Official winning numbers will be published here live immediately following the draw.
+              </Typography>
+              <Button
+                component={Link}
+                href={getLotteryUrl(lotterySlug)}
+                variant="outlined"
+                sx={{ borderRadius: "8px", fontWeight: 800, borderColor: "#D97706", color: "#B45309" }}
+              >
+                View Previous {lotteryInfo.name} Archives
+              </Button>
+            </Paper>
+          ) : (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 6,
+                textAlign: "center",
+                borderRadius: "12px",
+                border: "1px solid #E5E7EB",
+                bgcolor: "#FFFFFF",
+                mt: 3,
+              }}
+            >
+              <Typography variant="h6" sx={{ color: "#374151", mb: 1 }}>
+                {selectedDate === todayISTDate
+                  ? isAfter3PM
+                    ? "Draw Results Are Being Published..."
+                    : "Results Coming Soon (3:10 PM)"
+                  : "Results Not Recorded For This Date"}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#6B7280", mb: 3 }}>
+                {selectedDate === todayISTDate
+                  ? isAfter3PM
+                    ? "Live lottery drawing is in progress. Check back in a few minutes or click the refresh button below."
+                    : `Official results for today (${selectedDate}) will be updated automatically around 3:10 PM.`
+                  : `No published lottery draw was recorded for ${selectedDate}. Check other available dates above.`}
+              </Typography>
+              <Button
+                variant="outlined"
+                onClick={() => window.location.reload()}
+                sx={{ borderRadius: "8px", textTransform: "none", fontWeight: 700 }}
+              >
+                Refresh Results Page
+              </Button>
+            </Paper>
+          )
         ) : (
           <>
             {/* 1st Prize Winner Hero Banner */}
