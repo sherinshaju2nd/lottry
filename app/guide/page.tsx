@@ -39,17 +39,19 @@ export default function GuidePage() {
           .select("*")
           .order("id", { ascending: true });
         if (!error && data && data.length > 0) {
-          const mapped = data.map((d: any) => ({
-            day: d.day,
-            name: d.name,
-            nameMl: d.name_ml || d.name,
-            code: d.code,
-            is_bumper: d.is_bumper ?? false,
-          })).sort((a: any, b: any) => {
-            const orderA = DAY_ORDER[a.day.toLowerCase()] || 99;
-            const orderB = DAY_ORDER[b.day.toLowerCase()] || 99;
-            return orderA - orderB;
-          });
+          const mapped = data
+            .map((d: any) => ({
+              day: d.day,
+              name: d.name,
+              nameMl: d.name_ml || d.name,
+              code: d.code,
+              is_bumper: d.is_bumper ?? false,
+            }))
+            .sort((a: any, b: any) => {
+              const orderA = DAY_ORDER[a.day.toLowerCase()] || 99;
+              const orderB = DAY_ORDER[b.day.toLowerCase()] || 99;
+              return orderA - orderB;
+            });
           setLotteriesList(mapped);
         }
       } catch (e) {
@@ -85,7 +87,8 @@ export default function GuidePage() {
             lineHeight: 1.6,
           }}
         >
-          Your comprehensive guide to rules, schedule, prizes, verification tips, and strategies for Kerala State Lotteries.
+          Your comprehensive guide to rules, schedule, prizes, verification
+          tips, and strategies for Kerala State Lotteries.
         </Typography>
       </Box>
 
@@ -116,11 +119,20 @@ export default function GuidePage() {
               <MenuBookIcon /> Understanding Kerala Lotteries
             </Typography>
 
-            <Typography variant="body1" sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}>
-              Established in 1967 by the Finance Department of Kerala, it is India's first and most trusted government-run lottery system. Designed to generate non-tax revenue for state development projects and provide employment to thousands of lottery agents.
+            <Typography
+              variant="body1"
+              sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+            >
+              Established in 1967 by the Finance Department of Kerala, it is
+              India's first and most trusted government-run lottery system.
+              Designed to generate non-tax revenue for state development
+              projects and provide employment to thousands of lottery agents.
             </Typography>
 
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1F2937", mb: 1 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 800, color: "#1F2937", mb: 1 }}
+            >
               Key Rules & Information:
             </Typography>
             <List>
@@ -131,13 +143,19 @@ export default function GuidePage() {
                 "Non-transferable: Tickets cannot be transferred, and the original physical ticket must be produced to claim a prize.",
                 "Result Gazette: The official government Gazette published by the State Lotteries Department is the final authority.",
               ].map((item, index) => (
-                <ListItem key={index} disableGutters sx={{ alignItems: "flex-start", py: 0.75 }}>
+                <ListItem
+                  key={index}
+                  disableGutters
+                  sx={{ alignItems: "flex-start", py: 0.75 }}
+                >
                   <ListItemIcon sx={{ minWidth: 32, mt: 0.25 }}>
                     <CheckCircleIcon sx={{ color: "#0B3C5D", fontSize: 18 }} />
                   </ListItemIcon>
                   <ListItemText
                     primary={item}
-                    slotProps={{ primary: { sx: { fontWeight: 600, color: "#374151" } } }}
+                    slotProps={{
+                      primary: { sx: { fontWeight: 600, color: "#374151" } },
+                    }}
                   />
                 </ListItem>
               ))}
@@ -168,11 +186,17 @@ export default function GuidePage() {
                 gap: 1.5,
               }}
             >
-              <CalendarMonthIcon sx={{ color: "#0B3C5D" }} /> Weekly Lottery Schedule
+              <CalendarMonthIcon sx={{ color: "#0B3C5D" }} /> Weekly Lottery
+              Schedule
             </Typography>
 
-            <Typography variant="body1" sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}>
-              A unique lottery draw takes place every day of the week. Draws are conducted live at Gorky Bhavan in Thiruvananthapuram starting around 3:00 PM.
+            <Typography
+              variant="body1"
+              sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
+            >
+              A unique lottery draw takes place every day of the week. Draws are
+              conducted live at Gorky Bhavan in Thiruvananthapuram starting
+              around 3:00 PM.
             </Typography>
 
             <Grid container spacing={2}>
@@ -189,10 +213,16 @@ export default function GuidePage() {
                       gap: 0.5,
                     }}
                   >
-                    <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 800 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#6B7280", fontWeight: 800 }}
+                    >
                       {item.day}
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: "#111827" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 800, color: "#111827" }}
+                    >
                       {item.name} ({item.code})
                     </Typography>
                   </Box>
@@ -213,7 +243,8 @@ export default function GuidePage() {
                 gap: 1,
               }}
             >
-              <AutoAwesomeIcon sx={{ color: "#0B3C5D", fontSize: 20 }} /> Kerala Bumper Lotteries
+              <AutoAwesomeIcon sx={{ color: "#0B3C5D", fontSize: 20 }} /> Kerala
+              Bumper Lotteries
             </Typography>
 
             <Grid container spacing={2}>
@@ -230,15 +261,30 @@ export default function GuidePage() {
                       gap: 0.5,
                     }}
                   >
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 800 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "#6B7280", fontWeight: 800 }}
+                      >
                         {bumper.draw_season}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 900 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "#0B3C5D", fontWeight: 900 }}
+                      >
                         {bumper.jackpot}
                       </Typography>
                     </Box>
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: "#111827" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 800, color: "#111827" }}
+                    >
                       {bumper.name} ({bumper.code})
                     </Typography>
                   </Box>
@@ -260,11 +306,24 @@ export default function GuidePage() {
           bgcolor: "#F9FAFB",
         }}
       >
-        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#4B5563", mb: 1 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: 800, color: "#4B5563", mb: 1 }}
+        >
           Disclaimer:
         </Typography>
-        <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.6, fontStyle: "italic" }}>
-          Ponkudam App does not represent any government entity. We are not affiliated with any government organization and do not facilitate government services through this app. Our source of information is publicly available data, including official government websites. Users are advised to cross-check all information, including potential winnings, with the official government gazette for confirmation. Please note, this app does not sell lottery tickets and only displays lottery-related data.
+        <Typography
+          variant="body2"
+          sx={{ color: "#6B7280", lineHeight: 1.6, fontStyle: "italic" }}
+        >
+          Kerala Lottery results today does not represent any government entity.
+          We are not affiliated with any government organization and do not
+          facilitate government services through this app. Our source of
+          information is publicly available data, including official government
+          websites. Users are advised to cross-check all information, including
+          potential winnings, with the official government gazette for
+          confirmation. Please note, this app does not sell lottery tickets and
+          only displays lottery-related data.
         </Typography>
       </Paper>
     </Container>
