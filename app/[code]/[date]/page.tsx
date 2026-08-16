@@ -22,6 +22,11 @@ import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import CelebrationIcon from "@mui/icons-material/Celebration";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import CircularProgress from "@mui/material/CircularProgress";
 import confetti from "canvas-confetti";
 import DrawDetailSkeleton from "@/components/skeletons/DrawDetailSkeleton";
 import ShareButtons from "@/components/ShareButtons";
@@ -31,6 +36,8 @@ import {
   PostponedDraw,
   supabase,
   validateTicketMatch,
+  findTopPrizePartialHint,
+  getSearchFeedbackMessage,
   getLotteryCodeFromSlug,
   getLotterySlug,
   getLotteryUrl,
@@ -78,6 +85,18 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
   const [postponement, setPostponement] = useState<PostponedDraw | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAfter3PM, setIsAfter3PM] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const handleCopyTicket = (ticketNum: string) => {
+    if (!ticketNum || ticketNum === "PENDING" || ticketNum === "N/A") return;
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(ticketNum);
+    }
+    setSnackbarMessage(`Ticket ${ticketNum} copied to clipboard!`);
+    setSnackbarOpen(true);
+  };
 
   // Ticket Checker State
   const [checkerTicketInput, setCheckerTicketInput] = useState<string>("");
@@ -211,9 +230,10 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
       setCheckerResult({ isWinner: true, matches: matchesList });
       triggerCelebration();
     } else {
+      const topHint = findTopPrizePartialHint(query, drawResult);
       setCheckerResult({
         isWinner: false,
-        message: `Ticket "${query}" did not win a prize in the ${dateParam} draw.`,
+        message: getSearchFeedbackMessage(query, dateParam, topHint),
       });
     }
 
@@ -305,9 +325,10 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
       });
       triggerCelebration();
     } else {
+      const topHint = findTopPrizePartialHint(queryInput, drawResult);
       setCheckerResult({
         isWinner: false,
-        message: `Ticket "${checkerTicketInput}" did not win a prize in the ${selectedDate} draw.`,
+        message: getSearchFeedbackMessage(queryInput, selectedDate, topHint),
       });
     }
   };
@@ -322,6 +343,8 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
     { key: "7th", label: "7th Prize", dotBg: "#0B3C5D" },
     { key: "8th", label: "8th Prize", dotBg: "#475569" },
     { key: "9th", label: "9th Prize", dotBg: "#64748B" },
+    { key: "guess", label: "Guessing Numbers (ഭാഗ്യ സംഖ്യകൾ)", dotBg: "#8B5CF6" },
+    { key: "mc", label: "Machine Center (MC) Numbers", dotBg: "#EC4899" },
   ] as const;
 
   return (
@@ -624,20 +647,36 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
                   >
                     Guaranteed 1st Prize Amount: {drawResult.prizes?.amounts?.["1st"] || "₹70,00,000/-"}
                   </Typography>
-                  <Typography
-                    variant="h2"
-                    sx={{
-                      fontFamily: "monospace",
-                      fontWeight: 900,
-                      color: "#FFC107",
-                      letterSpacing: "0.08em",
-                      fontSize: { xs: "2.2rem", sm: "3.2rem", md: "3.8rem" },
-                      lineHeight: 1.1,
-                      mb: 2,
-                    }}
-                  >
-                    {drawResult.first?.ticket || "PENDING"}
-                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
+                    <Typography
+                      variant="h2"
+                      sx={{
+                        fontFamily: "monospace",
+                        fontWeight: 900,
+                        color: "#FFC107",
+                        letterSpacing: "0.08em",
+                        fontSize: { xs: "2.2rem", sm: "3.2rem", md: "3.8rem" },
+                        lineHeight: 1.1,
+                      }}
+                    >
+                      {drawResult.first?.ticket || "PENDING"}
+                    </Typography>
+                    {drawResult.first?.ticket && (
+                      <Tooltip title="Copy Winning Ticket Number">
+                        <IconButton
+                          onClick={() => handleCopyTicket(drawResult.first?.ticket || "")}
+                          sx={{
+                            color: "#FFC107",
+                            bgcolor: "rgba(255, 193, 7, 0.15)",
+                            "&:hover": { bgcolor: "rgba(255, 193, 7, 0.3)" },
+                          }}
+                          size="small"
+                        >
+                          <ContentCopyIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
 
                   <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
                     <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.9)" }}>

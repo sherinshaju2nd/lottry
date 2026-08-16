@@ -1033,10 +1033,13 @@ export default function AdvancedSearchPage() {
                 <span>
                   <strong>Upcoming Draw:</strong> The draw date selected ({selectedDate}) is in the future. Winning numbers have not been drawn yet.
                 </span>
+              ) : searchedTicket.replace(/\D/g, "").length >= 4 && searchedTicket.replace(/\D/g, "").length < 6 ? (
+                <span>
+                  No winning tickets matched 4-digit search &quot;{searchedTicket}&quot; (which checks 4th to 9th Prize tiers). <strong>Note:</strong> 1st Prize, 2nd Prize, 3rd Prize, and Consolation prizes strictly require entering your <strong>full 6-digit ticket number with series</strong> (e.g. MJ 136429).
+                </span>
               ) : (
                 <span>
-                  No winning tickets matched your search query &quot;
-                  {searchedTicket}&quot;. Try selecting &quot;All Lotteries&quot;, clearing the date filter, or searching with fewer digits (e.g. 4-digit last numbers).
+                  No winning tickets matched your search query &quot;{searchedTicket}&quot;. Try selecting &quot;All Lotteries&quot;, clearing the date filter, or checking another draw date.
                 </span>
               )}
             </Alert>

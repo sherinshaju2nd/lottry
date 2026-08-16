@@ -80,7 +80,7 @@ export async function GET(
     doc.moveDown(0.5);
 
     // Render other prizes in official chronological tier order
-    const tierOrder = ["consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"] as const;
+    const tierOrder = ["consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "guess", "mc"] as const;
     const amounts = (result.prizes?.amounts || {}) as Record<string, string>;
 
     for (const tier of tierOrder) {
@@ -90,7 +90,13 @@ export async function GET(
         if (doc.y > 670) {
           doc.addPage();
         }
-        const label = tier === "consolation" ? "Consolation Prize" : `${tier} Prize`;
+        const label = tier === "consolation"
+          ? "Consolation Prize"
+          : tier === "guess"
+          ? "Guessing Numbers"
+          : tier === "mc"
+          ? "Machine Center (MC) Numbers"
+          : `${tier} Prize`;
         const amountStr = amounts[tier] ? ` (${amounts[tier]})` : "";
         doc.fillColor(primaryColor).fontSize(13).font("Helvetica-Bold").text(`${label}${amountStr}:`, 40, doc.y);
         doc.moveDown(0.3);

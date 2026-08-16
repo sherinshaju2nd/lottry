@@ -553,6 +553,76 @@ export function validateTicketMatch(
   return { isMatch: true, exactSeriesMatch: true };
 }
 
+export interface TopPrizeHint {
+  tier: string;
+  ticket: string;
+  amount?: string;
+}
+
+/**
+ * Checks if a 4- or 5-digit search matches the trailing digits of top 6-digit prizes
+ * (1st, 2nd, 3rd, Consolation), so we can guide the user to enter all 6 digits.
+ */
+export function findTopPrizePartialHint(
+  rawQuery: string,
+  draw: { first?: { ticket?: string }; prizes?: any }
+): TopPrizeHint | null {
+  const queryDigits = rawQuery.replace(/\D/g, "");
+  if (!queryDigits || queryDigits.length < 4 || queryDigits.length >= 6) {
+    return null;
+  }
+
+  // 1. Check 1st Prize
+  if (draw.first?.ticket) {
+    const firstDigits = draw.first.ticket.replace(/\D/g, "");
+    if (firstDigits.length === 6 && firstDigits.endsWith(queryDigits)) {
+      return {
+        tier: "1st Prize",
+        ticket: draw.first.ticket,
+        amount: draw.prizes?.amounts?.["1st"] || "₹70,00,000/-",
+      };
+    }
+  }
+
+  // 2. Check 2nd, 3rd, and Consolation
+  const topTiers = ["2nd", "3rd", "consolation"] as const;
+  for (const tier of topTiers) {
+    const nums = draw.prizes?.[tier] || [];
+    const amount = draw.prizes?.amounts?.[tier];
+    for (const num of nums) {
+      const numDigits = String(num).replace(/\D/g, "");
+      if (numDigits.length === 6 && numDigits.endsWith(queryDigits)) {
+        return {
+          tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+          ticket: String(num),
+          amount,
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+export function getSearchFeedbackMessage(
+  queryInput: string,
+  drawDate?: string,
+  topHint?: TopPrizeHint | null
+): string {
+  const queryDigits = queryInput.replace(/\D/g, "");
+  const dateStr = drawDate ? ` for ${drawDate}` : "";
+
+  if (topHint) {
+    return `Note: 4-digit search "${queryInput}" matches the ending digits of ${topHint.tier} (${topHint.ticket}${topHint.amount ? ` • ${topHint.amount}` : ""}). To verify if your ticket won, please enter your full 6-digit ticket with series (e.g. ${topHint.ticket}). 4-digit queries only win prizes starting from 4th Prize.`;
+  }
+
+  if (queryDigits.length >= 4 && queryDigits.length < 6) {
+    return `Ticket "${queryInput}" did not match any prize starting from 4th to 9th Prize${dateStr}. To check 1st, 2nd, 3rd, or Consolation prizes, please enter your full 6-digit ticket number.`;
+  }
+
+  return `Ticket "${queryInput}" did not win any prize in the lottery${dateStr}.`;
+}
+
 export async function searchTicketsInSupabase(queryTicket: string) {
   const allResults = await fetchAllDrawResultsFromSupabase();
   const matches: Array<{
