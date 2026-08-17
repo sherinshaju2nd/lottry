@@ -35,6 +35,7 @@ import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import PaidIcon from "@mui/icons-material/Paid";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import HelpIcon from "@mui/icons-material/Help";
+import PhoneIcon from "@mui/icons-material/Phone";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import {
   WEEKLY_LOTTERIES,
@@ -360,6 +361,21 @@ export default function Navbar() {
 
             <Button
               component={Link}
+              href="/contact"
+              startIcon={<PhoneIcon />}
+              sx={{
+                color: pathname === "/contact" ? "#0B3C5D" : "#374151",
+                fontWeight: pathname === "/contact" ? 800 : 600,
+                borderRadius: "8px",
+                px: 2,
+                bgcolor: pathname === "/contact" ? "#EBF5FF" : "transparent",
+              }}
+            >
+              Contact
+            </Button>
+
+            <Button
+              component={Link}
               href="/search"
               startIcon={<SearchIcon />}
               sx={{
@@ -663,6 +679,27 @@ export default function Navbar() {
                     <HelpIcon />
                   </ListItemIcon>
                   <ListItemText primary="FAQ" slotProps={{ primary: { sx: { fontWeight: pathname === "/faq" ? 800 : 600 } } }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Contact */}
+              <ListItem disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  component={Link}
+                  href="/contact"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    bgcolor: pathname === "/contact" ? "#EBF5FF" : "transparent",
+                    color: pathname === "/contact" ? "#0B3C5D" : "#374151",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: pathname === "/contact" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
+                    <PhoneIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Contact Us" slotProps={{ primary: { sx: { fontWeight: pathname === "/contact" ? 800 : 600 } } }} />
                 </ListItemButton>
               </ListItem>
 

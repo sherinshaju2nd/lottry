@@ -179,6 +179,19 @@ export default function Footer() {
           >
             Privacy Policy
           </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
+            href="/contact"
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            Contact Us
+          </Typography>
         </Box>
 
         {/* 2. Weekly Lotteries Direct Links */}
