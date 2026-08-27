@@ -1,0 +1,185 @@
+# Kerala Lottery Results Today (Frontend)
+
+> A modern, high-performance web platform for live and archived Kerala State Lottery results, prize breakdowns, ticket validation, OCR/QR scanning, PDF result generation, and search functionality.
+
+## Project Overview
+- **Domain**: https://www.keralalotteryresultstoday.in
+- **Framework**: Next.js 16 (App Router) + React 19 + TypeScript 5
+- **Styling**: Tailwind CSS v4 + Material UI (MUI v9) + Emotion
+- **Backend / Database**: Supabase (PostgreSQL + Realtime) & Local fallback cache
+- **Key Modules**: Ticket OCR/QR Scanner (Tesseract.js & html5-qrcode), PDF Generator (pdfkit), Realtime Draw Countdown, Live Search, Claim Assistant, Admin Portal.
+
+---
+
+## Tech Stack & Dependencies
+
+### Core Framework & Runtime
+- **Next.js 16.3.0**: App Router architecture (`app/` directory), server & client components, dynamic routing, metadata generation, and API routes.
+- **React 19.2.8 & React-DOM 19.2.8**: Latest React primitives, concurrent features, and server actions.
+- **TypeScript 5.x**: Full strict typing across data models, components, and API handlers.
+
+### UI & Styling
+- **Tailwind CSS v4 (`@tailwindcss/postcss`)**: Utility-first responsive design, modern CSS tokens.
+- **Material UI v9 (`@mui/material`, `@mui/icons-material`, `@emotion/react`, `@emotion/styled`)**: Accessible UI controls, date pickers, dialogs, drawers, and iconography.
+- **Canvas Confetti (`canvas-confetti`)**: Interactive celebration animations for winning ticket matches.
+
+### Data Layer & Storage
+- **Supabase (`@supabase/supabase-js`)**: Remote database queries, structured lottery draws storage, real-time subscriptions, and remote sync.
+- **Local Storage (`lib/ticket-storage.ts`)**: Client-side ticket watchlist persistence, saved numbers, and offline preferences.
+
+### Forms & Validation
+- **React Hook Form (`react-hook-form`)**: Controlled/uncontrolled form state handling.
+- **Yup (`yup`) & Resolvers (`@hookform/resolvers`)**: Schema-based form validation.
+
+### Utilities & Processing
+- **OCR Engine (`tesseract.js`)**: Optical Character Recognition for reading physical lottery ticket numbers directly from camera/images.
+- **QR / Barcode Scanner (`html5-qrcode`)**: High-speed camera barcode and QR decoding for ticket validation.
+- **PDF Kit (`pdfkit`)**: Dynamic server-side and client-side PDF lottery result sheet generation.
+
+---
+
+## Project Structure
+
+```
+frontend/
+├── app/                              # Next.js App Router root
+│   ├── layout.tsx                    # Global root layout (MUI Provider, Navbar, Footer, SEO metadata)
+│   ├── page.tsx                      # Homepage (Live results, countdown, prize tables, search, scanner)
+│   ├── loading.tsx                   # Top-level fallback loading skeleton
+│   ├── error.tsx                     # Global error boundary and recovery
+│   ├── not-found.tsx                 # Custom 404 page
+│   ├── globals.css                   # Global Tailwind CSS and custom animations
+│   ├── sitemap.ts                    # Dynamic sitemap generator for all draw pages
+│   ├── robots.ts                     # Search crawler instructions (disallowing /admin and /api)
+│   ├── [code]/                       # Dynamic route for specific lottery code (e.g., /KR, /SS, /TH)
+│   ├── lottery/                      # Detailed lottery subpaths
+│   │   └── [code]/[date]/            # Archive and specific draw results by date
+│   ├── search/                       # Historical lottery number search and match checker
+│   ├── claim/                        # Prize claiming guide, tax calculator, and official procedures
+│   ├── guide/                        # Lottery guide and information
+│   ├── faq/                          # Frequently Asked Questions
+│   ├── contact/                      # Contact and support page
+│   ├── privacy-policy/               # Privacy terms and cookies disclaimer
+│   ├── terms-conditions/             # Terms of service
+│   ├── admin/                        # Secure administrative panel for manual draw entry/sync
+│   └── api/                          # Next.js Serverless API Route handlers
+│       ├── draws/                    # Fetch latest and historical structured draw data
+│       ├── search/                   # Server-side number search query engine
+│       ├── sync/                     # Supabase & upstream lottery data synchronization
+│       ├── cron/                     # Scheduled cron jobs for automated scraping/syncing
+│       ├── pdf/                      # PDF result generation endpoint
+│       ├── admin/                    # Admin auth and draw publishing actions
+│       └── indexnow/                 # Instant search engine indexing API (Bing / Yandex)
+├── components/                       # Reusable React components
+│   ├── Navbar.tsx                    # Top navigation bar with quick links, live ticker, watchlist toggle
+│   ├── Footer.tsx                    # SEO-rich footer with disclaimers and category links
+│   ├── MuiProvider.tsx               # Emotion/MUI SSR client theme provider
+│   ├── ModernDatePicker.tsx          # Custom interactive date selector for past draws
+│   ├── SavedWatchlistDrawer.tsx      # Slide-out drawer displaying user's saved lottery tickets
+│   ├── ShareButtons.tsx              # WhatsApp, Telegram, Facebook, and WebShare API integration
+│   ├── ConsentModal.tsx              # User privacy & cookie preferences modal
+│   ├── InitialLoader.tsx             # Smooth initial page loader animation
+│   ├── ScrollRestorer.tsx            # Preserves user scroll position across navigation
+│   └── skeletons/                    # Loading placeholder components for draw cards and tables
+├── lib/                              # Core business logic, utilities, and integrations
+│   ├── supabase.ts                   # Supabase client, TypeScript types, lottery schemas, query helpers
+│   ├── theme.ts                      # Material UI custom theme palette and typography tokens
+│   ├── lottery-sync.ts               # Background data sync and parsing logic
+│   ├── ticket-storage.ts             # LocalStorage wrappers for watchlist tickets
+│   └── admin-auth.ts                 # Admin authentication verification helpers
+├── public/                           # Static assets, PWA icons, manifest, web banners, and llms.txt
+├── scripts/                          # DB seed and utility execution scripts
+└── next.config.ts                    # Next.js configuration and image domains
+```
+
+---
+
+## Core Data Models & Schemas
+
+### Weekly Lotteries (`lib/supabase.ts`)
+| Day | English Name | Malayalam Name | Code | Type |
+|---|---|---|---|---|
+| Monday | Bhagyathara | ഭാഗ്യതാരാ | `BT` | Weekly |
+| Tuesday | Sthree Sakthi | സ്ത്രീശക്തി | `SS` | Weekly |
+| Wednesday | Dhanalekshmi | ധനലക്ഷ്മി | `DL` | Weekly |
+| Thursday | Karunya Plus | കാരുണ്യ പ്ലസ് | `KN` | Weekly |
+| Friday | Suvarna Keralam | സുവർണ്ണ കേരളം | `SK` | Weekly |
+| Saturday | Karunya | കാരുണ്യ | `KR` | Weekly |
+| Sunday | Samrudhi | സമൃദ്ധി | `SM` | Weekly |
+
+### Bumper Lotteries
+- **XN**: Christmas New Year Bumper (₹20 Crore) - January
+- **SB**: Summer Bumper (₹10 Crore) - March
+- **VB**: Vishu Bumper (₹12 Crore) - May
+- **MB**: Monsoon Bumper (₹10 Crore) - July
+- **TH**: Thiruvonam Bumper (₹25 Crore) - September
+- **BR**: Pooja Bumper (₹12 Crore) - November
+
+### TypeScript Interfaces
+```typescript
+export interface FirstPrize {
+  ticket?: string;
+  location?: string;
+  agent?: string;
+  agency_no?: string;
+}
+
+export interface PrizeData {
+  consolation?: string[];
+  "2nd"?: string[];
+  "3rd"?: string[];
+  "4th"?: string[];
+  "5th"?: string[];
+  "6th"?: string[];
+  "7th"?: string[];
+  "8th"?: string[];
+  "9th"?: string[];
+  amounts?: Record<string, string>;
+  guess?: string[];
+  mc?: string[];
+}
+
+export interface StructuredDrawResult {
+  id?: number;
+  draw_date: string;       // YYYY-MM-DD
+  draw_name: string;       // e.g. "Karunya"
+  draw_code: string;       // e.g. "KR-682"
+  lottery_code: string;    // e.g. "KR"
+  first: FirstPrize;
+  prizes: PrizeData;
+  created_at?: string;
+}
+```
+
+---
+
+## API Routes Reference
+
+- `GET /api/draws?date=YYYY-MM-DD`: Fetches structured lottery results for a given date.
+- `GET /api/draws?code=KR&limit=10`: Fetches recent draws for a specific lottery code.
+- `POST /api/search`: Query lottery database by ticket number (full or 4-digit last digits).
+- `POST /api/sync`: Triggers sync pipeline with official state sources into Supabase.
+- `GET /api/pdf?draw_code=KR-682`: Generates downloadable PDF result sheet.
+- `POST /api/indexnow`: Notifies IndexNow API of updated draw result URLs for immediate search indexing.
+- `POST /api/admin/publish`: Protected endpoint for admin to manually add/edit draw results.
+
+---
+
+## Key Conventions & Best Practices
+
+1. **Next.js App Router Architecture**:
+   - Server Components by default for optimal SEO and fast TTFB.
+   - Use `'use client'` directive exclusively when client interactivity (hooks, state, event handlers, canvas, browser APIs) is required.
+   - Use `generateMetadata()` on dynamic routes for rich OpenGraph, Twitter card, and structured JSON-LD schema tags.
+
+2. **React 19 & Hooks Rules**:
+   - Follow standard React 19 conventions; avoid deprecated lifecycle patterns.
+   - Guard browser-only APIs (`window`, `localStorage`, `navigator.share`) with `typeof window !== 'undefined'` or `useEffect`.
+
+3. **Styling & UI**:
+   - Responsive-first design supporting mobile (360px+), tablet, and desktop viewports.
+   - Use Tailwind CSS utility classes paired with Material UI components wrapped by `MuiProvider`.
+
+4. **Performance & Reliability**:
+   - Supabase client queries should implement proper error boundaries and fallback states.
+   - Lazy load heavy client libraries (e.g. `tesseract.js`, `html5-qrcode`, `canvas-confetti`) to maintain fast initial paint.

@@ -175,7 +175,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800&display=swap"
           rel="stylesheet"
         />
-        {/* JSON-LD Structured Data for SEO */}
+        {/* AI & LLM Auto-Discovery Links */}
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="LLMs.txt" />
+        <link rel="alternate" type="text/plain" href="/llms-full.txt" title="LLMs-Full.txt" />
+
+        {/* JSON-LD Structured Data for SEO & AI */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -199,6 +203,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 url: "https://www.keralalotteryresultstoday.in",
                 logo: "https://www.keralalotteryresultstoday.in/logo-master-1024.png",
                 sameAs: ["https://www.keralalotteryresultstoday.in"],
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: [
+                  {
+                    "@type": "Question",
+                    name: "What time are Kerala Lottery results announced today?",
+                    acceptedAnswer: {
+                      "@type": "Answer",
+                      text: "Kerala Lottery results are drawn live daily at 3:00 PM IST from Gorky Bhavan, Thiruvananthapuram. Live updates start appearing at 2:55 PM IST and official full results are published by 4:00 PM on https://www.keralalotteryresultstoday.in.",
+                    },
+                  },
+                  {
+                    "@type": "Question",
+                    name: "How can I check my Kerala Lottery ticket number online?",
+                    acceptedAnswer: {
+                      "@type": "Answer",
+                      text: "You can check your ticket by visiting https://www.keralalotteryresultstoday.in/search and entering your full ticket series or the 4-digit last numbers to instantly find matches across all prize tiers.",
+                    },
+                  },
+                  {
+                    "@type": "Question",
+                    name: "How long is the claim period for Kerala Lottery prizes?",
+                    acceptedAnswer: {
+                      "@type": "Answer",
+                      text: "Winning lottery tickets must be surrendered within 30 days from the draw date to the District Lottery Office or Directorate of State Lotteries with valid ID proofs.",
+                    },
+                  },
+                  {
+                    "@type": "Question",
+                    name: "What are the tax deductions on Kerala Lottery prize money?",
+                    acceptedAnswer: {
+                      "@type": "Answer",
+                      text: "For prize winnings over ₹10,000, a flat 30% TDS (Income Tax under Section 194B) is deducted along with a 10% agent commission before payout.",
+                    },
+                  },
+                ],
               },
             ]),
           }}
