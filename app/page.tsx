@@ -23,6 +23,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import MicIcon from "@mui/icons-material/Mic";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
@@ -1117,6 +1119,25 @@ export default function HomePage() {
                           },
                         }}
                       />
+                      <Tooltip title="Direct Voice Search (സംസാരിച്ച് പരിശോധിക്കുക)">
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            window.dispatchEvent(new CustomEvent("open-ai-voice-assistant", { detail: { startListening: true } }));
+                          }}
+                          sx={{
+                            color: "#DC2626",
+                            bgcolor: "#FEF2F2",
+                            p: 0.8,
+                            mr: 0.5,
+                            border: "1px solid #FECACA",
+                            transition: "all 0.2s",
+                            "&:hover": { bgcolor: "#FEE2E2", transform: "scale(1.1)" },
+                          }}
+                        >
+                          <MicIcon sx={{ fontSize: 20 }} />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
 
                     <Button

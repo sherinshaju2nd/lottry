@@ -111,10 +111,12 @@ export default function AiGazettePdfUploader({
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: "20px",
-          p: 1,
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: "20px",
+            p: 1,
+          },
         },
       }}
     >

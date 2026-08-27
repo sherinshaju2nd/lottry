@@ -171,11 +171,13 @@ export default function AiTicketScanner({
         onClose={handleClose}
         maxWidth="sm"
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: "20px",
-            p: 1,
-            overflow: "hidden",
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: "20px",
+              p: 1,
+              overflow: "hidden",
+            },
           },
         }}
       >

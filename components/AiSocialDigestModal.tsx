@@ -103,10 +103,12 @@ export default function AiSocialDigestModal({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: "20px",
-          overflow: "hidden",
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: "20px",
+            overflow: "hidden",
+          },
         },
       }}
     >

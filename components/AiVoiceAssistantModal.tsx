@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
@@ -40,8 +41,7 @@ const CATEGORY_SUGGESTIONS = [
   {
     icon: <EmojiEventsRoundedIcon sx={{ fontSize: 16 }} />,
     label: "ഇന്നത്തെ 1st Prize Winner",
-    query:
-      "ഇന്നത്തെ ലോട്ടറിയുടെ ഒന്നാം സമ്മാനം ഏത് നമ്പറിനാണ്? സമ്മാനത്തുക എത്രയാണ്?",
+    query: "ഇന്നത്തെ ലോട്ടറിയുടെ ഒന്നാം സമ്മാനം ഏത് നമ്പറിനാണ്? സമ്മാനത്തുക എത്രയാണ്?",
   },
   {
     icon: <AccountBalanceWalletRoundedIcon sx={{ fontSize: 16 }} />,
@@ -51,14 +51,12 @@ const CATEGORY_SUGGESTIONS = [
   {
     icon: <CalendarMonthRoundedIcon sx={{ fontSize: 16 }} />,
     label: "അടുത്ത ബംപർ ലോട്ടറി",
-    query:
-      "അടുത്ത കേരള ബംപർ ലോട്ടറി ഏതാണ്? നറുക്കെടുപ്പ് തീയതിയും ഒന്നാം സമ്മാനവും പറയൂ.",
+    query: "അടുത്ത കേരള ബംപർ ലോട്ടറി ഏതാണ്? നറുക്കെടുപ്പ് തീയതിയും ഒന്നാം സമ്മാനവും പറയൂ.",
   },
   {
     icon: <HelpOutlineRoundedIcon sx={{ fontSize: 16 }} />,
     label: "Tax TDS Rules (30%)",
-    query:
-      "What are the tax deductions and agent commission rules on Kerala Lottery winnings?",
+    query: "What are the tax deductions and agent commission rules on Kerala Lottery winnings?",
   },
 ];
 
@@ -69,11 +67,8 @@ export default function AiVoiceAssistantModal() {
     {
       id: "initial",
       role: "model",
-      text: "നമസ്കാരം! ഞാൻ കേരള ലോട്ടറി AI അസിസ്റ്റന്റാണ്. ഇന്നത്തെ നറുക്കെടുപ്പ് ഫലങ്ങൾ, ടിക്കറ്റ് പരിശോധന, സമ്മാനം ക്ലെയിം ചെയ്യുന്ന രീതി എന്നിവയെക്കുറിച്ച് ഏത് ചോദ്യവും ചോദിക്കാം.\n\n(Hello! Ask me anything about Kerala Lottery live results, ticket verification, tax deductions, or bumper draws in Malayalam or English.)",
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      text: "നമസ്കാരം! ഞാൻ കേരള ലോട്ടറി AI അസിസ്റ്റന്റാണ്. മൈക്ക് അമർത്തി സംസാരിക്കൂ അല്ലെങ്കിൽ ചോദ്യങ്ങൾ ടൈപ്പ് ചെയ്യൂ.\n\n(Hello! Tap the microphone to speak or type your question in Malayalam or English.)",
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -81,78 +76,123 @@ export default function AiVoiceAssistantModal() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedLang, setSelectedLang] = useState<"ml-IN" | "en-IN">("ml-IN");
+  const [wasVoiceInput, setWasVoiceInput] = useState(false);
 
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize Speech Recognition
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      ("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
-    ) {
-      const SpeechRecognition =
-        (window as any).SpeechRecognition ||
-        (window as any).webkitSpeechRecognition;
-      const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = false;
-      rec.lang = selectedLang;
+  const speakText = useCallback((text: string) => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const cleanText = text.replace(/[*#_`]/g, "").trim();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = selectedLang;
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+      utterance.onstart = () => setIsPlayingAudio(true);
+      utterance.onend = () => setIsPlayingAudio(false);
+      utterance.onerror = () => setIsPlayingAudio(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [selectedLang]);
 
-      rec.onresult = (event: any) => {
+  const stopAudio = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsPlayingAudio(false);
+    }
+  };
+
+  const startListening = useCallback(() => {
+    stopAudio();
+    if (!recognitionRef.current) {
+      if (typeof window !== "undefined" && ("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        recognitionRef.current = new SpeechRecognition();
+      } else {
+        alert("Voice recognition is not supported in this browser. Please type your query.");
+        return;
+      }
+    }
+
+    try {
+      recognitionRef.current.lang = selectedLang;
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+
+      recognitionRef.current.onstart = () => setIsListening(true);
+      recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         if (transcript) {
           setInputMsg(transcript);
-          sendMessage(transcript);
+          setWasVoiceInput(true);
+          sendMessage(transcript, true);
         }
         setIsListening(false);
       };
+      recognitionRef.current.onerror = (e: any) => {
+        console.warn("Speech error:", e);
+        setIsListening(false);
+      };
+      recognitionRef.current.onend = () => setIsListening(false);
 
-      rec.onerror = () => setIsListening(false);
-      rec.onend = () => setIsListening(false);
-
-      recognitionRef.current = rec;
+      recognitionRef.current.start();
+      setIsListening(true);
+    } catch {
+      setIsListening(false);
     }
   }, [selectedLang]);
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+    }
+    setIsListening(false);
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
+
+  // Listen for global custom events to open assistant and start voice directly
+  useEffect(() => {
+    const handleGlobalTrigger = (e: any) => {
+      setOpen(true);
+      if (e.detail?.startListening) {
+        setTimeout(() => {
+          startListening();
+        }, 300);
+      }
+    };
+
+    window.addEventListener("open-ai-voice-assistant", handleGlobalTrigger);
+    return () => {
+      window.removeEventListener("open-ai-voice-assistant", handleGlobalTrigger);
+    };
+  }, [startListening]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      alert(
-        "Voice speech recognition is not supported in this browser. Please type your query in the text box.",
-      );
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      try {
-        recognitionRef.current.lang = selectedLang;
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch {
-        setIsListening(false);
-      }
-    }
-  };
-
-  const sendMessage = async (textToSend?: string) => {
+  const sendMessage = async (textToSend?: string, isVoice: boolean = false) => {
     const text = (textToSend || inputMsg).trim();
     if (!text || isLoading) return;
+
+    stopListening();
+    stopAudio();
 
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       role: "user",
       text,
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -165,9 +205,7 @@ export default function AiVoiceAssistantModal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: text,
-          history: messages
-            .slice(-6)
-            .map((m) => ({ role: m.role, text: m.text })),
+          history: messages.slice(-6).map((m) => ({ role: m.role, text: m.text })),
         }),
       });
 
@@ -177,25 +215,23 @@ export default function AiVoiceAssistantModal() {
           id: `bot-${Date.now()}`,
           role: "model",
           text: data.reply,
-          timestamp: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
         setMessages((prev) => [...prev, botMsg]);
+
+        // Auto-speak response if query was initiated via voice!
+        if (isVoice || wasVoiceInput) {
+          speakText(data.reply);
+          setWasVoiceInput(false);
+        }
       } else {
         setMessages((prev) => [
           ...prev,
           {
             id: `bot-${Date.now()}`,
             role: "model",
-            text:
-              data.error ||
-              "ക്ഷമിക്കണം, ഇപ്പോൾ സെർവറുമായി ബന്ധപ്പെടാൻ സാധിക്കുന്നില്ല. ദയവായി അല്പം കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക.",
-            timestamp: new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
+            text: data.error || "ക്ഷമിക്കണം, ഇപ്പോൾ സെർവറുമായി ബന്ധപ്പെടാൻ സാധിക്കുന്നില്ല. ദയവായി അല്പം കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക.",
+            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           },
         ]);
       }
@@ -205,35 +241,12 @@ export default function AiVoiceAssistantModal() {
         {
           id: `bot-${Date.now()}`,
           role: "model",
-          text:
-            err?.message ||
-            "Connection error with Gemini AI service. Please check your network and retry.",
-          timestamp: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+          text: err?.message || "Connection error with Gemini AI service. Please check your network and retry.",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const speakText = (text: string) => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      if (isPlayingAudio) {
-        window.speechSynthesis.cancel();
-        setIsPlayingAudio(false);
-        return;
-      }
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = selectedLang;
-      utterance.rate = 0.95;
-      utterance.onend = () => setIsPlayingAudio(false);
-      utterance.onerror = () => setIsPlayingAudio(false);
-      setIsPlayingAudio(true);
-      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -246,27 +259,28 @@ export default function AiVoiceAssistantModal() {
   };
 
   const handleClearHistory = () => {
+    stopAudio();
+    stopListening();
     setMessages([
       {
         id: "initial",
         role: "model",
-        text: "ചാറ്റ് ക്ലിയർ ചെയ്തു. എനിക്ക് നിങ്ങളെ എങ്ങനെ സഹായിക്കാനാകും? (Chat cleared. How can I assist you?)",
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        text: "ചാറ്റ് ക്ലിയർ ചെയ്തു. മൈക്ക് അമർത്തി സംസാരിക്കൂ. (Chat cleared. Tap mic to speak.)",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       },
     ]);
+  };
+
+  const handleCloseModal = () => {
+    stopAudio();
+    stopListening();
+    setOpen(false);
   };
 
   return (
     <>
       {/* Premium Floating Launcher Bar & Floating Action Button */}
-      <Tooltip
-        title="Kerala Lottery AI Voice Assistant (മലയാളം & English)"
-        placement="left"
-        arrow
-      >
+      <Tooltip title="Kerala Lottery AI Voice Assistant (മലയാളം & English)" placement="left" arrow>
         <Box
           onClick={() => setOpen(true)}
           sx={{
@@ -278,26 +292,21 @@ export default function AiVoiceAssistantModal() {
             alignItems: "center",
             gap: 1.5,
             bgcolor: "#0B3C5D",
-            background:
-              "linear-gradient(135deg, #0B3C5D 0%, #172554 50%, #0F172A 100%)",
+            background: "linear-gradient(135deg, #0B3C5D 0%, #172554 50%, #0F172A 100%)",
             color: "#FFFFFF",
-            p: { xs: "6px 14px", md: "8px 18px" },
+            p: { xs: "7px 16px", md: "9px 20px" },
             borderRadius: "50px",
-            boxShadow:
-              "0 10px 30px rgba(11, 60, 93, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.15) inset",
+            boxShadow: "0 10px 30px rgba(11, 60, 93, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.15) inset",
             cursor: "pointer",
             transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
             "&:hover": {
               transform: "translateY(-4px) scale(1.03)",
-              boxShadow:
-                "0 14px 40px rgba(11, 60, 93, 0.6), 0 0 16px rgba(245, 158, 11, 0.4)",
+              boxShadow: "0 14px 40px rgba(11, 60, 93, 0.6), 0 0 16px rgba(245, 158, 11, 0.4)",
             },
           }}
         >
           {/* Glowing AI Icon with pulsing status dot */}
-          <Box
-            sx={{ position: "relative", display: "flex", alignItems: "center" }}
-          >
+          <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
             <AutoAwesomeIcon
               sx={{
                 color: "#FBBF24",
@@ -319,60 +328,45 @@ export default function AiVoiceAssistantModal() {
             />
           </Box>
 
-          <Box
-            sx={{
-              display: { xs: "none", sm: "flex" },
-              flexDirection: "column",
-            }}
-          >
-            <Typography
-              sx={{
-                fontWeight: 800,
-                fontSize: "0.825rem",
-                lineHeight: 1.1,
-                color: "#FFFFFF",
-              }}
-            >
+          <Box sx={{ display: { xs: "none", sm: "flex" }, flexDirection: "column" }}>
+            <Typography sx={{ fontWeight: 800, fontSize: "0.825rem", lineHeight: 1.1, color: "#FFFFFF" }}>
               Ask Lottery AI
             </Typography>
-            <Typography
-              sx={{ fontSize: "0.68rem", color: "#93C5FD", fontWeight: 600 }}
-            >
+            <Typography sx={{ fontSize: "0.68rem", color: "#93C5FD", fontWeight: 600 }}>
               മലയാളം & English
             </Typography>
           </Box>
         </Box>
       </Tooltip>
 
-      {/* State-of-the-Art AI Voice Assistant Dialog */}
+      {/* Voice Assistant Dialog */}
       <Dialog
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleCloseModal}
         maxWidth="sm"
         fullWidth
-        TransitionComponent={Fade}
-        transitionDuration={300}
-        PaperProps={{
-          sx: {
-            borderRadius: { xs: "20px", sm: "24px" },
-            height: { xs: "90vh", sm: "82vh" },
-            maxHeight: 720,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-            bgcolor: "#F8FAFC",
-            boxShadow: "0 25px 60px -15px rgba(11, 60, 93, 0.35)",
-            border: "1px solid rgba(226, 232, 240, 0.8)",
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: { xs: "20px", sm: "24px" },
+              height: { xs: "90vh", sm: "82vh" },
+              maxHeight: 720,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              bgcolor: "#F8FAFC",
+              boxShadow: "0 25px 60px -15px rgba(11, 60, 93, 0.35)",
+              border: "1px solid rgba(226, 232, 240, 0.8)",
+            },
           },
         }}
       >
-        {/* Header with Glassmorphism & Controls */}
+        {/* Header */}
         <DialogTitle
           sx={{
             p: 0,
             bgcolor: "#0B3C5D",
-            background:
-              "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 60%, #0F172A 100%)",
+            background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 60%, #0F172A 100%)",
             color: "#FFFFFF",
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
             zIndex: 10,
@@ -390,29 +384,27 @@ export default function AiVoiceAssistantModal() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <Avatar
                 sx={{
-                  bgcolor: "rgba(255, 255, 255, 0.12)",
-                  border: "1.5px solid rgba(251, 191, 36, 0.6)",
-                  boxShadow: "0 0 14px rgba(251, 191, 36, 0.25)",
+                  bgcolor: isListening ? "#DC2626" : "rgba(255, 255, 255, 0.12)",
+                  border: isListening ? "2px solid #FEF08A" : "1.5px solid rgba(251, 191, 36, 0.6)",
+                  boxShadow: isListening ? "0 0 16px #DC2626" : "0 0 14px rgba(251, 191, 36, 0.25)",
                   width: 44,
                   height: 44,
+                  transition: "all 0.3s",
                 }}
               >
-                <AutoAwesomeIcon sx={{ color: "#FBBF24", fontSize: 22 }} />
+                {isListening ? (
+                  <MicIcon sx={{ color: "#FFF", fontSize: 24 }} />
+                ) : (
+                  <AutoAwesomeIcon sx={{ color: "#FBBF24", fontSize: 22 }} />
+                )}
               </Avatar>
               <Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: 900,
-                      fontSize: { xs: "0.95rem", sm: "1.05rem" },
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    Kerala Lottery AI Assistant
+                  <Typography variant="subtitle1" sx={{ fontWeight: 900, fontSize: { xs: "0.95rem", sm: "1.05rem" }, letterSpacing: "-0.01em" }}>
+                    Kerala Lottery Voice AI
                   </Typography>
                   <Chip
-                    label="Gemini 2.5"
+                    label="Gemini 3.6"
                     size="small"
                     sx={{
                       height: 18,
@@ -424,27 +416,9 @@ export default function AiVoiceAssistantModal() {
                     }}
                   />
                 </Box>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: "#93C5FD",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.6,
-                    fontWeight: 600,
-                  }}
-                >
-                  <Box
-                    component="span"
-                    sx={{
-                      width: 6,
-                      height: 6,
-                      bgcolor: "#34D399",
-                      borderRadius: "50%",
-                      display: "inline-block",
-                    }}
-                  />
-                  Live Official Draw Data • മലയാളം & EN
+                <Typography variant="caption" sx={{ color: "#93C5FD", display: "flex", alignItems: "center", gap: 0.6, fontWeight: 600 }}>
+                  <Box component="span" sx={{ width: 6, height: 6, bgcolor: isListening ? "#EF4444" : "#34D399", borderRadius: "50%", display: "inline-block" }} />
+                  {isListening ? "Listening (സംസാരിക്കൂ...)" : isPlayingAudio ? "Speaking Audio..." : "Direct Voice & Chat • മലയാളം"}
                 </Typography>
               </Box>
             </Box>
@@ -453,9 +427,7 @@ export default function AiVoiceAssistantModal() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
               <Chip
                 label={selectedLang === "ml-IN" ? "മലയാളം" : "English"}
-                onClick={() =>
-                  setSelectedLang(selectedLang === "ml-IN" ? "en-IN" : "ml-IN")
-                }
+                onClick={() => setSelectedLang(selectedLang === "ml-IN" ? "en-IN" : "ml-IN")}
                 sx={{
                   bgcolor: "rgba(255,255,255,0.12)",
                   color: "#FFF",
@@ -466,33 +438,19 @@ export default function AiVoiceAssistantModal() {
                   "&:hover": { bgcolor: "rgba(255,255,255,0.22)" },
                 }}
               />
-              <Tooltip title="Clear chat history">
-                <IconButton
-                  onClick={handleClearHistory}
-                  size="small"
-                  sx={{
-                    color: "rgba(255,255,255,0.7)",
-                    "&:hover": { color: "#FFF" },
-                  }}
-                >
+              <Tooltip title="Clear chat">
+                <IconButton onClick={handleClearHistory} size="small" sx={{ color: "rgba(255,255,255,0.7)", "&:hover": { color: "#FFF" } }}>
                   <DeleteOutlineRoundedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <IconButton
-                onClick={() => setOpen(false)}
-                size="small"
-                sx={{
-                  color: "rgba(255,255,255,0.85)",
-                  "&:hover": { color: "#FFF" },
-                }}
-              >
+              <IconButton onClick={handleCloseModal} size="small" sx={{ color: "rgba(255,255,255,0.85)", "&:hover": { color: "#FFF" } }}>
                 <CloseRoundedIcon />
               </IconButton>
             </Box>
           </Box>
         </DialogTitle>
 
-        {/* Chat Feed Area */}
+        {/* Chat Stream */}
         <DialogContent
           sx={{
             flex: 1,
@@ -504,55 +462,83 @@ export default function AiVoiceAssistantModal() {
             overflowY: "auto",
           }}
         >
-          {/* Quick Interactive Prompt Suggestions */}
-          <Box sx={{ mb: 1 }}>
-            <Typography
-              variant="caption"
+          {/* Active Listening Animated Banner */}
+          {isListening && (
+            <Paper
+              elevation={0}
               sx={{
-                color: "#64748B",
-                fontWeight: 800,
-                display: "block",
-                mb: 1,
-                textTransform: "uppercase",
-                fontSize: "0.68rem",
-                letterSpacing: "0.05em",
+                p: 2,
+                bgcolor: "#FEF2F2",
+                border: "2px solid #F87171",
+                borderRadius: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                animation: "pulse 1.5s infinite",
               }}
             >
-              Suggested Inquiries / ചോദ്യങ്ങൾ:
-            </Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {CATEGORY_SUGGESTIONS.map((item, idx) => (
-                <Chip
-                  key={idx}
-                  icon={item.icon}
-                  label={item.label}
-                  size="small"
-                  onClick={() => {
-                    setInputMsg(item.query);
-                    sendMessage(item.query);
-                  }}
-                  sx={{
-                    bgcolor: "#FFFFFF",
-                    border: "1px solid #E2E8F0",
-                    fontWeight: 700,
-                    fontSize: "0.75rem",
-                    color: "#334155",
-                    cursor: "pointer",
-                    py: 1.8,
-                    borderRadius: "10px",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                    transition: "all 0.2s",
-                    "&:hover": {
-                      bgcolor: "#EFF6FF",
-                      borderColor: "#93C5FD",
-                      color: "#0B3C5D",
-                      transform: "translateY(-1px)",
-                    },
-                  }}
-                />
-              ))}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <MicIcon sx={{ color: "#DC2626", fontSize: 28 }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: "#991B1B" }}>
+                    Listening... ഇപ്പോൾ ചോദിക്കൂ...
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "#B91C1C", fontWeight: 600 }}>
+                    Speak your question in Malayalam or English clearly
+                  </Typography>
+                </Box>
+              </Box>
+              <Button
+                size="small"
+                onClick={stopListening}
+                variant="contained"
+                sx={{ bgcolor: "#DC2626", color: "#FFF", fontWeight: 800, textTransform: "none", borderRadius: "8px", "&:hover": { bgcolor: "#B91C1C" } }}
+              >
+                Stop
+              </Button>
+            </Paper>
+          )}
+
+          {/* Quick Suggestions */}
+          {!isListening && (
+            <Box sx={{ mb: 1 }}>
+              <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase", fontSize: "0.68rem", letterSpacing: "0.05em" }}>
+                Suggested Voice Questions / ചോദ്യങ്ങൾ:
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {CATEGORY_SUGGESTIONS.map((item, idx) => (
+                  <Chip
+                    key={idx}
+                    icon={item.icon}
+                    label={item.label}
+                    size="small"
+                    onClick={() => {
+                      setInputMsg(item.query);
+                      sendMessage(item.query);
+                    }}
+                    sx={{
+                      bgcolor: "#FFFFFF",
+                      border: "1px solid #E2E8F0",
+                      fontWeight: 700,
+                      fontSize: "0.75rem",
+                      color: "#334155",
+                      cursor: "pointer",
+                      py: 1.8,
+                      borderRadius: "10px",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                      transition: "all 0.2s",
+                      "&:hover": {
+                        bgcolor: "#EFF6FF",
+                        borderColor: "#93C5FD",
+                        color: "#0B3C5D",
+                        transform: "translateY(-1px)",
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
             </Box>
-          </Box>
+          )}
 
           {/* Messages Stream */}
           {messages.map((m) => (
@@ -569,18 +555,14 @@ export default function AiVoiceAssistantModal() {
                 elevation={0}
                 sx={{
                   p: { xs: "12px 16px", sm: "14px 18px" },
-                  borderRadius:
-                    m.role === "user"
-                      ? "20px 20px 4px 20px"
-                      : "20px 20px 20px 4px",
+                  borderRadius: m.role === "user" ? "20px 20px 4px 20px" : "20px 20px 20px 4px",
                   bgcolor: m.role === "user" ? "#0B3C5D" : "#FFFFFF",
                   color: m.role === "user" ? "#FFFFFF" : "#1E293B",
                   border: m.role === "user" ? "none" : "1px solid #E2E8F0",
                   maxWidth: { xs: "90%", sm: "85%" },
-                  boxShadow:
-                    m.role === "user"
-                      ? "0 4px 14px rgba(11, 60, 93, 0.25)"
-                      : "0 2px 8px rgba(0,0,0,0.03)",
+                  boxShadow: m.role === "user"
+                    ? "0 4px 14px rgba(11, 60, 93, 0.25)"
+                    : "0 2px 8px rgba(0,0,0,0.03)",
                   position: "relative",
                 }}
               >
@@ -596,7 +578,7 @@ export default function AiVoiceAssistantModal() {
                   {m.text}
                 </Typography>
 
-                {/* AI Message Footer Actions */}
+                {/* AI Message Actions */}
                 {m.role === "model" && (
                   <Box
                     sx={{
@@ -608,25 +590,15 @@ export default function AiVoiceAssistantModal() {
                       borderTop: "1px solid #F1F5F9",
                     }}
                   >
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "#94A3B8", fontSize: "0.68rem" }}
-                    >
+                    <Typography variant="caption" sx={{ color: "#94A3B8", fontSize: "0.68rem" }}>
                       {m.timestamp}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 0.5 }}>
-                      <Tooltip
-                        title={
-                          isPlayingAudio ? "Stop Audio" : "Listen in Malayalam"
-                        }
-                      >
+                      <Tooltip title={isPlayingAudio ? "Stop Audio" : "Listen in Malayalam"}>
                         <IconButton
                           size="small"
-                          onClick={() => speakText(m.text)}
-                          sx={{
-                            color: isPlayingAudio ? "#EF4444" : "#64748B",
-                            p: 0.5,
-                          }}
+                          onClick={() => (isPlayingAudio ? stopAudio() : speakText(m.text))}
+                          sx={{ color: isPlayingAudio ? "#EF4444" : "#64748B", p: 0.5 }}
                         >
                           {isPlayingAudio ? (
                             <StopCircleRoundedIcon sx={{ fontSize: 18 }} />
@@ -635,16 +607,11 @@ export default function AiVoiceAssistantModal() {
                           )}
                         </IconButton>
                       </Tooltip>
-                      <Tooltip
-                        title={copiedId === m.id ? "Copied!" : "Copy text"}
-                      >
+                      <Tooltip title={copiedId === m.id ? "Copied!" : "Copy text"}>
                         <IconButton
                           size="small"
                           onClick={() => handleCopyText(m.text, m.id)}
-                          sx={{
-                            color: copiedId === m.id ? "#10B981" : "#64748B",
-                            p: 0.5,
-                          }}
+                          sx={{ color: copiedId === m.id ? "#10B981" : "#64748B", p: 0.5 }}
                         >
                           {copiedId === m.id ? (
                             <CheckRoundedIcon sx={{ fontSize: 18 }} />
@@ -660,7 +627,7 @@ export default function AiVoiceAssistantModal() {
             </Box>
           ))}
 
-          {/* Thinking / Loading Animation */}
+          {/* Thinking Animation */}
           {isLoading && (
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, p: 1 }}>
               <Paper
@@ -676,11 +643,8 @@ export default function AiVoiceAssistantModal() {
                 }}
               >
                 <CircularProgress size={16} sx={{ color: "#0B3C5D" }} />
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#0B3C5D", fontWeight: 700 }}
-                >
-                  Gemini AI is analyzing Kerala draw records...
+                <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 700 }}>
+                  Gemini 3.6 AI analyzing lottery database...
                 </Typography>
               </Paper>
             </Box>
@@ -688,7 +652,7 @@ export default function AiVoiceAssistantModal() {
           <div ref={messagesEndRef} />
         </DialogContent>
 
-        {/* Voice & Text Input Dock */}
+        {/* Direct Voice & Text Input Dock */}
         <Paper
           elevation={0}
           component="form"
@@ -705,32 +669,25 @@ export default function AiVoiceAssistantModal() {
             gap: 1.2,
           }}
         >
-          {/* Glowing Animated Mic Button */}
-          <Tooltip
-            title={
-              isListening
-                ? "Listening... (Tap to stop)"
-                : "Speak query (മലയാളത്തിൽ സംസാരിക്കൂ)"
-            }
-          >
+          {/* Direct Big Mic Button */}
+          <Tooltip title={isListening ? "Listening... (Tap to stop)" : "Direct Voice Speak (സംസാരിക്കാൻ അമർത്തുക)"}>
             <IconButton
               onClick={toggleListening}
               sx={{
-                width: 44,
-                height: 44,
-                bgcolor: isListening ? "#EF4444" : "#EFF6FF",
-                color: isListening ? "#FFFFFF" : "#0B3C5D",
-                border: isListening ? "2px solid #DC2626" : "1px solid #BFDBFE",
-                boxShadow: isListening
-                  ? "0 0 16px rgba(239, 68, 68, 0.5)"
-                  : "none",
+                width: 48,
+                height: 48,
+                bgcolor: isListening ? "#DC2626" : "#FEF2F2",
+                color: isListening ? "#FFFFFF" : "#DC2626",
+                border: isListening ? "2px solid #991B1B" : "1.5px solid #FCA5A5",
+                boxShadow: isListening ? "0 0 20px rgba(220, 38, 38, 0.6)" : "0 2px 8px rgba(220, 38, 38, 0.15)",
                 transition: "all 0.2s",
                 "&:hover": {
-                  bgcolor: isListening ? "#DC2626" : "#DBEAFE",
+                  bgcolor: isListening ? "#B91C1C" : "#FEE2E2",
+                  transform: "scale(1.05)",
                 },
               }}
             >
-              {isListening ? <MicOffIcon /> : <MicIcon />}
+              {isListening ? <MicOffIcon fontSize="medium" /> : <MicIcon fontSize="medium" />}
             </IconButton>
           </Tooltip>
 
@@ -742,8 +699,8 @@ export default function AiVoiceAssistantModal() {
               isListening
                 ? "Listening... സംസാരിക്കൂ..."
                 : selectedLang === "ml-IN"
-                  ? "ഇവിടെ ടൈപ്പ് ചെയ്യുക അല്ലെങ്കിൽ മൈക്ക് അമർത്തുക..."
-                  : "Type lottery query or tap mic to speak..."
+                  ? "സംസാരിക്കാൻ മൈക്ക് അമർത്തുക അല്ലെങ്കിൽ ടൈപ്പ് ചെയ്യുക..."
+                  : "Tap mic to speak or type query..."
             }
             value={inputMsg}
             onChange={(e) => setInputMsg(e.target.value)}

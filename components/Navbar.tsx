@@ -22,6 +22,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
 import Collapse from "@mui/material/Collapse";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import Tooltip from "@mui/material/Tooltip";
+import MicIcon from "@mui/icons-material/Mic";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import HomeIcon from "@mui/icons-material/Home";
@@ -358,10 +360,47 @@ export default function Navbar() {
             >
               Winning Ticket Checker
             </Button>
+
+            {/* Direct Voice Search Mic */}
+            <Tooltip title="Direct Voice Search (സംസാരിച്ച് പരിശോധിക്കുക)">
+              <IconButton
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("open-ai-voice-assistant", { detail: { startListening: true } }));
+                }}
+                sx={{
+                  color: "#DC2626",
+                  bgcolor: "#FEF2F2",
+                  border: "1px solid #FECACA",
+                  p: 1,
+                  borderRadius: "10px",
+                  transition: "all 0.2s",
+                  "&:hover": { bgcolor: "#FEE2E2", transform: "scale(1.08)" },
+                }}
+              >
+                <MicIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Box>
 
-          {/* Mobile Right Controls: Mobile Drawer Toggle */}
+          {/* Mobile Right Controls: Voice Mic & Drawer Toggle */}
           <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", gap: 1 }}>
+            <Tooltip title="Voice Search (സംസാരിക്കാം)">
+              <IconButton
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("open-ai-voice-assistant", { detail: { startListening: true } }));
+                }}
+                sx={{
+                  bgcolor: "#FEF2F2",
+                  color: "#DC2626",
+                  p: 1,
+                  borderRadius: "10px",
+                  border: "1px solid #FECACA",
+                }}
+              >
+                <MicIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
             <IconButton
               color="inherit"
               aria-label="open drawer"

@@ -33,6 +33,7 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import HistoryIcon from "@mui/icons-material/History";
 import StyleIcon from "@mui/icons-material/Style";
 import AddIcon from "@mui/icons-material/Add";
+import MicIcon from "@mui/icons-material/Mic";
 import Link from "next/link";
 import {
   ALL_LOTTERIES,
@@ -543,7 +544,22 @@ export default function AdvancedSearchPage() {
                     },
                     input: {
                       endAdornment: (
-                        <Box sx={{ display: "flex", gap: 0.5, pl: 0.5 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, pl: 0.5 }}>
+                          <Tooltip title="Direct Voice Search (സംസാരിച്ച് പരിശോധിക്കുക)">
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                window.dispatchEvent(new CustomEvent("open-ai-voice-assistant", { detail: { startListening: true } }));
+                              }}
+                              sx={{
+                                color: "#DC2626",
+                                bgcolor: "#FEF2F2",
+                                "&:hover": { bgcolor: "#FEE2E2" },
+                              }}
+                            >
+                              <MicIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
                           <Tooltip
                             title={
                               isCurrentSaved
