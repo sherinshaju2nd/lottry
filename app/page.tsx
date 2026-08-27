@@ -44,6 +44,8 @@ import {
   formatTicketSearchInput,
 } from "@/lib/supabase";
 import ShareButtons from "@/components/ShareButtons";
+import AiSocialDigestModal from "@/components/AiSocialDigestModal";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 const searchSchema = yup.object({
   ticketNumber: yup
@@ -98,6 +100,7 @@ export default function HomePage() {
   );
   const [searchedQuery, setSearchedQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [digestModalOpen, setDigestModalOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [realtimeNotification, setRealtimeNotification] = useState<
@@ -3014,6 +3017,14 @@ export default function HomePage() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* AI Daily WhatsApp Status & Telegram Digest Modal */}
+      <AiSocialDigestModal
+        open={digestModalOpen}
+        onClose={() => setDigestModalOpen(false)}
+        drawCode={todayDrawResult?.draw_code}
+        drawDate={todayDrawResult?.draw_date}
+      />
     </Container>
   );
 }

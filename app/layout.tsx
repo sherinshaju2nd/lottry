@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import InitialLoader from "@/components/InitialLoader";
 import ConsentModal from "@/components/ConsentModal";
 import ScrollRestorer from "@/components/ScrollRestorer";
+import AiVoiceAssistantModal from "@/components/AiVoiceAssistantModal";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -272,6 +273,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <main style={{ flex: 1 }}>{children}</main>
 
             <Footer />
+            <AiVoiceAssistantModal />
           </div>
         </MuiProvider>
       </body>

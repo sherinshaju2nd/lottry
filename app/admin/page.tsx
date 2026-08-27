@@ -49,6 +49,8 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
+import AiGazettePdfUploader from "@/components/admin/AiGazettePdfUploader";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import {
   StructuredDrawResult,
   PostponedDraw,
@@ -99,6 +101,9 @@ export default function AdminDashboardPage() {
     eighth_tickets: "",
     eighth_amount: "50/-",
   });
+
+  // AI PDF Ingestion State
+  const [aiPdfModalOpen, setAiPdfModalOpen] = useState(false);
 
   // Tab 1: Postponed / Blackout Dates state
   const [postponedList, setPostponedList] = useState<PostponedDraw[]>([]);
@@ -337,6 +342,43 @@ export default function AdminDashboardPage() {
       eighth_amount: draw.prizes?.amounts?.["8th"] || "50/-",
     });
     setDrawModalOpen(true);
+  };
+
+  const handleAiPdfResultExtracted = (drawData: StructuredDrawResult) => {
+    const parseList = (arr?: string[]) => (Array.isArray(arr) ? arr.join(", ") : "");
+    setEditingDraw(null);
+    setDrawFormData({
+      id: undefined,
+      draw_date: drawData.draw_date || new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }),
+      draw_name: drawData.draw_name || "Kerala Lottery",
+      draw_code: drawData.draw_code || "KL-000",
+      lottery_code: drawData.lottery_code || "KR",
+      first_ticket: drawData.first?.ticket || "",
+      first_location: drawData.first?.location || "",
+      first_agent: drawData.first?.agent || "",
+      first_amount: drawData.prizes?.amounts?.["1st"] || "1,00,00,000/-",
+      consolation_tickets: parseList(drawData.prizes?.consolation),
+      consolation_amount: drawData.prizes?.amounts?.["consolation"] || "8,000/-",
+      second_tickets: parseList(drawData.prizes?.["2nd"]),
+      second_amount: drawData.prizes?.amounts?.["2nd"] || "10,00,000/-",
+      third_tickets: parseList(drawData.prizes?.["3rd"]),
+      third_amount: drawData.prizes?.amounts?.["3rd"] || "1,00,000/-",
+      fourth_tickets: parseList(drawData.prizes?.["4th"]),
+      fourth_amount: drawData.prizes?.amounts?.["4th"] || "5,000/-",
+      fifth_tickets: parseList(drawData.prizes?.["5th"]),
+      fifth_amount: drawData.prizes?.amounts?.["5th"] || "1,000/-",
+      sixth_tickets: parseList(drawData.prizes?.["6th"]),
+      sixth_amount: drawData.prizes?.amounts?.["6th"] || "500/-",
+      seventh_tickets: parseList(drawData.prizes?.["7th"]),
+      seventh_amount: drawData.prizes?.amounts?.["7th"] || "100/-",
+      eighth_tickets: parseList(drawData.prizes?.["8th"]),
+      eighth_amount: drawData.prizes?.amounts?.["8th"] || "50/-",
+    });
+    setDrawModalOpen(true);
+    setSyncStatus({
+      type: "success",
+      message: `Gemini AI extracted Gazette results for ${drawData.draw_name} (${drawData.draw_code}). Please review and click Save!`,
+    });
   };
 
   const handleSaveDrawResult = async () => {
@@ -790,6 +832,24 @@ export default function AdminDashboardPage() {
                 onChange={(e) => setSearchDrawTerm(e.target.value)}
                 sx={{ width: 220, bgcolor: "#F8FAFC" }}
               />
+              <Button
+                onClick={() => setAiPdfModalOpen(true)}
+                variant="contained"
+                startIcon={<AutoAwesomeIcon sx={{ color: "#FFD700" }} />}
+                sx={{
+                  background: "linear-gradient(135deg, #0B3C5D 0%, #1D2731 100%)",
+                  color: "#FFFFFF",
+                  fontWeight: 800,
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 12px rgba(11, 60, 93, 0.2)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #07263b 0%, #0F172A 100%)",
+                  },
+                }}
+              >
+                ✨ AI Upload Gazette PDF
+              </Button>
               <Button
                 onClick={openNewDrawModal}
                 variant="contained"
@@ -1825,6 +1885,13 @@ export default function AdminDashboardPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Gemini AI Gazette PDF / Image Ingestion Modal */}
+      <AiGazettePdfUploader
+        open={aiPdfModalOpen}
+        onClose={() => setAiPdfModalOpen(false)}
+        onResultExtracted={handleAiPdfResultExtracted}
+      />
     </Container>
   );
 }

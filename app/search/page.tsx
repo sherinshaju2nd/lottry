@@ -43,6 +43,7 @@ import {
 import ModernDatePicker from "@/components/ModernDatePicker";
 import SavedWatchlistDrawer from "@/components/SavedWatchlistDrawer";
 import ShareButtons from "@/components/ShareButtons";
+import AiTicketScanner from "@/components/AiTicketScanner";
 import {
   getRecentSearches,
   addRecentSearch,
@@ -685,6 +686,20 @@ export default function AdvancedSearchPage() {
                   ? "Searching Results..."
                   : "Check Kerala Lottery Ticket"}
               </Button>
+
+              <AiTicketScanner
+                buttonLabel="AI Camera / Photo Scan"
+                onTicketDetected={(ticketNum, lCode, dDate) => {
+                  setValue("ticketNumber", ticketNum, { shouldValidate: true });
+                  if (lCode) setValue("lotteryCode", lCode);
+                  if (dDate) setValue("drawDate", dDate);
+                  onSubmit({
+                    ticketNumber: ticketNum,
+                    lotteryCode: lCode || selectedCode,
+                    drawDate: dDate || selectedDate,
+                  });
+                }}
+              />
 
               <Button
                 onClick={handleReset}

@@ -16,6 +16,7 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import WarningIcon from "@mui/icons-material/Warning";
 import FeedIcon from "@mui/icons-material/Feed";
+import AiClaimCalculator from "@/components/AiClaimCalculator";
 
 export default function ClaimPage() {
   return (
@@ -47,6 +48,9 @@ export default function ClaimPage() {
           Detailed guide on claiming prize money for weekly and bumper Kerala State lotteries depending on the winning amount.
         </Typography>
       </Box>
+
+      {/* Interactive AI Tax & Prize Claim Calculator */}
+      <AiClaimCalculator />
 
       {/* Main Grid Content */}
       <Grid container spacing={4}>

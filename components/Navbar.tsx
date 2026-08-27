@@ -32,11 +32,10 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
-import PaidIcon from "@mui/icons-material/Paid";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import HelpIcon from "@mui/icons-material/Help";
 import PhoneIcon from "@mui/icons-material/Phone";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import AiSocialDigestModal from "@/components/AiSocialDigestModal";
 import {
   WEEKLY_LOTTERIES,
   BUMPER_LOTTERIES,
@@ -49,6 +48,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [digestOpen, setDigestOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const [lotteriesList, setLotteriesList] = useState(ALL_LOTTERIES);
@@ -316,51 +316,6 @@ export default function Navbar() {
 
             <Button
               component={Link}
-              href="/claim"
-              startIcon={<PaidIcon />}
-              sx={{
-                color: pathname === "/claim" ? "#0B3C5D" : "#374151",
-                fontWeight: pathname === "/claim" ? 800 : 600,
-                borderRadius: "8px",
-                px: 2,
-                bgcolor: pathname === "/claim" ? "#EBF5FF" : "transparent",
-              }}
-            >
-              Claim
-            </Button>
-
-            <Button
-              component={Link}
-              href="/guide"
-              startIcon={<MenuBookIcon />}
-              sx={{
-                color: pathname === "/guide" ? "#0B3C5D" : "#374151",
-                fontWeight: pathname === "/guide" ? 800 : 600,
-                borderRadius: "8px",
-                px: 2,
-                bgcolor: pathname === "/guide" ? "#EBF5FF" : "transparent",
-              }}
-            >
-              Guide
-            </Button>
-
-            <Button
-              component={Link}
-              href="/faq"
-              startIcon={<HelpIcon />}
-              sx={{
-                color: pathname === "/faq" ? "#0B3C5D" : "#374151",
-                fontWeight: pathname === "/faq" ? 800 : 600,
-                borderRadius: "8px",
-                px: 2,
-                bgcolor: pathname === "/faq" ? "#EBF5FF" : "transparent",
-              }}
-            >
-              FAQ
-            </Button>
-
-            <Button
-              component={Link}
               href="/contact"
               startIcon={<PhoneIcon />}
               sx={{
@@ -372,6 +327,21 @@ export default function Navbar() {
               }}
             >
               Contact
+            </Button>
+
+            <Button
+              onClick={() => setDigestOpen(true)}
+              startIcon={<WhatsAppIcon sx={{ color: "#25D366" }} />}
+              sx={{
+                color: "#0B3C5D",
+                fontWeight: 700,
+                borderRadius: "8px",
+                px: 1.8,
+                bgcolor: digestOpen ? "#EBF5FF" : "transparent",
+                "&:hover": { bgcolor: "#EBF5FF" },
+              }}
+            >
+              AI Daily Status
             </Button>
 
             <Button
@@ -619,69 +589,6 @@ export default function Navbar() {
                 </Collapse>
               </ListItem>
 
-              {/* Claim */}
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  component={Link}
-                  href="/claim"
-                  onClick={handleDrawerToggle}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    bgcolor: pathname === "/claim" ? "#EBF5FF" : "transparent",
-                    color: pathname === "/claim" ? "#0B3C5D" : "#374151",
-                  }}
-                >
-                  <ListItemIcon sx={{ color: pathname === "/claim" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
-                    <PaidIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Claim" slotProps={{ primary: { sx: { fontWeight: pathname === "/claim" ? 800 : 600 } } }} />
-                </ListItemButton>
-              </ListItem>
-
-              {/* Guide */}
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  component={Link}
-                  href="/guide"
-                  onClick={handleDrawerToggle}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    bgcolor: pathname === "/guide" ? "#EBF5FF" : "transparent",
-                    color: pathname === "/guide" ? "#0B3C5D" : "#374151",
-                  }}
-                >
-                  <ListItemIcon sx={{ color: pathname === "/guide" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
-                    <MenuBookIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Guide" slotProps={{ primary: { sx: { fontWeight: pathname === "/guide" ? 800 : 600 } } }} />
-                </ListItemButton>
-              </ListItem>
-
-              {/* FAQ */}
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  component={Link}
-                  href="/faq"
-                  onClick={handleDrawerToggle}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    bgcolor: pathname === "/faq" ? "#EBF5FF" : "transparent",
-                    color: pathname === "/faq" ? "#0B3C5D" : "#374151",
-                  }}
-                >
-                  <ListItemIcon sx={{ color: pathname === "/faq" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
-                    <HelpIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="FAQ" slotProps={{ primary: { sx: { fontWeight: pathname === "/faq" ? 800 : 600 } } }} />
-                </ListItemButton>
-              </ListItem>
-
               {/* Contact */}
               <ListItem disablePadding sx={{ mb: 1 }}>
                 <ListItemButton
@@ -700,6 +607,27 @@ export default function Navbar() {
                     <PhoneIcon />
                   </ListItemIcon>
                   <ListItemText primary="Contact Us" slotProps={{ primary: { sx: { fontWeight: pathname === "/contact" ? 800 : 600 } } }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* AI Daily Status Digest */}
+              <ListItem disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  onClick={() => {
+                    handleDrawerToggle();
+                    setDigestOpen(true);
+                  }}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    color: "#0B3C5D",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: "#25D366", minWidth: 38 }}>
+                    <WhatsAppIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="AI Daily WhatsApp Status" slotProps={{ primary: { sx: { fontWeight: 700 } } }} />
                 </ListItemButton>
               </ListItem>
 
@@ -767,6 +695,12 @@ export default function Navbar() {
           </Typography>
         </Box>
       </Drawer>
+
+      {/* AI Daily WhatsApp Status & Telegram Digest Modal */}
+      <AiSocialDigestModal
+        open={digestOpen}
+        onClose={() => setDigestOpen(false)}
+      />
     </AppBar>
   );
 }
