@@ -669,82 +669,142 @@ export default function AiVoiceAssistantModal() {
             gap: 1.2,
           }}
         >
-          {/* Direct Big Mic Button */}
-          <Tooltip title={isListening ? "Listening... (Tap to stop)" : "Direct Voice Speak (സംസാരിക്കാൻ അമർത്തുക)"}>
-            <IconButton
-              onClick={toggleListening}
+          {isListening ? (
+            /* WhatsApp-style Voice Active Dock */
+            <Box
               sx={{
-                width: 48,
+                width: "100%",
                 height: 48,
-                bgcolor: isListening ? "#DC2626" : "#FEF2F2",
-                color: isListening ? "#FFFFFF" : "#DC2626",
-                border: isListening ? "2px solid #991B1B" : "1.5px solid #FCA5A5",
-                boxShadow: isListening ? "0 0 20px rgba(220, 38, 38, 0.6)" : "0 2px 8px rgba(220, 38, 38, 0.15)",
-                transition: "all 0.2s",
-                "&:hover": {
-                  bgcolor: isListening ? "#B91C1C" : "#FEE2E2",
-                  transform: "scale(1.05)",
-                },
+                bgcolor: "#FEF2F2",
+                borderRadius: "30px",
+                border: "1.5px solid #F87171",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: 1.5,
               }}
             >
-              {isListening ? <MicOffIcon fontSize="medium" /> : <MicIcon fontSize="medium" />}
-            </IconButton>
-          </Tooltip>
+              {/* Trash/Cancel Button */}
+              <Tooltip title="Cancel Voice Recording">
+                <IconButton
+                  size="small"
+                  onClick={stopListening}
+                  sx={{ bgcolor: "#FEE2E2", color: "#DC2626", "&:hover": { bgcolor: "#FECACA" } }}
+                >
+                  <DeleteOutlineRoundedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
 
-          {/* Text Input */}
-          <TextField
-            fullWidth
-            size="small"
-            placeholder={
-              isListening
-                ? "Listening... സംസാരിക്കൂ..."
-                : selectedLang === "ml-IN"
-                  ? "സംസാരിക്കാൻ മൈക്ക് അമർത്തുക അല്ലെങ്കിൽ ടൈപ്പ് ചെയ്യുക..."
-                  : "Tap mic to speak or type query..."
-            }
-            value={inputMsg}
-            onChange={(e) => setInputMsg(e.target.value)}
-            disabled={isLoading}
-            variant="outlined"
-            slotProps={{
-              input: {
-                sx: {
-                  borderRadius: "30px",
-                  bgcolor: "#F8FAFC",
-                  fontSize: "0.9rem",
-                  "& fieldset": { borderColor: "#E2E8F0" },
-                  "&:hover fieldset": { borderColor: "#94A3B8" },
-                  "&.Mui-focused fieldset": { borderColor: "#0B3C5D" },
-                },
-              },
-            }}
-          />
+              {/* Pulsing Timer */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    bgcolor: "#DC2626",
+                    animation: "pulse 1s infinite",
+                  }}
+                />
+                <Typography sx={{ color: "#DC2626", fontWeight: 800, fontSize: "0.9rem" }}>
+                  Recording...
+                </Typography>
+              </Box>
 
-          {/* Send Button */}
-          <IconButton
-            type="submit"
-            disabled={!inputMsg.trim() || isLoading}
-            sx={{
-              width: 44,
-              height: 44,
-              bgcolor: "#0B3C5D",
-              color: "#FFFFFF",
-              borderRadius: "50%",
-              boxShadow: "0 4px 12px rgba(11, 60, 93, 0.25)",
-              transition: "all 0.2s",
-              "&:hover": {
-                bgcolor: "#07263b",
-                transform: "scale(1.05)",
-              },
-              "&.Mui-disabled": {
-                bgcolor: "#F1F5F9",
-                color: "#94A3B8",
-                boxShadow: "none",
-              },
-            }}
-          >
-            <SendRoundedIcon fontSize="small" />
-          </IconButton>
+              {/* Animated Waveform Equalizer Timeline */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: "3px", height: 24, mx: 1 }}>
+                {[8, 16, 22, 12, 24, 18, 14, 20, 10, 24, 16, 12, 18, 8].map((h, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      width: 3,
+                      height: h,
+                      bgcolor: "#DC2626",
+                      borderRadius: 1,
+                      animation: `pulse ${0.4 + (i % 5) * 0.15}s ease-in-out infinite alternate`,
+                    }}
+                  />
+                ))}
+              </Box>
+
+              {/* Done/Send Button */}
+              <Tooltip title="Send Voice Query">
+                <IconButton
+                  size="small"
+                  onClick={stopListening}
+                  sx={{ bgcolor: "#16A34A", color: "#FFFFFF", "&:hover": { bgcolor: "#15803D" } }}
+                >
+                  <SendRoundedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          ) : (
+            /* Normal Input Bar with Mic */
+            <>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder={
+                  selectedLang === "ml-IN"
+                    ? "ചോദിക്കാൻ മൈക്ക് അമർത്തുക അല്ലെങ്കിൽ ടൈപ്പ് ചെയ്യുക..."
+                    : "Tap mic to speak or type query..."
+                }
+                value={inputMsg}
+                onChange={(e) => setInputMsg(e.target.value)}
+                disabled={isLoading}
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    sx: {
+                      borderRadius: "30px",
+                      bgcolor: "#F8FAFC",
+                      fontSize: "0.9rem",
+                      "& fieldset": { borderColor: "#E2E8F0" },
+                      "&:hover fieldset": { borderColor: "#94A3B8" },
+                      "&.Mui-focused fieldset": { borderColor: "#0B3C5D" },
+                    },
+                  },
+                }}
+              />
+
+              {inputMsg.trim().length > 0 ? (
+                <IconButton
+                  type="submit"
+                  disabled={isLoading}
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    bgcolor: "#0B3C5D",
+                    color: "#FFFFFF",
+                    borderRadius: "50%",
+                    boxShadow: "0 4px 12px rgba(11, 60, 93, 0.25)",
+                    transition: "all 0.2s",
+                    "&:hover": { bgcolor: "#07263b", transform: "scale(1.05)" },
+                  }}
+                >
+                  <SendRoundedIcon fontSize="small" />
+                </IconButton>
+              ) : (
+                <Tooltip title="Tap to Speak (സംസാരിക്കാൻ അമർത്തുക)">
+                  <IconButton
+                    onClick={toggleListening}
+                    sx={{
+                      width: 44,
+                      height: 44,
+                      bgcolor: "#DC2626",
+                      color: "#FFFFFF",
+                      borderRadius: "50%",
+                      boxShadow: "0 4px 14px rgba(220, 38, 38, 0.35)",
+                      transition: "all 0.2s",
+                      "&:hover": { bgcolor: "#B91C1C", transform: "scale(1.05)" },
+                    }}
+                  >
+                    <MicIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </>
+          )}
         </Paper>
       </Dialog>
     </>
