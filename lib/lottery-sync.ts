@@ -1,9 +1,11 @@
 import { saveDrawResultToSupabase, StructuredDrawResult, ALL_LOTTERIES } from "./supabase";
+import { broadcastFirstPrizeResult } from "./broadcaster";
 
 export async function fetchAndSyncLatestLottery(): Promise<{
   success: boolean;
   data?: StructuredDrawResult;
   error?: string;
+  broadcast?: any;
 }> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -60,10 +62,11 @@ export async function fetchAndSyncLatestLottery(): Promise<{
     lottery_code = matched.code;
     draw_name = matched.name;
 
-    const payload = {
+    const payload: StructuredDrawResult = {
       draw_date: json.draw_date,
       draw_name,
       draw_code: json.draw_code,
+      lottery_code,
       first: json.first || {},
       prizes: json.prizes || {},
     };
@@ -71,12 +74,18 @@ export async function fetchAndSyncLatestLottery(): Promise<{
     // Save exclusively to Supabase DB
     await saveDrawResultToSupabase(payload);
 
+    // Auto-broadcast 1st Prize to Telegram Channels/Groups and WhatsApp (runs with smart deduplication)
+    let broadcastResult: any = null;
+    try {
+      broadcastResult = await broadcastFirstPrizeResult(payload);
+    } catch (bErr) {
+      console.warn("[Broadcast Error during sync]:", bErr);
+    }
+
     return {
       success: true,
-      data: {
-        ...payload,
-        lottery_code,
-      },
+      data: payload,
+      broadcast: broadcastResult,
     };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Failed to fetch from indialotteryapi";

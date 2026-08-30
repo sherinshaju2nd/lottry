@@ -47,6 +47,10 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CampaignIcon from "@mui/icons-material/Campaign";
+import TelegramIcon from "@mui/icons-material/Telegram";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import SendIcon from "@mui/icons-material/Send";
 
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import AiGazettePdfUploader from "@/components/admin/AiGazettePdfUploader";
@@ -67,7 +71,7 @@ export default function AdminDashboardPage() {
   // Tab 0: Draws state
   const [draws, setDraws] = useState<StructuredDrawResult[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<{ type: "success" | "error" | "warning"; message: string } | null>(null);
+  const [syncStatus, setSyncStatus] = useState<{ type: "success" | "error" | "warning" | "info"; message: string } | null>(null);
   const [isLoadingDraws, setIsLoadingDraws] = useState(true);
   const [searchDrawTerm, setSearchDrawTerm] = useState("");
 
@@ -217,11 +221,100 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Tab 4: 1st Prize Broadcast State
+  const [broadcastStatus, setBroadcastStatus] = useState<any>(null);
+  const [isLoadingBroadcast, setIsLoadingBroadcast] = useState(false);
+  const [isTestingTg, setIsTestingTg] = useState(false);
+  const [isTestingWa, setIsTestingWa] = useState(false);
+  const [isBroadcastingManual, setIsBroadcastingManual] = useState(false);
+  const [selectedBroadcastDrawDate, setSelectedBroadcastDrawDate] = useState<string>("");
+
+  const loadBroadcastStatus = async () => {
+    setIsLoadingBroadcast(true);
+    try {
+      const res = await fetch("/api/admin/broadcast");
+      const json = await res.json();
+      if (json.success) setBroadcastStatus(json.status);
+    } catch {
+      // ignore
+    } finally {
+      setIsLoadingBroadcast(false);
+    }
+  };
+
+  const handleTestTelegram = async () => {
+    setIsTestingTg(true);
+    try {
+      const res = await fetch("/api/admin/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "test_telegram" }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setSyncStatus({ type: "success", message: "✅ Telegram test broadcast sent successfully to your channel/group!" });
+      } else {
+        setSyncStatus({ type: "error", message: `Telegram test failed: ${json.error || "Please check TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env"}` });
+      }
+    } catch (e: any) {
+      setSyncStatus({ type: "error", message: e.message || "Telegram test error" });
+    } finally {
+      setIsTestingTg(false);
+      await loadBroadcastStatus();
+    }
+  };
+
+  const handleTestWhatsApp = async () => {
+    setIsTestingWa(true);
+    try {
+      const res = await fetch("/api/admin/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "test_whatsapp" }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setSyncStatus({ type: "success", message: "✅ WhatsApp test message sent successfully to your group/channel!" });
+      } else {
+        setSyncStatus({ type: "error", message: `WhatsApp test failed: ${json.error || "Please check WHATSAPP_API_URL / WHATSAPP_API_TOKEN in .env"}` });
+      }
+    } catch (e: any) {
+      setSyncStatus({ type: "error", message: e.message || "WhatsApp test error" });
+    } finally {
+      setIsTestingWa(false);
+      await loadBroadcastStatus();
+    }
+  };
+
+  const handleBroadcastDrawNow = async (drawDate: string, lotteryCode: string) => {
+    if (!drawDate || !lotteryCode) return;
+    setIsBroadcastingManual(true);
+    try {
+      const res = await fetch("/api/admin/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "broadcast_draw", draw_date: drawDate, lottery_code: lotteryCode, force: true }),
+      });
+      const json = await res.json();
+      if (json.success && json.result?.broadcastTriggered) {
+        setSyncStatus({ type: "success", message: `🎉 1st Prize for ${drawDate} successfully broadcasted to Telegram and WhatsApp!` });
+      } else {
+        setSyncStatus({ type: "info", message: json.result?.reason || json.error || "Broadcast action completed." });
+      }
+    } catch (e: any) {
+      setSyncStatus({ type: "error", message: e.message || "Broadcast error" });
+    } finally {
+      setIsBroadcastingManual(false);
+      await loadBroadcastStatus();
+    }
+  };
+
   useEffect(() => {
     loadDraws();
     loadPostponed();
     loadLotteries();
     loadCronConfigAndLogs();
+    loadBroadcastStatus();
   }, []);
 
   // Sync Latest API Result
@@ -806,6 +899,7 @@ export default function AdminDashboardPage() {
           <Tab icon={<EventBusyIcon />} iconPosition="start" label={`Postponed & No-Draw Spotter (${postponedList.length})`} />
           <Tab icon={<EmojiEventsIcon />} iconPosition="start" label={`Bumper Lotteries Hub (${bumperLotteries.length})`} />
           <Tab icon={<SettingsIcon />} iconPosition="start" label="Cron & Automation Settings" />
+          <Tab icon={<CampaignIcon />} iconPosition="start" label="📢 1st Prize Broadcast" />
         </Tabs>
       </Paper>
 
@@ -1500,6 +1594,305 @@ export default function AdminDashboardPage() {
                 </Typography>
                 <Box sx={{ p: 2, bgcolor: "#1E293B", color: "#E2E8F0", borderRadius: "8px", fontFamily: "monospace", fontSize: "0.8rem", wordBreak: "break-all" }}>
                   SELECT cron.schedule(&apos;lottery_sync_master_daily&apos;, &apos;* 8-13 * * *&apos;, $$SELECT public.trigger_lottery_sync();$$);
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 4: 1ST PRIZE BROADCAST TO TELEGRAM & WHATSAPP                         */}
+      {/* ========================================================================= */}
+      {currentTab === 4 && (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {/* Header Banner */}
+          <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B", display: "flex", alignItems: "center", gap: 1 }}>
+                  📢 1st Prize Instant Broadcast to Telegram & WhatsApp
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#64748B", mt: 0.5 }}>
+                  Automatically triggers an instant alert containing ONLY the 1st Prize Winning Number and direct link to website / mobile app when results are published.
+                </Typography>
+              </Box>
+
+              <Button
+                startIcon={<RefreshIcon />}
+                onClick={loadBroadcastStatus}
+                disabled={isLoadingBroadcast}
+                variant="outlined"
+                sx={{ borderRadius: "8px", textTransform: "none", fontWeight: 700 }}
+              >
+                {isLoadingBroadcast ? "Refreshing..." : "Refresh Status"}
+              </Button>
+            </Box>
+          </Paper>
+
+          {/* Service Status Cards Grid */}
+          <Grid container spacing={3}>
+            {/* Telegram Channel / Group Status */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <Box>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <Box sx={{ width: 40, height: 40, borderRadius: "10px", bgcolor: "#0088CC", color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <TelegramIcon fontSize="medium" />
+                      </Box>
+                      <Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1E293B" }}>
+                          Telegram Channel / Group
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600 }}>
+                          Official Bot API Broadcast
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Chip
+                      label={broadcastStatus?.telegram?.configured ? "CONFIGURED (.env)" : "NOT CONFIGURED"}
+                      color={broadcastStatus?.telegram?.configured ? "success" : "default"}
+                      size="small"
+                      sx={{ fontWeight: 800, borderRadius: "6px", fontSize: "0.72rem" }}
+                    />
+                  </Box>
+
+                  <Divider sx={{ my: 1.5 }} />
+
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
+                        TELEGRAM_BOT_TOKEN:
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: broadcastStatus?.telegram?.bot_token_set ? "#16A34A" : "#DC2626" }}>
+                        {broadcastStatus?.telegram?.bot_token_set ? "Set in .env (Hidden)" : "Missing in .env"}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
+                        TELEGRAM_CHAT_ID:
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#0B3C5D" }}>
+                        {broadcastStatus?.telegram?.chat_id || "None"}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
+                        Auto-Broadcast Status:
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: broadcastStatus?.telegram?.enabled ? "#16A34A" : "#DC2626" }}>
+                        {broadcastStatus?.telegram?.enabled ? "ENABLED" : "DISABLED"}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+
+                <Button
+                  fullWidth
+                  variant="contained"
+                  startIcon={isTestingTg ? <CircularProgress size={16} color="inherit" /> : <SendIcon />}
+                  disabled={isTestingTg || !broadcastStatus?.telegram?.configured}
+                  onClick={handleTestTelegram}
+                  sx={{
+                    bgcolor: "#0088CC",
+                    color: "#FFFFFF",
+                    fontWeight: 800,
+                    textTransform: "none",
+                    borderRadius: "10px",
+                    py: 1.2,
+                    "&:hover": { bgcolor: "#0077B5" },
+                  }}
+                >
+                  {isTestingTg ? "Sending Test..." : "Send Test Alert to Telegram"}
+                </Button>
+              </Paper>
+            </Grid>
+
+            {/* WhatsApp Group / Channel Status */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <Box>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <Box sx={{ width: 40, height: 40, borderRadius: "10px", bgcolor: "#25D366", color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <WhatsAppIcon fontSize="medium" />
+                      </Box>
+                      <Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1E293B" }}>
+                          WhatsApp Channel / Group
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600 }}>
+                          Cloud API & Webhook Gateway
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Chip
+                      label={broadcastStatus?.whatsapp?.configured ? "CONFIGURED (.env)" : "NOT CONFIGURED"}
+                      color={broadcastStatus?.whatsapp?.configured ? "success" : "default"}
+                      size="small"
+                      sx={{ fontWeight: 800, borderRadius: "6px", fontSize: "0.72rem" }}
+                    />
+                  </Box>
+
+                  <Divider sx={{ my: 1.5 }} />
+
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
+                        Provider Mode:
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#0B3C5D" }}>
+                        {broadcastStatus?.whatsapp?.provider === "meta_cloud_api" ? "Meta Cloud API" : broadcastStatus?.whatsapp?.provider === "webhook_gateway" ? "Webhook Gateway" : "None"}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
+                        Recipient (Group/Phone):
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#0B3C5D" }}>
+                        {broadcastStatus?.whatsapp?.recipient || "None"}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
+                        Auto-Broadcast Status:
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: broadcastStatus?.whatsapp?.enabled ? "#16A34A" : "#DC2626" }}>
+                        {broadcastStatus?.whatsapp?.enabled ? "ENABLED" : "DISABLED"}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+
+                <Button
+                  fullWidth
+                  variant="contained"
+                  startIcon={isTestingWa ? <CircularProgress size={16} color="inherit" /> : <SendIcon />}
+                  disabled={isTestingWa || !broadcastStatus?.whatsapp?.configured}
+                  onClick={handleTestWhatsApp}
+                  sx={{
+                    bgcolor: "#16A34A",
+                    color: "#FFFFFF",
+                    fontWeight: 800,
+                    textTransform: "none",
+                    borderRadius: "10px",
+                    py: 1.2,
+                    "&:hover": { bgcolor: "#15803D" },
+                  }}
+                >
+                  {isTestingWa ? "Sending Test..." : "Send Test Alert to WhatsApp"}
+                </Button>
+              </Paper>
+            </Grid>
+
+            {/* Manual Broadcast & Last Broadcast Status */}
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%" }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1E293B", mb: 1 }}>
+                  🚀 Manual 1st Prize Broadcast Trigger
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#64748B", mb: 2 }}>
+                  Select any draw result from your archive to immediately push its 1st Prize announcement to Telegram and WhatsApp.
+                </Typography>
+
+                <Box sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap", mb: 3 }}>
+                  <TextField
+                    select
+                    size="small"
+                    label="Select Draw Result"
+                    value={selectedBroadcastDrawDate}
+                    onChange={(e) => setSelectedBroadcastDrawDate(e.target.value)}
+                    sx={{ minWidth: 280, flex: 1 }}
+                  >
+                    {draws.slice(0, 15).map((d) => (
+                      <MenuItem key={`${d.draw_date}_${d.lottery_code}`} value={`${d.draw_date}|${d.lottery_code}`}>
+                        {d.draw_date} - {d.draw_name} (1st: {d.first?.ticket || "None"})
+                      </MenuItem>
+                    ))}
+                  </TextField>
+
+                  <Button
+                    variant="contained"
+                    startIcon={isBroadcastingManual ? <CircularProgress size={16} color="inherit" /> : <CampaignIcon />}
+                    disabled={isBroadcastingManual || !selectedBroadcastDrawDate}
+                    onClick={() => {
+                      const [drawDate, lotteryCode] = selectedBroadcastDrawDate.split("|");
+                      handleBroadcastDrawNow(drawDate, lotteryCode);
+                    }}
+                    sx={{
+                      bgcolor: "#0B3C5D",
+                      color: "#FFFFFF",
+                      fontWeight: 800,
+                      textTransform: "none",
+                      borderRadius: "8px",
+                      px: 3,
+                      py: 1,
+                      "&:hover": { bgcolor: "#07263b" },
+                    }}
+                  >
+                    {isBroadcastingManual ? "Broadcasting..." : "Broadcast 1st Prize Now"}
+                  </Button>
+                </Box>
+
+                <Divider sx={{ my: 2 }} />
+
+                <Box sx={{ bgcolor: "#F8FAFC", p: 2, borderRadius: "10px", border: "1px solid #E2E8F0" }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: "#475569", display: "block", mb: 0.5 }}>
+                    🔒 SMART DEDUPLICATION & LAST BROADCAST STATE:
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#1E293B", fontWeight: 600 }}>
+                    Last Broadcast Draw: <strong>{broadcastStatus?.last_broadcast?.draw || "No broadcasts recorded yet"}</strong>
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "#64748B", display: "block" }}>
+                    Timestamp: {broadcastStatus?.last_broadcast?.time ? new Date(broadcastStatus.last_broadcast.time).toLocaleString() : "—"}
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* Message Preview Box */}
+            <Grid size={{ xs: 12, md: 5 }}>
+              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%" }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#1E293B", mb: 1 }}>
+                  📱 Broadcast Message Layout (Preview)
+                </Typography>
+                <Typography variant="caption" sx={{ color: "#64748B", display: "block", mb: 1.5 }}>
+                  This exact formatted text with 1st Prize and clickable website / mobile app link is delivered:
+                </Typography>
+
+                <Box
+                  sx={{
+                    bgcolor: "#1E293B",
+                    color: "#F8FAFC",
+                    p: 2,
+                    borderRadius: "12px",
+                    fontFamily: "monospace",
+                    fontSize: "0.78rem",
+                    lineHeight: 1.6,
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  {`🎉 *KERALA LOTTERY 1st PRIZE RESULT* 🎉
+━━━━━━━━━━━━━━━━━━━━━━
+🎫 *Lottery:* Sthree Sakthi (SS-450)
+📅 *Draw Date:* ${new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })}
+💰 *1st Prize Amount:* ₹75,00,000 (₹75 Lakhs)
+
+🏆 *1st PRIZE WINNING NUMBER:*
+👉 🔴 *SE 974999* 🔴 👈
+━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 *Check 2nd to 8th Prizes & Verify Your Ticket Number:*
+👉 https://www.keralalotteryresultstoday.in/sthreesakthi/${new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })}
+
+📲 Open on Web or Mobile App to check complete results and search your ticket series!`}
                 </Box>
               </Paper>
             </Grid>
