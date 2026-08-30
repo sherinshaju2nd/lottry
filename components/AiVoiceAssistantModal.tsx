@@ -522,7 +522,7 @@ export default function AiVoiceAssistantModal() {
       <Dialog
         open={open}
         onClose={handleCloseModal}
-        TransitionComponent={Transition}
+        slots={{ transition: Transition }}
         maxWidth="sm"
         fullWidth
         scroll="paper"
