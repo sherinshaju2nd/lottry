@@ -24,6 +24,11 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HelpIcon from "@mui/icons-material/Help";
 import MicIcon from "@mui/icons-material/Mic";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
@@ -34,6 +39,12 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
+import PlaceIcon from "@mui/icons-material/Place";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import confetti from "canvas-confetti";
 import {
   WEEKLY_LOTTERIES,
@@ -87,9 +98,14 @@ export interface LotteryItem {
 }
 
 export default function HomePage() {
-  const [todayLottery, setTodayLottery] = useState<LotteryItem>(WEEKLY_LOTTERIES[0]);
-  const [lotteriesList, setLotteriesList] = useState<LotteryItem[]>(WEEKLY_LOTTERIES);
-  const [bumperLotteriesList, setBumperLotteriesList] = useState<LotteryItem[]>(BUMPER_LOTTERIES as any);
+  const [todayLottery, setTodayLottery] = useState<LotteryItem>(
+    WEEKLY_LOTTERIES[0],
+  );
+  const [lotteriesList, setLotteriesList] =
+    useState<LotteryItem[]>(WEEKLY_LOTTERIES);
+  const [bumperLotteriesList, setBumperLotteriesList] = useState<LotteryItem[]>(
+    BUMPER_LOTTERIES as any,
+  );
   const [todayDayName, setTodayDayName] = useState("Sunday");
   const [isTodayBumper, setIsTodayBumper] = useState(false);
   const [todayBumperInfo, setTodayBumperInfo] = useState<any>(null);
@@ -187,13 +203,17 @@ export default function HomePage() {
               drawTime: d.draw_time || "3:00 PM",
               is_bumper: d.is_bumper ?? d.day.toLowerCase().includes("bumper"),
             }))
-            .filter((l: any) => !l.is_bumper && !l.day.toLowerCase().includes("bumper"));
+            .filter(
+              (l: any) =>
+                !l.is_bumper && !l.day.toLowerCase().includes("bumper"),
+            );
 
           // Check if today is a scheduled Bumper Lottery draw day
           const todayBumper = data.find(
             (d: any) =>
-              (d.is_bumper || (d.day && d.day.toLowerCase().includes("bumper"))) &&
-              d.draw_date === todayISTDate
+              (d.is_bumper ||
+                (d.day && d.day.toLowerCase().includes("bumper"))) &&
+              d.draw_date === todayISTDate,
           );
 
           if (todayBumper) {
@@ -218,7 +238,9 @@ export default function HomePage() {
             const matchedDb =
               weeklyMapped.find(
                 (l: any) => l.day.toLowerCase() === istDayName.toLowerCase(),
-              ) || weeklyMapped[0] || WEEKLY_LOTTERIES[0];
+              ) ||
+              weeklyMapped[0] ||
+              WEEKLY_LOTTERIES[0];
             setTodayLottery(matchedDb);
             checkTodayData(matchedDb.code);
           }
@@ -231,12 +253,20 @@ export default function HomePage() {
               code: d.code,
               drawTime: d.draw_time || "2:00 PM",
               is_bumper: d.is_bumper ?? d.day.toLowerCase().includes("bumper"),
-              jackpot: d.jackpot || (BUMPER_LOTTERIES.find((b) => b.code === d.code)?.jackpot || "₹10 Crore"),
-              draw_season: d.draw_season || (BUMPER_LOTTERIES.find((b) => b.code === d.code)?.draw_season || d.day),
+              jackpot:
+                d.jackpot ||
+                BUMPER_LOTTERIES.find((b) => b.code === d.code)?.jackpot ||
+                "₹10 Crore",
+              draw_season:
+                d.draw_season ||
+                BUMPER_LOTTERIES.find((b) => b.code === d.code)?.draw_season ||
+                d.day,
               draw_date: d.draw_date || undefined,
               ticket_price: d.ticket_price || undefined,
             }))
-            .filter((l: any) => l.is_bumper || l.day.toLowerCase().includes("bumper"));
+            .filter(
+              (l: any) => l.is_bumper || l.day.toLowerCase().includes("bumper"),
+            );
 
           if (bumperMapped.length > 0) {
             const monthOrder = ["XN", "SB", "VB", "MB", "TH", "PB"];
@@ -279,8 +309,12 @@ export default function HomePage() {
         const json = await res.json();
         if (json.success && json.list && json.list.length > 0) {
           // If today is a Bumper day, only apply postponement if it targets this bumper or ALL
-          const validPostpone = json.list.find((p: PostponedDraw) => 
-            p.lottery_code === "ALL" || (todayBumperInfo ? p.lottery_code === todayBumperInfo.code : true)
+          const validPostpone = json.list.find(
+            (p: PostponedDraw) =>
+              p.lottery_code === "ALL" ||
+              (todayBumperInfo
+                ? p.lottery_code === todayBumperInfo.code
+                : true),
           );
           setTodayPostponement(validPostpone || null);
         } else {
@@ -348,7 +382,11 @@ export default function HomePage() {
       }
     }
 
-    Promise.all([checkTodayData(), loadRecentDrawsMap(), checkTodayPostponement()]).finally(() => {
+    Promise.all([
+      checkTodayData(),
+      loadRecentDrawsMap(),
+      checkTodayPostponement(),
+    ]).finally(() => {
       setIsLoading(false);
     });
 
@@ -493,9 +531,7 @@ export default function HomePage() {
           justifyContent: "center",
           borderRadius: { xs: "20px", sm: "28px" },
           bgcolor:
-            isTodayBumper && heroSlideIndex === 0
-              ? "#FFFDF0"
-              : "#F4F6F8",
+            isTodayBumper && heroSlideIndex === 0 ? "#FFFDF0" : "#F4F6F8",
           border:
             isTodayBumper && heroSlideIndex === 0
               ? "2px solid #F59E0B"
@@ -510,27 +546,59 @@ export default function HomePage() {
         }}
       >
         {isLoading && (
-          <Grid container spacing={4} sx={{ position: "relative", zIndex: 1, alignItems: "center" }}>
+          <Grid
+            container
+            spacing={4}
+            sx={{ position: "relative", zIndex: 1, alignItems: "center" }}
+          >
             {/* Left Content Skeleton */}
             <Grid size={{ xs: 12, md: 7, lg: 8 }}>
               <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
-                <Skeleton variant="rounded" width={180} height={28} sx={{ borderRadius: "20px" }} />
-                <Skeleton variant="rounded" width={180} height={28} sx={{ borderRadius: "20px" }} />
+                <Skeleton
+                  variant="rounded"
+                  width={180}
+                  height={28}
+                  sx={{ borderRadius: "20px" }}
+                />
+                <Skeleton
+                  variant="rounded"
+                  width={180}
+                  height={28}
+                  sx={{ borderRadius: "20px" }}
+                />
               </Box>
               <Skeleton variant="text" width="60%" height={48} sx={{ mb: 1 }} />
               <Skeleton variant="text" width="40%" height={32} sx={{ mb: 2 }} />
               <Skeleton variant="text" width="85%" height={20} />
               <Skeleton variant="text" width="80%" height={20} sx={{ mb: 4 }} />
-              
+
               <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
-                <Skeleton variant="rounded" width={260} height={44} sx={{ borderRadius: "8px" }} />
-                <Skeleton variant="rounded" width={120} height={44} sx={{ borderRadius: "8px" }} />
+                <Skeleton
+                  variant="rounded"
+                  width={260}
+                  height={44}
+                  sx={{ borderRadius: "8px" }}
+                />
+                <Skeleton
+                  variant="rounded"
+                  width={120}
+                  height={44}
+                  sx={{ borderRadius: "8px" }}
+                />
               </Box>
-              <Skeleton variant="rounded" width={200} height={36} sx={{ borderRadius: "8px" }} />
+              <Skeleton
+                variant="rounded"
+                width={200}
+                height={36}
+                sx={{ borderRadius: "8px" }}
+              />
             </Grid>
 
             {/* Right Winner Card Skeleton (Desktop only) */}
-            <Grid size={{ xs: 12, md: 5, lg: 4 }} sx={{ display: { xs: "none", md: "block" } }}>
+            <Grid
+              size={{ xs: 12, md: 5, lg: 4 }}
+              sx={{ display: { xs: "none", md: "block" } }}
+            >
               <Paper
                 elevation={0}
                 sx={{
@@ -541,12 +609,42 @@ export default function HomePage() {
                   boxShadow: "0 10px 25px rgba(0, 0, 0, 0.04)",
                 }}
               >
-                <Skeleton variant="rounded" width={160} height={24} sx={{ borderRadius: "12px", mb: 2 }} />
-                <Skeleton variant="text" width="50%" height={16} sx={{ mb: 1 }} />
-                <Skeleton variant="text" width="80%" height={48} sx={{ mb: 2 }} />
-                <Skeleton variant="text" width="60%" height={20} sx={{ mb: 1 }} />
-                <Skeleton variant="text" width="50%" height={20} sx={{ mb: 2 }} />
-                <Skeleton variant="rounded" width="100%" height={36} sx={{ borderRadius: "8px" }} />
+                <Skeleton
+                  variant="rounded"
+                  width={160}
+                  height={24}
+                  sx={{ borderRadius: "12px", mb: 2 }}
+                />
+                <Skeleton
+                  variant="text"
+                  width="50%"
+                  height={16}
+                  sx={{ mb: 1 }}
+                />
+                <Skeleton
+                  variant="text"
+                  width="80%"
+                  height={48}
+                  sx={{ mb: 2 }}
+                />
+                <Skeleton
+                  variant="text"
+                  width="60%"
+                  height={20}
+                  sx={{ mb: 1 }}
+                />
+                <Skeleton
+                  variant="text"
+                  width="50%"
+                  height={20}
+                  sx={{ mb: 2 }}
+                />
+                <Skeleton
+                  variant="rounded"
+                  width="100%"
+                  height={36}
+                  sx={{ borderRadius: "8px" }}
+                />
               </Paper>
             </Grid>
           </Grid>
@@ -724,15 +822,31 @@ export default function HomePage() {
                       variant="body2"
                       sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}
                     >
-                      Agent:{" "}
-                      <strong>{todayDrawResult.first.agent}</strong>
+                      Agent: <strong>{todayDrawResult.first.agent}</strong>
                     </Typography>
                   )}
 
                   {/* Available Live Prize Tiers Preview */}
                   {todayDrawResult.prizes && (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 1.5 }}>
-                      {["consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"]
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 0.5,
+                        mt: 1.5,
+                      }}
+                    >
+                      {[
+                        "consolation",
+                        "2nd",
+                        "3rd",
+                        "4th",
+                        "5th",
+                        "6th",
+                        "7th",
+                        "8th",
+                        "9th",
+                      ]
                         .filter((tier) => {
                           const arr = (todayDrawResult.prizes as any)?.[tier];
                           return Array.isArray(arr) && arr.length > 0;
@@ -740,7 +854,11 @@ export default function HomePage() {
                         .map((tier) => (
                           <Chip
                             key={tier}
-                            label={tier === "consolation" ? "Consolation" : `${tier} Prize`}
+                            label={
+                              tier === "consolation"
+                                ? "Consolation"
+                                : `${tier} Prize`
+                            }
                             size="small"
                             sx={{
                               fontSize: "0.65rem",
@@ -756,7 +874,10 @@ export default function HomePage() {
 
                   <Button
                     component={Link}
-                    href={getLotteryUrl(todayDrawResult.lottery_code, todayDrawResult.draw_date)}
+                    href={getLotteryUrl(
+                      todayDrawResult.lottery_code,
+                      todayDrawResult.draw_date,
+                    )}
                     size="small"
                     variant="outlined"
                     fullWidth
@@ -795,18 +916,27 @@ export default function HomePage() {
                     borderRadius: "20px",
                     bgcolor: isTodayBumper ? "#FEF9C3" : "#FFFFFF",
                     mb: 2,
-                    border: isTodayBumper ? "1.5px solid #F59E0B" : "1px solid #E5E7EB",
+                    border: isTodayBumper
+                      ? "1.5px solid #F59E0B"
+                      : "1px solid #E5E7EB",
                   }}
                 >
                   <Typography
                     variant="subtitle1"
-                    sx={{ color: isTodayBumper ? "#78350F" : "#374151", fontWeight: 800 }}
+                    sx={{
+                      color: isTodayBumper ? "#78350F" : "#374151",
+                      fontWeight: 800,
+                    }}
                   >
                     {todayLottery.nameMl || todayLottery.name}
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: isTodayBumper ? "#B45309" : "#D97706", fontWeight: 900, mt: 1 }}
+                    sx={{
+                      color: isTodayBumper ? "#B45309" : "#D97706",
+                      fontWeight: 900,
+                      mt: 1,
+                    }}
                   >
                     {isTodayBumper
                       ? `🏆 1st Prize: ${todayLottery.jackpot || "₹25 Crore"}`
@@ -931,9 +1061,21 @@ export default function HomePage() {
 
               {/* Gold Bumper Highlight Ribbons */}
               {isTodayBumper && (
-                <Box sx={{ display: "flex", gap: 1.2, flexWrap: "wrap", mb: 2, mt: 1 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1.2,
+                    flexWrap: "wrap",
+                    mb: 2,
+                    mt: 1,
+                  }}
+                >
                   <Chip
-                    icon={<EmojiEventsIcon sx={{ fontSize: "16px !important", color: "#FFFFFF" }} />}
+                    icon={
+                      <EmojiEventsIcon
+                        sx={{ fontSize: "16px !important", color: "#FFFFFF" }}
+                      />
+                    }
                     label={`1ST PRIZE: ${todayLottery.jackpot || "₹25 Crore"}`}
                     sx={{
                       bgcolor: "#D97706",
@@ -948,7 +1090,11 @@ export default function HomePage() {
                   />
                   {todayLottery.ticket_price && (
                     <Chip
-                      icon={<ConfirmationNumberIcon sx={{ fontSize: "15px !important", color: "#92400E" }} />}
+                      icon={
+                        <ConfirmationNumberIcon
+                          sx={{ fontSize: "15px !important", color: "#92400E" }}
+                        />
+                      }
                       label={`TICKET: ${todayLottery.ticket_price}`}
                       sx={{
                         bgcolor: "#FDE68A",
@@ -963,7 +1109,11 @@ export default function HomePage() {
                     />
                   )}
                   <Chip
-                    icon={<AccessTimeIcon sx={{ fontSize: "15px !important", color: "#92400E" }} />}
+                    icon={
+                      <AccessTimeIcon
+                        sx={{ fontSize: "15px !important", color: "#92400E" }}
+                      />
+                    }
                     label={`DRAW TIME: ${todayLottery.drawTime || "2:00 PM"}`}
                     sx={{
                       bgcolor: "#FEF3C7",
@@ -1001,13 +1151,18 @@ export default function HomePage() {
                     fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
                   }}
                 >
-                  Drawn Today ({todayDrawResult.draw_date}), {todayLottery.drawTime || "3:00 PM"}
+                  Drawn Today ({todayDrawResult.draw_date}),{" "}
+                  {todayLottery.drawTime || "3:00 PM"}
                 </Typography>
               ) : (
                 <Typography
                   variant="h6"
                   sx={{
-                    color: isTodayBumper ? "#92400E" : (isAfter3PM ? "#1E40AF" : "#D97706"),
+                    color: isTodayBumper
+                      ? "#92400E"
+                      : isAfter3PM
+                        ? "#1E40AF"
+                        : "#D97706",
                     fontWeight: 800,
                     mb: 2,
                     fontSize: { xs: "0.95rem", sm: "1.3rem", lg: "1.6rem" },
@@ -1015,9 +1170,9 @@ export default function HomePage() {
                 >
                   {isTodayBumper
                     ? `Special Bumper Draw Scheduled Today at ${todayLottery.drawTime || "2:00 PM"} (No regular weekly draw today)`
-                    : (isAfter3PM
-                        ? "Drawing is currently in progress..."
-                        : "Draw Scheduled Today at 3:00 PM • Results Coming Soon")}
+                    : isAfter3PM
+                      ? "Drawing is currently in progress..."
+                      : "Draw Scheduled Today at 3:00 PM • Results Coming Soon"}
                 </Typography>
               )}
 
@@ -1033,12 +1188,16 @@ export default function HomePage() {
                     color: "#92400E",
                   }}
                 >
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: 800, mb: 0.5 }}
+                  >
                     📢 Public Notice: {todayPostponement.reason}
                   </Typography>
                   {todayPostponement.rescheduled_date && (
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                      🗓️ Rescheduled Draw Date: {todayPostponement.rescheduled_date}
+                      🗓️ Rescheduled Draw Date:{" "}
+                      {todayPostponement.rescheduled_date}
                     </Typography>
                   )}
                 </Alert>
@@ -1129,8 +1288,12 @@ export default function HomePage() {
                       <TextField
                         {...register("ticketNumber", {
                           onChange: (e) => {
-                            const formatted = formatTicketSearchInput(e.target.value);
-                            setValue("ticketNumber", formatted, { shouldValidate: true });
+                            const formatted = formatTicketSearchInput(
+                              e.target.value,
+                            );
+                            setValue("ticketNumber", formatted, {
+                              shouldValidate: true,
+                            });
                           },
                         })}
                         disabled={!hasTodayResult || isSearching}
@@ -1155,7 +1318,11 @@ export default function HomePage() {
                         <IconButton
                           size="small"
                           onClick={() => {
-                            window.dispatchEvent(new CustomEvent("open-ai-voice-assistant", { detail: { startListening: true } }));
+                            window.dispatchEvent(
+                              new CustomEvent("open-ai-voice-assistant", {
+                                detail: { startListening: true },
+                              }),
+                            );
                           }}
                           sx={{
                             color: "#DC2626",
@@ -1164,7 +1331,10 @@ export default function HomePage() {
                             mr: 0.5,
                             border: "1px solid #FECACA",
                             transition: "all 0.2s",
-                            "&:hover": { bgcolor: "#FEE2E2", transform: "scale(1.1)" },
+                            "&:hover": {
+                              bgcolor: "#FEE2E2",
+                              transform: "scale(1.1)",
+                            },
                           }}
                         >
                           <MicIcon sx={{ fontSize: 20 }} />
@@ -1238,7 +1408,10 @@ export default function HomePage() {
                   <Box sx={{ pt: 0.5 }}>
                     <Button
                       component={Link}
-                      href={getLotteryUrl(todayLottery.code, todayDrawResult.draw_date)}
+                      href={getLotteryUrl(
+                        todayLottery.code,
+                        todayDrawResult.draw_date,
+                      )}
                       variant="outlined"
                       endIcon={<ArrowForwardIcon />}
                       sx={{
@@ -1736,8 +1909,12 @@ export default function HomePage() {
                       <TextField
                         {...register("ticketNumber", {
                           onChange: (e) => {
-                            const formatted = formatTicketSearchInput(e.target.value);
-                            setValue("ticketNumber", formatted, { shouldValidate: true });
+                            const formatted = formatTicketSearchInput(
+                              e.target.value,
+                            );
+                            setValue("ticketNumber", formatted, {
+                              shouldValidate: true,
+                            });
                           },
                         })}
                         disabled={isSearching}
@@ -1809,7 +1986,10 @@ export default function HomePage() {
                 >
                   <Button
                     component={Link}
-                    href={getLotteryUrl(latestPreviousDraw.lottery_code, latestPreviousDraw.draw_date)}
+                    href={getLotteryUrl(
+                      latestPreviousDraw.lottery_code,
+                      latestPreviousDraw.draw_date,
+                    )}
                     variant="contained"
                     endIcon={<ArrowForwardIcon />}
                     sx={{
@@ -1870,7 +2050,7 @@ export default function HomePage() {
             fontSize: { xs: "1.35rem", sm: "1.875rem", lg: "2.25rem" },
           }}
         >
-          Weekly Lottery Schedule
+          Kerala Lottery Weekly Draw Schedule & Prizes
         </Typography>
         <Typography
           variant="body1"
@@ -1880,7 +2060,9 @@ export default function HomePage() {
             fontSize: { xs: "0.875rem", sm: "1rem" },
           }}
         >
-          Daily draws conducted by the Kerala State Lotteries Department.
+          The Kerala State Lottery Department runs seven different weekly
+          lotteries. Match your ticket code and draw number using our official
+          weekly schedule:
         </Typography>
 
         <Grid container spacing={{ xs: 2.5, sm: 3 }}>
@@ -2053,7 +2235,10 @@ export default function HomePage() {
 
                           {/* Previous Draw / 1st Prize Winner Highlight Box */}
                           {isActiveToday ? (
-                            latestDraw && latestDraw.draw_date === todayISTDate && hasAnyDrawResult(latestDraw) && isAfter3PM ? (
+                            latestDraw &&
+                            latestDraw.draw_date === todayISTDate &&
+                            hasAnyDrawResult(latestDraw) &&
+                            isAfter3PM ? (
                               <Box
                                 sx={{
                                   bgcolor: "#EBF5FF",
@@ -2142,7 +2327,9 @@ export default function HomePage() {
                                       fontSize: "0.68rem",
                                     }}
                                   >
-                                    {isAfter3PM ? "DRAWING IN PROGRESS" : "DRAW SCHEDULED TODAY"}
+                                    {isAfter3PM
+                                      ? "DRAWING IN PROGRESS"
+                                      : "DRAW SCHEDULED TODAY"}
                                   </Typography>
                                   <Typography
                                     variant="caption"
@@ -2301,7 +2488,7 @@ export default function HomePage() {
               fontSize: { xs: "1.35rem", sm: "1.875rem", lg: "2.25rem" },
             }}
           >
-            Kerala Bumper Lotteries
+            Kerala State Bumper Lotteries
           </Typography>
           <Chip
             label="Bumper Draws"
@@ -2324,633 +2511,886 @@ export default function HomePage() {
             fontSize: { xs: "0.875rem", sm: "1rem" },
           }}
         >
-          Special annual mega jackpots conducted by the Kerala State Lotteries Department with 1st prizes up to ₹25 Crores.
+          Beyond the daily draws, massive festival jackpots are organized
+          throughout the year. You can download the full bumper result lists
+          right here when drawn:
         </Typography>
 
         <Grid container spacing={{ xs: 2.5, sm: 3 }}>
-          {isLoading ? (
-            [1, 2, 3, 4, 5, 6].map((i) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    borderRadius: "16px",
-                    border: "1px solid #E5E7EB",
-                    p: 2.5,
-                    bgcolor: "#FFFFFF",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Box>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                      <Skeleton variant="rounded" width={95} height={24} sx={{ borderRadius: "12px" }} />
-                      <Skeleton variant="rounded" width={36} height={24} sx={{ borderRadius: "8px" }} />
-                    </Box>
-                    <Skeleton variant="text" width="70%" height={32} sx={{ mb: 0.5 }} />
-                    <Skeleton variant="text" width="45%" height={22} sx={{ mb: 2 }} />
-                    <Skeleton variant="rounded" height={52} sx={{ borderRadius: "10px", mb: 2 }} />
-                    <Skeleton variant="rounded" height={44} sx={{ borderRadius: "10px" }} />
-                  </Box>
-                  <Skeleton variant="rounded" height={36} sx={{ mt: 2, borderRadius: "6px" }} />
-                </Card>
-              </Grid>
-            ))
-          ) : (
-            bumperLotteriesList.map((bumper) => {
-              const latestDraw = recentDrawsMap[bumper.code];
-              const isAnnouncedUpcoming =
-                !!bumper.draw_date && bumper.draw_date >= todayISTDate;
-              const isDrawToday = bumper.draw_date === todayISTDate;
-
-              return (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={bumper.code}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    borderRadius: "16px",
-                    border: isAnnouncedUpcoming
-                      ? "2px solid #F59E0B"
-                      : "1px solid #E5E7EB",
-                    bgcolor: isAnnouncedUpcoming ? "#FFFDF0" : "#FFFFFF",
-                    boxShadow: isAnnouncedUpcoming
-                      ? "0 8px 25px rgba(245, 158, 11, 0.18)"
-                      : "0 2px 10px rgba(0,0,0,0.03)",
-                    position: "relative",
-                    overflow: "hidden",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                      transform: "translateY(-3px)",
-                      borderColor: isAnnouncedUpcoming ? "#D97706" : "#0B3C5D",
-                      boxShadow: isAnnouncedUpcoming
-                        ? "0 12px 30px rgba(245, 158, 11, 0.28)"
-                        : "0 10px 24px rgba(11, 60, 93, 0.12)",
-                    },
-                  }}
-                >
-                  <CardActionArea
-                    component={Link}
-                    href={getLotteryUrl(bumper.code)}
+          {isLoading
+            ? [1, 2, 3, 4, 5, 6].map((i) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i}>
+                  <Card
+                    elevation={0}
                     sx={{
+                      borderRadius: "16px",
+                      border: "1px solid #E5E7EB",
+                      p: 2.5,
+                      bgcolor: "#FFFFFF",
                       height: "100%",
                       display: "flex",
                       flexDirection: "column",
-                      alignItems: "stretch",
                       justifyContent: "space-between",
-                      p: 0,
                     }}
                   >
-                    <CardContent sx={{ p: 2.5, width: "100%" }}>
-                      {/* Top Row: Draw Season / Announced Date Badge & Code Pill */}
+                    <Box>
                       <Box
                         sx={{
                           display: "flex",
-                          alignItems: "center",
                           justifyContent: "space-between",
-                          mb: 1.5,
-                        }}
-                      >
-                        {isAnnouncedUpcoming ? (
-                          <Chip
-                            icon={
-                              <AutoAwesomeIcon
-                                sx={{ fontSize: "14px !important", color: "#B45309" }}
-                              />
-                            }
-                            label={
-                              isDrawToday
-                                ? "👑 DRAWS TODAY"
-                                : `👑 DRAW DATE: ${bumper.draw_date}`
-                            }
-                            size="small"
-                            sx={{
-                              bgcolor: "#FEF3C7",
-                              color: "#92400E",
-                              border: "1.5px solid #F59E0B",
-                              fontWeight: 900,
-                              fontSize: "0.725rem",
-                              borderRadius: "12px",
-                              px: 0.5,
-                            }}
-                          />
-                        ) : (
-                          <Chip
-                            label={bumper.draw_season}
-                            size="small"
-                            sx={{
-                              bgcolor: "#F3F4F6",
-                              color: "#374151",
-                              border: "1px solid #E5E7EB",
-                              fontWeight: 800,
-                              fontSize: "0.725rem",
-                              borderRadius: "12px",
-                              px: 1,
-                            }}
-                          />
-                        )}
-
-                        <Chip
-                          label={bumper.code}
-                          size="small"
-                          sx={{
-                            fontWeight: 900,
-                            bgcolor: isAnnouncedUpcoming ? "#D97706" : "#0B3C5D",
-                            color: "#FFFFFF",
-                            borderRadius: "8px",
-                            fontSize: "0.725rem",
-                            height: 22,
-                            px: 0.5,
-                          }}
-                        />
-                      </Box>
-
-                      {/* Main Title & Malayalam Name */}
-                      <Typography
-                        variant="h5"
-                        sx={{
-                          fontWeight: 900,
-                          color: isAnnouncedUpcoming ? "#78350F" : "#111827",
-                          mb: 0.2,
-                          fontSize: "1.25rem",
-                        }}
-                      >
-                        {bumper.name}
-                      </Typography>
-
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          fontWeight: 700,
-                          color: isAnnouncedUpcoming ? "#B45309" : "#0B3C5D",
-                          mb: 1.5,
-                          fontSize: "0.95rem",
-                        }}
-                      >
-                        {bumper.nameMl}
-                      </Typography>
-
-                      {/* Jackpot Box */}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          bgcolor: isAnnouncedUpcoming ? "#FEF3C7" : "#EBF5FF",
-                          p: 1.25,
-                          borderRadius: "10px",
-                          border: isAnnouncedUpcoming
-                            ? "1px solid #FCD34D"
-                            : "1px solid #BFDBFE",
                           mb: 2,
                         }}
                       >
-                        <EmojiEventsIcon
-                          sx={{
-                            color: isAnnouncedUpcoming ? "#D97706" : "#0B3C5D",
-                            fontSize: 20,
-                          }}
+                        <Skeleton
+                          variant="rounded"
+                          width={95}
+                          height={24}
+                          sx={{ borderRadius: "12px" }}
                         />
-                        <Box>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: isAnnouncedUpcoming ? "#92400E" : "#0B3C5D",
-                              fontWeight: 700,
-                              fontSize: "0.7rem",
-                              display: "block",
-                              lineHeight: 1.1,
-                            }}
-                          >
-                            1ST PRIZE JACKPOT
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: isAnnouncedUpcoming ? "#78350F" : "#0B3C5D",
-                              fontWeight: 900,
-                              fontSize: "0.95rem",
-                            }}
-                          >
-                            {bumper.jackpot}
-                          </Typography>
-                        </Box>
+                        <Skeleton
+                          variant="rounded"
+                          width={36}
+                          height={24}
+                          sx={{ borderRadius: "8px" }}
+                        />
                       </Box>
+                      <Skeleton
+                        variant="text"
+                        width="70%"
+                        height={32}
+                        sx={{ mb: 0.5 }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="45%"
+                        height={22}
+                        sx={{ mb: 2 }}
+                      />
+                      <Skeleton
+                        variant="rounded"
+                        height={52}
+                        sx={{ borderRadius: "10px", mb: 2 }}
+                      />
+                      <Skeleton
+                        variant="rounded"
+                        height={44}
+                        sx={{ borderRadius: "10px" }}
+                      />
+                    </Box>
+                    <Skeleton
+                      variant="rounded"
+                      height={36}
+                      sx={{ mt: 2, borderRadius: "6px" }}
+                    />
+                  </Card>
+                </Grid>
+              ))
+            : bumperLotteriesList.map((bumper) => {
+                const latestDraw = recentDrawsMap[bumper.code];
+                const isAnnouncedUpcoming =
+                  !!bumper.draw_date && bumper.draw_date >= todayISTDate;
+                const isDrawToday = bumper.draw_date === todayISTDate;
 
-                      {/* Announced Date vs Result Box */}
-                      {isAnnouncedUpcoming ? (
-                        isDrawToday && latestDraw && latestDraw.draw_date === todayISTDate && hasAnyDrawResult(latestDraw) && isAfter3PM ? (
-                          <Box
-                            sx={{
-                              bgcolor: "#EBF5FF",
-                              p: 1.5,
-                              borderRadius: "10px",
-                              border: "1px solid #BFDBFE",
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                mb: 0.5,
-                              }}
-                            >
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: "#0B3C5D",
-                                  fontWeight: 800,
-                                  fontSize: "0.68rem",
-                                }}
-                              >
-                                TODAY&apos;S BUMPER RESULT
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: "#0B3C5D",
-                                  fontWeight: 700,
-                                  fontSize: "0.68rem",
-                                }}
-                              >
-                                {latestDraw.draw_date}
-                              </Typography>
-                            </Box>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontFamily: "monospace",
-                                fontWeight: 900,
-                                color: "#0B3C5D",
-                              }}
-                            >
-                              {latestDraw.first?.ticket || "Published"}
-                            </Typography>
-                          </Box>
-                        ) : (
-                          <Box
-                            sx={{
-                              bgcolor: "#FFFFFF",
-                              p: 1.5,
-                              borderRadius: "10px",
-                              border: "1.5px solid #F59E0B",
-                              boxShadow: "0 2px 8px rgba(245, 158, 11, 0.1)",
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                mb: 0.5,
-                              }}
-                            >
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: "#B45309",
-                                  fontWeight: 900,
-                                  fontSize: "0.7rem",
-                                }}
-                              >
-                                🗓️ ANNOUNCED DRAW DATE
-                              </Typography>
-                              <Chip
-                                label={isDrawToday ? "DRAWS TODAY" : "UPCOMING"}
-                                size="small"
-                                sx={{
-                                  bgcolor: isDrawToday ? "#DC2626" : "#D97706",
-                                  color: "#FFFFFF",
-                                  fontWeight: 900,
-                                  fontSize: "0.65rem",
-                                  height: 20,
-                                  borderRadius: "6px",
-                                }}
-                              />
-                            </Box>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#78350F",
-                                fontWeight: 900,
-                                fontSize: "0.875rem",
-                              }}
-                            >
-                              {bumper.draw_date} • {bumper.drawTime || "2:00 PM"}
-                            </Typography>
-                            {bumper.ticket_price && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: "#92400E",
-                                  fontWeight: 700,
-                                  fontSize: "0.725rem",
-                                  display: "block",
-                                  mt: 0.25,
-                                }}
-                              >
-                                Ticket: {bumper.ticket_price}
-                              </Typography>
-                            )}
-                          </Box>
-                        )
-                      ) : latestDraw ? (
-                        <Box
-                          sx={{
-                            bgcolor: "#FFFFFF",
-                            p: 1.5,
-                            borderRadius: "10px",
-                            border: "1px solid #E5E7EB",
-                          }}
-                        >
+                return (
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={bumper.code}>
+                    <Card
+                      elevation={0}
+                      sx={{
+                        borderRadius: "16px",
+                        border: isAnnouncedUpcoming
+                          ? "2px solid #F59E0B"
+                          : "1px solid #E5E7EB",
+                        bgcolor: isAnnouncedUpcoming ? "#FFFDF0" : "#FFFFFF",
+                        boxShadow: isAnnouncedUpcoming
+                          ? "0 8px 25px rgba(245, 158, 11, 0.18)"
+                          : "0 2px 10px rgba(0,0,0,0.03)",
+                        position: "relative",
+                        overflow: "hidden",
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        transition: "all 0.2s ease-in-out",
+                        "&:hover": {
+                          transform: "translateY(-3px)",
+                          borderColor: isAnnouncedUpcoming
+                            ? "#D97706"
+                            : "#0B3C5D",
+                          boxShadow: isAnnouncedUpcoming
+                            ? "0 12px 30px rgba(245, 158, 11, 0.28)"
+                            : "0 10px 24px rgba(11, 60, 93, 0.12)",
+                        },
+                      }}
+                    >
+                      <CardActionArea
+                        component={Link}
+                        href={getLotteryUrl(bumper.code)}
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "stretch",
+                          justifyContent: "space-between",
+                          p: 0,
+                        }}
+                      >
+                        <CardContent sx={{ p: 2.5, width: "100%" }}>
+                          {/* Top Row: Draw Season / Announced Date Badge & Code Pill */}
                           <Box
                             sx={{
                               display: "flex",
-                              justifyContent: "space-between",
                               alignItems: "center",
-                              mb: 0.5,
+                              justifyContent: "space-between",
+                              mb: 1.5,
                             }}
                           >
-                            <Typography
-                              variant="caption"
+                            {isAnnouncedUpcoming ? (
+                              <Chip
+                                icon={
+                                  <AutoAwesomeIcon
+                                    sx={{
+                                      fontSize: "14px !important",
+                                      color: "#B45309",
+                                    }}
+                                  />
+                                }
+                                label={
+                                  isDrawToday
+                                    ? "👑 DRAWS TODAY"
+                                    : `👑 DRAW DATE: ${bumper.draw_date}`
+                                }
+                                size="small"
+                                sx={{
+                                  bgcolor: "#FEF3C7",
+                                  color: "#92400E",
+                                  border: "1.5px solid #F59E0B",
+                                  fontWeight: 900,
+                                  fontSize: "0.725rem",
+                                  borderRadius: "12px",
+                                  px: 0.5,
+                                }}
+                              />
+                            ) : (
+                              <Chip
+                                label={bumper.draw_season}
+                                size="small"
+                                sx={{
+                                  bgcolor: "#F3F4F6",
+                                  color: "#374151",
+                                  border: "1px solid #E5E7EB",
+                                  fontWeight: 800,
+                                  fontSize: "0.725rem",
+                                  borderRadius: "12px",
+                                  px: 1,
+                                }}
+                              />
+                            )}
+
+                            <Chip
+                              label={bumper.code}
+                              size="small"
                               sx={{
-                                color: "#6B7280",
-                                fontWeight: 800,
-                                fontSize: "0.68rem",
+                                fontWeight: 900,
+                                bgcolor: isAnnouncedUpcoming
+                                  ? "#D97706"
+                                  : "#0B3C5D",
+                                color: "#FFFFFF",
+                                borderRadius: "8px",
+                                fontSize: "0.725rem",
+                                height: 22,
+                                px: 0.5,
                               }}
-                            >
-                              LATEST DRAW RESULT
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                color: "#6B7280",
-                                fontWeight: 700,
-                                fontSize: "0.68rem",
-                              }}
-                            >
-                              {latestDraw.draw_date}
-                            </Typography>
+                            />
                           </Box>
+
+                          {/* Main Title & Malayalam Name */}
                           <Typography
-                            variant="body2"
+                            variant="h5"
                             sx={{
-                              fontFamily: "monospace",
                               fontWeight: 900,
-                              color: "#0B3C5D",
+                              color: isAnnouncedUpcoming
+                                ? "#78350F"
+                                : "#111827",
+                              mb: 0.2,
+                              fontSize: "1.25rem",
                             }}
                           >
-                            {latestDraw.first?.ticket || "Published"}
+                            {bumper.name}
                           </Typography>
-                        </Box>
-                      ) : (
+
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              fontWeight: 700,
+                              color: isAnnouncedUpcoming
+                                ? "#B45309"
+                                : "#0B3C5D",
+                              mb: 1.5,
+                              fontSize: "0.95rem",
+                            }}
+                          >
+                            {bumper.nameMl}
+                          </Typography>
+
+                          {/* Jackpot Box */}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                              bgcolor: isAnnouncedUpcoming
+                                ? "#FEF3C7"
+                                : "#EBF5FF",
+                              p: 1.25,
+                              borderRadius: "10px",
+                              border: isAnnouncedUpcoming
+                                ? "1px solid #FCD34D"
+                                : "1px solid #BFDBFE",
+                              mb: 2,
+                            }}
+                          >
+                            <EmojiEventsIcon
+                              sx={{
+                                color: isAnnouncedUpcoming
+                                  ? "#D97706"
+                                  : "#0B3C5D",
+                                fontSize: 20,
+                              }}
+                            />
+                            <Box>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: isAnnouncedUpcoming
+                                    ? "#92400E"
+                                    : "#0B3C5D",
+                                  fontWeight: 700,
+                                  fontSize: "0.7rem",
+                                  display: "block",
+                                  lineHeight: 1.1,
+                                }}
+                              >
+                                1ST PRIZE JACKPOT
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: isAnnouncedUpcoming
+                                    ? "#78350F"
+                                    : "#0B3C5D",
+                                  fontWeight: 900,
+                                  fontSize: "0.95rem",
+                                }}
+                              >
+                                {bumper.jackpot}
+                              </Typography>
+                            </Box>
+                          </Box>
+
+                          {/* Announced Date vs Result Box */}
+                          {isAnnouncedUpcoming ? (
+                            isDrawToday &&
+                            latestDraw &&
+                            latestDraw.draw_date === todayISTDate &&
+                            hasAnyDrawResult(latestDraw) &&
+                            isAfter3PM ? (
+                              <Box
+                                sx={{
+                                  bgcolor: "#EBF5FF",
+                                  p: 1.5,
+                                  borderRadius: "10px",
+                                  border: "1px solid #BFDBFE",
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    mb: 0.5,
+                                  }}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      color: "#0B3C5D",
+                                      fontWeight: 800,
+                                      fontSize: "0.68rem",
+                                    }}
+                                  >
+                                    TODAY&apos;S BUMPER RESULT
+                                  </Typography>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      color: "#0B3C5D",
+                                      fontWeight: 700,
+                                      fontSize: "0.68rem",
+                                    }}
+                                  >
+                                    {latestDraw.draw_date}
+                                  </Typography>
+                                </Box>
+                                <Typography
+                                  variant="body1"
+                                  sx={{
+                                    fontFamily: "monospace",
+                                    fontWeight: 900,
+                                    color: "#0B3C5D",
+                                  }}
+                                >
+                                  {latestDraw.first?.ticket || "Published"}
+                                </Typography>
+                              </Box>
+                            ) : (
+                              <Box
+                                sx={{
+                                  bgcolor: "#FFFFFF",
+                                  p: 1.5,
+                                  borderRadius: "10px",
+                                  border: "1.5px solid #F59E0B",
+                                  boxShadow:
+                                    "0 2px 8px rgba(245, 158, 11, 0.1)",
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    mb: 0.5,
+                                  }}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      color: "#B45309",
+                                      fontWeight: 900,
+                                      fontSize: "0.7rem",
+                                    }}
+                                  >
+                                    🗓️ ANNOUNCED DRAW DATE
+                                  </Typography>
+                                  <Chip
+                                    label={
+                                      isDrawToday ? "DRAWS TODAY" : "UPCOMING"
+                                    }
+                                    size="small"
+                                    sx={{
+                                      bgcolor: isDrawToday
+                                        ? "#DC2626"
+                                        : "#D97706",
+                                      color: "#FFFFFF",
+                                      fontWeight: 900,
+                                      fontSize: "0.65rem",
+                                      height: 20,
+                                      borderRadius: "6px",
+                                    }}
+                                  />
+                                </Box>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    color: "#78350F",
+                                    fontWeight: 900,
+                                    fontSize: "0.875rem",
+                                  }}
+                                >
+                                  {bumper.draw_date} •{" "}
+                                  {bumper.drawTime || "2:00 PM"}
+                                </Typography>
+                                {bumper.ticket_price && (
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      color: "#92400E",
+                                      fontWeight: 700,
+                                      fontSize: "0.725rem",
+                                      display: "block",
+                                      mt: 0.25,
+                                    }}
+                                  >
+                                    Ticket: {bumper.ticket_price}
+                                  </Typography>
+                                )}
+                              </Box>
+                            )
+                          ) : latestDraw ? (
+                            <Box
+                              sx={{
+                                bgcolor: "#FFFFFF",
+                                p: 1.5,
+                                borderRadius: "10px",
+                                border: "1px solid #E5E7EB",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  mb: 0.5,
+                                }}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#6B7280",
+                                    fontWeight: 800,
+                                    fontSize: "0.68rem",
+                                  }}
+                                >
+                                  LATEST DRAW RESULT
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#6B7280",
+                                    fontWeight: 700,
+                                    fontSize: "0.68rem",
+                                  }}
+                                >
+                                  {latestDraw.draw_date}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontFamily: "monospace",
+                                  fontWeight: 900,
+                                  color: "#0B3C5D",
+                                }}
+                              >
+                                {latestDraw.first?.ticket || "Published"}
+                              </Typography>
+                            </Box>
+                          ) : (
+                            <Box
+                              sx={{
+                                bgcolor: "#FFFFFF",
+                                p: 1.5,
+                                borderRadius: "10px",
+                                border: "1px solid #E5E7EB",
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#6B7280",
+                                  fontWeight: 600,
+                                  display: "block",
+                                }}
+                              >
+                                Annual Draw Archive Available
+                              </Typography>
+                            </Box>
+                          )}
+                        </CardContent>
+
+                        {/* Bottom Action Footer */}
                         <Box
                           sx={{
-                            bgcolor: "#FFFFFF",
-                            p: 1.5,
-                            borderRadius: "10px",
-                            border: "1px solid #E5E7EB",
+                            px: 2.5,
+                            py: 1.5,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            borderTop: "1px solid #F3F4F6",
+                            bgcolor: "#FAFAFA",
                           }}
                         >
                           <Typography
                             variant="caption"
                             sx={{
-                              color: "#6B7280",
-                              fontWeight: 600,
-                              display: "block",
+                              color: "#0B3C5D",
+                              fontWeight: 800,
+                              fontSize: "0.78rem",
                             }}
                           >
-                            Annual Draw Archive Available
+                            View Bumper Draw & Breakdown
                           </Typography>
+                          <ArrowForwardIcon
+                            sx={{ color: "#0B3C5D", fontSize: 16 }}
+                          />
                         </Box>
-                      )}
-                    </CardContent>
-
-                    {/* Bottom Action Footer */}
-                    <Box
-                      sx={{
-                        px: 2.5,
-                        py: 1.5,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        borderTop: "1px solid #F3F4F6",
-                        bgcolor: "#FAFAFA",
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: "#0B3C5D",
-                          fontWeight: 800,
-                          fontSize: "0.78rem",
-                        }}
-                      >
-                        View Bumper Draw & Breakdown
-                      </Typography>
-                      <ArrowForwardIcon
-                        sx={{ color: "#0B3C5D", fontSize: 16 }}
-                      />
-                    </Box>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            );
-          })
-        )}
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                );
+              })}
         </Grid>
       </Box>
 
-      {/* SEO Content Section */}
-      <Box sx={{ mt: 6, mb: 4, pt: 4, borderTop: "1px solid #E5E7EB" }}>
+      {/* SEO & Comprehensive Information Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          mt: 6,
+          mb: 4,
+          p: { xs: 3, sm: 4, md: 5 },
+          borderRadius: { xs: "20px", sm: "24px" },
+          bgcolor: "#FFFFFF",
+          border: "1px solid #E5E7EB",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
+        }}
+      >
+        {/* Section Pill & Main Title */}
+        <Box sx={{ mb: 3.5 }}>
+          <Chip
+            icon={<AutoAwesomeIcon sx={{ fontSize: "14px !important", color: "#0B3C5D" }} />}
+            label="DAILY DRAW GUIDE & OFFICIAL CHART"
+            size="small"
+            sx={{
+              bgcolor: "#EBF5FF",
+              color: "#0B3C5D",
+              fontWeight: 800,
+              fontSize: "0.72rem",
+              borderRadius: "8px",
+              mb: 1.5,
+              border: "1px solid #BFDBFE",
+            }}
+          />
+          <Typography
+            variant="h4"
+            component="h2"
+            sx={{
+              fontWeight: 900,
+              color: "#0B3C5D",
+              fontSize: { xs: "1.35rem", sm: "1.75rem", md: "2.1rem" },
+              letterSpacing: "-0.02em",
+              lineHeight: 1.3,
+            }}
+          >
+            Live Kerala Lottery Result Today 2026: Daily Draw Chart
+          </Typography>
+        </Box>
+
+        {/* Quick Facts Container */}
+        <Box
+          sx={{
+            p: { xs: 2.5, sm: 3 },
+            bgcolor: "#F8FAFC",
+            borderRadius: "16px",
+            border: "1.5px solid #0056b3",
+            mb: 4,
+            boxShadow: "0 4px 15px rgba(0, 86, 179, 0.06)",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+            <MonetizationOnIcon sx={{ color: "#0056b3", fontSize: 24 }} />
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 800,
+                color: "#0056b3",
+                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+              }}
+            >
+              Kerala Lottery Result Today Quick Facts (केरल लॉटरी के नतीजे / கேரளா லாட்டரி குலுக்கல்):
+            </Typography>
+          </Box>
+
+          <Grid container spacing={2}>
+            {[
+              {
+                icon: <AccessTimeIcon sx={{ color: "#0B3C5D", fontSize: 20 }} />,
+                label: "Today's Live Draw Time",
+                value: "Starts at 2:55 PM IST daily.",
+                bg: "#FFFFFF",
+              },
+              {
+                icon: <PictureAsPdfIcon sx={{ color: "#DC2626", fontSize: 20 }} />,
+                label: "Official Chart & Gazette PDF Publication",
+                value: "Available at 4:00 PM IST.",
+                bg: "#FFFFFF",
+              },
+              {
+                icon: <PlaceIcon sx={{ color: "#059669", fontSize: 20 }} />,
+                label: "Live Stream Venue",
+                value: "Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram.",
+                bg: "#FFFFFF",
+              },
+              {
+                icon: <AccountBalanceIcon sx={{ color: "#2563EB", fontSize: 20 }} />,
+                label: "Governing Body",
+                value: "Directorate of Kerala State Lotteries (Taxes Dept., Govt. of Kerala).",
+                bg: "#FFFFFF",
+              },
+              {
+                icon: <EmojiEventsIcon sx={{ color: "#D97706", fontSize: 20 }} />,
+                label: "2026 Active Lotteries",
+                value: "7 Weekly Schemes (Samrudhi, Karunya, Suvarna Keralam, Karunya Plus, Dhanalekshmi, Sthree-Sakthi, Bhagyathara) & 6 Seasonal Bumper Series.",
+                bg: "#FFFFFF",
+              },
+              {
+                icon: <ConfirmationNumberIcon sx={{ color: "#7C3AED", fontSize: 20 }} />,
+                label: "Official Ticket Price & Form",
+                value: "₹50 per paper ticket (Standard Weekly Series). Digital online sales are strictly unauthorized.",
+                bg: "#FFFFFF",
+              },
+            ].map((fact, idx) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: 2,
+                    borderRadius: "12px",
+                    bgcolor: fact.bg,
+                    border: "1px solid #E2E8F0",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 0.5,
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                    {fact.icon}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 800,
+                        color: "#475569",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.03em",
+                        fontSize: "0.72rem",
+                      }}
+                    >
+                      {fact.label}
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 700,
+                      color: "#1E293B",
+                      fontSize: "0.875rem",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {fact.value}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        {/* Welcome & Streaming Details */}
+        <Box sx={{ mb: 4 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "#374151",
+              mb: 2,
+              lineHeight: 1.8,
+              fontSize: { xs: "0.95rem", sm: "1.025rem" },
+            }}
+          >
+            Welcome to <strong>Kerala Lottery Results Today</strong> (केरल लॉटरी के नतीजे / கேரளா லாட்டரி குலுக்கல்), your trusted portal for daily live updates. The Kerala state lottery draws are held every afternoon live at Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram.
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "#374151",
+              mb: 2.5,
+              lineHeight: 1.8,
+              fontSize: { xs: "0.95rem", sm: "1.025rem" },
+            }}
+          >
+            The live streaming starts at 2:55 PM, and results are announced on national television networks at 3:00 PM. If you miss the live broadcast, the complete official Kerala lottery result chart and winning numbers list are updated here at 4:00 PM.
+          </Typography>
+
+          {/* Bookmark & Domain Callout */}
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 2.5,
+              borderRadius: "12px",
+              bgcolor: "#F0FDF4",
+              border: "1px solid #BBF7D0",
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              mb: 2.5,
+            }}
+          >
+            <BookmarkBorderIcon sx={{ color: "#16A34A", fontSize: 28, display: { xs: "none", sm: "block" } }} />
+            <Typography variant="body2" sx={{ color: "#166534", lineHeight: 1.6, fontWeight: 500 }}>
+              Bookmark our domain <strong>Kerala Lottery Results Today</strong> (
+              <Link
+                href="https://www.keralalotteryresultstoday.in/"
+                style={{ color: "#15803D", fontWeight: 800, textDecoration: "underline" }}
+              >
+                https://www.keralalotteryresultstoday.in/
+              </Link>
+              ) to instantly access today&apos;s winning draw number, view yesterday&apos;s results, or download the historical monthly chart archives.
+            </Typography>
+          </Paper>
+
+          <Typography
+            variant="caption"
+            sx={{
+              color: "#6B7280",
+              display: "block",
+              fontStyle: "italic",
+              bgcolor: "#F9FAFB",
+              p: 1.5,
+              borderRadius: "8px",
+              border: "1px solid #F3F4F6",
+            }}
+          >
+            (Note: Previous lotteries from the 2020–2025 cycle, such as Fifty-Fifty, Win-Win, Nirmal, and Akshaya, have been updated in our system to reflect the current 2026 active draw roster).
+          </Typography>
+        </Box>
+
+        {/* Prize Structure & Consolation */}
+        <Box sx={{ mb: 4.5, pt: 3, borderTop: "1px solid #F3F4F6" }}>
+          <Typography
+            variant="h5"
+            component="h3"
+            sx={{ fontWeight: 800, color: "#0B3C5D", mb: 1 }}
+          >
+            Understanding the Ticket Prize &amp; Consolation Structure
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{ color: "#4B5563", mb: 2.5, lineHeight: 1.7 }}
+          >
+            Kerala (KL) lotteries are paper raffle tickets printed with a distinct{" "}
+            <strong>Alphabetical Series Code</strong> followed by a{" "}
+            <strong>6-digit number</strong> (e.g., <code>BT 123456</code>).
+          </Typography>
+
+          <Grid container spacing={2.5}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2.5,
+                  borderRadius: "14px",
+                  bgcolor: "#FFFDF0",
+                  border: "1.5px solid #FDE68A",
+                  height: "100%",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                  <MilitaryTechIcon sx={{ color: "#D97706", fontSize: 24 }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#92400E" }}>
+                    1st Prize (Jackpot Winning Match)
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: "#78350F", lineHeight: 1.65 }}>
+                  Awarded exclusively to the exact alphabetical series letter and 6-digit number combination drawn (e.g., <strong>BT 123456</strong>).
+                </Typography>
+              </Paper>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2.5,
+                  borderRadius: "14px",
+                  bgcolor: "#EFF6FF",
+                  border: "1.5px solid #BFDBFE",
+                  height: "100%",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                  <EmojiEventsIcon sx={{ color: "#2563EB", fontSize: 24 }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1E40AF" }}>
+                    Consolation Prize (₹5,000)
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: "#1E3A8A", lineHeight: 1.65 }}>
+                  Awarded to ticket holders who hold the exact same 6-digit winning number across all remaining non-winning series letters (e.g., <strong>[AA-ZZ except BT] 123456</strong>).
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+
+        {/* Frequently Asked Questions (Collapsible Accordions) */}
         <Typography
           variant="h5"
-          sx={{ fontWeight: 800, color: "#111827", mb: 2 }}
+          component="h3"
+          sx={{ fontWeight: 800, color: "#0B3C5D", mb: 2.5 }}
         >
-          Kerala Lottery Results Today – Live Winning Numbers, Prize List & Full
-          Draw Details
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
-        >
-          If you're searching for the kerala lottery results today, you've
-          landed on the right page. This site publishes the kerala lottery
-          result today the moment the official draw closes, so you never have to
-          dig through old posts to find your kerala lottery results today
-          result. Whether you're tracking today kerala lottery result for a
-          routine weekly draw or the kerala lottery ticket result today for a
-          specific series, everything here is organised by date, draw name and
-          prize tier.
+          Frequently Asked Questions (Kerala Lottery Queries)
         </Typography>
 
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
-        >
-          When Does the Draw Go Live?
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
-        >
-          The lottery result today kerala telecast begins at 2:55 PM on Kairali
-          TV, Kaumudy TV and Jai Hind TV, and the full today's kerala lottery
-          result sheet — first prize down to consolation — is usually finalised
-          between 3:00 PM and 4:30 PM. Our today lottery result kerala table
-          refreshes automatically as the Directorate confirms each tier, so the
-          kerala result today lottery list you see is always the verified,
-          official one.
-          <br />
-          <br />
-          We track the kerala lottery today result and kerala lottery today
-          results every day of the week, so the kerala lottery results today
-          3.00 pm live update is never more than a few minutes old. For readers
-          outside Kerala, the kerala state lottery result today page loads the
-          same information as the in-state broadcast.
-        </Typography>
-
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
-        >
-          Today's Draw, by Lottery Name
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
-        >
-          Kerala runs a different lottery each day. The win win lottery result
-          today kerala publishes every Monday, Tuesday belongs to kerala lottery
-          result today sthree sakthi, Wednesday to kerala lottery result today
-          karunya plus, and Thursday to kerala lottery result today nirmal.
-          Friday is kerala lottery result today karunya, and Saturday brings
-          kerala lottery result today fifty fifty, also written as fifty fifty
-          lottery result today kerala. Sunday rounds out the week with Pournami.
-          <br />
-          <br />
-          Six seasonal bumpers run through the year too, each with its own page
-          under kerala lottery result today bumper — including the festive
-          kerala lottery result today pooja bumper, which usually carries the
-          year's largest jackpot.
-        </Typography>
-
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
-        >
-          Checking Your Ticket
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
-        >
-          To find the lottery result kerala today for your ticket, use the
-          search bar or browse by draw name — the same shortcut works whether
-          you typed kerala lottery result on today, today result kerala lottery,
-          or today kerala lottery results. Readers who search www kerala lottery
-          result today or www kerala lottery results today land on the same live
-          table; there's no separate "official" mirror.
-          <br />
-          <br />
-          One honest note: we don't publish a kerala lottery result today
-          guessing number. Kerala's draw uses a mechanical Lottis machine, and
-          no chart or kerala lottery result today guessing system can predict
-          it. What we provide is the confirmed kerala lottery results today live
-          results today feed, cross-checked against the government gazette.
-        </Typography>
-
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
-        >
-          Jackpots and Big Wins
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
-        >
-          The number one thing readers want is the kerala lottery result today
-          jackpot, and we lead every page with it. You'll find the kerala
-          lottery jackpot result today, the kerala jackpot lottery result today,
-          and the jackpot kerala lottery result today figure right at the top of
-          today's card. For the biggest draws, our kerala lottery bumper result
-          today coverage breaks the jackpot down prize-tier by district, so
-          winners can confirm their ticket without the full gazette PDF.
-        </Typography>
-
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
-        >
-          Why Check Here
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
-        >
-          Between the live kerala lottery result today feed, the by-draw
-          archive, and the lottery results today kerala search tool, this page
-          answers one question fast: did I win, and how much? That's the whole
-          point of publishing the kerala lottery results today the way we do.
-        </Typography>
-
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
-        >
-          One Page, Every Version of the Search
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#4B5563", mb: 3, lineHeight: 1.7 }}
-        >
-          Everyone phrases the same search differently, so this page answers all
-          of them from one live feed. Whether you typed kerala lottery result
-          today result for double confirmation, or searched kerala lottery
-          result live today, today kerala lottery result live, or kerala lottery
-          today result live, you land on the same table. Older phrasing like
-          today lottery results kerala and kerala lottery today results live
-          today pulls up the identical kerala state lottery results today feed.
-          Even a query like lottery result today kerala lottery result today, or
-          the shorter lottery result today kerala lottery result, resolves here.
-          And if Monday brought you here, the kerala lottery result today win
-          win numbers sit at the top of today's card.
-        </Typography>
-
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 700, color: "#111827", mb: 1 }}
-        >
-          A Note on Accuracy
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#4B5563", mb: 0, lineHeight: 1.7 }}
-        >
-          Every number on this page is pulled from the official gazette
-          published by the Directorate of Kerala State Lotteries, not copied
-          from a broadcast transcript or a third-party forum. Draw numbers,
-          ticket series and prize amounts are checked twice before publishing,
-          and any correction issued by the department after a draw is reflected
-          here within minutes. If a figure ever looks off, treat the printed
-          gazette as the final word and use this page as a fast pointer to it,
-          not a replacement for it.
-          <br />
-          <br />
-          <em>
-            Results are published for informational purposes. Always verify
-            winning numbers against the official Kerala State Lotteries gazette
-            before making any prize claim.
-          </em>
-        </Typography>
-      </Box>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          {[
+            {
+              q: "What is Kerala Lottery?",
+              a: "The Kerala State Lottery is India's first government-run paper lottery scheme established in 1967 by the Directorate of Kerala State Lotteries. It operates 7 regular weekly draws and 6 seasonal bumper lotteries with revenue funding state welfare, hospitals, and public health schemes.",
+            },
+            {
+              q: "How to Get Kerala Lottery Ticket & Can You Buy Online?",
+              a: "Kerala lottery tickets can only be purchased in person as physical paper tickets from government-authorized offline lottery agents across Kerala. The Government of Kerala strictly does NOT sell lottery tickets online, and digital online purchase portals are unauthorized.",
+            },
+            {
+              q: "What is the Price of Kerala Lottery Ticket?",
+              a: "The official ticket price for all 7 standard weekly lotteries (Bhagyathara, Sthree-Sakthi, Dhanalekshmi, Karunya Plus, Suvarna Keralam, Karunya, and Samrudhi) is ₹50 per paper ticket. Seasonal bumper lottery tickets range from ₹250 to ₹500 depending on the bumper edition.",
+            },
+            {
+              q: "How to See Kerala Lottery Result Today?",
+              a: "You can see today's Kerala lottery result live right here on Kerala Lottery Results Today (https://www.keralalotteryresultstoday.in/). Live drawing starts at 2:55 PM IST, and complete prize chart breakdown is updated by 4:00 PM IST. You can also use our instant Ticket Checker search tool at the top of the page.",
+            },
+            {
+              q: "How to Download Kerala Lottery Result PDF?",
+              a: "To download the official Kerala lottery result PDF and Government Gazette chart, visit any lottery draw result page on our website and tap 'Download Official PDF'. The PDF format includes all winning ticket numbers from 1st prize down to consolation and 9th prize.",
+            },
+          ].map((faq, idx) => (
+            <Accordion
+              key={idx}
+              elevation={0}
+              sx={{
+                border: "1px solid #E5E7EB",
+                borderRadius: "12px !important",
+                overflow: "hidden",
+                "&:before": { display: "none" },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon sx={{ color: "#0B3C5D" }} />}
+                sx={{
+                  bgcolor: "#F9FAFB",
+                  px: { xs: 2, sm: 3 },
+                  py: 0.5,
+                  "&.Mui-expanded": { bgcolor: "#EBF5FF" },
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <HelpIcon sx={{ color: "#0B3C5D", fontSize: 20 }} />
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      color: "#111827",
+                      fontSize: { xs: "0.9rem", sm: "1rem" },
+                    }}
+                  >
+                    {faq.q}
+                  </Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails
+                sx={{ px: { xs: 2, sm: 3 }, py: 2, bgcolor: "#FFFFFF" }}
+              >
+                <Typography
+                  sx={{
+                    color: "#4B5563",
+                    lineHeight: 1.7,
+                    fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                  }}
+                >
+                  {faq.a}
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </Box>
+      </Paper>
 
       {/* Ticket Search Result Dialog */}
       <Dialog

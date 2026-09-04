@@ -58,15 +58,14 @@ export default function Footer() {
             maxWidth: 800,
             mx: "auto",
             fontWeight: 500,
-            lineHeight: 1.6,
+            lineHeight: 1.65,
           }}
         >
-          <strong>About Kerala Lottery:</strong> Kerala State Lottery is a
-          government initiative started in 1967 by Finance Minister P.K. Kunju
-          Sahib to provide employment and generate revenue for the state&apos;s
-          development. It has grown to become one of India&apos;s most
-          successful and transparent lottery systems, contributing significantly
-          to Kerala&apos;s economy and social welfare programs.
+          <strong>About Kerala State Lottery:</strong> Established in 1967, the
+          Kerala state lottery scheme was envisioned by the then Finance Minister,
+          P.K. Kunju Sahib. The initiative was designed to support social welfare
+          programs and provide stable employment. It remains India&apos;s
+          pioneer, fully transparent, government-regulated lottery platform.
         </Typography>
 
         {/* 1. Core Page Links */}
@@ -282,6 +281,23 @@ export default function Footer() {
           ))}
         </Box>
 
+        {/* Multilingual Regional Search Keywords */}
+        <Typography
+          variant="caption"
+          sx={{
+            color: "#9CA3AF",
+            display: "block",
+            maxWidth: 900,
+            mx: "auto",
+            fontSize: "0.75rem",
+            lineHeight: 1.8,
+            mb: 3,
+            px: 2,
+          }}
+        >
+          (இன்றைய கேரள லாட்டரி முடிவுகள் • आज के केरल लॉटरी के नतीजे • ഇന്നത്തെ കേരള ലോട്ടറി ഫലങ്ങൾ • ಇಂದಿನ ಕೇರಳ ಲಾಟರಿ ಫಲಿತಾಂಶಗಳು • kerala লটাৰীৰ ফলাফল আজি • केरल लॉटरीचो निकाल आयज • ਕੇਰਲ ਲਾਟਰੀ ਦੇ ਅੱਜ ਦੇ ਨਤੀਜੇ • ఈరోజు కేరళ లాటరీ ఫలితాలు)
+        </Typography>
+
         <Typography
           variant="body2"
           sx={{
@@ -294,14 +310,18 @@ export default function Footer() {
             lineHeight: 1.6,
           }}
         >
-          Disclaimer: Kerala Lottery Result Today does not represent any
-          government entity. We are not affiliated with any government
-          organization and do not facilitate government services through this
-          app. Our source of information is publicly available data, including
-          official government websites. Users are advised to cross-check all
-          information, including potential winnings, with the official
-          government gazette for confirmation. Please note, this app does not
-          sell lottery tickets and only displays lottery-related data.
+          <strong>Disclaimer:</strong> Kerala Lottery Results Today (
+          <Link
+            href="https://www.keralalotteryresultstoday.in/"
+            style={{ color: "#9CA3AF" }}
+          >
+            https://www.keralalotteryresultstoday.in/
+          </Link>
+          ) provides lottery draw details for informational purposes only. We
+          are an independent platform and are not affiliated with the Kerala
+          State Lottery Department or any government entity. Ticket holders are
+          strictly advised to verify all winning serial numbers against the
+          official Government Gazette notification before initiating a claim.
         </Typography>
 
         <Typography
