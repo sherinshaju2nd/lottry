@@ -215,6 +215,42 @@ let cachedDrawResults: StructuredDrawResult[] | null = null;
 let lastCacheTime = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+export function hasAnyDrawResult(draw: StructuredDrawResult | null | undefined): boolean {
+  if (!draw) return false;
+  if (
+    draw.first?.ticket &&
+    draw.first.ticket.trim().length > 0 &&
+    draw.first.ticket.toLowerCase() !== "pending" &&
+    draw.first.ticket.toLowerCase() !== "n/a"
+  ) {
+    return true;
+  }
+  if (!draw.prizes) return false;
+  const tiers = [
+    "consolation",
+    "2nd",
+    "3rd",
+    "4th",
+    "5th",
+    "6th",
+    "7th",
+    "8th",
+    "9th",
+  ] as const;
+  for (const tier of tiers) {
+    const arr = (draw.prizes as any)[tier];
+    if (Array.isArray(arr) && arr.length > 0) {
+      return true;
+    }
+  }
+  for (const key of Object.keys(draw.prizes)) {
+    if (["amounts", "guess", "mc"].includes(key)) continue;
+    const val = (draw.prizes as any)[key];
+    if (Array.isArray(val) && val.length > 0) return true;
+  }
+  return false;
+}
+
 export const bustDrawResultsCache = () => {
   cachedDrawResults = null;
   lastCacheTime = 0;

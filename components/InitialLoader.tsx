@@ -44,7 +44,7 @@ export default function InitialLoader() {
       <Box
         component="img"
         src="/logo-round-192.png"
-        alt="Kerala Lottery Logo"
+        alt="kerala-lottery-results-logo"
         sx={{
           width: 150,
           height: 150,

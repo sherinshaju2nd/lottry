@@ -89,7 +89,7 @@ export const metadata: Metadata = {
         url: "https://www.keralalotteryresultstoday.in/og-image.png",
         width: 1024,
         height: 1024,
-        alt: "Kerala Lottery Result Today Logo",
+        alt: "kerala-lottery-results-logo",
       },
       {
         url: "https://www.keralalotteryresultstoday.in/website-banner-1600x500.png",

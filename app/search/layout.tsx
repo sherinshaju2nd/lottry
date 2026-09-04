@@ -18,13 +18,13 @@ export const metadata: Metadata = {
         url: "https://www.keralalotteryresultstoday.in/website-banner-1600x500.png",
         width: 1600,
         height: 500,
-        alt: "Kerala Lottery Winning Ticket Checker Banner",
+        alt: "Kerala Lottery Ticket Price Checker Banner",
       },
       {
         url: "https://www.keralalotteryresultstoday.in/og-image.png",
         width: 1024,
         height: 1024,
-        alt: "Kerala Lottery Result Today Logo",
+        alt: "kerala-lottery-results-logo",
       },
     ],
     locale: "en_IN",
@@ -35,7 +35,9 @@ export const metadata: Metadata = {
     title: "Kerala Lottery Ticket Search & Checker Engine",
     description:
       "Search your Kerala Lottery ticket number to instantly see if you have won. Fast and easy checker search engine.",
-    images: ["https://www.keralalotteryresultstoday.in/website-banner-1600x500.png"],
+    images: [
+      "https://www.keralalotteryresultstoday.in/website-banner-1600x500.png",
+    ],
   },
 };
 

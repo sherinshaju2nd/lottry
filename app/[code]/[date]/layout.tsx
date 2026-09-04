@@ -40,7 +40,7 @@ export async function generateMetadata({
           url: "/og-image.png",
           width: 1024,
           height: 1024,
-          alt: "Kerala Lottery Result Today Logo",
+          alt: "kerala-lottery-results-logo",
         },
       ],
       locale: "en_IN",

@@ -131,7 +131,7 @@ export default function Navbar() {
             <Box
               component="img"
               src="/logo-round-192.png"
-              alt="Kerala Lottery Logo"
+              alt="kerala-lottery-results-logo"
               sx={{
                 width: 73,
                 height: 75,
@@ -174,7 +174,8 @@ export default function Navbar() {
                 fontWeight: isLotteryPage ? 800 : 700,
                 borderRadius: "8px",
                 px: 2,
-                bgcolor: isMenuOpen || isLotteryPage ? "#EBF5FF" : "transparent",
+                bgcolor:
+                  isMenuOpen || isLotteryPage ? "#EBF5FF" : "transparent",
               }}
             >
               Kerala Lotteries
@@ -201,15 +202,32 @@ export default function Navbar() {
               }}
             >
               {/* 1. Weekly Lotteries */}
-              <Box sx={{ px: 1.5, py: 0.75, borderBottom: "1px solid #F3F4F6", mb: 0.5 }}>
-                <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 800, letterSpacing: "0.05em", fontSize: "0.7rem" }}>
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 0.75,
+                  borderBottom: "1px solid #F3F4F6",
+                  mb: 0.5,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#0B3C5D",
+                    fontWeight: 800,
+                    letterSpacing: "0.05em",
+                    fontSize: "0.7rem",
+                  }}
+                >
                   WEEKLY DRAWS (DAILY 3:00 PM)
                 </Typography>
               </Box>
 
               {WEEKLY_LOTTERIES.map((lottery) => {
                 const targetUrl = getLotteryUrl(lottery.code);
-                const isActive = pathname === targetUrl || pathname.startsWith(targetUrl + "/");
+                const isActive =
+                  pathname === targetUrl ||
+                  pathname.startsWith(targetUrl + "/");
                 return (
                   <MenuItem
                     key={lottery.code}
@@ -241,12 +259,21 @@ export default function Navbar() {
                           height: 20,
                         }}
                       />
-                      <Typography variant="body2" sx={{ fontWeight: isActive ? 800 : 700, color: "#111827" }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: isActive ? 800 : 700,
+                          color: "#111827",
+                        }}
+                      >
                         {lottery.name}
                       </Typography>
                     </Box>
 
-                    <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#6B7280", fontWeight: 600 }}
+                    >
                       {lottery.day}
                     </Typography>
                   </MenuItem>
@@ -254,8 +281,29 @@ export default function Navbar() {
               })}
 
               {/* 2. Bumper Lotteries */}
-              <Box sx={{ px: 1.5, py: 0.75, borderBottom: "1px solid #E5E7EB", bgcolor: "#F9FAFB", borderRadius: "8px", mt: 1, mb: 0.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography variant="caption" sx={{ color: "#374151", fontWeight: 800, letterSpacing: "0.05em", fontSize: "0.7rem" }}>
+              <Box
+                sx={{
+                  px: 1.5,
+                  py: 0.75,
+                  borderBottom: "1px solid #E5E7EB",
+                  bgcolor: "#F9FAFB",
+                  borderRadius: "8px",
+                  mt: 1,
+                  mb: 0.5,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#374151",
+                    fontWeight: 800,
+                    letterSpacing: "0.05em",
+                    fontSize: "0.7rem",
+                  }}
+                >
                   BUMPER LOTTERIES (ANNUAL)
                 </Typography>
                 <AutoAwesomeIcon sx={{ fontSize: 14, color: "#0B3C5D" }} />
@@ -263,7 +311,9 @@ export default function Navbar() {
 
               {BUMPER_LOTTERIES.map((bumper) => {
                 const targetUrl = getLotteryUrl(bumper.code);
-                const isActive = pathname === targetUrl || pathname.startsWith(targetUrl + "/");
+                const isActive =
+                  pathname === targetUrl ||
+                  pathname.startsWith(targetUrl + "/");
                 return (
                   <MenuItem
                     key={bumper.code}
@@ -295,7 +345,13 @@ export default function Navbar() {
                           height: 20,
                         }}
                       />
-                      <Typography variant="body2" sx={{ fontWeight: isActive ? 800 : 700, color: "#111827" }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: isActive ? 800 : 700,
+                          color: "#111827",
+                        }}
+                      >
                         {bumper.name}
                       </Typography>
                     </Box>
@@ -331,7 +387,7 @@ export default function Navbar() {
               Contact
             </Button>
 
-            <Button
+            {/* <Button
               onClick={() => setDigestOpen(true)}
               startIcon={<WhatsAppIcon sx={{ color: "#25D366" }} />}
               sx={{
@@ -344,7 +400,7 @@ export default function Navbar() {
               }}
             >
               AI Daily Status
-            </Button>
+            </Button> */}
 
             <Button
               component={Link}
@@ -358,14 +414,18 @@ export default function Navbar() {
                 bgcolor: pathname === "/search" ? "#EBF5FF" : "transparent",
               }}
             >
-              Winning Ticket Checker
+              Ticket Price Checker
             </Button>
 
             {/* Direct Voice Search Mic */}
             <Tooltip title="Direct Voice Search (സംസാരിച്ച് പരിശോധിക്കുക)">
               <IconButton
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent("open-ai-voice-assistant", { detail: { startListening: true } }));
+                  window.dispatchEvent(
+                    new CustomEvent("open-ai-voice-assistant", {
+                      detail: { startListening: true },
+                    }),
+                  );
                 }}
                 sx={{
                   color: "#DC2626",
@@ -383,11 +443,21 @@ export default function Navbar() {
           </Box>
 
           {/* Mobile Right Controls: Voice Mic & Drawer Toggle */}
-          <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", gap: 1 }}>
-            <Tooltip title="Voice Search (സംസാരിക്കാം)">
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            {/* <Tooltip title="Voice Search (സംസാരിക്കാം)">
               <IconButton
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent("open-ai-voice-assistant", { detail: { startListening: true } }));
+                  window.dispatchEvent(
+                    new CustomEvent("open-ai-voice-assistant", {
+                      detail: { startListening: true },
+                    }),
+                  );
                 }}
                 sx={{
                   bgcolor: "#FEF2F2",
@@ -399,7 +469,7 @@ export default function Navbar() {
               >
                 <MicIcon fontSize="small" />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
             <IconButton
               color="inherit"
@@ -453,7 +523,7 @@ export default function Navbar() {
               <Box
                 component="img"
                 src="/logo-round-192.png"
-                alt="Kerala Lottery Logo"
+                alt="kerala-lottery-results-logo"
                 sx={{
                   width: 73,
                   height: 75,
@@ -509,15 +579,30 @@ export default function Navbar() {
                     color: pathname === "/" ? "#0B3C5D" : "#374151",
                   }}
                 >
-                  <ListItemIcon sx={{ color: pathname === "/" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
+                  <ListItemIcon
+                    sx={{
+                      color: pathname === "/" ? "#0B3C5D" : "#6B7280",
+                      minWidth: 38,
+                    }}
+                  >
                     <HomeIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Home" slotProps={{ primary: { sx: { fontWeight: pathname === "/" ? 800 : 600 } } }} />
+                  <ListItemText
+                    primary="Home"
+                    slotProps={{
+                      primary: {
+                        sx: { fontWeight: pathname === "/" ? 800 : 600 },
+                      },
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
 
               {/* Expandable Kerala Lotteries Submenu */}
-              <ListItem disablePadding sx={{ mb: 1, flexDirection: "column", alignItems: "stretch" }}>
+              <ListItem
+                disablePadding
+                sx={{ mb: 1, flexDirection: "column", alignItems: "stretch" }}
+              >
                 <ListItemButton
                   onClick={() => setMobileSubmenuOpen(!mobileSubmenuOpen)}
                   sx={{
@@ -531,18 +616,43 @@ export default function Navbar() {
                   <ListItemIcon sx={{ color: "#0B3C5D", minWidth: 38 }}>
                     <LocalActivityIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Kerala Lotteries" slotProps={{ primary: { sx: { fontWeight: 800, fontSize: "0.925rem" } } }} />
-                  {mobileSubmenuOpen ? <ExpandLess sx={{ color: "#0B3C5D" }} /> : <ExpandMore sx={{ color: "#6B7280" }} />}
+                  <ListItemText
+                    primary="Kerala Lotteries"
+                    slotProps={{
+                      primary: {
+                        sx: { fontWeight: 800, fontSize: "0.925rem" },
+                      },
+                    }}
+                  />
+                  {mobileSubmenuOpen ? (
+                    <ExpandLess sx={{ color: "#0B3C5D" }} />
+                  ) : (
+                    <ExpandMore sx={{ color: "#6B7280" }} />
+                  )}
                 </ListItemButton>
 
                 <Collapse in={mobileSubmenuOpen} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding sx={{ pl: 1, pr: 1, pt: 1 }}>
-                    <Typography variant="caption" sx={{ px: 1, color: "#0B3C5D", fontWeight: 800, fontSize: "0.68rem" }}>
-                       WEEKLY LOTTERIES
+                  <List
+                    component="div"
+                    disablePadding
+                    sx={{ pl: 1, pr: 1, pt: 1 }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        px: 1,
+                        color: "#0B3C5D",
+                        fontWeight: 800,
+                        fontSize: "0.68rem",
+                      }}
+                    >
+                      WEEKLY LOTTERIES
                     </Typography>
                     {WEEKLY_LOTTERIES.map((lottery) => {
                       const targetUrl = getLotteryUrl(lottery.code);
-                      const isActive = pathname === targetUrl || pathname.startsWith(targetUrl + "/");
+                      const isActive =
+                        pathname === targetUrl ||
+                        pathname.startsWith(targetUrl + "/");
                       return (
                         <ListItemButton
                           key={lottery.code}
@@ -571,7 +681,13 @@ export default function Navbar() {
                             primary={lottery.name}
                             secondary={lottery.day}
                             slotProps={{
-                              primary: { sx: { fontWeight: isActive ? 800 : 600, fontSize: "0.85rem", color: isActive ? "#0B3C5D" : "#111827" } },
+                              primary: {
+                                sx: {
+                                  fontWeight: isActive ? 800 : 600,
+                                  fontSize: "0.85rem",
+                                  color: isActive ? "#0B3C5D" : "#111827",
+                                },
+                              },
                               secondary: { sx: { fontSize: "0.7rem" } },
                             }}
                           />
@@ -579,16 +695,39 @@ export default function Navbar() {
                       );
                     })}
 
-                    <Box sx={{ mt: 1, mb: 0.5, px: 1, py: 0.5, bgcolor: "#F3F4F6", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <Typography variant="caption" sx={{ color: "#374151", fontWeight: 800, fontSize: "0.68rem" }}>
+                    <Box
+                      sx={{
+                        mt: 1,
+                        mb: 0.5,
+                        px: 1,
+                        py: 0.5,
+                        bgcolor: "#F3F4F6",
+                        borderRadius: "6px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#374151",
+                          fontWeight: 800,
+                          fontSize: "0.68rem",
+                        }}
+                      >
                         BUMPER LOTTERIES
                       </Typography>
-                      <AutoAwesomeIcon sx={{ fontSize: 12, color: "#0B3C5D" }} />
+                      <AutoAwesomeIcon
+                        sx={{ fontSize: 12, color: "#0B3C5D" }}
+                      />
                     </Box>
 
                     {BUMPER_LOTTERIES.map((bumper) => {
                       const targetUrl = getLotteryUrl(bumper.code);
-                      const isActive = pathname === targetUrl || pathname.startsWith(targetUrl + "/");
+                      const isActive =
+                        pathname === targetUrl ||
+                        pathname.startsWith(targetUrl + "/");
                       return (
                         <ListItemButton
                           key={bumper.code}
@@ -617,8 +756,20 @@ export default function Navbar() {
                             primary={bumper.name}
                             secondary={`${bumper.jackpot} • ${bumper.draw_season}`}
                             slotProps={{
-                              primary: { sx: { fontWeight: isActive ? 800 : 600, fontSize: "0.85rem", color: isActive ? "#0B3C5D" : "#111827" } },
-                              secondary: { sx: { fontSize: "0.7rem", color: "#6B7280", fontWeight: 600 } },
+                              primary: {
+                                sx: {
+                                  fontWeight: isActive ? 800 : 600,
+                                  fontSize: "0.85rem",
+                                  color: isActive ? "#0B3C5D" : "#111827",
+                                },
+                              },
+                              secondary: {
+                                sx: {
+                                  fontSize: "0.7rem",
+                                  color: "#6B7280",
+                                  fontWeight: 600,
+                                },
+                              },
                             }}
                           />
                         </ListItemButton>
@@ -638,19 +789,32 @@ export default function Navbar() {
                     borderRadius: "12px",
                     py: 1.25,
                     px: 1.5,
-                    bgcolor: pathname === "/contact" ? "#EBF5FF" : "transparent",
+                    bgcolor:
+                      pathname === "/contact" ? "#EBF5FF" : "transparent",
                     color: pathname === "/contact" ? "#0B3C5D" : "#374151",
                   }}
                 >
-                  <ListItemIcon sx={{ color: pathname === "/contact" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
+                  <ListItemIcon
+                    sx={{
+                      color: pathname === "/contact" ? "#0B3C5D" : "#6B7280",
+                      minWidth: 38,
+                    }}
+                  >
                     <PhoneIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Contact Us" slotProps={{ primary: { sx: { fontWeight: pathname === "/contact" ? 800 : 600 } } }} />
+                  <ListItemText
+                    primary="Contact Us"
+                    slotProps={{
+                      primary: {
+                        sx: { fontWeight: pathname === "/contact" ? 800 : 600 },
+                      },
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
 
               {/* AI Daily Status Digest */}
-              <ListItem disablePadding sx={{ mb: 1 }}>
+              {/* <ListItem disablePadding sx={{ mb: 1 }}>
                 <ListItemButton
                   onClick={() => {
                     handleDrawerToggle();
@@ -668,7 +832,7 @@ export default function Navbar() {
                   </ListItemIcon>
                   <ListItemText primary="AI Daily WhatsApp Status" slotProps={{ primary: { sx: { fontWeight: 700 } } }} />
                 </ListItemButton>
-              </ListItem>
+              </ListItem> */}
 
               {/* Ticket Checker */}
               <ListItem disablePadding sx={{ mb: 1 }}>
@@ -684,10 +848,22 @@ export default function Navbar() {
                     color: pathname === "/search" ? "#0B3C5D" : "#374151",
                   }}
                 >
-                  <ListItemIcon sx={{ color: pathname === "/search" ? "#0B3C5D" : "#6B7280", minWidth: 38 }}>
+                  <ListItemIcon
+                    sx={{
+                      color: pathname === "/search" ? "#0B3C5D" : "#6B7280",
+                      minWidth: 38,
+                    }}
+                  >
                     <SearchIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Ticket Checker" slotProps={{ primary: { sx: { fontWeight: pathname === "/search" ? 800 : 600 } } }} />
+                  <ListItemText
+                    primary="Ticket Checker"
+                    slotProps={{
+                      primary: {
+                        sx: { fontWeight: pathname === "/search" ? 800 : 600 },
+                      },
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
             </List>

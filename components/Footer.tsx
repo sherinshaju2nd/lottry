@@ -8,7 +8,11 @@ import Link from "next/link";
 
 import ShareButtons from "./ShareButtons";
 
-import { WEEKLY_LOTTERIES, BUMPER_LOTTERIES, getLotteryUrl } from "@/lib/supabase";
+import {
+  WEEKLY_LOTTERIES,
+  BUMPER_LOTTERIES,
+  getLotteryUrl,
+} from "@/lib/supabase";
 
 export default function Footer() {
   return (
@@ -36,7 +40,7 @@ export default function Footer() {
           <Box
             component="img"
             src="/logo-round-192.png"
-            alt="Kerala Lottery Logo"
+            alt="kerala-lottery-results-logo"
             sx={{
               width: 150,
               height: 150,
@@ -112,7 +116,7 @@ export default function Footer() {
               "&:hover": { color: "#0B3C5D" },
             }}
           >
-            Winning Ticket Checker
+            Ticket Price Checker
           </Typography>
           <Typography
             variant="body2"
@@ -206,7 +210,15 @@ export default function Footer() {
             px: 2,
           }}
         >
-          <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "#0B3C5D",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             Weekly Lotteries:
           </Typography>
           {WEEKLY_LOTTERIES.map((lottery) => (
@@ -240,7 +252,15 @@ export default function Footer() {
             px: 2,
           }}
         >
-          <Typography variant="caption" sx={{ color: "#0B3C5D", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "#0B3C5D",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             Bumper Lotteries:
           </Typography>
           {BUMPER_LOTTERIES.map((bumper) => (

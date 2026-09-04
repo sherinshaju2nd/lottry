@@ -44,6 +44,7 @@ import {
   getLotteryUrl,
   supabase,
   formatTicketSearchInput,
+  hasAnyDrawResult,
 } from "@/lib/supabase";
 import ShareButtons from "@/components/ShareButtons";
 import AiSocialDigestModal from "@/components/AiSocialDigestModal";
@@ -461,8 +462,9 @@ export default function HomePage() {
 
   const hasTodayResult =
     !!todayDrawResult &&
-    !!todayDrawResult.first?.ticket &&
-    todayDrawResult.draw_date === todayISTDate;
+    todayDrawResult.draw_date === todayISTDate &&
+    hasAnyDrawResult(todayDrawResult) &&
+    isAfter3PM;
 
   return (
     <Container
@@ -692,8 +694,9 @@ export default function HomePage() {
                     variant="caption"
                     sx={{ color: "#0F2C59", fontWeight: 800, display: "block" }}
                   >
-                    1ST PRIZE WINNER TICKET (
-                    {todayDrawResult.prizes?.amounts?.["1st"] || "₹70 Lakhs"})
+                    {todayDrawResult.first?.ticket
+                      ? `1ST PRIZE WINNER TICKET (${todayDrawResult.prizes?.amounts?.["1st"] || "₹70 Lakhs"})`
+                      : "LIVE DRAW • PRIZES 1-9 & CONSOLATION"}
                   </Typography>
                   <Typography
                     variant="h4"
@@ -705,22 +708,51 @@ export default function HomePage() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    {todayDrawResult.first?.ticket || "N/A"}
+                    {todayDrawResult.first?.ticket || "LIVE IN PROGRESS"}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "#374151", fontWeight: 700 }}
-                  >
-                    Location:{" "}
-                    <strong>{todayDrawResult.first?.location || "N/A"}</strong>
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}
-                  >
-                    Agent:{" "}
-                    <strong>{todayDrawResult.first?.agent || "N/A"}</strong>
-                  </Typography>
+                  {todayDrawResult.first?.location && (
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#374151", fontWeight: 700 }}
+                    >
+                      Location:{" "}
+                      <strong>{todayDrawResult.first.location}</strong>
+                    </Typography>
+                  )}
+                  {todayDrawResult.first?.agent && (
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}
+                    >
+                      Agent:{" "}
+                      <strong>{todayDrawResult.first.agent}</strong>
+                    </Typography>
+                  )}
+
+                  {/* Available Live Prize Tiers Preview */}
+                  {todayDrawResult.prizes && (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 1.5 }}>
+                      {["consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"]
+                        .filter((tier) => {
+                          const arr = (todayDrawResult.prizes as any)?.[tier];
+                          return Array.isArray(arr) && arr.length > 0;
+                        })
+                        .map((tier) => (
+                          <Chip
+                            key={tier}
+                            label={tier === "consolation" ? "Consolation" : `${tier} Prize`}
+                            size="small"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              height: "20px",
+                              bgcolor: "#F3F4F6",
+                              color: "#374151",
+                            }}
+                          />
+                        ))}
+                    </Box>
+                  )}
 
                   <Button
                     component={Link}
@@ -1270,7 +1302,11 @@ export default function HomePage() {
                             }}
                           />
                         }
-                        label="1ST PRIZE WINNER"
+                        label={
+                          todayDrawResult.first?.ticket
+                            ? "1ST PRIZE WINNER"
+                            : "1ST PRIZE (DRAWING...)"
+                        }
                         size="small"
                         sx={{
                           bgcolor: "#FEF3C7",
@@ -1290,7 +1326,7 @@ export default function HomePage() {
                           mb: 0.5,
                         }}
                       >
-                        {todayDrawResult.first?.ticket || "N/A"}
+                        {todayDrawResult.first?.ticket || "LIVE IN PROGRESS"}
                       </Typography>
                       <Typography
                         variant="subtitle2"
@@ -2017,7 +2053,7 @@ export default function HomePage() {
 
                           {/* Previous Draw / 1st Prize Winner Highlight Box */}
                           {isActiveToday ? (
-                            latestDraw && latestDraw.draw_date === todayISTDate && latestDraw.first?.ticket ? (
+                            latestDraw && latestDraw.draw_date === todayISTDate && hasAnyDrawResult(latestDraw) && isAfter3PM ? (
                               <Box
                                 sx={{
                                   bgcolor: "#EBF5FF",
@@ -2067,7 +2103,7 @@ export default function HomePage() {
                                 >
                                   Search ticket or tap to view result →
                                 </Typography>
-                                {/* Desktop View: Keep direct 1st prize ticket */}
+                                {/* Desktop View: Keep direct 1st prize ticket or Published badge */}
                                 <Typography
                                   variant="body1"
                                   sx={{
@@ -2078,7 +2114,7 @@ export default function HomePage() {
                                     display: { xs: "none", md: "block" },
                                   }}
                                 >
-                                  {latestDraw.first?.ticket || "N/A"}
+                                  {latestDraw.first?.ticket || "Results Live"}
                                 </Typography>
                               </Box>
                             ) : (
@@ -2508,7 +2544,7 @@ export default function HomePage() {
 
                       {/* Announced Date vs Result Box */}
                       {isAnnouncedUpcoming ? (
-                        isDrawToday && latestDraw && latestDraw.draw_date === todayISTDate && latestDraw.first?.ticket ? (
+                        isDrawToday && latestDraw && latestDraw.draw_date === todayISTDate && hasAnyDrawResult(latestDraw) && isAfter3PM ? (
                           <Box
                             sx={{
                               bgcolor: "#EBF5FF",
