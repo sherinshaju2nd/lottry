@@ -13,7 +13,18 @@ export async function generateMetadata({
   const dateStr = resolvedParams.date;
   const lottery = ALL_LOTTERIES.find((l) => l.code === lotteryCode);
 
-  const lotteryName = lottery ? lottery.name : rawCode;
+  if (!lottery) {
+    return {
+      title: "Draw Not Found | Kerala Lottery Result Today",
+      description: "The requested lottery draw could not be found.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const lotteryName = lottery.name;
   const title = `${lotteryName} Result ${dateStr}`;
   const description = `Kerala Lottery ${lotteryName} winning numbers for ${dateStr} draw. Check 1st prize jackpot, 2nd prize, and full prize list.`;
   const url = `https://www.keralalotteryresultstoday.in/${slug}/${dateStr}`;

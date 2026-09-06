@@ -9,10 +9,21 @@ export async function generateMetadata({
   const resolvedParams = await params;
   const rawCode = resolvedParams.code;
   const lotteryCode = getLotteryCodeFromSlug(rawCode);
-  const slug = getLotterySlug(lotteryCode);
   const lottery = ALL_LOTTERIES.find((l) => l.code === lotteryCode);
 
-  const lotteryName = lottery ? lottery.name : rawCode;
+  if (!lottery) {
+    return {
+      title: "Lottery Not Found | Kerala Lottery Result Today",
+      description: "The requested lottery category could not be found.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const slug = getLotterySlug(lotteryCode);
+  const lotteryName = lottery.name;
   const title = `${lotteryName} Result Archives & Info`;
   const description = `Check ${lotteryName} Kerala lottery results, historical archives, draw schedule, and winning prize lists fast and accurately.`;
   const url = `https://www.keralalotteryresultstoday.in/${slug}`;

@@ -4,9 +4,12 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
+import Button from "@mui/material/Button";
 import Link from "next/link";
 
 import ShareButtons from "./ShareButtons";
+import { GooglePlayIcon, AppleIcon, PLAY_STORE_URL } from "./DownloadAppModal";
 
 import {
   WEEKLY_LOTTERIES,
@@ -29,6 +32,184 @@ export default function Footer() {
         maxWidth={false}
         sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 }, textAlign: "center" }}
       >
+        {/* App Download Promo Banner */}
+        <Box
+          sx={{
+            maxWidth: 820,
+            mx: "auto",
+            mb: 5,
+            p: { xs: 2.5, sm: 3.5 },
+            borderRadius: "20px",
+            background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
+            color: "#FFFFFF",
+            border: "1px solid #334155",
+            boxShadow: "0 16px 36px -8px rgba(15, 23, 42, 0.25)",
+            textAlign: "center",
+          }}
+        >
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 1.5 }}>
+            <Chip
+              label="📱 OFFICIAL MOBILE APP"
+              size="small"
+              sx={{
+                bgcolor: "#10B981",
+                color: "#FFFFFF",
+                fontWeight: 900,
+                fontSize: "0.725rem",
+                letterSpacing: "0.06em",
+              }}
+            />
+          </Box>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 900,
+              color: "#FFFFFF",
+              fontSize: { xs: "1.25rem", sm: "1.5rem" },
+              mb: 1,
+            }}
+          >
+            Download Kerala Lottery Results Today App
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "#94A3B8",
+              maxWidth: 580,
+              mx: "auto",
+              mb: 3,
+              fontSize: { xs: "0.85rem", sm: "0.925rem" },
+            }}
+          >
+            Get real-time 3:00 PM live draw results, instant ticket number scanner & official Government Gazette PDF downloads directly on your smartphone.
+          </Typography>
+
+          {/* Badges Container */}
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            {/* Google Play Store Badge */}
+            <Box
+              component="a"
+              href={PLAY_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.5,
+                bgcolor: "#000000",
+                color: "#FFFFFF",
+                px: 2.5,
+                py: 1.2,
+                borderRadius: "12px",
+                textDecoration: "none",
+                border: "1px solid rgba(255,255,255,0.2)",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  borderColor: "#10B981",
+                  boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
+                },
+              }}
+            >
+              <GooglePlayIcon size={28} />
+              <Box sx={{ textAlign: "left" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    color: "#94A3B8",
+                    fontSize: "0.65rem",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                    lineHeight: 1,
+                  }}
+                >
+                  GET IT ON
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#FFFFFF",
+                    fontWeight: 800,
+                    fontSize: "0.95rem",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Google Play
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Apple App Store (Coming Soon) Badge */}
+            <Box
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.5,
+                bgcolor: "rgba(255,255,255,0.06)",
+                color: "#94A3B8",
+                px: 2.5,
+                py: 1.2,
+                borderRadius: "12px",
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              <Box sx={{ color: "#94A3B8" }}>
+                <AppleIcon size={26} />
+              </Box>
+              <Box sx={{ textAlign: "left" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    color: "#64748B",
+                    fontSize: "0.65rem",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                    lineHeight: 1,
+                  }}
+                >
+                  DOWNLOAD ON THE
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#CBD5E1",
+                    fontWeight: 800,
+                    fontSize: "0.95rem",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  App Store
+                </Typography>
+              </Box>
+              <Chip
+                label="Coming Soon"
+                size="small"
+                sx={{
+                  ml: 0.5,
+                  bgcolor: "rgba(255,255,255,0.1)",
+                  color: "#94A3B8",
+                  fontWeight: 700,
+                  fontSize: "0.675rem",
+                  height: 20,
+                }}
+              />
+            </Box>
+          </Box>
+        </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -181,6 +362,19 @@ export default function Footer() {
             }}
           >
             Privacy Policy
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
+            href="/app"
+            sx={{
+              color: "#0B3C5D",
+              textDecoration: "none",
+              fontWeight: 700,
+              "&:hover": { color: "#10B981" },
+            }}
+          >
+            📱 Official App
           </Typography>
           <Typography
             variant="body2"

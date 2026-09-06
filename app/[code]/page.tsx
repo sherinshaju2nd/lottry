@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -50,11 +50,11 @@ export default function LotteryDetailsPage({ params }: PageProps) {
   const lotterySlug = getLotterySlug(lotteryCode);
   const router = useRouter();
 
-  const lotteryInfo = ALL_LOTTERIES.find((l) => l.code === lotteryCode) || {
-    name: `${rawCode} Lottery`,
-    code: lotteryCode,
-    day: "Scheduled Draw",
-  };
+  const lotteryInfo = ALL_LOTTERIES.find((l) => l.code === lotteryCode);
+
+  if (!lotteryInfo) {
+    notFound();
+  }
 
   const todayISTDate = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",

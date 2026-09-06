@@ -27,7 +27,7 @@ export default function robots(): MetadataRoute.Robots {
           "Bytespider",
           "CCBot",
         ],
-        allow: ["/", "/llms.txt", "/llms-full.txt", "/search", "/claim", "/faq", "/guide"],
+        allow: ["/", "/app", "/llms.txt", "/llms-full.txt", "/search", "/claim", "/faq", "/guide"],
         disallow: ["/admin/", "/api/admin/"],
       },
     ],

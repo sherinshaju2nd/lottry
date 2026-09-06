@@ -417,6 +417,32 @@ export default function Navbar() {
               Ticket Price Checker
             </Button>
 
+            {/* Download App Desktop Button */}
+            <Button
+              component={Link}
+              href="/app"
+              sx={{
+                background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
+                color: "#065F46",
+                fontWeight: 800,
+                fontSize: "0.85rem",
+                borderRadius: "10px",
+                px: 2,
+                py: 0.8,
+                border: "1px solid #A7F3D0",
+                boxShadow: "0 2px 6px rgba(16, 185, 129, 0.15)",
+                textTransform: "none",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)",
+                  transform: "translateY(-1px)",
+                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
+                },
+              }}
+            >
+              Download App
+            </Button>
+
             {/* Direct Voice Search Mic */}
             <Tooltip title="Direct Voice Search (സംസാരിച്ച് പരിശോധിക്കുക)">
               <IconButton
@@ -442,48 +468,51 @@ export default function Navbar() {
             </Tooltip>
           </Box>
 
-          {/* Mobile Right Controls: Voice Mic & Drawer Toggle */}
+          {/* Mobile Right Controls: App Button & Drawer Toggle */}
           <Box
             sx={{
               display: { xs: "flex", md: "none" },
               alignItems: "center",
-              gap: 1,
+              gap: { xs: 1.5, sm: 2 },
             }}
           >
-            {/* <Tooltip title="Voice Search (സംസാരിക്കാം)">
-              <IconButton
-                onClick={() => {
-                  window.dispatchEvent(
-                    new CustomEvent("open-ai-voice-assistant", {
-                      detail: { startListening: true },
-                    }),
-                  );
-                }}
-                sx={{
-                  bgcolor: "#FEF2F2",
-                  color: "#DC2626",
-                  p: 1,
-                  borderRadius: "10px",
-                  border: "1px solid #FECACA",
-                }}
-              >
-                <MicIcon fontSize="small" />
-              </IconButton>
-            </Tooltip> */}
+            <Button
+              component={Link}
+              href="/app"
+              size="small"
+              sx={{
+                background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
+                color: "#065F46",
+                fontWeight: 800,
+                fontSize: { xs: "0.75rem", sm: "0.825rem" },
+                borderRadius: "8px",
+                px: { xs: 1.4, sm: 2 },
+                py: 0.6,
+                border: "1px solid #A7F3D0",
+                boxShadow: "0 2px 5px rgba(16, 185, 129, 0.12)",
+                textTransform: "none",
+                whiteSpace: "nowrap",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)",
+                },
+              }}
+            >
+              Download App
+            </Button>
 
             <IconButton
               color="inherit"
-              aria-label="open drawer"
-              edge="start"
+              aria-label="open navigation menu"
               onClick={handleDrawerToggle}
               sx={{
                 bgcolor: "#F3F4F6",
-                p: 1,
-                borderRadius: "10px",
+                p: 0.9,
+                borderRadius: "8px",
                 border: "1px solid #E5E7EB",
+                "&:hover": { bgcolor: "#E5E7EB" },
               }}
             >
-              <MenuIcon sx={{ color: "#0B3C5D" }} />
+              <MenuIcon sx={{ color: "#0B3C5D", fontSize: 22 }} />
             </IconButton>
           </Box>
         </Toolbar>
@@ -544,6 +573,59 @@ export default function Navbar() {
             >
               <CloseIcon fontSize="small" />
             </IconButton>
+          </Box>
+
+          {/* Official App Mobile Banner Card */}
+          <Box
+            component={Link}
+            href="/app"
+            onClick={handleDrawerToggle}
+            sx={{
+              display: "block",
+              textDecoration: "none",
+              m: 2,
+              mb: 1.5,
+              p: 2,
+              borderRadius: "14px",
+              background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
+              color: "#FFFFFF",
+              boxShadow: "0 8px 20px rgba(15, 23, 42, 0.15)",
+              border: "1px solid #334155",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Box
+                component="img"
+                src="/logo-round-192.png"
+                alt="Kerala Lottery App"
+                sx={{ width: 44, height: 44, borderRadius: "10px", border: "1px solid rgba(255,255,255,0.2)" }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "0.875rem" }}>
+                  Official Android App
+                </Typography>
+                <Typography variant="caption" sx={{ color: "#94A3B8", fontSize: "0.725rem", display: "block" }}>
+                  Live 3 PM Results • 100% Free
+                </Typography>
+              </Box>
+            </Box>
+            <Button
+              variant="contained"
+              fullWidth
+              size="small"
+              sx={{
+                bgcolor: "#10B981",
+                color: "#FFFFFF",
+                fontWeight: 800,
+                fontSize: "0.775rem",
+                borderRadius: "8px",
+                mt: 1.5,
+                textTransform: "none",
+                "&:hover": { bgcolor: "#059669" },
+              }}
+            >
+              Download Official App
+            </Button>
           </Box>
 
           <Divider />

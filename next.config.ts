@@ -2,6 +2,35 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit"],
+  async redirects() {
+    return [
+      {
+        source: "/pages",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/pages/:path*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/download",
+        destination: "/app",
+        permanent: true,
+      },
+      {
+        source: "/download-app",
+        destination: "/app",
+        permanent: true,
+      },
+      {
+        source: "/mobile-app",
+        destination: "/app",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

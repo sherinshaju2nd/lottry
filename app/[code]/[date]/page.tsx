@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, use, useRef } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, notFound } from "next/navigation";
 import Link from "next/link";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
@@ -69,12 +69,11 @@ export default function DedicatedLotteryDateDetailsPage({ params }: PageProps) {
   const dateParam = decodeURIComponent(resolvedParams.date);
   const router = useRouter();
 
-  const lotteryInfo = ALL_LOTTERIES.find((l) => l.code === lotteryCode) || {
-    name: `${rawCode} Lottery`,
-    nameMl: "",
-    code: lotteryCode,
-    day: "Scheduled Draw",
-  };
+  const lotteryInfo = ALL_LOTTERIES.find((l) => l.code === lotteryCode);
+
+  if (!lotteryInfo) {
+    notFound();
+  }
 
   const todayISTDate = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
