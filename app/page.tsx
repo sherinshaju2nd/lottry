@@ -45,6 +45,8 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import SecurityIcon from "@mui/icons-material/Security";
 import confetti from "canvas-confetti";
 import {
   WEEKLY_LOTTERIES,
@@ -136,6 +138,22 @@ export default function HomePage() {
   const todayISTDate = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
   });
+
+  const yesterdayISTDate = (() => {
+    try {
+      const now = new Date();
+      const istDate = new Date(
+        now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      );
+      istDate.setDate(istDate.getDate() - 1);
+      const year = istDate.getFullYear();
+      const month = String(istDate.getMonth() + 1).padStart(2, "0");
+      const day = String(istDate.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    } catch {
+      return "";
+    }
+  })();
 
   const {
     register,
@@ -504,6 +522,261 @@ export default function HomePage() {
     hasAnyDrawResult(todayDrawResult) &&
     isAfter3PM;
 
+  const renderWinningNumbers = (
+    draw: StructuredDrawResult,
+    isToday: boolean,
+  ) => {
+    const hasResults = hasAnyDrawResult(draw);
+    if (!hasResults) return null;
+
+    const prizeTiers = [
+      { key: "consolation", label: "Consolation Prize", badgeBg: "#7F8C8D" },
+      { key: "2nd", label: "2nd Prize", badgeBg: "#D4AF37" },
+      { key: "3rd", label: "3rd Prize", badgeBg: "#2980B9" },
+      { key: "4th", label: "4th Prize", badgeBg: "#8E44AD" },
+      { key: "5th", label: "5th Prize", badgeBg: "#2C3E50" },
+      { key: "6th", label: "6th Prize", badgeBg: "#16A085" },
+      { key: "7th", label: "7th Prize", badgeBg: "#D35400" },
+      { key: "8th", label: "8th Prize", badgeBg: "#C0392B" },
+      { key: "9th", label: "9th Prize", badgeBg: "#7F8C8D" },
+    ];
+
+    const hasLocation =
+      draw.first?.location &&
+      draw.first.location.toLowerCase() !== "n/a" &&
+      draw.first.location.toLowerCase() !== "nan" &&
+      draw.first.location.toLowerCase() !== "null";
+
+    const hasAgent =
+      draw.first?.agent &&
+      draw.first.agent.toLowerCase() !== "n/a" &&
+      draw.first.agent.toLowerCase() !== "nan" &&
+      draw.first.agent.toLowerCase() !== "null";
+
+    return (
+      <Box
+        sx={{
+          display: "block",
+          mt: 3,
+          pt: 3,
+          borderTop: "1px solid #E5E7EB",
+          width: "100%",
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 800, color: "#111827", mb: 2 }}
+        >
+          Winning Numbers
+        </Typography>
+
+        {/* 1st Prize Winner details card */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2.5,
+            mb: 3,
+            borderRadius: "16px",
+            background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
+            color: "#FFFFFF",
+            boxShadow: "0 4px 15px rgba(11, 60, 93, 0.2)",
+          }}
+        >
+          <Chip
+            icon={
+              <EmojiEventsIcon
+                sx={{
+                  color: "#D97706 !important",
+                  fontSize: "14px !important",
+                }}
+              />
+            }
+            label={
+              draw.first?.ticket
+                ? "1ST PRIZE WINNER"
+                : isToday
+                ? "1ST PRIZE (DRAWING...)"
+                : "1ST PRIZE"
+            }
+            size="small"
+            sx={{
+              bgcolor: "#FEF3C7",
+              color: "#92400E",
+              fontWeight: 800,
+              fontSize: "0.7rem",
+              mb: 1.5,
+              borderRadius: "8px",
+            }}
+          />
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 900,
+              fontFamily: "monospace",
+              letterSpacing: 1,
+              mb: 0.5,
+            }}
+          >
+            {draw.first?.ticket || (isToday ? "LIVE IN PROGRESS" : "N/A")}
+          </Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 700, opacity: 0.95, mb: 1.5 }}
+          >
+            Prize: {draw.prizes?.amounts?.["1st"] || "₹70 Lakhs"}
+          </Typography>
+
+          {(hasLocation || hasAgent) && (
+            <Box
+              sx={{
+                display: "flex",
+                borderTop: "1px solid rgba(255, 255, 255, 0.2)",
+                pt: 1.5,
+                gap: 2,
+              }}
+            >
+              {hasLocation && (
+                <Box sx={{ flex: 1 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "rgba(255, 255, 255, 0.8)",
+                      display: "block",
+                    }}
+                  >
+                    Location
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                    {draw.first?.location}
+                  </Typography>
+                </Box>
+              )}
+              {hasAgent && (
+                <Box sx={{ flex: 1 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "rgba(255, 255, 255, 0.8)",
+                      display: "block",
+                    }}
+                  >
+                    Agent
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                    {draw.first?.agent}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          )}
+        </Paper>
+
+        {/* Other Prize Tiers */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {prizeTiers.map(({ key, label, badgeBg }) => {
+            const numbers = draw.prizes?.[
+              key as keyof typeof draw.prizes
+            ] as string[] | undefined;
+            const amount = draw.prizes?.amounts?.[key];
+
+            if (!numbers || numbers.length === 0) return null;
+
+            return (
+              <Paper
+                key={key}
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: "12px",
+                  bgcolor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1.5,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 800,
+                      color: "#111827",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        backgroundColor: badgeBg,
+                      }}
+                    />
+                    {label}
+                  </Typography>
+                  {amount && (
+                    <Chip
+                      label={`Prize: ${amount}`}
+                      size="small"
+                      sx={{
+                        bgcolor: "#F3F4F6",
+                        color: "#374151",
+                        fontWeight: 700,
+                        borderRadius: "6px",
+                        fontSize: "0.75rem",
+                      }}
+                    />
+                  )}
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 1.25,
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  {numbers.map((num, idx) => (
+                    <Box
+                      key={idx}
+                      sx={{
+                        width: {
+                          xs: "calc(50% - 6px)",
+                          sm: "calc(33.33% - 8px)",
+                          md: "calc(20% - 10px)",
+                          lg: "calc(16.66% - 11px)",
+                          xl: "calc(12.5% - 11px)",
+                        },
+                        px: 1.5,
+                        py: 1,
+                        borderRadius: "8px",
+                        bgcolor: "#FFFFFF",
+                        border: "1.5px solid #E2E8F0",
+                        color: "#0F172A",
+                        fontWeight: 900,
+                        fontSize: "0.9rem",
+                        textAlign: "center",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      {num}
+                    </Box>
+                  ))}
+                </Box>
+              </Paper>
+            );
+          })}
+        </Box>
+      </Box>
+    );
+  };
+
   return (
     <Container
       maxWidth={false}
@@ -705,8 +978,11 @@ export default function HomePage() {
                 },
               }}
             >
-              Yesterday&apos;s Result{" "}
-              {latestPreviousDraw ? `(${latestPreviousDraw.draw_date})` : ""}
+              {latestPreviousDraw
+                ? latestPreviousDraw.draw_date === yesterdayISTDate
+                  ? `Yesterday's Result (${latestPreviousDraw.draw_date})`
+                  : `Previous Result (${latestPreviousDraw.draw_date})`
+                : "Previous Result"}
             </Button>
           </Box>
 
@@ -718,7 +994,9 @@ export default function HomePage() {
             >
               {heroSlideIndex === 0
                 ? "1 of 2: Today"
-                : "2 of 2: Yesterday/Previous"}
+                : latestPreviousDraw?.draw_date === yesterdayISTDate
+                  ? "2 of 2: Yesterday"
+                  : "2 of 2: Previous Draw"}
             </Typography>
             <IconButton
               size="small"
@@ -748,205 +1026,7 @@ export default function HomePage() {
         {/* SLIDE 0: TODAY'S DRAW */}
         {!isLoading && heroSlideIndex === 0 && (
           <Box sx={{ width: "100%", position: "relative", zIndex: 1 }}>
-            {/* Winner Details Card on Right (When Today's Winner Result is Available - Desktop Only) */}
-            {hasTodayResult && todayDrawResult ? (
-              <Box
-                sx={{
-                  display: { xs: "none", lg: "block" },
-                  position: "absolute",
-                  right: { lg: "20px", xl: "40px" },
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: { lg: 350, xl: 380 },
-                  zIndex: 2,
-                }}
-              >
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    borderRadius: "20px",
-                    bgcolor: "#FFFFFF",
-                    border: "2px solid #0B3C5D",
-                    boxShadow: "0 10px 30px rgba(11, 60, 93, 0.15)",
-                  }}
-                >
-                  <Chip
-                    icon={
-                      <EmojiEventsIcon
-                        sx={{ fontSize: "14px !important", color: "#0F2C59" }}
-                      />
-                    }
-                    label={`WINNING TICKET • ${todayDrawResult.draw_date}`}
-                    size="small"
-                    sx={{
-                      bgcolor: "#EBF5FF",
-                      color: "#0B3C5D",
-                      fontWeight: 800,
-                      fontSize: "0.725rem",
-                      borderRadius: "12px",
-                      mb: 1.5,
-                    }}
-                  />
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "#0F2C59", fontWeight: 800, display: "block" }}
-                  >
-                    {todayDrawResult.first?.ticket
-                      ? `1ST PRIZE WINNER TICKET (${todayDrawResult.prizes?.amounts?.["1st"] || "₹70 Lakhs"})`
-                      : "LIVE DRAW • PRIZES 1-9 & CONSOLATION"}
-                  </Typography>
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontFamily: "monospace",
-                      fontWeight: 900,
-                      color: "#0B3C5D",
-                      mb: 1,
-                      letterSpacing: "0.05em",
-                    }}
-                  >
-                    {todayDrawResult.first?.ticket || "LIVE IN PROGRESS"}
-                  </Typography>
-                  {todayDrawResult.first?.location && (
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#374151", fontWeight: 700 }}
-                    >
-                      Location:{" "}
-                      <strong>{todayDrawResult.first.location}</strong>
-                    </Typography>
-                  )}
-                  {todayDrawResult.first?.agent && (
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}
-                    >
-                      Agent: <strong>{todayDrawResult.first.agent}</strong>
-                    </Typography>
-                  )}
-
-                  {/* Available Live Prize Tiers Preview */}
-                  {todayDrawResult.prizes && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 0.5,
-                        mt: 1.5,
-                      }}
-                    >
-                      {[
-                        "consolation",
-                        "2nd",
-                        "3rd",
-                        "4th",
-                        "5th",
-                        "6th",
-                        "7th",
-                        "8th",
-                        "9th",
-                      ]
-                        .filter((tier) => {
-                          const arr = (todayDrawResult.prizes as any)?.[tier];
-                          return Array.isArray(arr) && arr.length > 0;
-                        })
-                        .map((tier) => (
-                          <Chip
-                            key={tier}
-                            label={
-                              tier === "consolation"
-                                ? "Consolation"
-                                : `${tier} Prize`
-                            }
-                            size="small"
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              height: "20px",
-                              bgcolor: "#F3F4F6",
-                              color: "#374151",
-                            }}
-                          />
-                        ))}
-                    </Box>
-                  )}
-
-                  <Button
-                    component={Link}
-                    href={getLotteryUrl(
-                      todayDrawResult.lottery_code,
-                      todayDrawResult.draw_date,
-                    )}
-                    size="small"
-                    variant="outlined"
-                    fullWidth
-                    sx={{
-                      mt: 2,
-                      borderRadius: "10px",
-                      borderColor: "#0B3C5D",
-                      color: "#0B3C5D",
-                      fontWeight: 800,
-                      fontSize: "0.8rem",
-                      "&:hover": { bgcolor: "#EBF5FF", borderColor: "#0F2C59" },
-                    }}
-                  >
-                    View Full Prize List →
-                  </Button>
-                </Paper>
-              </Box>
-            ) : (
-              /* Faded Preview Card on Right (When Result Not Yet Published) */
-              <Box
-                sx={{
-                  position: "absolute",
-                  right: { lg: "20px", xl: "50px" },
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: { lg: 350, xl: 420 },
-                  opacity: 0.35,
-                  pointerEvents: "none",
-                  display: { xs: "none", lg: "block" },
-                }}
-              >
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    borderRadius: "20px",
-                    bgcolor: isTodayBumper ? "#FEF9C3" : "#FFFFFF",
-                    mb: 2,
-                    border: isTodayBumper
-                      ? "1.5px solid #F59E0B"
-                      : "1px solid #E5E7EB",
-                  }}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      color: isTodayBumper ? "#78350F" : "#374151",
-                      fontWeight: 800,
-                    }}
-                  >
-                    {todayLottery.nameMl || todayLottery.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: isTodayBumper ? "#B45309" : "#D97706",
-                      fontWeight: 900,
-                      mt: 1,
-                    }}
-                  >
-                    {isTodayBumper
-                      ? `🏆 1st Prize: ${todayLottery.jackpot || "₹25 Crore"}`
-                      : `${todayLottery.name} • 1st Prize ₹70 Lakhs`}
-                  </Typography>
-                </Paper>
-              </Box>
-            )}
-
-            <Box sx={{ maxWidth: { xs: "100%", lg: 650, xl: 720 } }}>
+            <Box sx={{ width: "100%" }}>
               {/* Badge */}
               {isTodayBumper ? (
                 <Chip
@@ -1404,304 +1484,9 @@ export default function HomePage() {
                   )}
                 </Box>
 
-                {hasTodayResult && todayDrawResult && (
-                  <Box sx={{ pt: 0.5 }}>
-                    <Button
-                      component={Link}
-                      href={getLotteryUrl(
-                        todayLottery.code,
-                        todayDrawResult.draw_date,
-                      )}
-                      variant="outlined"
-                      endIcon={<ArrowForwardIcon />}
-                      sx={{
-                        borderColor: "#0B3C5D",
-                        color: "#0B3C5D",
-                        fontWeight: 800,
-                        px: { xs: 2, sm: 3 },
-                        py: { xs: 1.1, sm: 1 },
-                        borderRadius: { xs: "10px", sm: "12px" },
-                        width: { xs: "100%", sm: "auto" },
-                        textAlign: "center",
-                        justifyContent: "center",
-                        fontSize: { xs: "0.825rem", sm: "0.95rem" },
-                        display: { xs: "none", md: "inline-flex" },
-                        "&:hover": {
-                          bgcolor: "#EBF5FF",
-                          borderColor: "#0B3C5D",
-                        },
-                      }}
-                    >
-                      View More Details for {todayDrawResult.draw_date} Result
-                    </Button>
-                  </Box>
-                )}
-
-                {hasTodayResult && todayDrawResult && (
-                  <Box
-                    sx={{
-                      display: { xs: "block", md: "none" },
-                      mt: 3,
-                      pt: 3,
-                      borderTop: "1px solid #E5E7EB",
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 800, color: "#111827", mb: 2 }}
-                    >
-                      Winning Numbers
-                    </Typography>
-
-                    {/* 1st Prize Winner details card (mobile version) */}
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 2.5,
-                        mb: 3,
-                        borderRadius: "16px",
-                        background:
-                          "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
-                        color: "#FFFFFF",
-                        boxShadow: "0 4px 15px rgba(11, 60, 93, 0.2)",
-                      }}
-                    >
-                      <Chip
-                        icon={
-                          <EmojiEventsIcon
-                            sx={{
-                              color: "#D97706 !important",
-                              fontSize: "14px !important",
-                            }}
-                          />
-                        }
-                        label={
-                          todayDrawResult.first?.ticket
-                            ? "1ST PRIZE WINNER"
-                            : "1ST PRIZE (DRAWING...)"
-                        }
-                        size="small"
-                        sx={{
-                          bgcolor: "#FEF3C7",
-                          color: "#92400E",
-                          fontWeight: 800,
-                          fontSize: "0.7rem",
-                          mb: 1.5,
-                          borderRadius: "8px",
-                        }}
-                      />
-                      <Typography
-                        variant="h4"
-                        sx={{
-                          fontWeight: 900,
-                          fontFamily: "monospace",
-                          letterSpacing: 1,
-                          mb: 0.5,
-                        }}
-                      >
-                        {todayDrawResult.first?.ticket || "LIVE IN PROGRESS"}
-                      </Typography>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: 700, opacity: 0.95, mb: 1.5 }}
-                      >
-                        Prize:{" "}
-                        {todayDrawResult.prizes?.amounts?.["1st"] ||
-                          "₹70 Lakhs"}
-                      </Typography>
-
-                      {((todayDrawResult.first?.location &&
-                        todayDrawResult.first.location.toLowerCase() !==
-                          "n/a" &&
-                        todayDrawResult.first.location.toLowerCase() !==
-                          "nan" &&
-                        todayDrawResult.first.location.toLowerCase() !==
-                          "null") ||
-                        (todayDrawResult.first?.agent &&
-                          todayDrawResult.first.agent.toLowerCase() !== "n/a" &&
-                          todayDrawResult.first.agent.toLowerCase() !== "nan" &&
-                          todayDrawResult.first.agent.toLowerCase() !==
-                            "null")) && (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            borderTop: "1px solid rgba(255, 255, 255, 0.2)",
-                            pt: 1.5,
-                            gap: 2,
-                          }}
-                        >
-                          {todayDrawResult.first?.location &&
-                            todayDrawResult.first.location.toLowerCase() !==
-                              "n/a" &&
-                            todayDrawResult.first.location.toLowerCase() !==
-                              "nan" &&
-                            todayDrawResult.first.location.toLowerCase() !==
-                              "null" && (
-                              <Box sx={{ flex: 1 }}>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: "rgba(255, 255, 255, 0.8)",
-                                    display: "block",
-                                  }}
-                                >
-                                  Location
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{ fontWeight: 800 }}
-                                >
-                                  {todayDrawResult.first.location}
-                                </Typography>
-                              </Box>
-                            )}
-                          {todayDrawResult.first?.agent &&
-                            todayDrawResult.first.agent.toLowerCase() !==
-                              "n/a" &&
-                            todayDrawResult.first.agent.toLowerCase() !==
-                              "nan" &&
-                            todayDrawResult.first.agent.toLowerCase() !==
-                              "null" && (
-                              <Box sx={{ flex: 1 }}>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: "rgba(255, 255, 255, 0.8)",
-                                    display: "block",
-                                  }}
-                                >
-                                  Agent
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{ fontWeight: 800 }}
-                                >
-                                  {todayDrawResult.first.agent}
-                                </Typography>
-                              </Box>
-                            )}
-                        </Box>
-                      )}
-                    </Paper>
-
-                    {/* Other Prize Tiers */}
-                    <Box
-                      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                    >
-                      {[
-                        {
-                          key: "consolation",
-                          label: "Consolation Prize",
-                          badgeBg: "#7F8C8D",
-                        },
-                        { key: "2nd", label: "2nd Prize", badgeBg: "#D4AF37" },
-                        { key: "3rd", label: "3rd Prize", badgeBg: "#2980B9" },
-                        { key: "4th", label: "4th Prize", badgeBg: "#8E44AD" },
-                        { key: "5th", label: "5th Prize", badgeBg: "#2C3E50" },
-                        { key: "6th", label: "6th Prize", badgeBg: "#16A085" },
-                        { key: "7th", label: "7th Prize", badgeBg: "#D35400" },
-                        { key: "8th", label: "8th Prize", badgeBg: "#C0392B" },
-                        { key: "9th", label: "9th Prize", badgeBg: "#7F8C8D" },
-                      ].map(({ key, label, badgeBg }) => {
-                        const numbers = todayDrawResult.prizes?.[
-                          key as keyof typeof todayDrawResult.prizes
-                        ] as string[] | undefined;
-                        const amount = todayDrawResult.prizes?.amounts?.[key];
-
-                        if (!numbers || numbers.length === 0) return null;
-
-                        return (
-                          <Paper
-                            key={key}
-                            elevation={0}
-                            sx={{
-                              p: 2,
-                              borderRadius: "12px",
-                              bgcolor: "#FFFFFF",
-                              border: "1px solid #E5E7EB",
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                mb: 1.5,
-                              }}
-                            >
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  fontWeight: 800,
-                                  color: "#111827",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    width: 8,
-                                    height: 8,
-                                    borderRadius: "50%",
-                                    backgroundColor: badgeBg,
-                                  }}
-                                />
-                                {label}
-                              </Typography>
-                              {amount && (
-                                <Chip
-                                  label={`Prize: ${amount}`}
-                                  size="small"
-                                  sx={{
-                                    bgcolor: "#F3F4F6",
-                                    color: "#374151",
-                                    fontWeight: 700,
-                                    borderRadius: "6px",
-                                    fontSize: "0.75rem",
-                                  }}
-                                />
-                              )}
-                            </Box>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: 1.25,
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              {numbers.map((num, idx) => (
-                                <Box
-                                  key={idx}
-                                  sx={{
-                                    width: {
-                                      xs: "calc(50% - 6px)",
-                                      sm: "calc(33.33% - 8px)",
-                                      md: "auto",
-                                    },
-                                    px: 1.5,
-                                    py: 1,
-                                    borderRadius: "8px",
-                                    bgcolor: "#FFFFFF",
-                                    border: "1.5px solid #E2E8F0",
-                                    color: "#0F172A",
-                                    fontWeight: 900,
-                                    fontSize: "0.9rem",
-                                    textAlign: "center",
-                                    boxSizing: "border-box",
-                                  }}
-                                >
-                                  {num}
-                                </Box>
-                              ))}
-                            </Box>
-                          </Paper>
-                        );
-                      })}
-                    </Box>
-                  </Box>
-                )}
+                {hasTodayResult &&
+                  todayDrawResult &&
+                  renderWinningNumbers(todayDrawResult, true)}
               </Box>
             </Box>
           </Box>
@@ -1710,88 +1495,20 @@ export default function HomePage() {
         {/* SLIDE 1: YESTERDAY'S / PREVIOUS DRAW RESULT */}
         {!isLoading && heroSlideIndex === 1 && (
           <Box sx={{ width: "100%", position: "relative", zIndex: 1 }}>
-            {/* Winner Display Card on Right */}
-            <Box
-              sx={{
-                position: "absolute",
-                right: { sm: "10px", md: "20px", lg: "40px" },
-                top: "50%",
-                transform: "translateY(-50%)",
-                width: { sm: 300, md: 360, lg: 400 },
-                display: { xs: "none", md: "block" },
-              }}
-            >
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 3,
-                  borderRadius: "20px",
-                  bgcolor: "#FFFFFF",
-                  border: "1px solid #BFDBFE",
-                  boxShadow: "0 10px 25px rgba(11, 60, 93, 0.08)",
-                }}
-              >
-                <Chip
-                  icon={
-                    <EmojiEventsIcon
-                      sx={{ fontSize: "14px !important", color: "#0B3C5D" }}
-                    />
-                  }
-                  label={`WINNING TICKET • ${latestPreviousDraw?.draw_date || "PREVIOUS"}`}
-                  size="small"
-                  sx={{
-                    bgcolor: "#EBF5FF",
-                    color: "#0B3C5D",
-                    fontWeight: 800,
-                    fontSize: "0.725rem",
-                    borderRadius: "12px",
-                    mb: 1.5,
-                  }}
-                />
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#0B3C5D", fontWeight: 700, display: "block" }}
-                >
-                  1ST PRIZE WINNER TICKET
-                </Typography>
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontFamily: "monospace",
-                    fontWeight: 900,
-                    color: "#0B3C5D",
-                    mb: 1,
-                  }}
-                >
-                  {latestPreviousDraw?.first?.ticket || "N/A"}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#374151", fontWeight: 700 }}
-                >
-                  Location:{" "}
-                  <strong>
-                    {latestPreviousDraw?.first?.location || "N/A"}
-                  </strong>
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#374151", fontWeight: 700, mt: 0.5 }}
-                >
-                  Agent:{" "}
-                  <strong>{latestPreviousDraw?.first?.agent || "N/A"}</strong>
-                </Typography>
-              </Paper>
-            </Box>
-
-            <Box sx={{ maxWidth: { xs: "100%", md: 650, lg: 750 } }}>
+            <Box sx={{ width: "100%" }}>
               <Chip
                 icon={
                   <EmojiEventsIcon
                     sx={{ fontSize: "14px !important", color: "#0B3C5D" }}
                   />
                 }
-                label={`Previous Draw Result Published (${latestPreviousDraw?.draw_date || "Yesterday"})`}
+                label={
+                  latestPreviousDraw
+                    ? latestPreviousDraw.draw_date === yesterdayISTDate
+                      ? `Yesterday's Draw Result Published (${latestPreviousDraw.draw_date})`
+                      : `Previous Draw Result Published (${latestPreviousDraw.draw_date})`
+                    : "Previous Draw Result Published"
+                }
                 sx={{
                   bgcolor: "#EBF5FF",
                   color: "#0B3C5D",
@@ -1975,59 +1692,8 @@ export default function HomePage() {
                 </Box>
               </Box>
 
-              {latestPreviousDraw && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: 2,
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                  }}
-                >
-                  <Button
-                    component={Link}
-                    href={getLotteryUrl(
-                      latestPreviousDraw.lottery_code,
-                      latestPreviousDraw.draw_date,
-                    )}
-                    variant="contained"
-                    endIcon={<ArrowForwardIcon />}
-                    sx={{
-                      bgcolor: "#0B3C5D",
-                      color: "#FFFFFF",
-                      fontWeight: 800,
-                      px: { xs: 2.5, sm: 4 },
-                      py: 1.35,
-                      borderRadius: "12px",
-                      fontSize: { xs: "0.875rem", sm: "0.975rem" },
-                      "&:hover": { bgcolor: "#0F2C59" },
-                    }}
-                  >
-                    View Full Breakdown for {latestPreviousDraw.draw_date}
-                  </Button>
-
-                  <Button
-                    component={Link}
-                    href={getLotteryUrl(latestPreviousDraw.lottery_code)}
-                    variant="outlined"
-                    sx={{
-                      borderColor: "#0B3C5D",
-                      color: "#0B3C5D",
-                      fontWeight: 700,
-                      px: 3,
-                      py: 1.35,
-                      borderRadius: "12px",
-                      fontSize: { xs: "0.85rem", sm: "0.95rem" },
-                      "&:hover": {
-                        bgcolor: "#EBF5FF",
-                        borderColor: "#0B3C5D",
-                      },
-                    }}
-                  >
-                    View All {latestPreviousDraw.draw_name} Archives
-                  </Button>
-                </Box>
-              )}
+              {latestPreviousDraw &&
+                renderWinningNumbers(latestPreviousDraw, false)}
             </Box>
           </Box>
         )}
@@ -2040,7 +1706,8 @@ export default function HomePage() {
       /> */}
 
       {/* Weekly Lottery Schedule Section */}
-      <Box id="schedule" sx={{ mb: 6 }}>
+      {!isTodayBumper && (
+        <Box id="schedule" sx={{ mb: 6, display: { xs: "none", md: "block" } }}>
         <Typography
           variant="h4"
           sx={{
@@ -2462,9 +2129,11 @@ export default function HomePage() {
               })}
         </Grid>
       </Box>
+      )}
 
       {/* Kerala Bumper Lotteries Section */}
-      <Box id="bumpers" sx={{ mb: 6 }}>
+      {isTodayBumper && (
+        <Box id="bumpers" sx={{ mb: 6, display: { xs: "none", md: "block" } }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
           <Box
             sx={{
@@ -3020,6 +2689,7 @@ export default function HomePage() {
               })}
         </Grid>
       </Box>
+      )}
 
       {/* SEO & Comprehensive Information Section */}
       <Paper
@@ -3175,6 +2845,38 @@ export default function HomePage() {
           </Grid>
         </Box>
 
+        {/* Weekly Schedule & Lottery Results Infographic Chart */}
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 820,
+            mx: "auto",
+            mb: 4,
+            borderRadius: "16px",
+            overflow: "hidden",
+            border: "1px solid #E2E8F0",
+            bgcolor: "#FAFAFA",
+            p: { xs: 1, sm: 2 },
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Box
+            component="img"
+            src="/kerala-lottery-weekly-draw-schedule.jpg"
+            alt="Kerala State Lottery Weekly Draw Schedule and Results Chart - Monday to Sunday (Bhagyathara, Sthree Sakthi, Dhanalekshmi, Karunya Plus, Suvarna Keralam, Karunya, Samrudhi)"
+            loading="lazy"
+            sx={{
+              width: "100%",
+              height: "auto",
+              maxHeight: 560,
+              objectFit: "contain",
+              borderRadius: "12px",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+            }}
+          />
+        </Box>
+
         {/* Welcome & Streaming Details */}
         <Box sx={{ mb: 4 }}>
           <Typography
@@ -3241,6 +2943,113 @@ export default function HomePage() {
           >
             (Note: Previous lotteries from the 2020–2025 cycle, such as Fifty-Fifty, Win-Win, Nirmal, and Akshaya, have been updated in our system to reflect the current 2026 active draw roster).
           </Typography>
+        </Box>
+
+        {/* Kerala Lottery Ticket Purchasing & Anti-Fraud Advisory */}
+        <Box
+          sx={{
+            mb: 4.5,
+            p: { xs: 2.5, sm: 3 },
+            borderRadius: "16px",
+            bgcolor: "#FFFBEB",
+            border: "1.5px solid #FCD34D",
+            boxShadow: "0 4px 14px rgba(217, 119, 6, 0.06)",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 1.5 }}>
+            <SecurityIcon sx={{ color: "#D97706", fontSize: 26 }} />
+            <Typography
+              variant="h6"
+              component="h3"
+              sx={{
+                fontWeight: 800,
+                color: "#92400E",
+                fontSize: { xs: "1.05rem", sm: "1.2rem" },
+              }}
+            >
+              Kerala Lottery Ticket Purchasing &amp; Safety Advisory
+            </Typography>
+          </Box>
+
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  borderRadius: "12px",
+                  bgcolor: "#FFFFFF",
+                  border: "1px solid #FDE68A",
+                  height: "100%",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 800, color: "#B45309", mb: 0.5 }}
+                >
+                  🚫 No Online Sales
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.875rem" }}
+                >
+                  The Government of Kerala does not sell lottery tickets online. Any website or mobile app claiming digital sales is strictly unauthorized.
+                </Typography>
+              </Paper>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  borderRadius: "12px",
+                  bgcolor: "#FFFFFF",
+                  border: "1px solid #FDE68A",
+                  height: "100%",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 800, color: "#DC2626", mb: 0.5 }}
+                >
+                  ⚠️ Beware of Frauds
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.875rem" }}
+                >
+                  Websites or mobile apps offering digital sales of Kerala lotteries or &ldquo;Dear Lottery&rdquo; charts are financial scams.
+                </Typography>
+              </Paper>
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  borderRadius: "12px",
+                  bgcolor: "#FFFFFF",
+                  border: "1px solid #FDE68A",
+                  height: "100%",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 800, color: "#059669", mb: 0.5 }}
+                >
+                  🛒 Buy Offline Only
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.875rem" }}
+                >
+                  Always purchase your physical paper tickets from a government-authorized offline retail agent. The official ticket price is ₹50.
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
         </Box>
 
         {/* Prize Structure & Consolation */}

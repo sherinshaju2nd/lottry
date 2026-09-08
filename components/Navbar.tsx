@@ -48,7 +48,7 @@ import {
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(true);
+  const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [digestOpen, setDigestOpen] = useState(false);
   const pathname = usePathname();

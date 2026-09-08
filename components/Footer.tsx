@@ -108,9 +108,11 @@ export default function Footer() {
                 color: "#FFFFFF",
                 px: 2.5,
                 py: 1.2,
+                minHeight: 54,
+                boxSizing: "border-box",
                 borderRadius: "12px",
                 textDecoration: "none",
-                border: "1px solid rgba(255,255,255,0.2)",
+                border: "1px solid rgba(255,255,255,0.25)",
                 boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
                 transition: "all 0.2s ease-in-out",
                 "&:hover": {
@@ -120,7 +122,7 @@ export default function Footer() {
                 },
               }}
             >
-              <GooglePlayIcon size={28} />
+              <GooglePlayIcon size={26} />
               <Box sx={{ textAlign: "left" }}>
                 <Typography
                   variant="caption"
@@ -143,6 +145,7 @@ export default function Footer() {
                     fontWeight: 800,
                     fontSize: "0.95rem",
                     lineHeight: 1.2,
+                    mt: 0.25,
                   }}
                 >
                   Google Play
@@ -156,15 +159,18 @@ export default function Footer() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 1.5,
-                bgcolor: "rgba(255,255,255,0.06)",
-                color: "#94A3B8",
+                bgcolor: "#000000",
+                color: "#FFFFFF",
                 px: 2.5,
                 py: 1.2,
+                minHeight: 54,
+                boxSizing: "border-box",
                 borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
               }}
             >
-              <Box sx={{ color: "#94A3B8" }}>
+              <Box sx={{ color: "#FFFFFF", display: "flex", alignItems: "center" }}>
                 <AppleIcon size={26} />
               </Box>
               <Box sx={{ textAlign: "left" }}>
@@ -172,7 +178,7 @@ export default function Footer() {
                   variant="caption"
                   sx={{
                     display: "block",
-                    color: "#64748B",
+                    color: "#94A3B8",
                     fontSize: "0.65rem",
                     letterSpacing: "0.08em",
                     textTransform: "uppercase",
@@ -185,10 +191,11 @@ export default function Footer() {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "#CBD5E1",
+                    color: "#FFFFFF",
                     fontWeight: 800,
                     fontSize: "0.95rem",
                     lineHeight: 1.2,
+                    mt: 0.25,
                   }}
                 >
                   App Store
@@ -199,11 +206,12 @@ export default function Footer() {
                 size="small"
                 sx={{
                   ml: 0.5,
-                  bgcolor: "rgba(255,255,255,0.1)",
-                  color: "#94A3B8",
+                  bgcolor: "rgba(255,255,255,0.15)",
+                  color: "#CBD5E1",
                   fontWeight: 700,
-                  fontSize: "0.675rem",
+                  fontSize: "0.65rem",
                   height: 20,
+                  border: "1px solid rgba(255,255,255,0.1)",
                 }}
               />
             </Box>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
@@ -26,9 +26,157 @@ import SecurityIcon from "@mui/icons-material/Security";
 import SmartphoneIcon from "@mui/icons-material/Smartphone";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { GooglePlayIcon, AppleIcon, PLAY_STORE_URL } from "@/components/DownloadAppModal";
+import { supabase, WEEKLY_LOTTERIES } from "@/lib/supabase";
+
+const LOTTERY_PRIZES: Record<string, string> = {
+  BT: "₹1,00,00,000 (₹1 Crore)",
+  SS: "₹75,00,00,000 (₹75 Lakhs)",
+  DL: "₹1,00,00,000 (₹1 Crore)",
+  KN: "₹80,00,000 (₹80 Lakhs)",
+  SK: "₹1,00,00,000 (₹1 Crore)",
+  KR: "₹80,00,000 (₹80 Lakhs)",
+  SM: "₹1,00,00,000 (₹1 Crore)",
+  BR: "₹25,00,00,000 (₹25 Crore)",
+  XN: "₹20,00,00,000 (₹20 Crore)",
+  SB: "₹10,00,00,000 (₹10 Crore)",
+  VB: "₹12,00,00,000 (₹12 Crore)",
+  MB: "₹10,00,00,000 (₹10 Crore)",
+  PB: "₹12,00,00,000 (₹12 Crore)",
+};
+
+function getTodayISTInfo() {
+  const now = new Date();
+  const istParts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    weekday: "long",
+  }).formatToParts(now);
+
+  const day = istParts.find((p) => p.type === "day")?.value || "";
+  const month = istParts.find((p) => p.type === "month")?.value || "";
+  const year = istParts.find((p) => p.type === "year")?.value || "";
+  const weekday = istParts.find((p) => p.type === "weekday")?.value || "";
+
+  const isoDate = `${year}-${month}-${day}`;
+  return { isoDate, weekday };
+}
 
 export default function AppPage() {
   const [expandedFaq, setExpandedFaq] = useState<string | false>("faq1");
+  const [todayDraw, setTodayDraw] = useState<{
+    name: string;
+    code: string;
+    prize: string;
+    isPostponed?: boolean;
+  }>(() => {
+    const { weekday } = getTodayISTInfo();
+    const fallback =
+      WEEKLY_LOTTERIES.find(
+        (l) => l.day.toLowerCase() === weekday.toLowerCase(),
+      ) || WEEKLY_LOTTERIES[0];
+    return {
+      name: fallback.name,
+      code: fallback.code,
+      prize: LOTTERY_PRIZES[fallback.code] || "1st Prize: ₹1,00,00,000 (₹1 Crore)",
+      isPostponed: false,
+    };
+  });
+
+  useEffect(() => {
+    async function loadTodayDraw() {
+      const { isoDate, weekday } = getTodayISTInfo();
+
+      try {
+        // 1. Check postponed
+        const { data: postponed } = await supabase
+          .from("postponed_draws")
+          .select("draw_name, reason")
+          .eq("original_date", isoDate)
+          .maybeSingle();
+
+        if (postponed) {
+          setTodayDraw({
+            name: postponed.draw_name || "No Draw Today",
+            code: "POSTPONED",
+            prize: "Draw Postponed / Cancelled",
+            isPostponed: true,
+          });
+          return;
+        }
+
+        // 2. Check bumper
+        const { data: bumperDraw } = await supabase
+          .from("lotteries")
+          .select("name, code, jackpot, is_bumper")
+          .eq("draw_date", isoDate)
+          .maybeSingle();
+
+        if (bumperDraw) {
+          setTodayDraw({
+            name: bumperDraw.name,
+            code: bumperDraw.code,
+            prize: `1st Prize: ${bumperDraw.jackpot || LOTTERY_PRIZES[bumperDraw.code] || "Jackpot"}`,
+            isPostponed: false,
+          });
+          return;
+        }
+
+        // 3. Check draw_results for today's draw code (e.g. SS-536)
+        const { data: drawResult } = await supabase
+          .from("draw_results")
+          .select("draw_name, draw_code, lottery_code")
+          .eq("draw_date", isoDate)
+          .maybeSingle();
+
+        if (drawResult && drawResult.draw_name) {
+          const lCode = drawResult.lottery_code || drawResult.draw_code?.split("-")[0] || "BT";
+          setTodayDraw({
+            name: drawResult.draw_name,
+            code: drawResult.draw_code || lCode,
+            prize: `1st Prize: ${LOTTERY_PRIZES[lCode] || "₹1,00,00,000 (₹1 Crore)"}`,
+            isPostponed: false,
+          });
+          return;
+        }
+
+        // 4. Query lotteries table for regular weekday lottery
+        const { data: lotteries } = await supabase
+          .from("lotteries")
+          .select("name, code, jackpot")
+          .ilike("day", weekday);
+
+        if (lotteries && lotteries.length > 0) {
+          const reg = lotteries[0];
+          setTodayDraw({
+            name: reg.name,
+            code: reg.code,
+            prize: `1st Prize: ${reg.jackpot || LOTTERY_PRIZES[reg.code] || "₹1,00,00,000 (₹1 Crore)"}`,
+            isPostponed: false,
+          });
+          return;
+        }
+
+        // 5. Fallback from constant
+        const fallback =
+          WEEKLY_LOTTERIES.find(
+            (l) => l.day.toLowerCase() === weekday.toLowerCase(),
+          ) || WEEKLY_LOTTERIES[0];
+
+        setTodayDraw({
+          name: fallback.name,
+          code: fallback.code,
+          prize: `1st Prize: ${LOTTERY_PRIZES[fallback.code] || "₹1,00,00,000 (₹1 Crore)"}`,
+          isPostponed: false,
+        });
+      } catch (err) {
+        console.error("Error loading today's draw for app page preview:", err);
+      }
+    }
+
+    loadTodayDraw();
+  }, []);
 
   const handleFaqChange =
     (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -336,6 +484,8 @@ export default function AppPage() {
                     color: "#FFFFFF",
                     py: 1.5,
                     px: 3,
+                    minHeight: 64,
+                    boxSizing: "border-box",
                     borderRadius: "14px",
                     display: "inline-flex",
                     alignItems: "center",
@@ -352,7 +502,7 @@ export default function AppPage() {
                     },
                   }}
                 >
-                  <GooglePlayIcon size={34} />
+                  <GooglePlayIcon size={32} />
                   <Box sx={{ textAlign: "left" }}>
                     <Typography
                       variant="caption"
@@ -386,18 +536,20 @@ export default function AppPage() {
                 {/* Apple App Store (Coming Soon) Button */}
                 <Box
                   sx={{
-                    bgcolor: "rgba(255, 255, 255, 0.08)",
+                    bgcolor: "#000000",
                     borderRadius: "14px",
-                    py: 1.4,
-                    px: 2.5,
+                    py: 1.5,
+                    px: 3,
+                    minHeight: 64,
+                    boxSizing: "border-box",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 1.8,
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    backdropFilter: "blur(6px)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.25)",
                   }}
                 >
-                  <Box sx={{ color: "#94A3B8" }}>
+                  <Box sx={{ color: "#FFFFFF", display: "flex", alignItems: "center" }}>
                     <AppleIcon size={30} />
                   </Box>
                   <Box sx={{ textAlign: "left" }}>
@@ -416,12 +568,13 @@ export default function AppPage() {
                       DOWNLOAD ON THE
                     </Typography>
                     <Typography
-                      variant="body2"
+                      variant="h6"
                       sx={{
-                        color: "#E2E8F0",
-                        fontWeight: 800,
-                        fontSize: "1rem",
+                        color: "#FFFFFF",
+                        fontWeight: 900,
+                        fontSize: "1.15rem",
                         lineHeight: 1.2,
+                        mt: 0.25,
                       }}
                     >
                       App Store (iOS)
@@ -433,9 +586,11 @@ export default function AppPage() {
                     sx={{
                       ml: 0.5,
                       bgcolor: "rgba(255, 255, 255, 0.15)",
-                      color: "#E2E8F0",
+                      color: "#CBD5E1",
                       fontWeight: 700,
                       fontSize: "0.7rem",
+                      height: 22,
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
                     }}
                   />
                 </Box>
@@ -515,17 +670,49 @@ export default function AppPage() {
                     textAlign: "left",
                   }}
                 >
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                    <Typography variant="caption" sx={{ color: "#94A3B8" }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                    <Typography variant="caption" sx={{ color: "#94A3B8", fontWeight: 700 }}>
                       TODAY&apos;S DRAW
                     </Typography>
-                    <Chip label="LIVE 3:00 PM" size="small" sx={{ bgcolor: "#DC2626", color: "#FFFFFF", fontWeight: 800, height: 18, fontSize: "0.65rem" }} />
+                    {todayDraw.isPostponed ? (
+                      <Chip
+                        label="NO DRAW"
+                        size="small"
+                        sx={{
+                          bgcolor: "#EAB308",
+                          color: "#000000",
+                          fontWeight: 800,
+                          height: 18,
+                          fontSize: "0.65rem",
+                        }}
+                      />
+                    ) : (
+                      <Chip
+                        label="LIVE 3:00 PM"
+                        size="small"
+                        sx={{
+                          bgcolor: "#DC2626",
+                          color: "#FFFFFF",
+                          fontWeight: 800,
+                          height: 18,
+                          fontSize: "0.65rem",
+                        }}
+                      />
+                    )}
                   </Box>
                   <Typography variant="body2" sx={{ fontWeight: 800, color: "#FFFFFF" }}>
-                    Bhagyathara (BT) Draw #125
+                    {todayDraw.name} {todayDraw.code ? `(${todayDraw.code})` : ""}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "#34D399", fontWeight: 700 }}>
-                    1st Prize: ₹1,00,00,000 (₹1 Crore)
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: todayDraw.isPostponed ? "#FBBF24" : "#34D399",
+                      fontWeight: 700,
+                      display: "block",
+                      mt: 0.25,
+                    }}
+                  >
+                    {todayDraw.prize}
                   </Typography>
                 </Paper>
 
