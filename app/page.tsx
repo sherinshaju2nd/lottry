@@ -948,15 +948,20 @@ export default function HomePage() {
                 borderColor: heroSlideIndex === 0 ? "#0B3C5D" : "#E5E7EB",
                 fontWeight: 800,
                 borderRadius: "20px",
-                px: 2.5,
+                px: { xs: 1.5, sm: 2.5 },
                 py: 0.75,
-                fontSize: { xs: "0.75rem", sm: "0.825rem" },
+                fontSize: { xs: "0.725rem", sm: "0.825rem" },
                 "&:hover": {
                   bgcolor: heroSlideIndex === 0 ? "#0F2C59" : "#F3F4F6",
                 },
               }}
             >
-              Today&apos;s Draw ({todayLottery.name} {todayLottery.code})
+              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                Today&apos;s Draw ({todayLottery.name} {todayLottery.code})
+              </Box>
+              <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+                Today ({todayLottery.code})
+              </Box>
             </Button>
 
             <Button
@@ -970,19 +975,37 @@ export default function HomePage() {
                 borderColor: heroSlideIndex === 1 ? "#0B3C5D" : "#E5E7EB",
                 fontWeight: 800,
                 borderRadius: "20px",
-                px: 2.5,
+                px: { xs: 1.5, sm: 2.5 },
                 py: 0.75,
-                fontSize: { xs: "0.75rem", sm: "0.825rem" },
+                fontSize: { xs: "0.725rem", sm: "0.825rem" },
                 "&:hover": {
                   bgcolor: heroSlideIndex === 1 ? "#0F2C59" : "#F3F4F6",
                 },
               }}
             >
-              {latestPreviousDraw
-                ? latestPreviousDraw.draw_date === yesterdayISTDate
-                  ? `Yesterday's Result (${latestPreviousDraw.draw_date})`
-                  : `Previous Result (${latestPreviousDraw.draw_date})`
-                : "Previous Result"}
+              {latestPreviousDraw ? (
+                latestPreviousDraw.draw_date === yesterdayISTDate ? (
+                  <>
+                    <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                      Yesterday&apos;s Result ({latestPreviousDraw.draw_date})
+                    </Box>
+                    <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+                      Yesterday ({latestPreviousDraw.lottery_code || latestPreviousDraw.draw_code?.split("-")[0] || latestPreviousDraw.draw_date.split("-").slice(1).join("/")})
+                    </Box>
+                  </>
+                ) : (
+                  <>
+                    <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                      Previous Result ({latestPreviousDraw.draw_date})
+                    </Box>
+                    <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+                      Previous ({latestPreviousDraw.draw_date.split("-").slice(1).join("/")})
+                    </Box>
+                  </>
+                )
+              ) : (
+                "Previous Result"
+              )}
             </Button>
           </Box>
 
@@ -990,13 +1013,13 @@ export default function HomePage() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography
               variant="caption"
-              sx={{ color: "#6B7280", fontWeight: 700 }}
+              sx={{ color: "#6B7280", fontWeight: 700, fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
             >
               {heroSlideIndex === 0
                 ? "1 of 2: Today"
                 : latestPreviousDraw?.draw_date === yesterdayISTDate
                   ? "2 of 2: Yesterday"
-                  : "2 of 2: Previous Draw"}
+                  : `2 of 2: Prev (${latestPreviousDraw?.draw_date ? latestPreviousDraw.draw_date.split("-").slice(1).join("/") : "Draw"})`}
             </Typography>
             <IconButton
               size="small"
