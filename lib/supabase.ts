@@ -472,6 +472,102 @@ export async function fetchAllDrawResultsFromSupabase(forceRefresh = true): Prom
   return [];
 }
 
+export async function getDrawHistoryFromSupabase(
+  lotteryCode: string
+): Promise<StructuredDrawResult[]> {
+  try {
+    const { data, error } = await supabase
+      .from("draw_results")
+      .select("*")
+      .eq("lottery_code", lotteryCode.toUpperCase())
+      .order("draw_date", { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      return data.map((row) => {
+        let firstObj: FirstPrize = {};
+        let prizesObj: PrizeData = {};
+        try {
+          firstObj =
+            typeof row.first_prize === "string"
+              ? JSON.parse(row.first_prize)
+              : row.first_prize || {};
+        } catch {
+          firstObj = {};
+        }
+        try {
+          prizesObj =
+            typeof row.prizes === "string"
+              ? JSON.parse(row.prizes)
+              : row.prizes || {};
+        } catch {
+          prizesObj = {};
+        }
+        return {
+          id: row.id,
+          draw_date: row.draw_date,
+          draw_name: row.draw_name,
+          draw_code: row.draw_code,
+          lottery_code: row.lottery_code,
+          first: firstObj,
+          prizes: prizesObj,
+          created_at: row.created_at,
+        };
+      });
+    }
+  } catch (e) {
+    console.warn("Supabase getDrawHistory error:", e);
+  }
+  return [];
+}
+
+export async function getRecentDrawsFromSupabase(
+  limit = 35
+): Promise<StructuredDrawResult[]> {
+  try {
+    const { data, error } = await supabase
+      .from("draw_results")
+      .select("*")
+      .order("draw_date", { ascending: false })
+      .limit(limit);
+
+    if (!error && data && data.length > 0) {
+      return data.map((row) => {
+        let firstObj: FirstPrize = {};
+        let prizesObj: PrizeData = {};
+        try {
+          firstObj =
+            typeof row.first_prize === "string"
+              ? JSON.parse(row.first_prize)
+              : row.first_prize || {};
+        } catch {
+          firstObj = {};
+        }
+        try {
+          prizesObj =
+            typeof row.prizes === "string"
+              ? JSON.parse(row.prizes)
+              : row.prizes || {};
+        } catch {
+          prizesObj = {};
+        }
+        return {
+          id: row.id,
+          draw_date: row.draw_date,
+          draw_name: row.draw_name,
+          draw_code: row.draw_code,
+          lottery_code: row.lottery_code,
+          first: firstObj,
+          prizes: prizesObj,
+          created_at: row.created_at,
+        };
+      });
+    }
+  } catch (e) {
+    console.warn("Supabase getRecentDraws error:", e);
+  }
+  return [];
+}
+
 /**
  * Lightweight sitemap-only fetch: only retrieves lottery_code, draw_date, created_at.
  * Uses range-based pagination to bypass Supabase's default 1000-row cap,
