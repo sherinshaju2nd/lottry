@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Kerala Lottery Ticket Search & Checker Engine",
+  title: "Ticket Search & Number Checker",
   description:
-    "Search Kerala State Lottery ticket numbers instantly. Check today's winning numbers, jackpot prizes, and match series numbers quickly and accurately.",
+    "Search Kerala State Lottery ticket numbers instantly. Check today's winning numbers, 1st prize jackpot, and match prize series numbers quickly.",
   alternates: {
     canonical: "https://www.keralalotteryresultstoday.in/search",
   },

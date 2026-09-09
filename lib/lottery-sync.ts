@@ -1,4 +1,4 @@
-import { saveDrawResultToSupabase, StructuredDrawResult, ALL_LOTTERIES } from "./supabase";
+import { saveDrawResultToSupabase, StructuredDrawResult, ALL_LOTTERIES, getLotterySlug } from "./supabase";
 import { broadcastFirstPrizeResult } from "./broadcaster";
 
 export async function fetchAndSyncLatestLottery(): Promise<{
@@ -80,6 +80,29 @@ export async function fetchAndSyncLatestLottery(): Promise<{
       broadcastResult = await broadcastFirstPrizeResult(payload);
     } catch (bErr) {
       console.warn("[Broadcast Error during sync]:", bErr);
+    }
+
+    // Auto-notify IndexNow with the new draw URL and category URL
+    try {
+      const host = "www.keralalotteryresultstoday.in";
+      const slug = getLotterySlug(lottery_code);
+      const updatedUrls = [
+        `https://${host}/`,
+        `https://${host}/${slug}`,
+        `https://${host}/${slug}/${encodeURIComponent(payload.draw_date)}`,
+      ];
+      await fetch("https://api.indexnow.org/indexnow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({
+          host,
+          key: "a6e8b2c4d9f148739201567bcde3fa48",
+          keyLocation: `https://${host}/a6e8b2c4d9f148739201567bcde3fa48.txt`,
+          urlList: updatedUrls,
+        }),
+      });
+    } catch (inErr) {
+      console.warn("[IndexNow notify warning]:", inErr);
     }
 
     return {

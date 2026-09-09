@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Kerala Lottery Guide, Rules, Schedule & Tax Info",
+  title: "Complete Lottery Guide & Tax Rules",
   description:
     "Comprehensive guide to Kerala State Lotteries. Learn about daily draw schedules, bumper lotteries, prize structures, rules, and tax deductions.",
   alternates: {

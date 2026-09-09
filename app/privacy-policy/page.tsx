@@ -12,6 +12,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.keralalotteryresultstoday.in/privacy-policy",
   },
+  openGraph: {
+    title: "Privacy Policy | Kerala Lottery",
+    description:
+      "Read the official Privacy Policy for Kerala Lottery Result Today.",
+    url: "https://www.keralalotteryresultstoday.in/privacy-policy",
+    siteName: "Kerala Lottery Result Today",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy | Kerala Lottery",
+    description:
+      "Read the official Privacy Policy for Kerala Lottery Result Today.",
+  },
 };
 
 export default function PrivacyPolicyPage() {

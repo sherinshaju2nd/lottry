@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Download Kerala Lottery Results Today Official Android App | Free Play Store",
+  title: "Download Official App",
   description:
-    "Download the official Kerala Lottery Results Today Android App from Google Play Store. Get instant 3:00 PM live draw results, ticket checker scanner, official Gazette PDF downloads, and lucky number alerts.",
+    "Download the official Kerala Lottery Results Today app. Get real-time 3 PM live draw results, ticket checker scanner, and official Gazette PDF.",
   keywords: [
     "kerala lottery app download",
     "kerala lottery results app",
-    "kerala lottery result today android app",
+    "kerala lottery result today app",
     "kerala lottery ticket scanner app",
     "live kerala lottery draw app",
     "play store kerala lottery results",

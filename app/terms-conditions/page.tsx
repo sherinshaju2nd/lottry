@@ -12,6 +12,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.keralalotteryresultstoday.in/terms-conditions",
   },
+  openGraph: {
+    title: "Terms & Conditions | Kerala Lottery",
+    description:
+      "Read the Terms and Conditions for Kerala Lottery Result Today.",
+    url: "https://www.keralalotteryresultstoday.in/terms-conditions",
+    siteName: "Kerala Lottery Result Today",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Terms & Conditions | Kerala Lottery",
+    description:
+      "Read the Terms and Conditions for Kerala Lottery Result Today.",
+  },
 };
 
 export default function TermsConditionsPage() {

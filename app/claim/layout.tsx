@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "How to Claim Kerala Lottery Prize Money Guide",
+  title: "How to Claim Prize Money Guide",
   description:
     "Step-by-step guide on how to claim Kerala State Lottery prizes. Learn the claim process, required documents, bank procedures, and office locations.",
   alternates: {

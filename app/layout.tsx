@@ -93,14 +93,19 @@ async function getDynamicDefaultTitle(): Promise<string> {
         (l) => l.day.toLowerCase() === weekday.toLowerCase(),
       ) || WEEKLY_LOTTERIES[0];
 
-    return `LIVE Kerala Lottery Result Today (${formattedDate}) | ${matchedFallback.name} ${matchedFallback.code} Results`;
+    return `Kerala Lottery Result Today | Live 3 PM Draw`;
   } catch {
+    const today = new Date();
+    const weekday = today.toLocaleDateString("en-US", {
+      weekday: "long",
+      timeZone: "Asia/Kolkata",
+    });
     const matchedFallback =
       WEEKLY_LOTTERIES.find(
         (l) => l.day.toLowerCase() === weekday.toLowerCase(),
       ) || WEEKLY_LOTTERIES[0];
 
-    return `LIVE Kerala Lottery Result Today (${formattedDate}) | ${matchedFallback.name} ${matchedFallback.code} Results`;
+    return `Kerala Lottery Result Today | ${matchedFallback.name} Results`;
   }
 }
 
@@ -111,10 +116,10 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL("https://www.keralalotteryresultstoday.in"),
     title: {
       default: dynamicTitle,
-      template: "%s | Kerala Lottery Results Today",
+      template: "%s | Kerala Lottery",
     },
     description:
-      "Get Kerala Lottery Result Today LIVE with complete prize details. Check today’s Kerala lottery results, bumper lottery updates, Karunya, Karunya Plus, Dhanalekshmi, Bhagyathara, Samrudhi, Suvarna Keralam & Sthree Sakthi results instantly with official prize structure.",
+      "Get Kerala Lottery Result Today LIVE at 3 PM. Check today's winning ticket numbers, prize list, weekly draw schedule, and historical results instantly.",
     keywords: [
       "LIVE Kerala Lottery Result Today",
       "how to get kerala lottery ticket",

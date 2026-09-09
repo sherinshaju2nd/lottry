@@ -19,16 +19,16 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Contact Us - Helpdesk & Customer Support | Kerala Lottery Result Today",
+  title: "Contact Us & Support",
   description:
-    "Get in touch with the Kerala Lottery Result Today support team for app feedback, technical inquiries, or general help. Contact via WhatsApp, Phone, or Email.",
+    "Get in touch with the Kerala Lottery Result Today support team for helpdesk assistance, ticket queries, or app feedback via WhatsApp, Phone, or Email.",
   alternates: {
     canonical: "https://www.keralalotteryresultstoday.in/contact",
   },
   openGraph: {
-    title: "Contact Us - Kerala Lottery Result Today Helpdesk",
+    title: "Contact Us & Support | Kerala Lottery",
     description:
-      "Need help or have questions regarding lottery results? Contact our support team via WhatsApp, Phone, or Email.",
+      "Get in touch with the Kerala Lottery Result Today support team via WhatsApp, Phone, or Email.",
     url: "https://www.keralalotteryresultstoday.in/contact",
     siteName: "Kerala Lottery Result Today",
   },

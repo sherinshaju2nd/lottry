@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Kerala Lottery Frequently Asked Questions FAQ",
+  title: "Frequently Asked Questions (FAQ)",
   description:
     "Find answers to frequently asked questions about Kerala Lottery draws, timings, ticket purchase rules, tax rates, prize claims, and result timings.",
   alternates: {
