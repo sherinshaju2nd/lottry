@@ -1267,7 +1267,7 @@ export default function HomePage() {
                       boxShadow: "0 0 10px rgba(245, 158, 11, 0.4)",
                     }}
                   />
-                ) : socketStatus === "connected" ? (
+                ) : !hasTodayResult && isAfter3PM && getIsPollingWindow(isTodayBumper) && socketStatus === "connected" ? (
                   <Chip
                     icon={
                       <Box
@@ -1282,6 +1282,31 @@ export default function HomePage() {
                       />
                     }
                     label="LIVE SYNC ACTIVE"
+                    sx={{
+                      bgcolor: "#ECFDF5",
+                      color: "#065F46",
+                      fontWeight: 800,
+                      fontSize: { xs: "0.66rem", sm: "0.72rem" },
+                      borderRadius: "20px",
+                      px: 0.8,
+                      py: 0.25,
+                      border: "1px solid #A7F3D0",
+                    }}
+                  />
+                ) : hasTodayResult ? (
+                  <Chip
+                    icon={
+                      <Box
+                        sx={{
+                          width: 7,
+                          height: 7,
+                          borderRadius: "50%",
+                          bgcolor: "#10B981",
+                          ml: 0.5,
+                        }}
+                      />
+                    }
+                    label="OFFICIAL RESULT CONFIRMED"
                     sx={{
                       bgcolor: "#ECFDF5",
                       color: "#065F46",
