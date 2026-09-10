@@ -62,11 +62,12 @@ Return ONLY a valid JSON object strictly matching this format without markdown c
 `;
 
   const models = [
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
     "gemini-3.6-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
+    "gemini-3.1-pro",
     "gemini-2.5-flash",
+    "gemini-2.5-pro",
   ];
   let lastError: any = null;
 
@@ -209,11 +210,12 @@ Return ONLY a valid JSON object matching the exact structure below with NO markd
 `;
 
   const models = [
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
     "gemini-3.6-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
+    "gemini-3.1-pro",
     "gemini-2.5-flash",
+    "gemini-2.5-pro",
   ];
   let lastError: any = null;
 
@@ -323,11 +325,12 @@ ${contextData || "No extra context provided."}
   ];
 
   const models = [
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
     "gemini-3.6-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
+    "gemini-3.1-pro",
     "gemini-2.5-flash",
+    "gemini-2.5-pro",
   ];
   let lastError: any = null;
 
@@ -413,11 +416,12 @@ Return ONLY a JSON object:
 `;
 
   const models = [
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
     "gemini-3.6-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
+    "gemini-3.1-pro",
     "gemini-2.5-flash",
+    "gemini-2.5-pro",
   ];
   for (const model of models) {
     try {
