@@ -45,12 +45,12 @@ async function getDynamicDefaultTitle(): Promise<string> {
     // 1. Check if today's draw is postponed / cancelled
     const { data: postponed } = await supabase
       .from("postponed_draws")
-      .select("draw_name, reason")
-      .eq("original_date", isoDate)
+      .select("lottery_code, reason, status")
+      .eq("draw_date", isoDate)
       .maybeSingle();
 
     if (postponed) {
-      return `LIVE Kerala Lottery Result Today (${formattedDate}) | No Draw Today (${postponed.draw_name || "Postponed"})`;
+      return `LIVE Kerala Lottery Result Today (${formattedDate}) | No Draw Today (${postponed.reason || "Postponed"})`;
     }
 
     // 2. Check if today is a scheduled Bumper Lottery

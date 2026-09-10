@@ -92,13 +92,13 @@ export default function AppPage() {
         // 1. Check postponed
         const { data: postponed } = await supabase
           .from("postponed_draws")
-          .select("draw_name, reason")
-          .eq("original_date", isoDate)
+          .select("lottery_code, reason, status")
+          .eq("draw_date", isoDate)
           .maybeSingle();
 
         if (postponed) {
           setTodayDraw({
-            name: postponed.draw_name || "No Draw Today",
+            name: postponed.reason || "No Draw Today",
             code: "POSTPONED",
             prize: "Draw Postponed / Cancelled",
             isPostponed: true,
