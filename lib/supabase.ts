@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+export * from "./lotteryConfig";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://dqsoseefmiwyjkgqmphh.supabase.co";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_bF2JcJ0IPvCaVgeybXJKGw_JBtrS7sx";

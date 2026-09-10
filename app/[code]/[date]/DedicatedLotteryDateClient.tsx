@@ -46,6 +46,7 @@ import {
   getSearchFeedbackMessage,
   getLotteryUrl,
   hasAnyDrawResult,
+  getIsAfterDrawTime,
 } from "@/lib/supabase";
 
 interface SingleCheckerMatch {
@@ -135,14 +136,7 @@ export default function DedicatedLotteryDateClient({
   useEffect(() => {
     const checkTime = () => {
       try {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString("en-GB", {
-          timeZone: "Asia/Kolkata",
-          hour12: false,
-        });
-        const [hStr] = timeStr.split(":");
-        const hours = parseInt(hStr, 10);
-        setIsAfter3PM(hours >= 15);
+        setIsAfter3PM(getIsAfterDrawTime(Boolean(lotteryInfo.is_bumper)));
       } catch {
         setIsAfter3PM(false);
       }

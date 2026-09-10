@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -66,6 +66,10 @@ import {
   supabase,
   formatTicketSearchInput,
   hasAnyDrawResult,
+  calculateDrawCountdown,
+  getIsAfterDrawTime,
+  getIsPollingWindow,
+  getDrawTimeDisplay,
 } from "@/lib/supabase";
 import ShareButtons from "@/components/ShareButtons";
 import AiSocialDigestModal from "@/components/AiSocialDigestModal";
@@ -118,6 +122,7 @@ export default function HomePage() {
   );
   const [todayDayName, setTodayDayName] = useState("Sunday");
   const [isTodayBumper, setIsTodayBumper] = useState(false);
+  const isTodayBumperRef = useRef(false);
   const [todayBumperInfo, setTodayBumperInfo] = useState<any>(null);
   const [todayDrawResult, setTodayDrawResult] =
     useState<StructuredDrawResult | null>(null);
@@ -209,37 +214,10 @@ export default function HomePage() {
 
     const updateCountdown = () => {
       try {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString("en-GB", {
-          timeZone: "Asia/Kolkata",
-          hour12: false,
-        });
-        const [hStr, mStr, sStr] = timeStr.split(":");
-        const hours = parseInt(hStr, 10);
-        const minutes = parseInt(mStr, 10);
-        const seconds = parseInt(sStr || "0", 10);
-        const totalMinutes = hours * 60 + minutes;
-        const targetDrawMinutes = isTodayBumper ? 14 * 60 : 15 * 60;
-        setIsAfter3PM(totalMinutes >= targetDrawMinutes);
-
-        const targetHour = isTodayBumper ? 14 : 15;
-        const targetTotalSeconds = targetHour * 3600;
-        const currentTotalSeconds = hours * 3600 + minutes * 60 + seconds;
-        const diffSeconds = targetTotalSeconds - currentTotalSeconds;
-
-        if (diffSeconds <= 0) {
-          setCountdown({ hours: 0, minutes: 0, seconds: 0, isDrawPassed: true });
-        } else {
-          const remHours = Math.floor(diffSeconds / 3600);
-          const remMinutes = Math.floor((diffSeconds % 3600) / 60);
-          const remSeconds = diffSeconds % 60;
-          setCountdown({
-            hours: remHours,
-            minutes: remMinutes,
-            seconds: remSeconds,
-            isDrawPassed: false,
-          });
-        }
+        const bumper = isTodayBumperRef.current;
+        setIsAfter3PM(getIsAfterDrawTime(bumper));
+        const cd = calculateDrawCountdown(bumper);
+        setCountdown(cd);
       } catch {
         setIsAfter3PM(false);
         setCountdown({ hours: 0, minutes: 0, seconds: 0, isDrawPassed: true });
@@ -279,6 +257,7 @@ export default function HomePage() {
           );
 
           if (todayBumper) {
+            isTodayBumperRef.current = true;
             setIsTodayBumper(true);
             setTodayBumperInfo(todayBumper);
             setTodayLottery({
@@ -294,6 +273,7 @@ export default function HomePage() {
             });
             checkTodayData(todayBumper.code);
           } else if (weeklyMapped.length > 0) {
+            isTodayBumperRef.current = false;
             setIsTodayBumper(false);
             setTodayBumperInfo(null);
             setLotteriesList(weeklyMapped);
@@ -542,22 +522,10 @@ export default function HomePage() {
         }
       });
 
-    // Intelligent Polling Timer: Poll every 15s during draw window (2:50 PM - 5:00 PM IST or while result is pending/live)
+    // Intelligent Polling Timer: Poll every 15s during draw window or while result is pending/live
     const pollInterval = setInterval(() => {
       try {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString("en-GB", {
-          timeZone: "Asia/Kolkata",
-          hour12: false,
-        });
-        const [hStr, mStr] = timeStr.split(":");
-        const hours = parseInt(hStr, 10);
-        const minutes = parseInt(mStr, 10);
-        const totalMins = hours * 60 + minutes;
-        const drawStartMins = isTodayBumper ? 13 * 60 + 50 : 14 * 60 + 50; // 1:50 PM for Bumper, 2:50 PM for Regular
-        const isDrawWindow = totalMins >= drawStartMins && totalMins <= 18 * 60; // Up to 6:00 PM IST
-
-        if (isDrawWindow || !todayDrawResult) {
+        if (getIsPollingWindow(isTodayBumperRef.current) || !todayDrawResult) {
           refreshAllLiveData();
         }
       } catch {}
