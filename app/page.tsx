@@ -142,6 +142,20 @@ export default function HomePage() {
   const [latestPreviousDraw, setLatestPreviousDraw] =
     useState<StructuredDrawResult | null>(null);
   const [isAfter3PM, setIsAfter3PM] = useState(false);
+  const [socketStatus, setSocketStatus] = useState<
+    "connecting" | "connected" | "live_updating"
+  >("connecting");
+  const [countdown, setCountdown] = useState<{
+    hours: number;
+    minutes: number;
+    seconds: number;
+    isDrawPassed: boolean;
+  }>({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isDrawPassed: false,
+  });
 
   const todayISTDate = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
@@ -193,25 +207,47 @@ export default function HomePage() {
       ) || WEEKLY_LOTTERIES[0];
     setTodayLottery(matched);
 
-    const checkTime = () => {
+    const updateCountdown = () => {
       try {
         const now = new Date();
         const timeStr = now.toLocaleTimeString("en-GB", {
           timeZone: "Asia/Kolkata",
           hour12: false,
         });
-        const [hStr, mStr] = timeStr.split(":");
+        const [hStr, mStr, sStr] = timeStr.split(":");
         const hours = parseInt(hStr, 10);
         const minutes = parseInt(mStr, 10);
+        const seconds = parseInt(sStr || "0", 10);
         const totalMinutes = hours * 60 + minutes;
         const targetDrawMinutes = isTodayBumper ? 14 * 60 : 15 * 60;
         setIsAfter3PM(totalMinutes >= targetDrawMinutes);
+
+        const targetHour = isTodayBumper ? 14 : 15;
+        const targetTotalSeconds = targetHour * 3600;
+        const currentTotalSeconds = hours * 3600 + minutes * 60 + seconds;
+        const diffSeconds = targetTotalSeconds - currentTotalSeconds;
+
+        if (diffSeconds <= 0) {
+          setCountdown({ hours: 0, minutes: 0, seconds: 0, isDrawPassed: true });
+        } else {
+          const remHours = Math.floor(diffSeconds / 3600);
+          const remMinutes = Math.floor((diffSeconds % 3600) / 60);
+          const remSeconds = diffSeconds % 60;
+          setCountdown({
+            hours: remHours,
+            minutes: remMinutes,
+            seconds: remSeconds,
+            isDrawPassed: false,
+          });
+        }
       } catch {
         setIsAfter3PM(false);
+        setCountdown({ hours: 0, minutes: 0, seconds: 0, isDrawPassed: true });
       }
     };
-    checkTime();
-    const timeInterval = setInterval(checkTime, 30000);
+    updateCountdown();
+    const countdownInterval = setInterval(updateCountdown, 1000);
+    const timeInterval = setInterval(updateCountdown, 15000);
 
     async function loadLotteriesFromDb() {
       try {
@@ -444,6 +480,8 @@ export default function HomePage() {
               );
               // Auto-focus Hero Banner to Today's Draw on live result stream
               setHeroSlideIndex(0);
+              setSocketStatus("live_updating");
+              setTimeout(() => setSocketStatus("connected"), 4000);
 
               // Immediately hydrate state from socket payload
               try {
@@ -497,7 +535,10 @@ export default function HomePage() {
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
+          setSocketStatus("connected");
           console.log("[Supabase Socket] Subscribed to live draw_results updates.");
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          setSocketStatus("connecting");
         }
       });
 
@@ -525,12 +566,12 @@ export default function HomePage() {
     // Browser Visibility / Window Focus listeners for instant live updates
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        checkTime();
+        updateCountdown();
         refreshAllLiveData();
       }
     };
     const handleWindowFocus = () => {
-      checkTime();
+      updateCountdown();
       refreshAllLiveData();
     };
 
@@ -539,6 +580,7 @@ export default function HomePage() {
 
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(countdownInterval);
       clearInterval(timeInterval);
       clearInterval(pollInterval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -1144,97 +1186,147 @@ export default function HomePage() {
         {!isLoading && heroSlideIndex === 0 && (
           <Box sx={{ width: "100%", position: "relative", zIndex: 1 }}>
             <Box sx={{ width: "100%" }}>
-              {/* Badge */}
-              {isTodayBumper ? (
-                <Chip
-                  icon={
-                    <AutoAwesomeIcon
-                      sx={{ fontSize: "15px !important", color: "#B45309" }}
-                    />
-                  }
-                  label="👑 KERALA BUMPER LOTTERY DRAW TODAY"
-                  sx={{
-                    bgcolor: "#FEF3C7",
-                    color: "#92400E",
-                    fontWeight: 900,
-                    fontSize: { xs: "0.725rem", sm: "0.8rem" },
-                    borderRadius: "20px",
-                    mb: 2,
-                    px: 1.5,
-                    py: 0.35,
-                    border: "1.5px solid #F59E0B",
-                    boxShadow: "0 2px 10px rgba(245, 158, 11, 0.25)",
-                  }}
-                />
-              ) : todayPostponement ? (
-                <Chip
-                  icon={
-                    <EventBusyIcon
-                      sx={{ fontSize: "14px !important", color: "#DC2626" }}
-                    />
-                  }
-                  label={`DRAW ${todayPostponement.status.toUpperCase()} TODAY`}
-                  sx={{
-                    bgcolor: "#FEE2E2",
-                    color: "#991B1B",
-                    fontWeight: 800,
-                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                    borderRadius: "20px",
-                    mb: 2,
-                    px: 1,
-                    py: 0.25,
-                    border: "1px solid #FCA5A5",
-                  }}
-                />
-              ) : hasTodayResult ? (
-                <Chip
-                  icon={
-                    <EmojiEventsIcon
-                      sx={{ fontSize: "14px !important", color: "#111827" }}
-                    />
-                  }
-                  label="Latest Published Result"
-                  sx={{
-                    bgcolor: "#FFC107",
-                    color: "#111827",
-                    fontWeight: 800,
-                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                    borderRadius: "20px",
-                    mb: 2,
-                    px: 1,
-                    py: 0.25,
-                  }}
-                />
-              ) : (
-                <Chip
-                  icon={
-                    <AccessTimeIcon
-                      sx={{
-                        fontSize: "14px !important",
-                        color: isAfter3PM ? "#1E40AF" : "#B45309",
-                      }}
-                    />
-                  }
-                  label={
-                    isAfter3PM
-                      ? "Drawing in Progress..."
-                      : "Result Coming Soon (3:10 PM)"
-                  }
-                  sx={{
-                    bgcolor: isAfter3PM ? "#EFF6FF" : "#FEF3C7",
-                    color: isAfter3PM ? "#1E40AF" : "#92400E",
-                    fontWeight: 800,
-                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                    borderRadius: "20px",
-                    mb: 2,
-                    px: 1,
-                    py: 0.25,
-                    border: isAfter3PM
-                      ? "1px solid #BFDBFE"
-                      : "1px solid #FCD34D",
-                  }}
-                />
-              )}
+              {/* Badges Row with Live Realtime Status Pill */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", mb: 1 }}>
+                {isTodayBumper ? (
+                  <Chip
+                    icon={
+                      <AutoAwesomeIcon
+                        sx={{ fontSize: "15px !important", color: "#B45309" }}
+                      />
+                    }
+                    label="👑 KERALA BUMPER LOTTERY DRAW TODAY"
+                    sx={{
+                      bgcolor: "#FEF3C7",
+                      color: "#92400E",
+                      fontWeight: 900,
+                      fontSize: { xs: "0.725rem", sm: "0.8rem" },
+                      borderRadius: "20px",
+                      px: 1.5,
+                      py: 0.35,
+                      border: "1.5px solid #F59E0B",
+                      boxShadow: "0 2px 10px rgba(245, 158, 11, 0.25)",
+                    }}
+                  />
+                ) : todayPostponement ? (
+                  <Chip
+                    icon={
+                      <EventBusyIcon
+                        sx={{ fontSize: "14px !important", color: "#DC2626" }}
+                      />
+                    }
+                    label={`DRAW ${todayPostponement.status.toUpperCase()} TODAY`}
+                    sx={{
+                      bgcolor: "#FEE2E2",
+                      color: "#991B1B",
+                      fontWeight: 800,
+                      fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                      borderRadius: "20px",
+                      px: 1,
+                      py: 0.25,
+                      border: "1px solid #FCA5A5",
+                    }}
+                  />
+                ) : hasTodayResult ? (
+                  <Chip
+                    icon={
+                      <EmojiEventsIcon
+                        sx={{ fontSize: "14px !important", color: "#111827" }}
+                      />
+                    }
+                    label="Latest Published Result"
+                    sx={{
+                      bgcolor: "#FFC107",
+                      color: "#111827",
+                      fontWeight: 800,
+                      fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                      borderRadius: "20px",
+                      px: 1,
+                      py: 0.25,
+                    }}
+                  />
+                ) : (
+                  <Chip
+                    icon={
+                      <AccessTimeIcon
+                        sx={{
+                          fontSize: "14px !important",
+                          color: isAfter3PM ? "#1E40AF" : "#B45309",
+                        }}
+                      />
+                    }
+                    label={
+                      isAfter3PM
+                        ? "Drawing in Progress..."
+                        : `Result Coming Soon (${todayLottery.drawTime || "3:00 PM"})`
+                    }
+                    sx={{
+                      bgcolor: isAfter3PM ? "#EFF6FF" : "#FEF3C7",
+                      color: isAfter3PM ? "#1E40AF" : "#92400E",
+                      fontWeight: 800,
+                      fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                      borderRadius: "20px",
+                      px: 1,
+                      py: 0.25,
+                      border: isAfter3PM
+                        ? "1px solid #BFDBFE"
+                        : "1px solid #FCD34D",
+                    }}
+                  />
+                )}
+
+                {/* Live Socket Connection / Streaming Indicator */}
+                {socketStatus === "live_updating" ? (
+                  <Chip
+                    icon={
+                      <AutoAwesomeIcon
+                        sx={{
+                          fontSize: "14px !important",
+                          color: "#B45309",
+                        }}
+                      />
+                    }
+                    label="⚡ LIVE STREAMING NUMBERS..."
+                    sx={{
+                      bgcolor: "#FEF3C7",
+                      color: "#92400E",
+                      fontWeight: 900,
+                      fontSize: { xs: "0.68rem", sm: "0.74rem" },
+                      borderRadius: "20px",
+                      px: 1,
+                      py: 0.25,
+                      border: "1.5px solid #F59E0B",
+                      boxShadow: "0 0 10px rgba(245, 158, 11, 0.4)",
+                    }}
+                  />
+                ) : socketStatus === "connected" ? (
+                  <Chip
+                    icon={
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          bgcolor: "#10B981",
+                          boxShadow: "0 0 8px #10B981",
+                          ml: 0.5,
+                        }}
+                      />
+                    }
+                    label="LIVE SYNC ACTIVE"
+                    sx={{
+                      bgcolor: "#ECFDF5",
+                      color: "#065F46",
+                      fontWeight: 800,
+                      fontSize: { xs: "0.66rem", sm: "0.72rem" },
+                      borderRadius: "20px",
+                      px: 0.8,
+                      py: 0.25,
+                      border: "1px solid #A7F3D0",
+                    }}
+                  />
+                ) : null}
+              </Box>
 
               <Typography
                 variant="h3"
@@ -1323,6 +1415,187 @@ export default function HomePage() {
                       border: "1px solid #FCD34D",
                     }}
                   />
+                </Box>
+              )}
+
+              {/* Digital Countdown Timer Box (Active before draw starts) */}
+              {!todayPostponement && !hasTodayResult && !countdown.isDrawPassed && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                    my: 2,
+                    p: { xs: 1.8, sm: 2.2 },
+                    borderRadius: "18px",
+                    bgcolor: isTodayBumper
+                      ? "rgba(254, 243, 199, 0.75)"
+                      : "rgba(239, 246, 255, 0.85)",
+                    border: isTodayBumper
+                      ? "1.5px solid #FCD34D"
+                      : "1.5px solid #BFDBFE",
+                    maxWidth: 460,
+                    boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: "0.75rem",
+                        fontWeight: 800,
+                        color: isTodayBumper ? "#92400E" : "#1E40AF",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      ⏰ Live Draw Countdown ({todayLottery.drawTime || "3:00 PM"})
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: "0.68rem",
+                        fontWeight: 700,
+                        color: "#6B7280",
+                      }}
+                    >
+                      Official IST
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: { xs: 1, sm: 1.2 },
+                      mt: 0.5,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        flex: 1,
+                        textAlign: "center",
+                        bgcolor: "#FFFFFF",
+                        py: 1.2,
+                        borderRadius: "10px",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
+                        border: "1px solid rgba(0,0,0,0.05)",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 900,
+                          fontSize: { xs: "1.3rem", sm: "1.6rem" },
+                          color: "#0B3C5D",
+                          fontFamily: "monospace",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {String(countdown.hours).padStart(2, "0")}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "0.62rem",
+                          fontWeight: 700,
+                          color: "#6B7280",
+                          textTransform: "uppercase",
+                          mt: 0.4,
+                        }}
+                      >
+                        Hours
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontWeight: 900,
+                        fontSize: "1.3rem",
+                        color: "#9CA3AF",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Box
+                      sx={{
+                        flex: 1,
+                        textAlign: "center",
+                        bgcolor: "#FFFFFF",
+                        py: 1.2,
+                        borderRadius: "10px",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
+                        border: "1px solid rgba(0,0,0,0.05)",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 900,
+                          fontSize: { xs: "1.3rem", sm: "1.6rem" },
+                          color: "#0B3C5D",
+                          fontFamily: "monospace",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {String(countdown.minutes).padStart(2, "0")}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "0.62rem",
+                          fontWeight: 700,
+                          color: "#6B7280",
+                          textTransform: "uppercase",
+                          mt: 0.4,
+                        }}
+                      >
+                        Mins
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontWeight: 900,
+                        fontSize: "1.3rem",
+                        color: "#9CA3AF",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Box
+                      sx={{
+                        flex: 1,
+                        textAlign: "center",
+                        bgcolor: "#FFFFFF",
+                        py: 1.2,
+                        borderRadius: "10px",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
+                        border: "1px solid rgba(0,0,0,0.05)",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 900,
+                          fontSize: { xs: "1.3rem", sm: "1.6rem" },
+                          color: "#E11D48",
+                          fontFamily: "monospace",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {String(countdown.seconds).padStart(2, "0")}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "0.62rem",
+                          fontWeight: 700,
+                          color: "#E11D48",
+                          textTransform: "uppercase",
+                          mt: 0.4,
+                        }}
+                      >
+                        Secs
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
               )}
 
