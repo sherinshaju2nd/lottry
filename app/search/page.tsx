@@ -40,6 +40,7 @@ import {
   StructuredDrawResult,
   getLotteryUrl,
   formatTicketSearchInput,
+  supabase,
 } from "@/lib/supabase";
 import ModernDatePicker from "@/components/ModernDatePicker";
 import SavedWatchlistDrawer from "@/components/SavedWatchlistDrawer";
@@ -155,7 +156,7 @@ export default function AdvancedSearchPage() {
   useEffect(() => {
     async function loadDraws() {
       try {
-        const res = await fetch("/api/draws?type=all");
+        const res = await fetch(`/api/draws?type=all&t=${Date.now()}`);
         const json = await res.json();
         if (json.success && Array.isArray(json.results)) {
           setAvailableDraws(json.results);
@@ -167,6 +168,30 @@ export default function AdvancedSearchPage() {
     loadDraws();
     setRecentSearches(getRecentSearches());
     setWatchlist(getSavedWatchlist());
+
+    const channelName = `realtime-search-page-${Date.now()}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "draw_results" },
+        () => {
+          loadDraws();
+        }
+      )
+      .subscribe();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        loadDraws();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   // --- Single Search Submission ---

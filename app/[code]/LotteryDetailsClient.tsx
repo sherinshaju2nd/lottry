@@ -36,6 +36,7 @@ import {
   BUMPER_LOTTERIES,
   StructuredDrawResult,
   getLotteryUrl,
+  supabase,
 } from "@/lib/supabase";
 
 interface LotteryInfoType {
@@ -77,6 +78,54 @@ export default function LotteryDetailsClient({
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(25);
+
+  const refreshHistory = async () => {
+    try {
+      const res = await fetch(`/api/draws?type=history&code=${lotteryCode}&t=${Date.now()}`);
+      const json = await res.json();
+      if (json.success && Array.isArray(json.results)) {
+        setDrawHistory(json.results);
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
+    // Realtime Supabase live update listener for this lottery
+    const channelName = `realtime-lottery-history-${lotteryCode}-${Date.now()}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "draw_results",
+        },
+        (payload) => {
+          const newRow = payload.new as any;
+          if (
+            newRow &&
+            (!newRow.lottery_code ||
+              newRow.lottery_code.toUpperCase() === lotteryCode.toUpperCase())
+          ) {
+            refreshHistory();
+          }
+        }
+      )
+      .subscribe();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        refreshHistory();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [lotteryCode]);
 
   useEffect(() => {
     const q = searchFilter.trim().toLowerCase();

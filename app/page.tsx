@@ -59,6 +59,8 @@ import {
   BUMPER_LOTTERIES,
   ALL_LOTTERIES,
   StructuredDrawResult,
+  FirstPrize,
+  PrizeData,
   PostponedDraw,
   getLotteryUrl,
   supabase,
@@ -308,6 +310,9 @@ export default function HomePage() {
     }
     loadLotteriesFromDb();
 
+    // Dynamic reference for today's lottery code to avoid stale closures in socket callbacks
+    let currentTodayCode = matched.code;
+
     // Calculate IST time to determine default banner tab (Before 2:30 PM -> Previous Day Result, After 2:30 PM -> Today's Draw)
     try {
       const now = new Date();
@@ -351,7 +356,7 @@ export default function HomePage() {
 
     async function checkTodayData(codeToFetch?: string) {
       try {
-        const targetCode = codeToFetch || matched.code;
+        const targetCode = codeToFetch || currentTodayCode;
         const res = await fetch(
           `/api/draws?code=${targetCode}&date=${todayISTDate}&t=${Date.now()}`,
         );
@@ -360,14 +365,16 @@ export default function HomePage() {
           json.success &&
           json.result &&
           json.result.draw_date === todayISTDate &&
-          json.result.first?.ticket
+          hasAnyDrawResult(json.result)
         ) {
           setTodayDrawResult(json.result);
-        } else {
+          // Auto-switch hero banner to Today's Draw when today's result arrives
+          setHeroSlideIndex(0);
+        } else if (!json.result || !hasAnyDrawResult(json.result)) {
           setTodayDrawResult(null);
         }
       } catch {
-        setTodayDrawResult(null);
+        // Keep existing data on transient fetch failure
       }
     }
 
@@ -380,13 +387,13 @@ export default function HomePage() {
           Array.isArray(json.results) &&
           json.results.length > 0
         ) {
-          const todayISTDate = new Date().toLocaleDateString("en-CA", {
+          const todayDate = new Date().toLocaleDateString("en-CA", {
             timeZone: "Asia/Kolkata",
           });
-          // Previous draw is the most recent draw published prior to todayISTDate (or json.results[0] if today is not published)
+          // Previous draw is the most recent draw published prior to todayDate (or json.results[0] if today is not published)
           const prevDraw =
             json.results.find(
-              (d: StructuredDrawResult) => d.draw_date !== todayISTDate,
+              (d: StructuredDrawResult) => d.draw_date !== todayDate,
             ) ||
             json.results[1] ||
             json.results[0];
@@ -414,8 +421,17 @@ export default function HomePage() {
       setIsLoading(false);
     });
 
+    // Helper to refresh all today data
+    const refreshAllLiveData = () => {
+      checkTodayData();
+      loadRecentDrawsMap();
+      checkTodayPostponement();
+    };
+
+    // Live Supabase WebSocket connection with unique channel name
+    const channelName = `realtime-web-home-${Date.now()}`;
     const channel = supabase
-      .channel("realtime-lottery-results")
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "draw_results" },
@@ -426,11 +442,41 @@ export default function HomePage() {
               setRealtimeNotification(
                 `🎉 Live Update: ${newRow.draw_name || "Lottery"} (${newRow.draw_code || ""}) updated for today!`,
               );
+              // Auto-focus Hero Banner to Today's Draw on live result stream
+              setHeroSlideIndex(0);
+
+              // Immediately hydrate state from socket payload
+              try {
+                let firstObj: FirstPrize = {};
+                let prizesObj: PrizeData = {};
+                firstObj =
+                  typeof newRow.first_prize === "string"
+                    ? JSON.parse(newRow.first_prize)
+                    : newRow.first_prize || {};
+                prizesObj =
+                  typeof newRow.prizes === "string"
+                    ? JSON.parse(newRow.prizes)
+                    : newRow.prizes || {};
+
+                const liveStructuredDraw: StructuredDrawResult = {
+                  id: newRow.id,
+                  draw_date: newRow.draw_date,
+                  draw_name: newRow.draw_name,
+                  draw_code: newRow.draw_code,
+                  lottery_code: newRow.lottery_code,
+                  first: firstObj,
+                  prizes: prizesObj,
+                  created_at: newRow.created_at,
+                };
+                if (hasAnyDrawResult(liveStructuredDraw)) {
+                  setTodayDrawResult(liveStructuredDraw);
+                }
+              } catch (e) {
+                console.warn("Failed to parse live socket row payload:", e);
+              }
             }
           }
-          checkTodayData();
-          loadRecentDrawsMap();
-          checkTodayPostponement();
+          refreshAllLiveData();
         },
       )
       .on(
@@ -449,11 +495,54 @@ export default function HomePage() {
           checkTodayData();
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log("[Supabase Socket] Subscribed to live draw_results updates.");
+        }
+      });
+
+    // Intelligent Polling Timer: Poll every 15s during draw window (2:50 PM - 5:00 PM IST or while result is pending/live)
+    const pollInterval = setInterval(() => {
+      try {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString("en-GB", {
+          timeZone: "Asia/Kolkata",
+          hour12: false,
+        });
+        const [hStr, mStr] = timeStr.split(":");
+        const hours = parseInt(hStr, 10);
+        const minutes = parseInt(mStr, 10);
+        const totalMins = hours * 60 + minutes;
+        const drawStartMins = isTodayBumper ? 13 * 60 + 50 : 14 * 60 + 50; // 1:50 PM for Bumper, 2:50 PM for Regular
+        const isDrawWindow = totalMins >= drawStartMins && totalMins <= 18 * 60; // Up to 6:00 PM IST
+
+        if (isDrawWindow || !todayDrawResult) {
+          refreshAllLiveData();
+        }
+      } catch {}
+    }, 15000);
+
+    // Browser Visibility / Window Focus listeners for instant live updates
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        checkTime();
+        refreshAllLiveData();
+      }
+    };
+    const handleWindowFocus = () => {
+      checkTime();
+      refreshAllLiveData();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleWindowFocus);
 
     return () => {
       supabase.removeChannel(channel);
       clearInterval(timeInterval);
+      clearInterval(pollInterval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleWindowFocus);
     };
   }, []);
 
@@ -525,8 +614,7 @@ export default function HomePage() {
   const hasTodayResult =
     !!todayDrawResult &&
     todayDrawResult.draw_date === todayISTDate &&
-    hasAnyDrawResult(todayDrawResult) &&
-    isAfter3PM;
+    hasAnyDrawResult(todayDrawResult);
 
   const renderWinningNumbers = (
     draw: StructuredDrawResult,

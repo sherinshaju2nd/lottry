@@ -37,12 +37,15 @@ import {
   WEEKLY_LOTTERIES,
   BUMPER_LOTTERIES,
   StructuredDrawResult,
+  FirstPrize,
+  PrizeData,
   PostponedDraw,
   supabase,
   validateTicketMatch,
   findTopPrizePartialHint,
   getSearchFeedbackMessage,
   getLotteryUrl,
+  hasAnyDrawResult,
 } from "@/lib/supabase";
 
 interface SingleCheckerMatch {
@@ -147,6 +150,19 @@ export default function DedicatedLotteryDateClient({
     checkTime();
     const timeInterval = setInterval(checkTime, 30000);
 
+    const fetchLatestDetails = async () => {
+      try {
+        const res = await fetch(
+          `/api/draws?code=${lotteryCode}&date=${dateParam}&t=${Date.now()}`
+        );
+        const json = await res.json();
+        if (json.result) setDrawResult(json.result);
+        if (json.postponement) setPostponement(json.postponement);
+      } catch (err) {
+        console.warn("Failed to refresh draw details:", err);
+      }
+    };
+
     // Realtime Supabase live update listener
     const channelName = `realtime-details-${lotteryCode}-${dateParam}-${Date.now()}`;
     const channel = supabase
@@ -157,29 +173,96 @@ export default function DedicatedLotteryDateClient({
           event: "*",
           schema: "public",
           table: "draw_results",
-          filter: `lottery_code=eq.${lotteryCode}`,
         },
         async (payload) => {
           const newRow = payload.new as any;
-          if (newRow && newRow.draw_date === dateParam) {
+          if (
+            newRow &&
+            newRow.draw_date === dateParam &&
+            (!newRow.lottery_code ||
+              newRow.lottery_code.toUpperCase() === lotteryCode.toUpperCase())
+          ) {
+            // Immediately parse payload and hydrate UI
             try {
-              const res = await fetch(
-                `/api/draws?code=${lotteryCode}&date=${dateParam}&t=${Date.now()}`
-              );
-              const json = await res.json();
-              if (json.result) setDrawResult(json.result);
-              if (json.postponement) setPostponement(json.postponement);
-            } catch (err) {
-              console.warn("Failed to refresh draw details:", err);
-            }
+              let firstObj: FirstPrize = {};
+              let prizesObj: PrizeData = {};
+              firstObj =
+                typeof newRow.first_prize === "string"
+                  ? JSON.parse(newRow.first_prize)
+                  : newRow.first_prize || {};
+              prizesObj =
+                typeof newRow.prizes === "string"
+                  ? JSON.parse(newRow.prizes)
+                  : newRow.prizes || {};
+
+              const liveDraw: StructuredDrawResult = {
+                id: newRow.id,
+                draw_date: newRow.draw_date,
+                draw_name: newRow.draw_name,
+                draw_code: newRow.draw_code,
+                lottery_code: newRow.lottery_code,
+                first: firstObj,
+                prizes: prizesObj,
+                created_at: newRow.created_at,
+              };
+              if (hasAnyDrawResult(liveDraw)) {
+                setDrawResult(liveDraw);
+              }
+            } catch {}
+
+            // Full API verification in background
+            fetchLatestDetails();
           }
         }
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "postponed_draws",
+        },
+        () => {
+          fetchLatestDetails();
+        }
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log(`[Supabase Socket] Subscribed to ${lotteryCode} - ${dateParam}`);
+        }
+      });
+
+    // Smart polling backup for live draw date
+    const todayDate = new Date().toLocaleDateString("en-CA", {
+      timeZone: "Asia/Kolkata",
+    });
+    const pollInterval = setInterval(() => {
+      if (dateParam === todayDate && (!drawResult || !hasAnyDrawResult(drawResult))) {
+        fetchLatestDetails();
+      }
+    }, 15000);
+
+    // Browser visibility / Window focus listeners
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        checkTime();
+        fetchLatestDetails();
+      }
+    };
+    const handleFocus = () => {
+      checkTime();
+      fetchLatestDetails();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleFocus);
 
     return () => {
       supabase.removeChannel(channel);
       clearInterval(timeInterval);
+      clearInterval(pollInterval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [lotteryCode, dateParam]);
 
