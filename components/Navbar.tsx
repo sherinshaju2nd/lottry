@@ -37,6 +37,7 @@ import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import PhoneIcon from "@mui/icons-material/Phone";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import InsightsIcon from "@mui/icons-material/Insights";
 import AiSocialDigestModal from "@/components/AiSocialDigestModal";
 import {
   WEEKLY_LOTTERIES,
@@ -401,6 +402,21 @@ export default function Navbar() {
             >
               AI Daily Status
             </Button> */}
+
+            <Button
+              component={Link}
+              href="/analytics"
+              startIcon={<InsightsIcon />}
+              sx={{
+                color: pathname === "/analytics" ? "#0B3C5D" : "#374151",
+                fontWeight: pathname === "/analytics" ? 800 : 700,
+                borderRadius: "8px",
+                px: 2,
+                bgcolor: pathname === "/analytics" ? "#EBF5FF" : "transparent",
+              }}
+            >
+              Analytics
+            </Button>
 
             <Button
               component={Link}
@@ -915,6 +931,40 @@ export default function Navbar() {
                   <ListItemText primary="AI Daily WhatsApp Status" slotProps={{ primary: { sx: { fontWeight: 700 } } }} />
                 </ListItemButton>
               </ListItem> */}
+
+              {/* Analytics & Trends */}
+              <ListItem disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  component={Link}
+                  href="/analytics"
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    borderRadius: "12px",
+                    py: 1.25,
+                    px: 1.5,
+                    bgcolor:
+                      pathname === "/analytics" ? "#EBF5FF" : "transparent",
+                    color: pathname === "/analytics" ? "#0B3C5D" : "#374151",
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: pathname === "/analytics" ? "#0B3C5D" : "#6B7280",
+                      minWidth: 38,
+                    }}
+                  >
+                    <InsightsIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Analytics & Trends"
+                    slotProps={{
+                      primary: {
+                        sx: { fontWeight: pathname === "/analytics" ? 800 : 600 },
+                      },
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
 
               {/* Ticket Checker */}
               <ListItem disablePadding sx={{ mb: 1 }}>

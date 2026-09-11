@@ -296,6 +296,19 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
+            href="/analytics"
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            Analytics & Trends
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
             href="/search"
             sx={{
               color: "#4B5563",
