@@ -35,6 +35,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import CasinoIcon from "@mui/icons-material/Casino";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ClearIcon from "@mui/icons-material/Clear";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
 import {
   fetchAllDrawResultsFromSupabase,
@@ -217,6 +219,7 @@ export default function AnalyticsPage() {
     if (!query || query.length < 2) return null;
 
     let totalMatches = 0;
+    const tierBreakdown: Record<string, number> = {};
     const matchedDraws: Array<{
       date: string;
       name: string;
@@ -230,6 +233,7 @@ export default function AnalyticsPage() {
         const d = draw.first.ticket.replace(/\D/g, "");
         if (d.endsWith(query) || d === query) {
           totalMatches++;
+          tierBreakdown["1st Prize"] = (tierBreakdown["1st Prize"] || 0) + 1;
           matchedDraws.push({
             date: draw.draw_date,
             name: draw.draw_name,
@@ -251,10 +255,12 @@ export default function AnalyticsPage() {
               const d = String(numStr).replace(/\D/g, "");
               if (d.endsWith(query) || d === query) {
                 totalMatches++;
+                const tierName = tier === "consolation" ? "Consolation" : `${tier.toUpperCase()} Prize`;
+                tierBreakdown[tierName] = (tierBreakdown[tierName] || 0) + 1;
                 matchedDraws.push({
                   date: draw.draw_date,
                   name: draw.draw_name,
-                  tier: `${tier.toUpperCase()} Prize`,
+                  tier: tierName,
                   fullTicket: String(numStr),
                 });
               }
@@ -264,7 +270,17 @@ export default function AnalyticsPage() {
       }
     });
 
-    return { query, totalMatches, matchedDraws: matchedDraws.slice(0, 10) };
+    const hitRatePct = filteredDraws.length > 0 ? Math.min(100, Math.round((totalMatches / filteredDraws.length) * 100)) : 0;
+    const latestMatch = matchedDraws[0] || null;
+
+    return {
+      query,
+      totalMatches,
+      tierBreakdown,
+      hitRatePct,
+      latestMatch,
+      matchedDraws: matchedDraws.slice(0, 10),
+    };
   }, [searchNum, filteredDraws]);
 
   // Filtered districts for search
@@ -865,116 +881,263 @@ export default function AnalyticsPage() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
                   <Box
                     sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "12px",
-                      bgcolor: "#EFF6FF",
+                      width: 42,
+                      height: 42,
+                      borderRadius: "14px",
+                      background: "linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      boxShadow: "0 2px 8px rgba(37, 99, 235, 0.15)",
                     }}
                   >
-                    <SearchIcon sx={{ color: "#2563EB", fontSize: 24 }} />
+                    <SearchIcon sx={{ color: "#1D4ED8", fontSize: 24 }} />
                   </Box>
-                  <Box>
+                  <Box sx={{ flex: 1 }}>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: isMl ? "1.05rem" : "1.15rem" }}>
-                      {isMl ? "🔍 നമ്പർ സാന്നിധ്യം പരിശോധിക്കുക" : "🔍 Instant Number Lookup"}
+                      {isMl ? "🔍 ഇൻസ്റ്റന്റ് നമ്പർ പരിശോധന" : "🔍 Instant Number Explorer"}
                     </Typography>
                     <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600, fontSize: isMl ? "0.75rem" : "0.8rem" }}>
-                      {isMl ? "ഏതെങ്കിലും 2, 3, 4 അക്കങ്ങൾ അടിച്ച് തിരയുക" : "Check occurrence history of any 2, 3 or 4 digits"}
+                      {isMl ? "ഏതെങ്കിലും 2, 3, 4 അക്കങ്ങളുടെ വിജയ ചരിത്രം പരിശോധിക്കുക" : "Check frequency, hit rate & prize tiers for any digits"}
                     </Typography>
                   </Box>
                 </Box>
 
-                <Divider sx={{ my: 2.5 }} />
+                <Divider sx={{ my: 2 }} />
 
+                {/* Quick Suggestion Pills */}
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: "#64748B", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.04em", display: "block", mb: 0.8 }}>
+                    {isMl ? "⚡ പെട്ടെന്ന് പരിശോധിക്കാൻ:" : "⚡ QUICK SUGGESTIONS:"}
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8 }}>
+                    {["5593", "5866", "27", "99", "87", "8860"].map((sug) => {
+                      const isSelected = searchNum === sug;
+                      return (
+                        <Chip
+                          key={sug}
+                          label={sug}
+                          size="small"
+                          onClick={() => setSearchNum(sug)}
+                          sx={{
+                            fontWeight: 800,
+                            fontSize: "0.75rem",
+                            cursor: "pointer",
+                            bgcolor: isSelected ? "#0B3C5D" : "#F1F5F9",
+                            color: isSelected ? "#FFFFFF" : "#334155",
+                            border: "1px solid",
+                            borderColor: isSelected ? "#0B3C5D" : "#E2E8F0",
+                            transition: "all 0.15s ease",
+                            "&:hover": {
+                              bgcolor: isSelected ? "#0B3C5D" : "#E2E8F0",
+                              transform: "translateY(-1px)",
+                            },
+                          }}
+                        />
+                      );
+                    })}
+                  </Box>
+                </Box>
+
+                {/* Search Text Input */}
                 <TextField
                   fullWidth
-                  placeholder={isMl ? "ഉദാഹരണത്തിന്: 5593, 27, 8860" : "e.g. 5593, 27, 8860"}
+                  placeholder={isMl ? "നമ്പർ അടിക്കുക (ഉദാ: 5593, 27)" : "Type 2, 3, or 4 digits (e.g. 5593, 27)..."}
                   value={searchNum}
                   onChange={(e) => setSearchNum(e.target.value)}
                   slotProps={{
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <CasinoIcon sx={{ color: "#94A3B8" }} />
+                          <CasinoIcon sx={{ color: "#3B82F6", fontSize: 20 }} />
                         </InputAdornment>
                       ),
+                      endAdornment: searchNum ? (
+                        <InputAdornment position="end">
+                          <IconButton size="small" onClick={() => setSearchNum("")}>
+                            <ClearIcon fontSize="small" sx={{ color: "#94A3B8" }} />
+                          </IconButton>
+                        </InputAdornment>
+                      ) : null,
                     },
                   }}
                   sx={{
-                    mb: 2,
+                    mb: 2.5,
                     "& .MuiOutlinedInput-root": {
-                      borderRadius: "12px",
+                      borderRadius: "14px",
                       bgcolor: "#F8FAFC",
                       fontWeight: 800,
-                      letterSpacing: "0.06em",
-                      fontSize: "1rem",
+                      letterSpacing: "0.08em",
+                      fontSize: "1.05rem",
+                      border: "1px solid #E2E8F0",
+                      "&.Mui-focused": {
+                        bgcolor: "#FFFFFF",
+                        borderColor: "#3B82F6",
+                        boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.15)",
+                      },
                     },
                   }}
                 />
 
                 {searchResult ? (
-                  <Box sx={{ flex: 1 }}>
-                    <Alert
-                      severity={searchResult.totalMatches > 0 ? "success" : "info"}
-                      sx={{ borderRadius: "12px", mb: 2, fontWeight: 700 }}
+                  <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+                    {/* Hero Stat Box */}
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: "16px",
+                        background: searchResult.totalMatches > 0
+                          ? "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)"
+                          : "#F8FAFC",
+                        border: "1px solid",
+                        borderColor: searchResult.totalMatches > 0 ? "#BFDBFE" : "#E2E8F0",
+                      }}
                     >
-                      {searchResult.totalMatches > 0
-                        ? `${isMl ? "നമ്പർ" : "Number"} '${searchResult.query}' ${isMl ? `ആകെ ${searchResult.totalMatches} തവണ വിജയിച്ചിട്ടുണ്ട്!` : `appeared ${searchResult.totalMatches} times in selected timeframe!`}`
-                        : `${isMl ? "ഈ കാലയളവിൽ ഈ നമ്പർ വന്നിട്ടില്ല." : "No records found for this number in selected horizon."}`}
-                    </Alert>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                        <Box>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: "#2563EB", textTransform: "uppercase", fontSize: "0.72rem" }}>
+                            {searchResult.query.length}-DIGIT COMBINATION
+                          </Typography>
+                          <Typography variant="h4" sx={{ fontWeight: 900, color: "#0F172A", letterSpacing: "0.08em", mt: 0.2 }}>
+                            {searchResult.query}
+                          </Typography>
+                        </Box>
 
-                    {searchResult.matchedDraws.length > 0 && (
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 800, color: "#64748B", textTransform: "uppercase" }}>
-                          {isMl ? "സമീപകാല ഫലങ്ങൾ:" : "Recent Draw Occurrences:"}
-                        </Typography>
-                        {searchResult.matchedDraws.map((m, idx) => (
-                          <Box
-                            key={idx}
+                        <Box sx={{ textAlign: "right" }}>
+                          <Chip
+                            label={`${searchResult.totalMatches} ${isMl ? "തവണ വിജയം" : "Times Drawn"}`}
+                            size="small"
                             sx={{
-                              p: 1.5,
-                              borderRadius: "10px",
-                              bgcolor: "#F8FAFC",
-                              border: "1px solid #E2E8F0",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
+                              bgcolor: searchResult.totalMatches > 0 ? "#2563EB" : "#94A3B8",
+                              color: "#FFFFFF",
+                              fontWeight: 900,
+                              fontSize: "0.75rem",
+                              height: 24,
                             }}
-                          >
-                            <Box>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0F172A" }}>
-                                {m.name}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: "#64748B" }}>
-                                {m.date} • {m.tier}
-                              </Typography>
-                            </Box>
-                            <Chip
-                              label={m.fullTicket}
-                              size="small"
-                              sx={{ bgcolor: "#E0F2FE", color: "#0369A1", fontWeight: 800 }}
-                            />
-                          </Box>
-                        ))}
+                          />
+                          {searchResult.totalMatches > 0 && (
+                            <Typography variant="caption" sx={{ display: "block", color: "#1E40AF", fontWeight: 700, mt: 0.5 }}>
+                              {searchResult.hitRatePct}% {isMl ? "ഡ്രോകളിൽ സാന്നിധ്യം" : "Draw Hit Rate"}
+                            </Typography>
+                          )}
+                        </Box>
                       </Box>
+
+                      {/* Prize Tier Breakdown Pills */}
+                      {searchResult.totalMatches > 0 && Object.keys(searchResult.tierBreakdown).length > 0 && (
+                        <Box sx={{ pt: 1, borderTop: "1px solid rgba(37, 99, 235, 0.15)" }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: "#1E3A8A", display: "block", mb: 0.8, fontSize: "0.7rem" }}>
+                            {isMl ? "സമ്മാനത്തട്ടുകളിലെ സാന്നിധ്യം:" : "PRIZE TIER BREAKDOWN:"}
+                          </Typography>
+                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8 }}>
+                            {Object.entries(searchResult.tierBreakdown).map(([tier, count]) => (
+                              <Chip
+                                key={tier}
+                                label={`${tier}: ${count}x`}
+                                size="small"
+                                sx={{
+                                  bgcolor: "#FFFFFF",
+                                  color: "#1E40AF",
+                                  fontWeight: 800,
+                                  fontSize: "0.7rem",
+                                  height: 22,
+                                  border: "1px solid #93C5FD",
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Matching History Timeline */}
+                    {searchResult.matchedDraws.length > 0 ? (
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: "#64748B", textTransform: "uppercase", fontSize: "0.72rem", mb: 1, display: "block" }}>
+                          {isMl ? "സമീപകാല വിജയ ചരിത്രം:" : "RECENT MATCHING DRAWS:"}
+                        </Typography>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: 220, overflowY: "auto", pr: 0.5 }}>
+                          {searchResult.matchedDraws.map((m, idx) => (
+                            <Box
+                              key={idx}
+                              sx={{
+                                p: 1.2,
+                                borderRadius: "10px",
+                                bgcolor: "#F8FAFC",
+                                border: "1px solid #E2E8F0",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                transition: "all 0.15s ease",
+                                "&:hover": { bgcolor: "#EFF6FF", borderColor: "#BFDBFE" },
+                              }}
+                            >
+                              <Box>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.85rem" }}>
+                                  {m.name}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "#64748B", fontSize: "0.72rem" }}>
+                                  {m.date} • {m.tier}
+                                </Typography>
+                              </Box>
+                              <Chip
+                                label={m.fullTicket}
+                                size="small"
+                                sx={{
+                                  bgcolor: "#E0F2FE",
+                                  color: "#0369A1",
+                                  fontWeight: 800,
+                                  fontSize: "0.75rem",
+                                  height: 22,
+                                }}
+                              />
+                            </Box>
+                          ))}
+                        </Box>
+                      </Box>
+                    ) : (
+                      <Alert severity="info" sx={{ borderRadius: "12px", fontWeight: 700, fontSize: "0.825rem" }}>
+                        {isMl
+                          ? `തിരഞ്ഞെടുത്ത ${filteredDraws.length} നറുക്കെടുപ്പുകളിൽ ഈ നമ്പർ വന്നിട്ടില്ല.`
+                          : `No winning matches found for '${searchResult.query}' in the selected timeframe.`}
+                      </Alert>
                     )}
                   </Box>
                 ) : (
+                  /* Idle / Empty State Card */
                   <Box
                     sx={{
                       p: 3,
-                      borderRadius: "14px",
-                      bgcolor: "#F8FAFC",
-                      border: "1px dashed #CBD5E1",
+                      borderRadius: "16px",
+                      background: "linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%)",
+                      border: "1px dashed #93C5FD",
                       textAlign: "center",
                       my: "auto",
                     }}
                   >
-                    <CasinoIcon sx={{ color: "#94A3B8", fontSize: 40, mb: 1 }} />
-                    <Typography variant="body2" sx={{ color: "#64748B", fontWeight: 700 }}>
-                      {isMl ? "നമ്പർ അടിച്ച് നോക്കൂ..." : "Type any ticket ending to inspect frequency"}
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        bgcolor: "#FFFFFF",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mx: "auto",
+                        mb: 1.5,
+                        boxShadow: "0 4px 12px rgba(37, 99, 235, 0.1)",
+                      }}
+                    >
+                      <AutoAwesomeIcon sx={{ color: "#2563EB", fontSize: 26 }} />
+                    </Box>
+                    <Typography variant="subtitle1" sx={{ color: "#0F172A", fontWeight: 800, mb: 0.5 }}>
+                      {isMl ? "ഏതെങ്കിലും നമ്പർ അടിച്ച് വിശകലനം ചെയ്യുക" : "Instant Historical Pattern Search"}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.825rem", maxWidth: 280, mx: "auto", lineHeight: 1.5 }}>
+                      {isMl
+                        ? "ഒരു 2, 3 അല്ലെങ്കിൽ 4 അക്ക നമ്പർ ടൈപ്പ് ചെയ്യുക അല്ലെങ്കിൽ മുകളിലുള്ള സൂചനകളിൽ ക്ലിക്ക് ചെയ്യുക."
+                        : "Enter any 2, 3, or 4 digit ending or tap a quick suggestion above to see full prize history."}
                     </Typography>
                   </Box>
                 )}
