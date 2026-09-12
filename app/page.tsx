@@ -137,9 +137,7 @@ export default function HomePage() {
   const [digestModalOpen, setDigestModalOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [realtimeNotification, setRealtimeNotification] = useState<
-    string | null
-  >(null);
+
   const [recentDrawsMap, setRecentDrawsMap] = useState<
     Record<string, StructuredDrawResult>
   >({});
@@ -455,9 +453,6 @@ export default function HomePage() {
           if (payload.new) {
             const newRow = payload.new as any;
             if (newRow.draw_date === todayISTDate) {
-              setRealtimeNotification(
-                `🎉 Live Update: ${newRow.draw_name || "Lottery"} (${newRow.draw_code || ""}) updated for today!`,
-              );
               // Auto-focus Hero Banner to Today's Draw on live result stream
               setHeroSlideIndex(0);
               setSocketStatus("live_updating");
@@ -886,15 +881,7 @@ export default function HomePage() {
       maxWidth={false}
       sx={{ py: { xs: 3, sm: 5, md: 6 }, px: { xs: 2, sm: 3, md: 4, lg: 5 } }}
     >
-      {realtimeNotification && (
-        <Alert
-          severity="success"
-          sx={{ mb: 3, borderRadius: "12px" }}
-          onClose={() => setRealtimeNotification(null)}
-        >
-          {realtimeNotification}
-        </Alert>
-      )}
+
 
       {/* Hero Banner Container (2-Slide Carousel: Today's Draw & Yesterday's Result) */}
       <Paper
