@@ -181,10 +181,10 @@ export default function AnalyticsPage() {
         totalPrizesCounted++;
       }
 
-      // Other Prize Tiers
+      // Other Prize Tiers (2nd to 9th, excluding consolation since 1st prize digits are already counted)
       if (draw.prizes) {
         const tiers = [
-          "consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th",
+          "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th",
         ] as const;
         tiers.forEach((tier) => {
           const arr = (draw.prizes as any)?.[tier];
@@ -290,10 +290,10 @@ export default function AnalyticsPage() {
         }
       }
 
-      // Other Prizes
+      // Other Prizes (2nd to 9th)
       if (draw.prizes) {
         const tiers = [
-          "consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th",
+          "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th",
         ] as const;
         tiers.forEach((tier) => {
           const arr = (draw.prizes as any)?.[tier];
@@ -302,7 +302,7 @@ export default function AnalyticsPage() {
               const d = String(numStr).replace(/\D/g, "");
               if (d.endsWith(query) || d === query) {
                 totalMatches++;
-                const tierName = tier === "consolation" ? "Consolation" : `${tier.toUpperCase()} Prize`;
+                const tierName = `${tier.toUpperCase()} Prize`;
                 tierBreakdown[tierName] = (tierBreakdown[tierName] || 0) + 1;
                 matchedDraws.push({
                   date: draw.draw_date,
