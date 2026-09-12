@@ -81,7 +81,7 @@ const KERALA_DISTRICTS_ML: Record<string, string> = {
 export default function AnalyticsPage() {
   const [draws, setDraws] = useState<StructuredDrawResult[]>([]);
   const [loading, setLoading] = useState(true);
-  const [horizon, setHorizon] = useState<"30" | "90" | "all">("30");
+  const [horizon, setHorizon] = useState<"30" | "90" | "all">("90");
   const [activeTab, setActiveTab] = useState<"numbers" | "districts">("numbers");
   const [lang, setLang] = useState<"en" | "ml">("en");
   const [searchNum, setSearchNum] = useState("");
