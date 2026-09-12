@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -10,12 +10,9 @@ import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import Alert from "@mui/material/Alert";
 import Skeleton from "@mui/material/Skeleton";
 import Divider from "@mui/material/Divider";
 
@@ -28,15 +25,17 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import ShareIcon from "@mui/icons-material/Share";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import CasinoIcon from "@mui/icons-material/Casino";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import ClearIcon from "@mui/icons-material/Clear";
+import FlashOnIcon from "@mui/icons-material/FlashOn";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import {
   fetchAllDrawResultsFromSupabase,
@@ -78,19 +77,33 @@ const KERALA_DISTRICTS_ML: Record<string, string> = {
   Kasaragod: "കാസർഗോഡ്",
 };
 
+const QUICK_PICKS = [
+  { num: "5593", bg: "#EEF2FF", text: "#2563EB", border: "#C7D2FE" },
+  { num: "5866", bg: "#FEE2E2", text: "#DC2626", border: "#FECACA" },
+  { num: "2749", bg: "#DCFCE7", text: "#16A34A", border: "#BBF7D0" },
+  { num: "9924", bg: "#F3E8FF", text: "#9333EA", border: "#E9D5FF" },
+  { num: "8712", bg: "#FEF3C7", text: "#D97706", border: "#FDE68A" },
+  { num: "8860", bg: "#CCFBF1", text: "#0D9488", border: "#99F6E4" },
+  { num: "0096", bg: "#FDF2F8", text: "#DB2777", border: "#FBCFE8" },
+  { num: "1234", bg: "#EFF6FF", text: "#0284C7", border: "#BAE6FD" },
+];
+
 export default function AnalyticsPage() {
   const [draws, setDraws] = useState<StructuredDrawResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [horizon, setHorizon] = useState<"30" | "90" | "all">("90");
   const [activeTab, setActiveTab] = useState<"numbers" | "districts">("numbers");
   const [lang, setLang] = useState<"en" | "ml">("en");
-  const [searchNum, setSearchNum] = useState("");
   const [districtQuery, setDistrictQuery] = useState("");
   const [copied, setCopied] = useState(false);
 
+  // 4-Digit Wheel State
+  const [digits, setDigits] = useState<[number, number, number, number]>([0, 0, 9, 6]);
+  const [submittedQuery, setSubmittedQuery] = useState<string | null>(null);
+
   const isMl = lang === "ml";
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const results = await fetchAllDrawResultsFromSupabase(true);
@@ -100,11 +113,38 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
+
+  // Handle individual digit increment / decrement / direct change
+  const handleDigitChange = (colIndex: number, newVal: number) => {
+    const clamped = Math.max(0, Math.min(9, newVal));
+    setDigits((prev) => {
+      const next = [...prev] as [number, number, number, number];
+      next[colIndex] = clamped;
+      return next;
+    });
+  };
+
+  const handleSelectQuickPick = (numStr: string) => {
+    const clean = numStr.trim().replace(/\D/g, "");
+    const padded = clean.padStart(4, "0").slice(-4);
+    const dArr: [number, number, number, number] = [
+      parseInt(padded[0], 10) || 0,
+      parseInt(padded[1], 10) || 0,
+      parseInt(padded[2], 10) || 0,
+      parseInt(padded[3], 10) || 0,
+    ];
+    setDigits(dArr);
+    setSubmittedQuery(clean);
+  };
+
+  const handleCheckHistory = () => {
+    setSubmittedQuery(digits.join(""));
+  };
 
   // Filter draws by selected time horizon
   const filteredDraws = useMemo(() => {
@@ -115,69 +155,75 @@ export default function AnalyticsPage() {
 
   // Compute number frequency statistics
   const numberStats = useMemo(() => {
-    const freq4: Record<string, number> = {};
-    const freq2: Record<string, number> = {};
-    const singleDigitMap: Record<string, number> = {
-      "0": 0, "1": 0, "2": 0, "3": 0, "4": 0,
-      "5": 0, "6": 0, "7": 0, "8": 0, "9": 0,
+    const ending4Map: Record<string, number> = {};
+    const ending2Map: Record<string, number> = {};
+    const singleDigitMap: Record<number, number> = {
+      0: 0, 1: 0, 2: 0, 3: 0, 4: 0,
+      5: 0, 6: 0, 7: 0, 8: 0, 9: 0,
     };
 
+    let totalPrizesCounted = 0;
+
     filteredDraws.forEach((draw) => {
-      // 1st prize
-      if (draw.first?.ticket) {
-        const digits = draw.first.ticket.replace(/\D/g, "");
-        if (digits.length >= 4) {
-          const last4 = digits.slice(-4);
-          freq4[last4] = (freq4[last4] || 0) + 1;
+      // 1st Prize
+      if (draw.first?.ticket && draw.first.ticket !== "N/A" && draw.first.ticket !== "pending") {
+        const digitsStr = draw.first.ticket.replace(/\D/g, "");
+        if (digitsStr.length >= 4) {
+          const e4 = digitsStr.slice(-4);
+          ending4Map[e4] = (ending4Map[e4] || 0) + 1;
         }
-        if (digits.length >= 2) {
-          const last2 = digits.slice(-2);
-          freq2[last2] = (freq2[last2] || 0) + 1;
+        if (digitsStr.length >= 2) {
+          const e2 = digitsStr.slice(-2);
+          ending2Map[e2] = (ending2Map[e2] || 0) + 1;
         }
-        if (digits.length > 0) {
-          const last1 = digits.slice(-1);
-          if (singleDigitMap[last1] !== undefined) singleDigitMap[last1]++;
-        }
+        const lastD = parseInt(digitsStr.slice(-1), 10);
+        if (!isNaN(lastD)) singleDigitMap[lastD]++;
+        totalPrizesCounted++;
       }
 
-      // Other prize tiers
+      // Other Prize Tiers
       if (draw.prizes) {
         const tiers = [
           "consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th",
         ] as const;
-
         tiers.forEach((tier) => {
           const arr = (draw.prizes as any)?.[tier];
           if (Array.isArray(arr)) {
             arr.forEach((numStr: string) => {
-              const digits = String(numStr).replace(/\D/g, "");
-              if (digits.length >= 4) {
-                const last4 = digits.slice(-4);
-                freq4[last4] = (freq4[last4] || 0) + 1;
+              const d = String(numStr).replace(/\D/g, "");
+              if (d.length >= 4) {
+                const e4 = d.slice(-4);
+                ending4Map[e4] = (ending4Map[e4] || 0) + 1;
               }
-              if (digits.length >= 2) {
-                const last2 = digits.slice(-2);
-                freq2[last2] = (freq2[last2] || 0) + 1;
+              if (d.length >= 2) {
+                const e2 = d.slice(-2);
+                ending2Map[e2] = (ending2Map[e2] || 0) + 1;
               }
-              if (digits.length > 0) {
-                const last1 = digits.slice(-1);
-                if (singleDigitMap[last1] !== undefined) singleDigitMap[last1]++;
-              }
+              const lastD = parseInt(d.slice(-1), 10);
+              if (!isNaN(lastD)) singleDigitMap[lastD]++;
+              totalPrizesCounted++;
             });
           }
         });
       }
     });
 
-    const hot4 = Object.entries(freq4)
+    // Top Hot 4-digit numbers
+    const hot4 = Object.entries(ending4Map)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 10);
+      .slice(0, 8);
 
-    const sorted2 = Object.entries(freq2).sort((a, b) => b[1] - a[1]);
-    const hot2 = sorted2.slice(0, 12);
-    const cold2 = sorted2.slice(-10).reverse();
+    // Top Hot 2-digit numbers
+    const hot2 = Object.entries(ending2Map)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
 
-    return { hot4, hot2, cold2, singleDigitMap };
+    // Cold / Least frequent 2-digit numbers
+    const cold2 = Object.entries(ending2Map)
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, 6);
+
+    return { hot4, hot2, cold2, singleDigitMap, totalPrizesCounted };
   }, [filteredDraws]);
 
   // Compute District Heatmap & Leaderboard
@@ -215,7 +261,8 @@ export default function AnalyticsPage() {
 
   // Interactive custom number lookup
   const searchResult = useMemo(() => {
-    const query = searchNum.trim().replace(/\D/g, "");
+    if (!submittedQuery || submittedQuery.length < 2) return null;
+    const query = submittedQuery.trim().replace(/\D/g, "");
     if (!query || query.length < 2) return null;
 
     let totalMatches = 0;
@@ -228,22 +275,22 @@ export default function AnalyticsPage() {
     }> = [];
 
     filteredDraws.forEach((draw) => {
-      // Check first prize
-      if (draw.first?.ticket) {
+      // 1st Prize
+      if (draw.first?.ticket && draw.first.ticket !== "N/A" && draw.first.ticket !== "pending") {
         const d = draw.first.ticket.replace(/\D/g, "");
         if (d.endsWith(query) || d === query) {
           totalMatches++;
           tierBreakdown["1st Prize"] = (tierBreakdown["1st Prize"] || 0) + 1;
           matchedDraws.push({
             date: draw.draw_date,
-            name: draw.draw_name,
+            name: draw.draw_name || draw.lottery_code,
             tier: "1st Prize",
             fullTicket: draw.first.ticket,
           });
         }
       }
 
-      // Check other prizes
+      // Other Prizes
       if (draw.prizes) {
         const tiers = [
           "consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th",
@@ -259,7 +306,7 @@ export default function AnalyticsPage() {
                 tierBreakdown[tierName] = (tierBreakdown[tierName] || 0) + 1;
                 matchedDraws.push({
                   date: draw.draw_date,
-                  name: draw.draw_name,
+                  name: draw.draw_name || draw.lottery_code,
                   tier: tierName,
                   fullTicket: String(numStr),
                 });
@@ -270,18 +317,77 @@ export default function AnalyticsPage() {
       }
     });
 
-    const hitRatePct = filteredDraws.length > 0 ? Math.min(100, Math.round((totalMatches / filteredDraws.length) * 100)) : 0;
-    const latestMatch = matchedDraws[0] || null;
+    const hitRatePct =
+      filteredDraws.length > 0
+        ? Math.min(100, Math.round((totalMatches / filteredDraws.length) * 100))
+        : 0;
 
     return {
       query,
       totalMatches,
       tierBreakdown,
       hitRatePct,
-      latestMatch,
-      matchedDraws: matchedDraws.slice(0, 10),
+      matchedDraws: matchedDraws.slice(0, 8),
     };
-  }, [searchNum, filteredDraws]);
+  }, [submittedQuery, filteredDraws]);
+
+  // Live Odd/Even & High/Low Pattern Balance Indicator
+  const digitBalance = useMemo(() => {
+    let odd = 0;
+    let even = 0;
+    let low = 0; // 0-4
+    let high = 0; // 5-9
+    let sum = 0;
+
+    digits.forEach((d) => {
+      if (d % 2 === 0) even++;
+      else odd++;
+      if (d >= 5) high++;
+      else low++;
+      sum += d;
+    });
+
+    let balanceScore = 50;
+    if (odd === 2 && even === 2) balanceScore += 24;
+    else if (odd === 3 || odd === 1) balanceScore += 14;
+    else balanceScore += 4;
+
+    if (high === 2 && low === 2) balanceScore += 24;
+    else if (high === 3 || high === 1) balanceScore += 14;
+    else balanceScore += 4;
+
+    if (sum >= 12 && sum <= 24) balanceScore = Math.min(99, balanceScore + 2);
+
+    let statusText = isMl ? "മികച്ച ബാലൻസ്ഡ് കോമ്പിനേഷൻ" : "Highly Balanced Pattern";
+    let statusColor = "#16A34A";
+    let bgTint = "#F0FDF4";
+    let borderTint = "#BBF7D0";
+
+    if (balanceScore < 70) {
+      statusText = isMl ? "അസമീകൃത പാറ്റേൺ (Skewed)" : "Skewed Distribution Pattern";
+      statusColor = "#D97706";
+      bgTint = "#FFFBEB";
+      borderTint = "#FDE68A";
+    } else if (balanceScore < 85) {
+      statusText = isMl ? "മിതമായ ബാലൻസ്ഡ് പാറ്റേൺ" : "Moderately Balanced Pattern";
+      statusColor = "#2563EB";
+      bgTint = "#EFF6FF";
+      borderTint = "#BFDBFE";
+    }
+
+    return {
+      odd,
+      even,
+      low,
+      high,
+      sum,
+      balanceScore,
+      statusText,
+      statusColor,
+      bgTint,
+      borderTint,
+    };
+  }, [digits, isMl]);
 
   // Filtered districts for search
   const displayedDistricts = useMemo(() => {
@@ -318,9 +424,6 @@ export default function AnalyticsPage() {
       setTimeout(() => setCopied(false), 2500);
     }
   };
-
-  const maxHot4 = numberStats.hot4[0]?.[1] || 1;
-  const maxSingle = Math.max(...Object.values(numberStats.singleDigitMap), 1);
 
   return (
     <Box sx={{ bgcolor: "#F8FAFC", minHeight: "100vh", pb: 8 }}>
@@ -479,6 +582,21 @@ export default function AnalyticsPage() {
                 {isMl ? "പങ്കുവെക്കുക" : "Share Trends"}
               </Button>
 
+              {/* Copy Link Button */}
+              <Tooltip title={copied ? (isMl ? "ലിങ്ക് കോപ്പി ചെയ്തു!" : "Link Copied!") : (isMl ? "ലിങ്ക് കോപ്പി ചെയ്യുക" : "Copy Link")}>
+                <IconButton
+                  onClick={handleCopyLink}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.1)",
+                    color: copied ? "#10B981" : "#FFFFFF",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
+                  }}
+                >
+                  {copied ? <CheckCircleIcon sx={{ fontSize: 20 }} /> : <ContentCopyIcon sx={{ fontSize: 18 }} />}
+                </IconButton>
+              </Tooltip>
+
               {/* Refresh Button */}
               <Tooltip title={isMl ? "പുതുക്കുക" : "Refresh Data"}>
                 <IconButton
@@ -496,173 +614,90 @@ export default function AnalyticsPage() {
               </Tooltip>
             </Box>
           </Box>
-
-          {/* Quick Metrics Bar */}
-          <Grid container spacing={2} sx={{ mt: 3 }}>
-            <Grid size={{ xs: 6, sm: 3 }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 2,
-                  bgcolor: "rgba(255, 255, 255, 0.08)",
-                  borderRadius: "14px",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                  backdropFilter: "blur(8px)",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography variant="caption" sx={{ color: "#94A3B8", fontWeight: 700, fontSize: isMl ? "0.72rem" : "0.75rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                  {isMl ? "ആകെ വിശകലനം" : "DRAWS ANALYZED"}
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: "#FFFFFF", mt: 0.5 }}>
-                  {filteredDraws.length}
-                </Typography>
-              </Paper>
-            </Grid>
-
-            <Grid size={{ xs: 6, sm: 3 }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 2,
-                  bgcolor: "rgba(255, 255, 255, 0.08)",
-                  borderRadius: "14px",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                  backdropFilter: "blur(8px)",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography variant="caption" sx={{ color: "#FBBF24", fontWeight: 700, fontSize: isMl ? "0.72rem" : "0.75rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                  {isMl ? "🔥 ടോപ് 4-അക്കം" : "🔥 TOP 4-DIGIT"}
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.8, mt: 0.5, flexWrap: "wrap" }}>
-                  <Typography variant="h5" sx={{ fontWeight: 900, color: "#FFFFFF", letterSpacing: "0.04em" }}>
-                    {numberStats.hot4[0]?.[0] || "—"}
-                  </Typography>
-                  <Typography component="span" variant="caption" sx={{ color: "#FCD34D", fontWeight: 700, bgcolor: "rgba(251, 191, 36, 0.15)", px: 0.8, py: 0.2, borderRadius: "6px" }}>
-                    {numberStats.hot4[0]?.[1] || 0}x
-                  </Typography>
-                </Box>
-              </Paper>
-            </Grid>
-
-            <Grid size={{ xs: 6, sm: 3 }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 2,
-                  bgcolor: "rgba(255, 255, 255, 0.08)",
-                  borderRadius: "14px",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                  backdropFilter: "blur(8px)",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography variant="caption" sx={{ color: "#34D399", fontWeight: 700, fontSize: isMl ? "0.72rem" : "0.75rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                  {isMl ? "⚡ ടോപ് 2-അക്ക ജോഡി" : "⚡ TOP 2-DIGIT PAIR"}
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.8, mt: 0.5, flexWrap: "wrap" }}>
-                  <Typography variant="h5" sx={{ fontWeight: 900, color: "#FFFFFF", letterSpacing: "0.04em" }}>
-                    {numberStats.hot2[0]?.[0] || "—"}
-                  </Typography>
-                  <Typography component="span" variant="caption" sx={{ color: "#6EE7B7", fontWeight: 700, bgcolor: "rgba(52, 211, 153, 0.15)", px: 0.8, py: 0.2, borderRadius: "6px" }}>
-                    {numberStats.hot2[0]?.[1] || 0}x
-                  </Typography>
-                </Box>
-              </Paper>
-            </Grid>
-
-            <Grid size={{ xs: 6, sm: 3 }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 2,
-                  bgcolor: "rgba(255, 255, 255, 0.08)",
-                  borderRadius: "14px",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                  backdropFilter: "blur(8px)",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography variant="caption" sx={{ color: "#F87171", fontWeight: 700, fontSize: isMl ? "0.72rem" : "0.75rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                  {isMl ? "🏆 മുൻനിര ജില്ല" : "🏆 TOP WINNING DISTRICT"}
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.8, mt: 0.5, flexWrap: "wrap" }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 900,
-                      color: "#FFFFFF",
-                      fontSize: { xs: "0.95rem", sm: "1.05rem", md: "1.1rem" },
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {districtStats.topDistrict
-                      ? (isMl ? KERALA_DISTRICTS_ML[districtStats.topDistrict.name] || districtStats.topDistrict.name : districtStats.topDistrict.name)
-                      : "Palakkad"}
-                  </Typography>
-                  <Typography
-                    component="span"
-                    variant="caption"
-                    sx={{
-                      color: "#FCA5A5",
-                      fontWeight: 800,
-                      bgcolor: "rgba(239, 68, 68, 0.2)",
-                      px: 0.8,
-                      py: 0.2,
-                      borderRadius: "6px",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {districtStats.topDistrict?.count || 0} {isMl ? "വിജയം" : "wins"}
-                  </Typography>
-                </Box>
-              </Paper>
-            </Grid>
-          </Grid>
         </Container>
       </Box>
 
-      {/* Main Content Area */}
-      <Container maxWidth="lg" sx={{ mt: 3, position: "relative", zIndex: 2 }}>
-        {/* Controls Bar: Horizon Selector & View Switcher */}
-        <Paper
-          elevation={0}
+      {/* Main Container */}
+      <Container maxWidth="lg" sx={{ mt: 3 }}>
+        {/* Horizon Selector Bar & Tab Switcher */}
+        <Box
           sx={{
-            p: { xs: 1.5, sm: 2 },
-            borderRadius: "16px",
-            bgcolor: "#FFFFFF",
-            border: "1px solid #E2E8F0",
-            boxShadow: "0 4px 16px rgba(15, 23, 42, 0.05)",
             display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            alignItems: "center",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "stretch", md: "center" },
             justifyContent: "space-between",
             gap: 2,
-            mb: 4,
+            mb: 3,
           }}
         >
-          {/* Time Horizon Filter Chips */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: { xs: "100%", sm: "auto" } }}>
-            <Typography variant="caption" sx={{ fontWeight: 800, color: "#64748B", mr: 0.5, display: { xs: "none", md: "inline-block" } }}>
-              {isMl ? "കാലയളവ്:" : "TIMEFRAME:"}
-            </Typography>
+          {/* Main Tab Switcher */}
+          <Box
+            sx={{
+              display: "flex",
+              bgcolor: "#E2E8F0",
+              p: 0.5,
+              borderRadius: "14px",
+              gap: 1,
+              width: { xs: "100%", md: "auto" },
+            }}
+          >
+            <Button
+              onClick={() => setActiveTab("numbers")}
+              startIcon={<WhatshotIcon sx={{ color: activeTab === "numbers" ? "#EA580C" : "#64748B" }} />}
+              sx={{
+                flex: { xs: 1, md: "initial" },
+                bgcolor: activeTab === "numbers" ? "#FFFFFF" : "transparent",
+                color: activeTab === "numbers" ? "#0F172A" : "#64748B",
+                fontWeight: 800,
+                fontSize: "0.85rem",
+                borderRadius: "10px",
+                px: 2.5,
+                py: 1,
+                textTransform: "none",
+                boxShadow: activeTab === "numbers" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
+                "&:hover": { bgcolor: activeTab === "numbers" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
+              }}
+            >
+              {isMl ? "നമ്പർ ട്രെൻഡുകൾ" : "Number Trends"}
+            </Button>
+
+            <Button
+              onClick={() => setActiveTab("districts")}
+              startIcon={<LocationOnIcon sx={{ color: activeTab === "districts" ? "#DC2626" : "#64748B" }} />}
+              sx={{
+                flex: { xs: 1, md: "initial" },
+                bgcolor: activeTab === "districts" ? "#FFFFFF" : "transparent",
+                color: activeTab === "districts" ? "#0F172A" : "#64748B",
+                fontWeight: 800,
+                fontSize: "0.85rem",
+                borderRadius: "10px",
+                px: 2.5,
+                py: 1,
+                textTransform: "none",
+                boxShadow: activeTab === "districts" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
+                "&:hover": { bgcolor: activeTab === "districts" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
+              }}
+            >
+              {isMl ? "ഭാഗ്യ ജില്ലകൾ" : "Lucky Locations"}
+            </Button>
+          </Box>
+
+          {/* Horizon Selector (30 / 90 / All) */}
+          <Box
+            sx={{
+              display: "flex",
+              bgcolor: "#FFFFFF",
+              p: 0.5,
+              borderRadius: "12px",
+              border: "1px solid #E2E8F0",
+              gap: 0.8,
+              width: { xs: "100%", md: "auto" },
+            }}
+          >
             {[
-              { key: "30", label: isMl ? "30 നറുക്കെടുപ്പ്" : "Last 30 Draws" },
-              { key: "90", label: isMl ? "90 നറുക്കെടുപ്പ്" : "Last 90 Draws" },
-              { key: "all", label: isMl ? "മുഴുവൻ ഫലം" : "All Records" },
+              { key: "30", label: isMl ? "കഴിഞ്ഞ 30 നറുക്കെടുപ്പുകൾ" : "Last 30 Draws" },
+              { key: "90", label: isMl ? "കഴിഞ്ഞ 90 നറുക്കെടുപ്പുകൾ" : "Last 90 Draws" },
+              { key: "all", label: isMl ? "മുഴുവൻ ചരിത്രം" : "All History" },
             ].map((tab) => {
               const active = horizon === tab.key;
               return (
@@ -671,16 +706,16 @@ export default function AnalyticsPage() {
                   size="small"
                   onClick={() => setHorizon(tab.key as any)}
                   sx={{
-                    flex: { xs: 1, sm: "none" },
-                    bgcolor: active ? "#0B3C5D" : "#F1F5F9",
-                    color: active ? "#FFFFFF" : "#475569",
+                    flex: { xs: 1, md: "initial" },
+                    bgcolor: active ? "#0B3C5D" : "transparent",
+                    color: active ? "#FFFFFF" : "#64748B",
                     fontWeight: 800,
-                    fontSize: isMl ? "0.78rem" : "0.8rem",
-                    borderRadius: "10px",
-                    px: 2,
-                    py: 0.7,
+                    fontSize: "0.78rem",
+                    borderRadius: "8px",
+                    px: 1.8,
+                    py: 0.6,
                     textTransform: "none",
-                    "&:hover": { bgcolor: active ? "#0B3C5D" : "#E2E8F0" },
+                    "&:hover": { bgcolor: active ? "#0B3C5D" : "#F1F5F9" },
                   }}
                 >
                   {tab.label}
@@ -688,172 +723,459 @@ export default function AnalyticsPage() {
               );
             })}
           </Box>
-
-          {/* Main Tab Switcher (Number Trends vs District Heatmap) */}
-          <Box
-            sx={{
-              display: "flex",
-              bgcolor: "#F1F5F9",
-              p: 0.5,
-              borderRadius: "12px",
-              width: { xs: "100%", sm: "auto" },
-            }}
-          >
-            <Button
-              onClick={() => setActiveTab("numbers")}
-              startIcon={<WhatshotIcon sx={{ color: activeTab === "numbers" ? "#EA580C" : "#64748B", fontSize: 18 }} />}
-              sx={{
-                flex: { xs: 1, sm: "none" },
-                bgcolor: activeTab === "numbers" ? "#FFFFFF" : "transparent",
-                color: activeTab === "numbers" ? "#0F172A" : "#64748B",
-                fontWeight: 800,
-                fontSize: isMl ? "0.78rem" : "0.825rem",
-                borderRadius: "10px",
-                px: 2.2,
-                py: 0.75,
-                boxShadow: activeTab === "numbers" ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
-                textTransform: "none",
-              }}
-            >
-              {isMl ? "ഹോട്ട് / കോൾഡ് നമ്പറുകൾ" : "Number Trends"}
-            </Button>
-            <Button
-              onClick={() => setActiveTab("districts")}
-              startIcon={<LocationOnIcon sx={{ color: activeTab === "districts" ? "#DC2626" : "#64748B", fontSize: 18 }} />}
-              sx={{
-                flex: { xs: 1, sm: "none" },
-                bgcolor: activeTab === "districts" ? "#FFFFFF" : "transparent",
-                color: activeTab === "districts" ? "#0F172A" : "#64748B",
-                fontWeight: 800,
-                fontSize: isMl ? "0.78rem" : "0.825rem",
-                borderRadius: "10px",
-                px: 2.2,
-                py: 0.75,
-                boxShadow: activeTab === "districts" ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
-                textTransform: "none",
-              }}
-            >
-              {isMl ? "ജില്ലാ വിജയികൾ" : "District Heatmap"}
-            </Button>
-          </Box>
-        </Paper>
+        </Box>
 
         {loading ? (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <Skeleton variant="rounded" height={220} sx={{ borderRadius: "18px" }} />
-            <Skeleton variant="rounded" height={320} sx={{ borderRadius: "18px" }} />
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Skeleton variant="rectangular" height={220} sx={{ borderRadius: "20px" }} />
+            <Skeleton variant="rectangular" height={280} sx={{ borderRadius: "20px" }} />
           </Box>
         ) : activeTab === "numbers" ? (
-          <Grid container spacing={3.5}>
-            {/* 1. Hot 4-Digit Endings */}
-            <Grid size={{ xs: 12, md: 7 }}>
+          <Grid container spacing={3}>
+            {/* Top Full-Width Interactive 4-Digit Combination Explorer */}
+            <Grid size={{ xs: 12 }}>
               <Paper
                 elevation={0}
                 sx={{
-                  p: { xs: 2.5, sm: 3.5 },
-                  borderRadius: "20px",
+                  p: { xs: 2.5, md: 3.5 },
                   bgcolor: "#FFFFFF",
-                  border: "1px solid #E2E8F0",
-                  boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
-                  height: "100%",
+                  borderRadius: "20px",
+                  border: "1.5px solid #E2E8F0",
+                  boxShadow: "0 4px 16px rgba(15, 23, 42, 0.04)",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
+                {/* Header Row */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2.5 }}>
                   <Box
                     sx={{
                       width: 40,
                       height: 40,
                       borderRadius: "12px",
-                      bgcolor: "#FFEDD5",
+                      bgcolor: "#EFF6FF",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      color: "#2563EB",
                     }}
                   >
-                    <WhatshotIcon sx={{ color: "#EA580C", fontSize: 24 }} />
+                    <SearchIcon sx={{ fontSize: 22 }} />
                   </Box>
-                  <Box>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 900,
-                        color: "#0F172A",
-                        fontSize: isMl ? "1.05rem" : "1.15rem",
-                      }}
-                    >
-                      {isMl ? "🔥 കൂടുതൽ വന്ന 4-അക്കങ്ങൾ" : "🔥 Hot 4-Digit Endings"}
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.1rem" }}>
+                      {isMl ? "4-അക്ക കോമ്പിനേഷൻ ഹിസ്റ്ററി ചെക്കർ" : "4-Digit Combination History Checker"}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600, fontSize: isMl ? "0.75rem" : "0.8rem" }}>
+                    <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem" }}>
                       {isMl
-                        ? "കഴിഞ്ഞ നറുക്കെടുപ്പുകളിൽ കൂടുതൽ തവണ വന്ന അവസാന 4 അക്കങ്ങൾ"
-                        : "Most recurring last 4 digits drawn across prize tiers"}
+                        ? "നമ്പറുകൾ തിരഞ്ഞെടുത്ത് മുൻകാല നറുക്കെടുപ്പുകളിൽ വന്ന ചരിത്രം പരിശോധിക്കുക"
+                        : "Select digits to inspect previous draw occurrences, tier distribution, and balance pattern"}
                     </Typography>
                   </Box>
                 </Box>
 
-                <Divider sx={{ my: 2.5 }} />
-
-                {/* 2-Column Responsive Grid for Hot Numbers */}
-                <Grid container spacing={2}>
-                  {numberStats.hot4.map(([num, count], i) => {
-                    const barPct = Math.round((count / maxHot4) * 100);
-                    return (
-                      <Grid key={num} size={{ xs: 12, sm: 6 }}>
+                <Grid container spacing={3} sx={{ alignItems: "center" }}>
+                  {/* Left Column: 4 Digit Stepper / Wheels */}
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: { xs: 1.5, sm: 2 },
+                        p: 2,
+                        bgcolor: "#F8FAFC",
+                        borderRadius: "16px",
+                        border: "1px solid #E2E8F0",
+                      }}
+                    >
+                      {digits.map((digitVal, colIdx) => (
                         <Box
+                          key={colIdx}
                           sx={{
-                            p: 2,
-                            borderRadius: "14px",
-                            bgcolor: "#FFF7ED",
-                            border: "1px solid #FFEDD5",
-                            transition: "all 0.2s ease",
-                            "&:hover": {
-                              borderColor: "#FDBA74",
-                              transform: "translateY(-2px)",
-                              boxShadow: "0 6px 16px rgba(234, 88, 12, 0.1)",
-                            },
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 0.5,
                           }}
                         >
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Chip
-                                label={`#${i + 1}`}
-                                size="small"
-                                sx={{
-                                  bgcolor: i === 0 ? "#EA580C" : "#FED7AA",
-                                  color: i === 0 ? "#FFFFFF" : "#C2410C",
-                                  fontWeight: 900,
-                                  fontSize: "0.7rem",
-                                  height: 22,
-                                }}
-                              />
-                              <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", letterSpacing: "0.08em" }}>
-                                {num}
-                              </Typography>
-                            </Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: "#EA580C" }}>
-                              {count}x {isMl ? "തവണ" : "draws"}
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDigitChange(colIdx, (digitVal + 1) % 10)}
+                            sx={{
+                              bgcolor: "#FFFFFF",
+                              border: "1px solid #E2E8F0",
+                              p: 0.5,
+                              "&:hover": { bgcolor: "#EFF6FF", borderColor: "#3B82F6" },
+                            }}
+                          >
+                            <KeyboardArrowUpIcon sx={{ fontSize: 18, color: "#2563EB" }} />
+                          </IconButton>
+
+                          <Box
+                            sx={{
+                              width: { xs: 52, sm: 64 },
+                              height: { xs: 60, sm: 72 },
+                              bgcolor: "#FFFFFF",
+                              borderRadius: "14px",
+                              border: "2px solid #0B3C5D",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              boxShadow: "0 4px 10px rgba(11, 60, 93, 0.12)",
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                fontSize: { xs: "1.8rem", sm: "2.2rem" },
+                                fontWeight: 900,
+                                color: "#0B3C5D",
+                                fontFamily: "monospace",
+                              }}
+                            >
+                              {digitVal}
                             </Typography>
                           </Box>
 
-                          {/* Progress Track */}
-                          <Box
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDigitChange(colIdx, (digitVal + 9) % 10)}
                             sx={{
-                              height: 6,
-                              width: "100%",
-                              bgcolor: "#FED7AA",
-                              borderRadius: "3px",
-                              overflow: "hidden",
+                              bgcolor: "#FFFFFF",
+                              border: "1px solid #E2E8F0",
+                              p: 0.5,
+                              "&:hover": { bgcolor: "#EFF6FF", borderColor: "#3B82F6" },
                             }}
                           >
-                            <Box
+                            <KeyboardArrowDownIcon sx={{ fontSize: 18, color: "#2563EB" }} />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Box>
+
+                    {/* Quick Stepper Hint */}
+                    <Typography
+                      variant="caption"
+                      sx={{ display: "block", textAlign: "center", color: "#94A3B8", mt: 1, fontWeight: 600 }}
+                    >
+                      {isMl ? "അമ്പടയാളങ്ങൾ ഉപയോഗിച്ച് അക്കങ്ങൾ മാറ്റുക" : "Use arrows to adjust digits (0000 – 9999)"}
+                    </Typography>
+                  </Grid>
+
+                  {/* Right Column: Live Pattern Balance & Check Action */}
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    {/* Live Pattern Balance Card */}
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: "14px",
+                        bgcolor: digitBalance.bgTint,
+                        border: `1px solid ${digitBalance.borderTint}`,
+                        mb: 2,
+                      }}
+                    >
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <ShowChartIcon sx={{ fontSize: 18, color: digitBalance.statusColor }} />
+                          <Typography sx={{ fontWeight: 800, fontSize: "0.85rem", color: digitBalance.statusColor }}>
+                            {digitBalance.balanceScore}% {digitBalance.statusText}
+                          </Typography>
+                        </Box>
+                        <Chip
+                          label={`${isMl ? "തുക" : "Sum"}: ${digitBalance.sum}`}
+                          size="small"
+                          sx={{
+                            bgcolor: "#FFFFFF",
+                            color: "#0F172A",
+                            fontWeight: 800,
+                            fontSize: "0.72rem",
+                            border: `1px solid ${digitBalance.borderTint}`,
+                          }}
+                        />
+                      </Box>
+
+                      {/* Progress Bar */}
+                      <Box sx={{ width: "100%", height: 6, bgcolor: "rgba(0,0,0,0.06)", borderRadius: 3, mb: 1.5, overflow: "hidden" }}>
+                        <Box
+                          sx={{
+                            width: `${digitBalance.balanceScore}%`,
+                            height: "100%",
+                            bgcolor: digitBalance.statusColor,
+                            borderRadius: 3,
+                            transition: "width 0.3s ease",
+                          }}
+                        />
+                      </Box>
+
+                      {/* Metric Tags */}
+                      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                        <Chip
+                          label={`${digitBalance.odd} ${isMl ? "ഒറ്റയക്കം" : "Odd"} : ${digitBalance.even} ${isMl ? "ഇരട്ടയക്കം" : "Even"}`}
+                          size="small"
+                          sx={{ bgcolor: "#FFFFFF", fontWeight: 700, fontSize: "0.72rem" }}
+                        />
+                        <Chip
+                          label={`${digitBalance.high} ${isMl ? "ഉയർന്നത് (5-9)" : "High"} : ${digitBalance.low} ${isMl ? "കുറഞ്ഞത് (0-4)" : "Low"}`}
+                          size="small"
+                          sx={{ bgcolor: "#FFFFFF", fontWeight: 700, fontSize: "0.72rem" }}
+                        />
+                      </Box>
+                    </Box>
+
+                    {/* Check History CTA Button */}
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={handleCheckHistory}
+                      endIcon={<ArrowForwardIosIcon sx={{ fontSize: "14px !important" }} />}
+                      sx={{
+                        bgcolor: "#0B3C5D",
+                        color: "#FFFFFF",
+                        fontWeight: 900,
+                        fontSize: "0.95rem",
+                        py: 1.4,
+                        borderRadius: "12px",
+                        textTransform: "none",
+                        boxShadow: "0 4px 14px rgba(11, 60, 93, 0.25)",
+                        "&:hover": { bgcolor: "#0F2C59" },
+                      }}
+                    >
+                      {isMl ? `ചരിത്രം പരിശോധിക്കുക (${digits.join("")})` : `Check History (${digits.join("")})`}
+                    </Button>
+                  </Grid>
+                </Grid>
+
+                {/* Quick Picks Row */}
+                <Box sx={{ mt: 3, pt: 2, borderTop: "1px solid #F1F5F9" }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                    <FlashOnIcon sx={{ fontSize: 16, color: "#F59E0B" }} />
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: "#475569", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                      {isMl ? "ദ്രുത നമ്പറുകൾ (Quick Picks):" : "Popular Quick Picks:"}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    {QUICK_PICKS.map((item) => {
+                      const isSelected = submittedQuery === item.num;
+                      return (
+                        <Chip
+                          key={item.num}
+                          label={item.num}
+                          onClick={() => handleSelectQuickPick(item.num)}
+                          clickable
+                          sx={{
+                            bgcolor: item.bg,
+                            color: item.text,
+                            border: `1.5px solid ${item.border}`,
+                            fontWeight: 900,
+                            fontSize: "0.85rem",
+                            fontFamily: "monospace",
+                            px: 1,
+                            transform: isSelected ? "scale(1.05)" : "none",
+                            boxShadow: isSelected ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
+                          }}
+                        />
+                      );
+                    })}
+                  </Box>
+                </Box>
+
+                {/* Search Results Display Box */}
+                {searchResult ? (
+                  <Box sx={{ mt: 3, p: 2.5, bgcolor: "#F8FAFC", borderRadius: "16px", border: "1.5px solid #E2E8F0" }}>
+                    {/* Hero Stat Box */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
+                        justifyContent: "space-between",
+                        alignItems: { xs: "flex-start", sm: "center" },
+                        gap: 2,
+                        mb: 2,
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="caption" sx={{ color: "#2563EB", fontWeight: 800, letterSpacing: "0.05em" }}>
+                          {searchResult.query.length}-DIGIT COMBINATION RESULT
+                        </Typography>
+                        <Typography variant="h4" sx={{ fontWeight: 900, color: "#0F172A", fontFamily: "monospace" }}>
+                          {searchResult.query}
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+                        <Chip
+                          label={`${searchResult.totalMatches} ${isMl ? "തവണ വന്നു" : "Times Drawn"}`}
+                          sx={{
+                            bgcolor: searchResult.totalMatches > 0 ? "#DCFCE7" : "#F1F5F9",
+                            color: searchResult.totalMatches > 0 ? "#16A34A" : "#64748B",
+                            fontWeight: 900,
+                            fontSize: "0.85rem",
+                            border: `1px solid ${searchResult.totalMatches > 0 ? "#86EFAC" : "#CBD5E1"}`,
+                          }}
+                        />
+                        {searchResult.totalMatches > 0 && (
+                          <Chip
+                            label={`${searchResult.hitRatePct}% ${isMl ? "ഹിറ്റ് റേറ്റ്" : "Hit Rate"}`}
+                            sx={{
+                              bgcolor: "#EFF6FF",
+                              color: "#2563EB",
+                              fontWeight: 800,
+                              fontSize: "0.85rem",
+                              border: "1px solid #BFDBFE",
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Box>
+
+                    {/* Tier Breakdown Badges */}
+                    {searchResult.totalMatches > 0 && Object.keys(searchResult.tierBreakdown).length > 0 && (
+                      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
+                        {Object.entries(searchResult.tierBreakdown).map(([tier, count]) => (
+                          <Chip
+                            key={tier}
+                            label={`${tier}: ${count}x`}
+                            size="small"
+                            sx={{
+                              bgcolor: "#FFFFFF",
+                              color: "#0B3C5D",
+                              fontWeight: 800,
+                              fontSize: "0.75rem",
+                              border: "1px solid #CBD5E1",
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    )}
+
+                    {/* Matching Draws List */}
+                    {searchResult.matchedDraws.length > 0 ? (
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: "#64748B", textTransform: "uppercase" }}>
+                          {isMl ? "സമീപകാലത്ത് വന്ന നറുക്കെടുപ്പുകൾ:" : "Recent Matching Draws:"}
+                        </Typography>
+                        <Grid container spacing={1.5}>
+                          {searchResult.matchedDraws.map((m, idx) => (
+                            <Grid size={{ xs: 12, sm: 6 }} key={idx}>
+                              <Box
+                                sx={{
+                                  p: 1.5,
+                                  bgcolor: "#FFFFFF",
+                                  borderRadius: "10px",
+                                  border: "1px solid #E2E8F0",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Box sx={{ minWidth: 0, pr: 1 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0F172A" }} noWrap>
+                                    {m.name}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: "#64748B" }}>
+                                    {m.date} • {m.tier}
+                                  </Typography>
+                                </Box>
+                                <Chip
+                                  label={m.fullTicket}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: "#EBF5FF",
+                                    color: "#0B3C5D",
+                                    fontWeight: 900,
+                                    fontFamily: "monospace",
+                                    fontSize: "0.8rem",
+                                  }}
+                                />
+                              </Box>
+                            </Grid>
+                          ))}
+                        </Grid>
+                      </Box>
+                    ) : (
+                      <Box sx={{ p: 2, textAlign: "center", bgcolor: "#FFFFFF", borderRadius: "10px" }}>
+                        <Typography variant="body2" sx={{ color: "#64748B", fontWeight: 600 }}>
+                          {isMl
+                            ? `കഴിഞ്ഞ ${filteredDraws.length} നറുക്കെടുപ്പുകളിൽ ഈ നമ്പർ വന്നതായി രേഖപ്പെടുത്തിയിട്ടില്ല.`
+                            : `No winning match recorded for this combination in the selected ${filteredDraws.length} draws.`}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                ) : null}
+              </Paper>
+            </Grid>
+
+            {/* Hot 4-Digit Endings */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "#FFFFFF",
+                  borderRadius: "20px",
+                  border: "1.5px solid #E2E8F0",
+                  height: "100%",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2.5 }}>
+                  <Box
+                    sx={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: "10px",
+                      bgcolor: "#FFEDD5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#EA580C",
+                    }}
+                  >
+                    <WhatshotIcon sx={{ fontSize: 22 }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.05rem" }}>
+                      {isMl ? "കൂടുതൽ തവണ വന്ന 4-അക്കങ്ങൾ" : "Hot 4-Digit Endings"}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600 }}>
+                      {isMl ? "എല്ലാ സമ്മാന വിഭാഗങ്ങളിലെയും ആവർത്തനം" : "Most repeated 4-digit combinations"}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Grid container spacing={1.5}>
+                  {numberStats.hot4.map(([num, count], i) => {
+                    const maxHot4 = numberStats.hot4[0]?.[1] || 1;
+                    const barPct = Math.round((count / maxHot4) * 100);
+                    return (
+                      <Grid size={{ xs: 6 }} key={num}>
+                        <Box
+                          sx={{
+                            p: 1.5,
+                            bgcolor: "#FFF7ED",
+                            borderRadius: "12px",
+                            border: "1px solid #FFEDD5",
+                          }}
+                        >
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
+                            <Chip
+                              label={`#${i + 1}`}
+                              size="small"
                               sx={{
-                                height: "100%",
-                                width: `${barPct}%`,
+                                height: 20,
                                 bgcolor: "#EA580C",
-                                borderRadius: "3px",
-                                transition: "width 0.5s ease",
+                                color: "#FFFFFF",
+                                fontWeight: 900,
+                                fontSize: "0.68rem",
                               }}
                             />
+                            <Typography sx={{ fontWeight: 900, fontSize: "1.1rem", color: "#0F172A", fontFamily: "monospace" }}>
+                              {num}
+                            </Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 800, color: "#EA580C" }}>
+                              {count}x
+                            </Typography>
+                          </Box>
+                          <Box sx={{ width: "100%", height: 5, bgcolor: "#FED7AA", borderRadius: 2.5, overflow: "hidden" }}>
+                            <Box sx={{ width: `${barPct}%`, height: "100%", bgcolor: "#EA580C", borderRadius: 2.5 }} />
                           </Box>
                         </Box>
                       </Grid>
@@ -863,478 +1185,168 @@ export default function AnalyticsPage() {
               </Paper>
             </Grid>
 
-            {/* 2. Interactive Number Frequency Checker */}
-            <Grid size={{ xs: 12, md: 5 }}>
+            {/* Hot & Cold 2-Digit Pairs */}
+            <Grid size={{ xs: 12, md: 6 }}>
               <Paper
                 elevation={0}
                 sx={{
-                  p: { xs: 2.5, sm: 3.5 },
-                  borderRadius: "20px",
+                  p: 3,
                   bgcolor: "#FFFFFF",
-                  border: "1px solid #E2E8F0",
-                  boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
+                  borderRadius: "20px",
+                  border: "1.5px solid #E2E8F0",
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
+                  gap: 3,
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
-                  <Box
-                    sx={{
-                      width: 42,
-                      height: 42,
-                      borderRadius: "14px",
-                      background: "linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 2px 8px rgba(37, 99, 235, 0.15)",
-                    }}
-                  >
-                    <SearchIcon sx={{ color: "#1D4ED8", fontSize: 24 }} />
-                  </Box>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: isMl ? "1.05rem" : "1.15rem" }}>
-                      {isMl ? "🔍 ഇൻസ്റ്റന്റ് നമ്പർ പരിശോധന" : "🔍 Instant Number Explorer"}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600, fontSize: isMl ? "0.75rem" : "0.8rem" }}>
-                      {isMl ? "ഏതെങ്കിലും 2, 3, 4 അക്കങ്ങളുടെ വിജയ ചരിത്രം പരിശോധിക്കുക" : "Check frequency, hit rate & prize tiers for any digits"}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Divider sx={{ my: 2 }} />
-
-                {/* Quick Suggestion Pills */}
-                <Box sx={{ mb: 1.5 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: "#64748B", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.04em", display: "block", mb: 0.8 }}>
-                    {isMl ? "⚡ പെട്ടെന്ന് പരിശോധിക്കാൻ:" : "⚡ QUICK SUGGESTIONS:"}
-                  </Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8 }}>
-                    {["5593", "5866", "27", "99", "87", "8860"].map((sug) => {
-                      const isSelected = searchNum === sug;
-                      return (
-                        <Chip
-                          key={sug}
-                          label={sug}
-                          size="small"
-                          onClick={() => setSearchNum(sug)}
-                          sx={{
-                            fontWeight: 800,
-                            fontSize: "0.75rem",
-                            cursor: "pointer",
-                            bgcolor: isSelected ? "#0B3C5D" : "#F1F5F9",
-                            color: isSelected ? "#FFFFFF" : "#334155",
-                            border: "1px solid",
-                            borderColor: isSelected ? "#0B3C5D" : "#E2E8F0",
-                            transition: "all 0.15s ease",
-                            "&:hover": {
-                              bgcolor: isSelected ? "#0B3C5D" : "#E2E8F0",
-                              transform: "translateY(-1px)",
-                            },
-                          }}
-                        />
-                      );
-                    })}
-                  </Box>
-                </Box>
-
-                {/* Search Text Input */}
-                <TextField
-                  fullWidth
-                  placeholder={isMl ? "നമ്പർ അടിക്കുക (ഉദാ: 5593, 27)" : "Type 2, 3, or 4 digits (e.g. 5593, 27)..."}
-                  value={searchNum}
-                  onChange={(e) => setSearchNum(e.target.value)}
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CasinoIcon sx={{ color: "#3B82F6", fontSize: 20 }} />
-                        </InputAdornment>
-                      ),
-                      endAdornment: searchNum ? (
-                        <InputAdornment position="end">
-                          <IconButton size="small" onClick={() => setSearchNum("")}>
-                            <ClearIcon fontSize="small" sx={{ color: "#94A3B8" }} />
-                          </IconButton>
-                        </InputAdornment>
-                      ) : null,
-                    },
-                  }}
-                  sx={{
-                    mb: 2.5,
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "14px",
-                      bgcolor: "#F8FAFC",
-                      fontWeight: 800,
-                      letterSpacing: "0.08em",
-                      fontSize: "1.05rem",
-                      border: "1px solid #E2E8F0",
-                      "&.Mui-focused": {
-                        bgcolor: "#FFFFFF",
-                        borderColor: "#3B82F6",
-                        boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.15)",
-                      },
-                    },
-                  }}
-                />
-
-                {searchResult ? (
-                  <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-                    {/* Hero Stat Box */}
+                {/* Hot 2-Digit Section */}
+                <Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
                     <Box
                       sx={{
-                        p: 2,
-                        borderRadius: "16px",
-                        background: searchResult.totalMatches > 0
-                          ? "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)"
-                          : "#F8FAFC",
-                        border: "1px solid",
-                        borderColor: searchResult.totalMatches > 0 ? "#BFDBFE" : "#E2E8F0",
-                      }}
-                    >
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
-                        <Box>
-                          <Typography variant="caption" sx={{ fontWeight: 800, color: "#2563EB", textTransform: "uppercase", fontSize: "0.72rem" }}>
-                            {searchResult.query.length}-DIGIT COMBINATION
-                          </Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 900, color: "#0F172A", letterSpacing: "0.08em", mt: 0.2 }}>
-                            {searchResult.query}
-                          </Typography>
-                        </Box>
-
-                        <Box sx={{ textAlign: "right" }}>
-                          <Chip
-                            label={`${searchResult.totalMatches} ${isMl ? "തവണ വിജയം" : "Times Drawn"}`}
-                            size="small"
-                            sx={{
-                              bgcolor: searchResult.totalMatches > 0 ? "#2563EB" : "#94A3B8",
-                              color: "#FFFFFF",
-                              fontWeight: 900,
-                              fontSize: "0.75rem",
-                              height: 24,
-                            }}
-                          />
-                          {searchResult.totalMatches > 0 && (
-                            <Typography variant="caption" sx={{ display: "block", color: "#1E40AF", fontWeight: 700, mt: 0.5 }}>
-                              {searchResult.hitRatePct}% {isMl ? "ഡ്രോകളിൽ സാന്നിധ്യം" : "Draw Hit Rate"}
-                            </Typography>
-                          )}
-                        </Box>
-                      </Box>
-
-                      {/* Prize Tier Breakdown Pills */}
-                      {searchResult.totalMatches > 0 && Object.keys(searchResult.tierBreakdown).length > 0 && (
-                        <Box sx={{ pt: 1, borderTop: "1px solid rgba(37, 99, 235, 0.15)" }}>
-                          <Typography variant="caption" sx={{ fontWeight: 800, color: "#1E3A8A", display: "block", mb: 0.8, fontSize: "0.7rem" }}>
-                            {isMl ? "സമ്മാനത്തട്ടുകളിലെ സാന്നിധ്യം:" : "PRIZE TIER BREAKDOWN:"}
-                          </Typography>
-                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8 }}>
-                            {Object.entries(searchResult.tierBreakdown).map(([tier, count]) => (
-                              <Chip
-                                key={tier}
-                                label={`${tier}: ${count}x`}
-                                size="small"
-                                sx={{
-                                  bgcolor: "#FFFFFF",
-                                  color: "#1E40AF",
-                                  fontWeight: 800,
-                                  fontSize: "0.7rem",
-                                  height: 22,
-                                  border: "1px solid #93C5FD",
-                                }}
-                              />
-                            ))}
-                          </Box>
-                        </Box>
-                      )}
-                    </Box>
-
-                    {/* Matching History Timeline */}
-                    {searchResult.matchedDraws.length > 0 ? (
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 800, color: "#64748B", textTransform: "uppercase", fontSize: "0.72rem", mb: 1, display: "block" }}>
-                          {isMl ? "സമീപകാല വിജയ ചരിത്രം:" : "RECENT MATCHING DRAWS:"}
-                        </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: 220, overflowY: "auto", pr: 0.5 }}>
-                          {searchResult.matchedDraws.map((m, idx) => (
-                            <Box
-                              key={idx}
-                              sx={{
-                                p: 1.2,
-                                borderRadius: "10px",
-                                bgcolor: "#F8FAFC",
-                                border: "1px solid #E2E8F0",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                transition: "all 0.15s ease",
-                                "&:hover": { bgcolor: "#EFF6FF", borderColor: "#BFDBFE" },
-                              }}
-                            >
-                              <Box>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.85rem" }}>
-                                  {m.name}
-                                </Typography>
-                                <Typography variant="caption" sx={{ color: "#64748B", fontSize: "0.72rem" }}>
-                                  {m.date} • {m.tier}
-                                </Typography>
-                              </Box>
-                              <Chip
-                                label={m.fullTicket}
-                                size="small"
-                                sx={{
-                                  bgcolor: "#E0F2FE",
-                                  color: "#0369A1",
-                                  fontWeight: 800,
-                                  fontSize: "0.75rem",
-                                  height: 22,
-                                }}
-                              />
-                            </Box>
-                          ))}
-                        </Box>
-                      </Box>
-                    ) : (
-                      <Alert severity="info" sx={{ borderRadius: "12px", fontWeight: 700, fontSize: "0.825rem" }}>
-                        {isMl
-                          ? `തിരഞ്ഞെടുത്ത ${filteredDraws.length} നറുക്കെടുപ്പുകളിൽ ഈ നമ്പർ വന്നിട്ടില്ല.`
-                          : `No winning matches found for '${searchResult.query}' in the selected timeframe.`}
-                      </Alert>
-                    )}
-                  </Box>
-                ) : (
-                  /* Idle / Empty State Card */
-                  <Box
-                    sx={{
-                      p: 3,
-                      borderRadius: "16px",
-                      background: "linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%)",
-                      border: "1px dashed #93C5FD",
-                      textAlign: "center",
-                      my: "auto",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: "50%",
-                        bgcolor: "#FFFFFF",
+                        width: 36,
+                        height: 36,
+                        borderRadius: "10px",
+                        bgcolor: "#D1FAE5",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        mx: "auto",
-                        mb: 1.5,
-                        boxShadow: "0 4px 12px rgba(37, 99, 235, 0.1)",
+                        color: "#059669",
                       }}
                     >
-                      <AutoAwesomeIcon sx={{ color: "#2563EB", fontSize: 26 }} />
+                      <TrendingUpIcon sx={{ fontSize: 20 }} />
                     </Box>
-                    <Typography variant="subtitle1" sx={{ color: "#0F172A", fontWeight: 800, mb: 0.5 }}>
-                      {isMl ? "ഏതെങ്കിലും നമ്പർ അടിച്ച് വിശകലനം ചെയ്യുക" : "Instant Historical Pattern Search"}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.825rem", maxWidth: 280, mx: "auto", lineHeight: 1.5 }}>
-                      {isMl
-                        ? "ഒരു 2, 3 അല്ലെങ്കിൽ 4 അക്ക നമ്പർ ടൈപ്പ് ചെയ്യുക അല്ലെങ്കിൽ മുകളിലുള്ള സൂചനകളിൽ ക്ലിക്ക് ചെയ്യുക."
-                        : "Enter any 2, 3, or 4 digit ending or tap a quick suggestion above to see full prize history."}
-                    </Typography>
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#0F172A" }}>
+                        {isMl ? "കൂടുതൽ തവണ വന്ന 2-അക്കങ്ങൾ" : "Hot 2-Digit Pairs"}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600 }}>
+                        {isMl ? "മുൻനിരയിൽ നിൽക്കുന്ന അവസാന 2-അക്കങ്ങൾ" : "Top frequent ending 2-digit pairs"}
+                      </Typography>
+                    </Box>
                   </Box>
-                )}
-              </Paper>
-            </Grid>
 
-            {/* 3. Hot 2-Digit Ending Combinations */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  p: { xs: 2.5, sm: 3.5 },
-                  borderRadius: "20px",
-                  bgcolor: "#FFFFFF",
-                  border: "1px solid #E2E8F0",
-                  boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "12px",
-                      bgcolor: "#D1FAE5",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <TrendingUpIcon sx={{ color: "#059669", fontSize: 24 }} />
-                  </Box>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: isMl ? "1.05rem" : "1.15rem" }}>
-                      {isMl ? "⚡ ജനപ്രിയ 2-അക്ക അവസാനങ്ങൾ" : "⚡ Hot 2-Digit Pairs"}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600, fontSize: isMl ? "0.75rem" : "0.8rem" }}>
-                      {isMl ? "കൂടുതൽ സമ്മാനങ്ങളിൽ ആവർത്തിച്ച 2 അക്കങ്ങൾ" : "Most recurrent 2-digit combinations across draws"}
-                    </Typography>
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    {numberStats.hot2.map(([num, count]) => (
+                      <Box
+                        key={num}
+                        sx={{
+                          p: 1,
+                          px: 1.5,
+                          bgcolor: "#ECFDF5",
+                          borderRadius: "10px",
+                          border: "1px solid #A7F3D0",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <Typography sx={{ fontWeight: 900, fontSize: "1rem", color: "#065F46", fontFamily: "monospace" }}>
+                          {num}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#059669", fontWeight: 700 }}>
+                          {count} {isMl ? "തവണ" : "draws"}
+                        </Typography>
+                      </Box>
+                    ))}
                   </Box>
                 </Box>
 
-                <Divider sx={{ my: 2.5 }} />
+                <Divider />
 
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-                  {numberStats.hot2.map(([num, count]) => (
+                {/* Cold 2-Digit Section */}
+                <Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
                     <Box
-                      key={num}
                       sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "10px",
+                        bgcolor: "#DBEAFE",
                         display: "flex",
                         alignItems: "center",
-                        gap: 1.2,
-                        bgcolor: "#ECFDF5",
-                        border: "1px solid #A7F3D0",
-                        px: 2,
-                        py: 1,
-                        borderRadius: "12px",
-                        transition: "all 0.2s ease",
-                        "&:hover": { transform: "translateY(-2px)", boxShadow: "0 4px 12px rgba(5, 150, 105, 0.15)" },
+                        justifyContent: "center",
+                        color: "#2563EB",
                       }}
                     >
-                      <Typography variant="h6" sx={{ fontWeight: 900, color: "#065F46", letterSpacing: "0.05em" }}>
-                        {num}
-                      </Typography>
-                      <Chip
-                        label={`${count} ${isMl ? "തവണ" : "draws"}`}
-                        size="small"
-                        sx={{
-                          bgcolor: "#D1FAE5",
-                          color: "#047857",
-                          fontWeight: 800,
-                          fontSize: "0.72rem",
-                          height: 22,
-                        }}
-                      />
+                      <AcUnitIcon sx={{ fontSize: 20 }} />
                     </Box>
-                  ))}
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#0F172A" }}>
+                        {isMl ? "കുറഞ്ഞ തവണ വന്ന അക്കങ്ങൾ (Cold / Overdue)" : "Cold / Overdue 2-Digit Pairs"}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600 }}>
+                        {isMl ? "ഏറ്റവും കുറവ് തവണ വന്ന 2-അക്കങ്ങൾ" : "Least frequent ending combinations"}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    {numberStats.cold2.map(([num, count]) => (
+                      <Box
+                        key={num}
+                        sx={{
+                          p: 1,
+                          px: 1.5,
+                          bgcolor: "#EFF6FF",
+                          borderRadius: "10px",
+                          border: "1px solid #BFDBFE",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <Typography sx={{ fontWeight: 900, fontSize: "1rem", color: "#1E40AF", fontFamily: "monospace" }}>
+                          {num}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: "#2563EB", fontWeight: 700 }}>
+                          {count} {isMl ? "തവണ" : "draws"}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
                 </Box>
               </Paper>
             </Grid>
 
-            {/* 4. Cold / Overdue Numbers */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  p: { xs: 2.5, sm: 3.5 },
-                  borderRadius: "20px",
-                  bgcolor: "#FFFFFF",
-                  border: "1px solid #E2E8F0",
-                  boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "12px",
-                      bgcolor: "#DBEAFE",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <AcUnitIcon sx={{ color: "#2563EB", fontSize: 24 }} />
-                  </Box>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: isMl ? "1.05rem" : "1.15rem" }}>
-                      {isMl ? "❄️ കുറഞ്ഞ തവണ വന്ന നമ്പറുകൾ (Cold)" : "❄️ Cold / Overdue Pairs"}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600, fontSize: isMl ? "0.75rem" : "0.8rem" }}>
-                      {isMl ? "ഈ കാലയളവിൽ ഏറ്റവും കുറവ് തവണ മാത്രം വന്ന 2 അക്കങ്ങൾ" : "Least frequently drawn 2-digit pairs in this horizon"}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Divider sx={{ my: 2.5 }} />
-
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-                  {numberStats.cold2.map(([num, count]) => (
-                    <Box
-                      key={num}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.2,
-                        bgcolor: "#EFF6FF",
-                        border: "1px solid #BFDBFE",
-                        px: 2,
-                        py: 1,
-                        borderRadius: "12px",
-                        transition: "all 0.2s ease",
-                        "&:hover": { transform: "translateY(-2px)", boxShadow: "0 4px 12px rgba(37, 99, 235, 0.15)" },
-                      }}
-                    >
-                      <Typography variant="h6" sx={{ fontWeight: 900, color: "#1E40AF", letterSpacing: "0.05em" }}>
-                        {num}
-                      </Typography>
-                      <Chip
-                        label={`${count} ${isMl ? "തവണ" : "only"}`}
-                        size="small"
-                        sx={{
-                          bgcolor: "#DBEAFE",
-                          color: "#1D4ED8",
-                          fontWeight: 800,
-                          fontSize: "0.72rem",
-                          height: 22,
-                        }}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              </Paper>
-            </Grid>
-
-            {/* 5. Single Last-Digit (0-9) Frequency Histogram Bar Chart */}
+            {/* Single Last-Digit (0-9) Frequency Distribution */}
             <Grid size={{ xs: 12 }}>
               <Paper
                 elevation={0}
                 sx={{
-                  p: { xs: 2.5, sm: 3.5 },
-                  borderRadius: "20px",
+                  p: 3,
                   bgcolor: "#FFFFFF",
-                  border: "1px solid #E2E8F0",
-                  boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
+                  borderRadius: "20px",
+                  border: "1.5px solid #E2E8F0",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
                   <Box
                     sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "12px",
+                      width: 38,
+                      height: 38,
+                      borderRadius: "10px",
                       bgcolor: "#F1F5F9",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      color: "#0B3C5D",
                     }}
                   >
-                    <BarChartIcon sx={{ color: "#0B3C5D", fontSize: 24 }} />
+                    <BarChartIcon sx={{ fontSize: 22 }} />
                   </Box>
                   <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: isMl ? "1.05rem" : "1.15rem" }}>
-                      {isMl ? "📊 അവസാന അക്ക വിതരണം (0 - 9)" : "📊 Single Last-Digit Distribution (0 - 9)"}
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.05rem" }}>
+                      {isMl ? "ഒറ്റ അക്ക വിതരണ ചാർട്ട് (0 - 9)" : "Single Last-Digit (0–9) Frequency Distribution"}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600, fontSize: isMl ? "0.75rem" : "0.8rem" }}>
-                      {isMl
-                        ? "വിജയിച്ച എല്ലാ ലോട്ടറി നമ്പറുകളുടെയും അവസാന അക്കത്തിന്റെ സാന്നിധ്യം"
-                        : "Frequency of every single digit (0 to 9) ending a winning ticket"}
+                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600 }}>
+                      {isMl ? "അവസാന അക്കങ്ങളുടെ ആകെ ആവൃത്തി" : "Total frequency of each unit digit ending"}
                     </Typography>
                   </Box>
                 </Box>
 
-                <Divider sx={{ my: 2.5 }} />
-
-                {/* Histogram Visualizer */}
+                {/* 10-Column Bar Chart */}
                 <Box
                   sx={{
                     display: "flex",
@@ -1342,11 +1354,13 @@ export default function AnalyticsPage() {
                     alignItems: "flex-end",
                     height: 180,
                     pt: 2,
-                    px: { xs: 1, sm: 4 },
+                    pb: 1,
+                    px: { xs: 0.5, sm: 2 },
                   }}
                 >
                   {Object.entries(numberStats.singleDigitMap).map(([digit, count]) => {
-                    const heightPct = Math.max(14, Math.round((count / maxSingle) * 100));
+                    const maxD = Math.max(...Object.values(numberStats.singleDigitMap), 1);
+                    const heightPct = Math.max(15, Math.round((count / maxD) * 100));
                     return (
                       <Box
                         key={digit}
@@ -1354,45 +1368,27 @@ export default function AnalyticsPage() {
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
+                          gap: 1,
+                          flex: 1,
                           height: "100%",
                           justifyContent: "flex-end",
-                          flex: 1,
                         }}
                       >
-                        <Typography variant="caption" sx={{ fontWeight: 900, color: "#64748B", fontSize: "0.75rem", mb: 0.8 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 900, color: "#0B3C5D", fontSize: "0.75rem" }}>
                           {count}
                         </Typography>
-                        <Box
-                          sx={{
-                            width: { xs: 18, sm: 32, md: 42 },
-                            height: "100%",
-                            bgcolor: "#F1F5F9",
-                            borderRadius: "8px 8px 0 0",
-                            display: "flex",
-                            alignItems: "flex-end",
-                            overflow: "hidden",
-                          }}
-                        >
+                        <Box sx={{ width: { xs: 20, sm: 32 }, height: 110, bgcolor: "#F1F5F9", borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "flex-end" }}>
                           <Box
                             sx={{
                               width: "100%",
                               height: `${heightPct}%`,
                               bgcolor: "#0B3C5D",
-                              borderRadius: "8px 8px 0 0",
-                              transition: "height 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                              "&:hover": { bgcolor: "#10B981" },
+                              borderRadius: "8px",
+                              transition: "height 0.4s ease",
                             }}
                           />
                         </Box>
-                        <Typography
-                          variant="subtitle1"
-                          sx={{
-                            fontWeight: 900,
-                            color: "#0F172A",
-                            mt: 1,
-                            fontSize: "1.1rem",
-                          }}
-                        >
+                        <Typography sx={{ fontWeight: 900, color: "#0F172A", fontSize: "0.95rem", fontFamily: "monospace" }}>
                           {digit}
                         </Typography>
                       </Box>
@@ -1404,198 +1400,180 @@ export default function AnalyticsPage() {
           </Grid>
         ) : (
           /* District Heatmap & Leaderboard Tab */
-          <Paper
-            elevation={0}
-            sx={{
-              p: { xs: 2.5, sm: 4 },
-              borderRadius: "20px",
-              bgcolor: "#FFFFFF",
-              border: "1px solid #E2E8F0",
-              boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                justifyContent: "space-between",
-                alignItems: { xs: "flex-start", md: "center" },
-                gap: 2,
-                mb: 3,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: { xs: 2.5, md: 3.5 },
+                  bgcolor: "#FFFFFF",
+                  borderRadius: "20px",
+                  border: "1.5px solid #E2E8F0",
+                }}
+              >
+                {/* Header & Search */}
                 <Box
                   sx={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: "14px",
-                    bgcolor: "#FEE2E2",
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    flexDirection: { xs: "column", sm: "row" },
+                    justifyContent: "space-between",
+                    alignItems: { xs: "stretch", sm: "center" },
+                    gap: 2,
+                    mb: 3,
                   }}
                 >
-                  <EmojiEventsIcon sx={{ color: "#DC2626", fontSize: 26 }} />
-                </Box>
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: isMl ? "1.1rem" : "1.25rem" }}>
-                    {isMl ? "🏆 1-ാം സമ്മാനം കൂടുതൽ വിറ്റ ജില്ലകൾ" : "🏆 1st Prize Winners by District"}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600, fontSize: isMl ? "0.78rem" : "0.825rem" }}>
-                    {isMl
-                      ? `ആകെ ${districtStats.totalJackpotDraws} നറുക്കെടുപ്പുകളിലെ ജില്ല തിരിച്ചുള്ള ഒന്നാം സമ്മാന വിജയികൾ`
-                      : `Distribution of 1st prize tickets across Kerala's 14 districts`}
-                  </Typography>
-                </Box>
-              </Box>
-
-              {/* District Filter Input */}
-              <TextField
-                size="small"
-                placeholder={isMl ? "ജില്ല തിരയുക..." : "Search district..."}
-                value={districtQuery}
-                onChange={(e) => setDistrictQuery(e.target.value)}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                sx={{
-                  width: { xs: "100%", sm: 260 },
-                  "& .MuiOutlinedInput-root": { borderRadius: "10px", bgcolor: "#F8FAFC" },
-                }}
-              />
-            </Box>
-
-            <Divider sx={{ mb: 3 }} />
-
-            {/* Districts Ranked List */}
-            <Grid container spacing={2}>
-              {displayedDistricts.map((dist, idx) => {
-                const pct = Math.round((dist.count / districtStats.maxCount) * 100);
-                const isTop3 = idx < 3 && dist.count > 0;
-                const displayName = isMl ? KERALA_DISTRICTS_ML[dist.name] || dist.name : dist.name;
-
-                return (
-                  <Grid key={dist.name} size={{ xs: 12, md: 6 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                     <Box
                       sx={{
-                        p: 2,
-                        borderRadius: "14px",
-                        bgcolor: isTop3 ? "#FEF2F2" : "#F8FAFC",
-                        border: "1px solid",
-                        borderColor: isTop3 ? "#FECACA" : "#E2E8F0",
+                        width: 40,
+                        height: 40,
+                        borderRadius: "12px",
+                        bgcolor: "#FEE2E2",
                         display: "flex",
                         alignItems: "center",
-                        gap: 2,
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                          borderColor: isTop3 ? "#F87171" : "#CBD5E1",
-                          transform: "translateY(-2px)",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                        },
+                        justifyContent: "center",
+                        color: "#DC2626",
                       }}
                     >
-                      {/* Rank Badge */}
+                      <EmojiEventsIcon sx={{ fontSize: 24 }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.1rem" }}>
+                        {isMl ? "ജില്ലാ അടിസ്ഥാനത്തിലുള്ള 1-ാം സമ്മാന വിജയികൾ" : "District Winner Heatmap & Leaderboard"}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem" }}>
+                        {isMl
+                          ? `കഴിഞ്ഞ ${filteredDraws.length} നറുക്കെടുപ്പുകളിൽ 1-ാം സമ്മാനം കൂടുതൽ ലഭിച്ച ജില്ലകളുടെ റാങ്കിംഗ്`
+                          : `Kerala 14-district ranking based on 1st prize tickets sold across ${filteredDraws.length} draws`}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <TextField
+                    size="small"
+                    placeholder={isMl ? "ജില്ല തിരയുക..." : "Filter district..."}
+                    value={districtQuery}
+                    onChange={(e) => setDistrictQuery(e.target.value)}
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} />
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    sx={{
+                      width: { xs: "100%", sm: 220 },
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "10px",
+                        bgcolor: "#F8FAFC",
+                      },
+                    }}
+                  />
+                </Box>
+
+                {/* District List */}
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                  {displayedDistricts.map((dist, idx) => {
+                    const pct = Math.round((dist.count / districtStats.maxCount) * 100);
+                    const isTop3 = idx < 3 && dist.count > 0;
+                    const mlName = KERALA_DISTRICTS_ML[dist.name] || dist.name;
+                    return (
                       <Box
+                        key={dist.name}
                         sx={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: "10px",
-                          bgcolor: isTop3 ? "#DC2626" : "#E2E8F0",
-                          color: isTop3 ? "#FFFFFF" : "#64748B",
+                          p: 2,
+                          bgcolor: isTop3 ? "#FFFDF5" : "#FFFFFF",
+                          borderRadius: "14px",
+                          border: `1.5px solid ${isTop3 ? "#FDE68A" : "#E2E8F0"}`,
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
-                          fontWeight: 900,
-                          fontSize: "0.85rem",
-                          flexShrink: 0,
+                          gap: 2,
                         }}
                       >
-                        #{idx + 1}
-                      </Box>
-
-                      {/* District Details & Progress Bar */}
-                      <Box sx={{ flex: 1 }}>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{
-                              fontWeight: 900,
-                              color: isTop3 ? "#991B1B" : "#1E293B",
-                              fontSize: isMl ? "0.95rem" : "1rem",
-                            }}
-                          >
-                            {displayName}
-                          </Typography>
-                          <Chip
-                            label={`${dist.count} ${isMl ? "വിജയികൾ" : dist.count === 1 ? "win" : "wins"}`}
-                            size="small"
-                            sx={{
-                              bgcolor: isTop3 ? "#FEE2E2" : "#E2E8F0",
-                              color: isTop3 ? "#DC2626" : "#475569",
-                              fontWeight: 900,
-                              fontSize: "0.75rem",
-                              height: 22,
-                            }}
-                          />
-                        </Box>
-
-                        {/* Progress Bar */}
+                        {/* Rank Badge */}
                         <Box
                           sx={{
-                            height: 6,
-                            width: "100%",
-                            bgcolor: isTop3 ? "#FCA5A5" : "#E2E8F0",
-                            borderRadius: "3px",
-                            overflow: "hidden",
+                            width: 36,
+                            height: 36,
+                            borderRadius: "10px",
+                            bgcolor: isTop3 ? "#F59E0B" : "#F1F5F9",
+                            color: isTop3 ? "#FFFFFF" : "#64748B",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: 900,
+                            fontSize: "0.9rem",
                           }}
                         >
-                          <Box
-                            sx={{
-                              height: "100%",
-                              width: `${pct}%`,
-                              bgcolor: isTop3 ? "#DC2626" : "#64748B",
-                              borderRadius: "3px",
-                              transition: "width 0.5s ease",
-                            }}
-                          />
+                          #{idx + 1}
+                        </Box>
+
+                        {/* District Info & Progress Bar */}
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
+                            <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+                              <Typography sx={{ fontWeight: 900, color: "#0F172A", fontSize: "0.95rem" }}>
+                                {isMl ? mlName : dist.name}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600 }}>
+                                {isMl ? dist.name : mlName}
+                              </Typography>
+                            </Box>
+                            <Chip
+                              label={`${dist.count} ${isMl ? (dist.count === 1 ? "വിജയം" : "വിജയങ്ങൾ") : (dist.count === 1 ? "Win" : "Wins")}`}
+                              size="small"
+                              sx={{
+                                bgcolor: isTop3 ? "#FEF3C7" : "#F1F5F9",
+                                color: isTop3 ? "#92400E" : "#475569",
+                                fontWeight: 900,
+                                fontSize: "0.75rem",
+                              }}
+                            />
+                          </Box>
+
+                          <Box sx={{ width: "100%", height: 7, bgcolor: "#F1F5F9", borderRadius: 3.5, overflow: "hidden" }}>
+                            <Box
+                              sx={{
+                                width: `${pct}%`,
+                                height: "100%",
+                                bgcolor: isTop3 ? "#F59E0B" : "#0B3C5D",
+                                borderRadius: 3.5,
+                                transition: "width 0.3s ease",
+                              }}
+                            />
+                          </Box>
                         </Box>
                       </Box>
-                    </Box>
-                  </Grid>
-                );
-              })}
+                    );
+                  })}
+                </Box>
+              </Paper>
             </Grid>
-          </Paper>
+          </Grid>
         )}
 
-        {/* Disclaimer Note */}
-        <Paper
-          elevation={0}
+        {/* Disclaimer Card */}
+        <Box
           sx={{
-            p: 2.5,
             mt: 4,
-            borderRadius: "16px",
-            bgcolor: "#F1F5F9",
+            p: 2.5,
+            bgcolor: "#FFFFFF",
+            borderRadius: "14px",
             border: "1px solid #E2E8F0",
             display: "flex",
             alignItems: "flex-start",
-            gap: 2,
+            gap: 1.5,
           }}
         >
-          <InfoOutlinedIcon sx={{ color: "#64748B", mt: 0.3 }} />
-          <Typography variant="body2" sx={{ color: "#64748B", lineHeight: 1.6, fontSize: isMl ? "0.825rem" : "0.875rem" }}>
+          <InfoOutlinedIcon sx={{ color: "#64748B", fontSize: 20, mt: 0.2 }} />
+          <Typography variant="caption" sx={{ color: "#64748B", lineHeight: 1.6, fontWeight: 500 }}>
             {isMl
-              ? "പ്രധാന അറിയിപ്പ്: ഈ സ്ഥിതിവിവരക്കണക്കുകൾ മുൻകാല ഔദ്യോഗിക ഗവൺമെന്റ് ഗസറ്റ് ഫലങ്ങളെ മാത്രം അടിസ്ഥാനമാക്കിയുള്ളതാണ്. കേരള സംസ്ഥാന ഭാഗ്യക്കുറി നറുക്കെടുപ്പ് പൂർണ്ണമായും യാദൃശ്ചികവും (100% Random) ഗവൺമെന്റ് മേൽനോട്ടത്തിൽ നടക്കുന്ന സുതാര്യമായ പ്രക്രിയയുമാണ്."
-              : "Important Disclaimer: These analytics and frequency charts are computed purely from official past draw records for historical insights. Kerala Lottery draws are conducted transparently via random mechanical draw machines by the Government of Kerala."}
+              ? "ശ്രദ്ധിക്കുക: ഈ സ്ഥിതിവിവരക്കണക്കുകൾ മുൻകാല ഔദ്യോഗിക ഗസറ്റ് ഫലങ്ങളുടെ അടിസ്ഥാനത്തിലുള്ള ഗണിതശാസ്ത്രപരമായ വിശകലനം മാത്രമാണ്. കേരള ഭാഗ്യക്കുറി നറുക്കെടുപ്പുകൾ പൂർണ്ണമായും ക്രമരഹിതവും സുതാര്യവുമാണ്. മുൻകാല ആവൃത്തി ഭാവി ഫലങ്ങളെ ഉറപ്പുനൽകുന്നില്ല."
+              : "Disclaimer: These frequency statistics and trend analytics are calculated strictly from historical Kerala State Lottery official gazette publications for informational and analytical purposes. Each draw is an independent random event conducted by the Kerala State Lottery Directorate."}
           </Typography>
-        </Paper>
+        </Box>
       </Container>
     </Box>
   );
