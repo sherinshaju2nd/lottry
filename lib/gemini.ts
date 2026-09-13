@@ -454,3 +454,301 @@ Return ONLY a JSON object:
   throw new Error("Failed to generate social digests.");
 }
 
+export interface LotteryAiPatternAnalysis {
+  lottery_name: string;
+  lottery_code: string;
+  sample_draws_count: number;
+  summary: string;
+  summary_ml: string;
+  hot_digits: {
+    overall: Array<{ digit: number; frequency_pct: number; label: string }>;
+    positional: {
+      first_pos: number[];
+      second_pos: number[];
+      third_pos: number[];
+      last_pos: number[];
+    };
+  };
+  double_patterns: Array<{
+    pattern: string;
+    type: string;
+    description: string;
+    historical_frequency: string;
+    recommended_examples: string[];
+  }>;
+  high_value_analysis: {
+    recommended_sum_range: string;
+    even_odd_ratio: string;
+    high_low_ratio: string;
+    insight: string;
+  };
+  prize_focus_patterns: {
+    second_prize_strategies: string[];
+    sixth_prize_strategies: string[];
+    key_patterns: Array<{
+      title: string;
+      probability_rank: number;
+      pattern_structure: string;
+      predicted_numbers: string[];
+      reasoning: string;
+    }>;
+  };
+  top_predicted_numbers: Array<{
+    number: string;
+    category: "Hot 4-Digit" | "Double Pattern" | "Balanced Sum" | "2nd/6th Target";
+    confidence_score: number;
+    rationale: string;
+  }>;
+  disclaimer: string;
+}
+
+/**
+ * Conduct deep AI statistical study on multi-draw historical lottery results
+ * Identifies repeated patterns, hot digits, double numbers, high-value sum ranges, and 2nd/6th prize targets.
+ */
+export async function analyzeLotteryPatternsWithGemini(
+  lotteryName: string,
+  lotteryCode: string,
+  draws: StructuredDrawResult[],
+  lang: "en" | "ml" = "en"
+): Promise<LotteryAiPatternAnalysis> {
+  if (!GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not configured.");
+  }
+
+  // Format draw history for the model, including all 1st through 9th prize tiers (excluding consolation prizes)
+  const formattedDraws = draws.map((d, index) => {
+    const p = d.prizes || {};
+    return {
+      draw_index: index + 1,
+      draw_date: d.draw_date,
+      lottery_name: d.draw_name,
+      lottery_code: d.draw_code || d.lottery_code,
+      first_prize: d.first?.ticket || "N/A",
+      second_prize: p["2nd"] || [],
+      third_prize: p["3rd"] || [],
+      fourth_prize: p["4th"] || [],
+      fifth_prize: p["5th"] || [],
+      sixth_prize: p["6th"] || [],
+      seventh_prize: p["7th"] || [],
+      eighth_prize: p["8th"] || [],
+      ninth_prize: p["9th"] || [],
+    };
+  });
+
+  const prompt = `
+### Role & Objective:
+Act as an expert statistical data analyst specializing in numerical pattern recognition and probability distribution for Kerala State Lotteries.
+Analyze the provided multi-week historical lottery results for "${lotteryName}" (${lotteryCode === "ALL" ? "All Weekly Lotteries Collective Analysis" : `Lottery Code: ${lotteryCode}`}) containing ${draws.length} historical draw records.
+
+Each draw record includes all winning ticket numbers across **all available prize tiers from 1st Prize through 9th Prize** (1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, and 9th prizes; consolation prizes are excluded).
+
+---
+
+### Analysis Tasks Across ALL 1st to 9th Prize Records:
+1. **Hot & Cold Digit Frequency Analysis (1st to 9th Prizes):**
+   - Aggregate digit occurrences across all 1st through 9th prize numbers in the dataset to identify the most frequent "Hot Digits" (0-9) overall and by positional column (1st, 2nd, 3rd, 4th positions).
+   - Compute frequency percentages based on the full 1st to 9th prize dataset.
+
+2. **Double & Repeating Pattern Detection:**
+   - Detect repeated pairs, double numbers (consecutive pairs like AA, mirrors ABBA, center doubles XYYX, double endings XX) across all 1st through 9th prize numbers.
+   - Analyze frequency of doubles across all draws and suggest 4-digit double examples.
+
+3. **High-Value & Sum Range Analysis:**
+   - Compute the most frequent 4-digit sum ranges (e.g., 14-22), even/odd parity balance, and high (5-9) vs low (0-4) ratio across all prize tiers.
+
+4. **Prize Tier Specific Strategies (including 2nd & 6th Prize Targets):**
+   - Specifically evaluate the distributions and patterns across 2nd Prize, 6th Prize, and other major tiers.
+   - Formulate 4 to 5 distinct high-probability number patterns / templates.
+
+5. **Top Concrete Predicted / Strategy Numbers:**
+   - Provide concrete 4-digit number recommendations based on the findings with confidence scores and rationale.
+
+---
+
+### Output Requirements:
+Return strictly a valid JSON object matching this exact schema without markdown code blocks:
+{
+  "lottery_name": "${lotteryName}",
+  "lottery_code": "${lotteryCode}",
+  "sample_draws_count": ${draws.length},
+  "summary": "English executive summary detailing key statistical trends, anomalies, and repeating patterns.",
+  "summary_ml": "മലയാളത്തിൽ പ്രധാന പാറ്റേണുകളുടെയും ട്രെൻഡുകളുടെയും സമഗ്രമായ വിവരണം.",
+  "hot_digits": {
+    "overall": [
+      { "digit": 7, "frequency_pct": 82, "label": "Very Hot" },
+      { "digit": 3, "frequency_pct": 74, "label": "Hot" },
+      { "digit": 9, "frequency_pct": 68, "label": "Hot" },
+      { "digit": 2, "frequency_pct": 61, "label": "Warm" },
+      { "digit": 5, "frequency_pct": 58, "label": "Warm" }
+    ],
+    "positional": {
+      "first_pos": [7, 3, 5],
+      "second_pos": [2, 9, 8],
+      "third_pos": [3, 6, 1],
+      "last_pos": [9, 7, 4]
+    }
+  },
+  "double_patterns": [
+    {
+      "pattern": "Consecutive Pairs (e.g. 55XX or XX77)",
+      "type": "Consecutive Pair",
+      "description": "Double identical digits appearing in adjacent positions.",
+      "historical_frequency": "Appeared in 64% of recent draws",
+      "recommended_examples": ["5593", "7724", "3884", "9912"]
+    },
+    {
+      "pattern": "Mirror Patterns (ABBA / XYXY)",
+      "type": "Mirror / Symmetrical",
+      "description": "Symmetrical digit reflection showing higher persistence in 6th prize.",
+      "historical_frequency": "Appeared in 38% of draws",
+      "recommended_examples": ["3773", "8448", "2992", "4114"]
+    }
+  ],
+  "high_value_analysis": {
+    "recommended_sum_range": "15 - 24",
+    "even_odd_ratio": "2 Even : 2 Odd (62% dominance)",
+    "high_low_ratio": "2 High (5-9) : 2 Low (0-4)",
+    "insight": "Draws demonstrate a heavy equilibrium around middle-sum totals with balanced parity."
+  },
+  "prize_focus_patterns": {
+    "second_prize_strategies": [
+      "Concentrate on ending digits with high historical recurrence in 2nd tier.",
+      "Balanced even-odd combinations with high root sum."
+    ],
+    "sixth_prize_strategies": [
+      "Target double digit endings (e.g., 33, 77, 88).",
+      "Prioritize ascending sequence pairs in middle slots."
+    ],
+    "key_patterns": [
+      {
+        "title": "Pattern 1: Hot Root Pair + Mirror Ending",
+        "probability_rank": 1,
+        "pattern_structure": "Hot(Pos 1) + Cold + Double(Last 2)",
+        "predicted_numbers": ["7338", "5299", "3877", "9442"],
+        "reasoning": "High historical frequency of top-ranked first digit combined with repeating pair endings."
+      },
+      {
+        "title": "Pattern 2: 2nd Prize High-Sum Spread",
+        "probability_rank": 2,
+        "pattern_structure": "Odd-Even-Odd-Even with Sum 18-22",
+        "predicted_numbers": ["7294", "5836", "3692", "9478"],
+        "reasoning": "Corresponds to 58% of 2nd prize historical winning numbers in recent draws."
+      },
+      {
+        "title": "Pattern 3: 6th Prize Double Clustering",
+        "probability_rank": 3,
+        "pattern_structure": "Double consecutive middle digits (XYYX)",
+        "predicted_numbers": ["4882", "6339", "1774", "8553"],
+        "reasoning": "6th prize 4-digit results show high frequency of doubled center digits."
+      },
+      {
+        "title": "Pattern 4: Low-High Interleaved Sequence",
+        "probability_rank": 4,
+        "pattern_structure": "Low(0-4) -> High(5-9) -> Low(0-4) -> High(5-9)",
+        "predicted_numbers": ["2839", "1748", "3927", "4618"],
+        "reasoning": "Evenly distributed energy curve matching recent weekly draws."
+      },
+      {
+        "title": "Pattern 5: High-Frequency Ending Cluster",
+        "probability_rank": 5,
+        "pattern_structure": "Positional Hot Digits 1-4 combined",
+        "predicted_numbers": ["7934", "3867", "5219", "7832"],
+        "reasoning": "Direct combination of top individual positional winners."
+      }
+    ]
+  },
+  "top_predicted_numbers": [
+    {
+      "number": "7338",
+      "category": "Double Pattern",
+      "confidence_score": 88,
+      "rationale": "Matches high-frequency 7 lead with 33 double pair and sum 21."
+    },
+    {
+      "number": "5866",
+      "category": "2nd/6th Target",
+      "confidence_score": 85,
+      "rationale": "High-value sum, 66 double ending, strongly correlated with 6th prize history."
+    },
+    {
+      "number": "7294",
+      "category": "Balanced Sum",
+      "confidence_score": 83,
+      "rationale": "2 Odd : 2 Even, sum 22, integrates top 3 positional hot digits."
+    },
+    {
+      "number": "3773",
+      "category": "Double Pattern",
+      "confidence_score": 81,
+      "rationale": "Symmetrical mirror pattern matching recurring 6th prize structures."
+    },
+    {
+      "number": "2839",
+      "category": "Hot 4-Digit",
+      "confidence_score": 79,
+      "rationale": "Interleaved low-high distribution with hot ending pair 39."
+    },
+    {
+      "number": "9442",
+      "category": "2nd/6th Target",
+      "confidence_score": 78,
+      "rationale": "Center double 44, top first digit 9, and even last digit."
+    }
+  ],
+  "disclaimer": "This analysis is purely based on historical statistical frequencies and probability modeling. Kerala State Lottery draws are independent random events conducted by the Directorate of Kerala State Lotteries."
+}
+
+---
+
+### Dataset to analyze:
+${JSON.stringify(formattedDraws, null, 2)}
+`;
+
+  const models = [
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
+    "gemini-3.6-flash",
+    "gemini-3.1-pro",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+  ];
+  let lastError: any = null;
+
+  for (const model of models) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              response_mime_type: "application/json",
+              temperature: 0.2,
+            },
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
+        const cleaned = raw.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+        const parsed: LotteryAiPatternAnalysis = JSON.parse(cleaned);
+        return parsed;
+      } else {
+        const errText = await response.text();
+        console.warn(`Pattern model ${model} error ${response.status}:`, errText);
+        lastError = new Error(`Gemini API error (${response.status}): ${errText}`);
+      }
+    } catch (e) {
+      console.warn(`Pattern model ${model} exception:`, e);
+      lastError = e;
+    }
+  }
+
+  throw lastError || new Error("Failed to generate lottery pattern predictions with Gemini AI.");
+}
+

@@ -1330,3 +1330,114 @@ export async function getCronLogsFromSupabase(limit = 30): Promise<CronLog[]> {
   return [];
 }
 
+export interface CachedAiPatternRecord {
+  lottery_code: string;
+  lottery_name: string;
+  draws_count: number;
+  latest_draw_date?: string;
+  analysis: any;
+  updated_at?: string;
+}
+
+/**
+ * Fetch cached AI pattern prediction from Supabase
+ * Tries `ai_pattern_predictions` table first, falls back to `app_config` table
+ */
+export async function getCachedAiPatternPrediction(
+  lotteryCode: string
+): Promise<CachedAiPatternRecord | null> {
+  const code = (lotteryCode || "ALL").toUpperCase();
+
+  // 1. Try dedicated ai_pattern_predictions table
+  try {
+    const { data, error } = await supabase
+      .from("ai_pattern_predictions")
+      .select("*")
+      .eq("lottery_code", code)
+      .maybeSingle();
+
+    if (data && !error && data.analysis) {
+      return data as CachedAiPatternRecord;
+    }
+  } catch (err) {
+    console.warn("ai_pattern_predictions table check note:", err);
+  }
+
+  // 2. Fallback to app_config table
+  try {
+    const { data } = await supabase
+      .from("app_config")
+      .select("value, updated_at")
+      .eq("key", `ai_pred_${code}`)
+      .maybeSingle();
+
+    if (data?.value) {
+      const parsed = JSON.parse(data.value);
+      return {
+        ...parsed,
+        updated_at: data.updated_at || parsed.updated_at,
+      } as CachedAiPatternRecord;
+    }
+  } catch (err) {
+    console.warn("app_config AI cache fallback note:", err);
+  }
+
+  return null;
+}
+
+/**
+ * Save or update AI pattern prediction in Supabase
+ * Persists to `ai_pattern_predictions` (and `app_config` as fallback)
+ */
+export async function saveAiPatternPrediction(
+  record: CachedAiPatternRecord
+): Promise<boolean> {
+  const code = (record.lottery_code || "ALL").toUpperCase();
+  const now = new Date().toISOString();
+
+  let saved = false;
+
+  // 1. Try upserting to ai_pattern_predictions table
+  try {
+    const { error } = await supabase
+      .from("ai_pattern_predictions")
+      .upsert(
+        {
+          lottery_code: code,
+          lottery_name: record.lottery_name,
+          draws_count: record.draws_count,
+          latest_draw_date: record.latest_draw_date || null,
+          analysis: record.analysis,
+          updated_at: now,
+        },
+        { onConflict: "lottery_code" }
+      );
+
+    if (!error) {
+      saved = true;
+    }
+  } catch (err) {
+    console.warn("ai_pattern_predictions upsert note:", err);
+  }
+
+  // 2. Always maintain backup copy in app_config
+  try {
+    await supabase.from("app_config").upsert(
+      {
+        key: `ai_pred_${code}`,
+        value: JSON.stringify({
+          ...record,
+          updated_at: now,
+        }),
+        updated_at: now,
+      },
+      { onConflict: "key" }
+    );
+    saved = true;
+  } catch (err) {
+    console.warn("app_config fallback upsert note:", err);
+  }
+
+  return saved;
+}
+

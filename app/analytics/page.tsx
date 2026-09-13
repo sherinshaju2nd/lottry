@@ -36,12 +36,14 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import PsychologyIcon from "@mui/icons-material/Psychology";
 
 import {
   fetchAllDrawResultsFromSupabase,
   StructuredDrawResult,
   ALL_LOTTERIES,
 } from "@/lib/supabase";
+import AiLotteryPatternPredictor from "@/components/AiLotteryPatternPredictor";
 
 const KERALA_DISTRICTS = [
   "Thiruvananthapuram",
@@ -732,7 +734,12 @@ export default function AnalyticsPage() {
           </Box>
         ) : activeTab === "numbers" ? (
           <Grid container spacing={3}>
-            {/* Top Full-Width Interactive 4-Digit Combination Explorer */}
+            {/* 1. Top Card: Gemini AI Pattern & Digit Predictor */}
+            <Grid size={{ xs: 12 }}>
+              <AiLotteryPatternPredictor allDraws={draws} lang={lang} />
+            </Grid>
+
+            {/* 2. Full-Width Interactive 4-Digit Combination Explorer */}
             <Grid size={{ xs: 12 }}>
               <Paper
                 elevation={0}

@@ -80,7 +80,25 @@ ON CONFLICT (key) DO UPDATE SET
   value = EXCLUDED.value,
   updated_at = NOW();
 
--- 7. Supabase pg_cron Setup
+-- 7. AI Pattern Predictions Cache Table (Avoids redundant and costly Gemini API calls)
+CREATE TABLE IF NOT EXISTS public.ai_pattern_predictions (
+  lottery_code TEXT PRIMARY KEY,
+  lottery_name TEXT NOT NULL,
+  draws_count INT NOT NULL DEFAULT 0,
+  latest_draw_date DATE,
+  analysis JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.ai_pattern_predictions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read on ai_pattern_predictions" ON public.ai_pattern_predictions
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow public insert/update on ai_pattern_predictions" ON public.ai_pattern_predictions
+  FOR ALL USING (true);
+
+-- 8. Supabase pg_cron Setup
 -- For setting up automated lottery sync schedules (Every 2.5 mins between 3:00-4:00 PM IST & Every 5 mins between 4:00-5:00 PM IST),
 -- see the dedicated script: supabase/cron_setup.sql
 
