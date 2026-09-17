@@ -230,32 +230,7 @@ export default function ModernDatePicker({
           />
         </Box>
 
-        {/* Published Dates Section */}
-        {publishedDates.length > 0 && (
-          <Box sx={{ p: 1.5, bgcolor: "#FFFFFF", borderBottom: "1px solid #F3F4F6" }}>
-            <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 800, mb: 1, display: "block" }}>
-              PUBLISHED DRAW DATES IN SYSTEM:
-            </Typography>
-            <Box sx={{ display: "flex", gap: 0.75, flexWrap: "wrap", maxHeight: 70, overflowY: "auto" }}>
-              {publishedDates.slice(0, 6).map((pDate) => (
-                <Chip
-                  key={pDate}
-                  label={pDate}
-                  size="small"
-                  onClick={() => handleSelectDate(pDate)}
-                  sx={{
-                    bgcolor: value === pDate ? "#0B3C5D" : "#FEF3C7",
-                    color: value === pDate ? "#FFFFFF" : "#92400E",
-                    fontWeight: 800,
-                    fontSize: "0.725rem",
-                    cursor: "pointer",
-                    border: "1px solid #FDE68A",
-                  }}
-                />
-              ))}
-            </Box>
-          </Box>
-        )}
+
 
         {/* Calendar Navigation Controls */}
         <Box sx={{ p: 2 }}>
@@ -274,7 +249,21 @@ export default function ModernDatePicker({
           {/* Days Header */}
           <Box sx={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 0.5, mb: 1, textAlign: "center" }}>
             {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((dayName) => (
-              <Typography key={dayName} variant="caption" sx={{ color: "#9CA3AF", fontWeight: 800 }}>
+              <Typography
+                key={dayName}
+                variant="caption"
+                sx={{
+                  color: "#9CA3AF",
+                  fontWeight: 800,
+                  width: 36,
+                  height: 24,
+                  mx: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.75rem",
+                }}
+              >
                 {dayName}
               </Typography>
             ))}
@@ -284,7 +273,7 @@ export default function ModernDatePicker({
           <Box sx={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 0.5, textAlign: "center" }}>
             {calendarCells.map((cell, idx) => {
               if (!cell.day) {
-                return <Box key={idx} sx={{ height: 32 }} />;
+                return <Box key={idx} sx={{ width: 36, height: 36, mx: "auto" }} />;
               }
 
               const isSelected = value === cell.dateStr;
@@ -295,7 +284,10 @@ export default function ModernDatePicker({
                   key={cell.dateStr}
                   onClick={() => handleSelectDate(cell.dateStr)}
                   sx={{
-                    height: 32,
+                    width: 36,
+                    height: 36,
+                    mx: "auto",
+                    aspectRatio: "1/1",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -323,6 +315,8 @@ export default function ModernDatePicker({
                         bgcolor: "#0B3C5D",
                         position: "absolute",
                         bottom: 3,
+                        left: "50%",
+                        transform: "translateX(-50%)",
                       }}
                     />
                   )}

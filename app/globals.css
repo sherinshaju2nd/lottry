@@ -75,3 +75,9 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+
+@media (max-width: 899px) {
+  body {
+    padding-bottom: 64px;
+  }
+}

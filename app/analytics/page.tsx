@@ -1485,7 +1485,6 @@ export default function AnalyticsPage() {
                   {displayedDistricts.map((dist, idx) => {
                     const pct = Math.round((dist.count / districtStats.maxCount) * 100);
                     const isTop3 = idx < 3 && dist.count > 0;
-                    const mlName = KERALA_DISTRICTS_ML[dist.name] || dist.name;
                     return (
                       <Box
                         key={dist.name}
@@ -1512,6 +1511,7 @@ export default function AnalyticsPage() {
                             justifyContent: "center",
                             fontWeight: 900,
                             fontSize: "0.9rem",
+                            flexShrink: 0,
                           }}
                         >
                           #{idx + 1}
@@ -1519,23 +1519,19 @@ export default function AnalyticsPage() {
 
                         {/* District Info & Progress Bar */}
                         <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
-                            <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-                              <Typography sx={{ fontWeight: 900, color: "#0F172A", fontSize: "0.95rem" }}>
-                                {isMl ? mlName : dist.name}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 600 }}>
-                                {isMl ? dist.name : mlName}
-                              </Typography>
-                            </Box>
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8, gap: 1 }}>
+                            <Typography sx={{ fontWeight: 900, color: "#0F172A", fontSize: "0.95rem" }}>
+                              {dist.name}
+                            </Typography>
                             <Chip
-                              label={`${dist.count} ${isMl ? (dist.count === 1 ? "വിജയം" : "വിജയങ്ങൾ") : (dist.count === 1 ? "Win" : "Wins")}`}
+                              label={`${dist.count} ${dist.count === 1 ? "Win" : "Wins"}`}
                               size="small"
                               sx={{
                                 bgcolor: isTop3 ? "#FEF3C7" : "#F1F5F9",
                                 color: isTop3 ? "#92400E" : "#475569",
                                 fontWeight: 900,
                                 fontSize: "0.75rem",
+                                flexShrink: 0,
                               }}
                             />
                           </Box>

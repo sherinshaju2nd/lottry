@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import MuiProvider from "@/components/MuiProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -6,6 +7,12 @@ import InitialLoader from "@/components/InitialLoader";
 import ConsentModal from "@/components/ConsentModal";
 import ScrollRestorer from "@/components/ScrollRestorer";
 import AiVoiceAssistantModal from "@/components/AiVoiceAssistantModal";
+import PwaRegister from "@/components/PwaRegister";
+import IosInstallPrompt from "@/components/IosInstallPrompt";
+import IosInstallGuideModal from "@/components/IosInstallGuideModal";
+import WindowsInstallGuideModal from "@/components/WindowsInstallGuideModal";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import AiTicketScanner from "@/components/AiTicketScanner";
 import { supabase, WEEKLY_LOTTERIES } from "@/lib/supabase";
 import "./globals.css";
 
@@ -15,6 +22,8 @@ export const viewport: Viewport = {
   themeColor: "#0B3C5D",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 function getTodayISTInfo() {
@@ -156,6 +165,15 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: "Kerala Lottery Results Team" }],
     creator: "Kerala Lottery Results",
     publisher: "Kerala Lottery Results",
+    applicationName: "Kerala Lottery Result Today",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: "Kerala Lottery",
+    },
+    formatDetection: {
+      telephone: false,
+    },
     manifest: "/manifest.webmanifest",
     icons: {
       icon: [
@@ -241,8 +259,17 @@ export default function RootLayout({
           content="1XeVOR9aNk4f21LP_pNIRfrJHxYaPUuOzeV7HyPAAgw"
         />
 
+        {/* Apple & Mobile PWA Meta Tags */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Kerala Lottery" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+
         {/* Google Tag Manager */}
-        <script
+        <Script
+          id="gtm-script"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -254,11 +281,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {/* End Google Tag Manager */}
 
         {/* Google tag (gtag.js) */}
-        <script
-          async
+        <Script
+          strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-2JZL3TDXGE"
         />
-        <script
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -386,9 +415,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <MuiProvider>
+          <PwaRegister />
           <ScrollRestorer />
           <InitialLoader />
           <ConsentModal />
+          <IosInstallPrompt />
+          <IosInstallGuideModal />
+          <WindowsInstallGuideModal />
           <div
             style={{
               display: "flex",
@@ -401,6 +434,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
             <Footer />
             <AiVoiceAssistantModal />
+            <MobileBottomNav />
+            <AiTicketScanner variant="dialog-only" />
           </div>
         </MuiProvider>
       </body>

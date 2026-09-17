@@ -9,7 +9,7 @@ import Button from "@mui/material/Button";
 import Link from "next/link";
 
 import ShareButtons from "./ShareButtons";
-import { GooglePlayIcon, AppleIcon, PLAY_STORE_URL } from "./DownloadAppModal";
+import { GooglePlayIcon, AppleIcon, WindowsIcon, PLAY_STORE_URL } from "./DownloadAppModal";
 
 import {
   WEEKLY_LOTTERIES,
@@ -18,6 +18,36 @@ import {
 } from "@/lib/supabase";
 
 export default function Footer() {
+  const handleWindowsDirectInstall = async () => {
+    if (typeof window === "undefined") return;
+    const win = window as unknown as {
+      deferredPwaPrompt?: {
+        prompt: () => Promise<void>;
+        userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+      };
+    };
+
+    if (win.deferredPwaPrompt) {
+      try {
+        await win.deferredPwaPrompt.prompt();
+        const choice = await win.deferredPwaPrompt.userChoice;
+        if (choice.outcome === "accepted") {
+          win.deferredPwaPrompt = undefined;
+        }
+      } catch (err) {
+        console.warn("Direct install prompt error:", err);
+      }
+    } else {
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        alert("Kerala Lottery App is already installed and running on your system!");
+      } else {
+        alert(
+          "To install on Windows:\n1. Look for the Install icon (🖥️ ➕) in the Chrome / Edge address bar\n2. Or click Browser Menu (⋮ or ...) > 'Install Kerala Lottery Results'"
+        );
+      }
+    }
+  };
+
   return (
     <Box
       component="footer"
@@ -35,6 +65,7 @@ export default function Footer() {
         {/* App Download Promo Banner */}
         <Box
           sx={{
+            display: { xs: "none", md: "block" },
             maxWidth: 820,
             mx: "auto",
             mb: 5,
@@ -49,7 +80,7 @@ export default function Footer() {
         >
           <Box sx={{ display: "flex", justifyContent: "center", mb: 1.5 }}>
             <Chip
-              label="📱 OFFICIAL MOBILE APP"
+              label="📱 OFFICIAL APP FOR MOBILE & PC"
               size="small"
               sx={{
                 bgcolor: "#10B981",
@@ -81,7 +112,7 @@ export default function Footer() {
               fontSize: { xs: "0.85rem", sm: "0.925rem" },
             }}
           >
-            Get real-time 3:00 PM live draw results, instant ticket number scanner & official Government Gazette PDF downloads directly on your smartphone.
+            Get real-time 3:00 PM live draw results, instant ticket number scanner & official Government Gazette PDF downloads on Android, iPhone & Windows PC.
           </Typography>
 
           {/* Badges Container */}
@@ -153,8 +184,12 @@ export default function Footer() {
               </Box>
             </Box>
 
-            {/* Apple App Store (Coming Soon) Badge */}
+            {/* Apple App Store / iOS Web App Badge */}
             <Box
+              component="button"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("open-ios-install-guide"));
+              }}
               sx={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -166,8 +201,16 @@ export default function Footer() {
                 minHeight: 54,
                 boxSizing: "border-box",
                 borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.2)",
-                boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
+                border: "1px solid rgba(255,255,255,0.25)",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                fontFamily: "inherit",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  borderColor: "#38BDF8",
+                  boxShadow: "0 8px 20px rgba(56, 189, 248, 0.25)",
+                },
               }}
             >
               <Box sx={{ color: "#FFFFFF", display: "flex", alignItems: "center" }}>
@@ -186,7 +229,7 @@ export default function Footer() {
                     lineHeight: 1,
                   }}
                 >
-                  DOWNLOAD ON THE
+                  INSTALL ON
                 </Typography>
                 <Typography
                   variant="body2"
@@ -198,20 +241,91 @@ export default function Footer() {
                     mt: 0.25,
                   }}
                 >
-                  App Store
+                  iPhone / iOS
                 </Typography>
               </Box>
               <Chip
-                label="Coming Soon"
+                label="Install Guide"
                 size="small"
                 sx={{
                   ml: 0.5,
-                  bgcolor: "rgba(255,255,255,0.15)",
-                  color: "#CBD5E1",
-                  fontWeight: 700,
+                  bgcolor: "rgba(56, 189, 248, 0.2)",
+                  color: "#38BDF8",
+                  fontWeight: 800,
                   fontSize: "0.65rem",
                   height: 20,
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(56, 189, 248, 0.3)",
+                }}
+              />
+            </Box>
+
+            {/* Windows PC Direct Install Button (No Modal) */}
+            <Box
+              component="button"
+              onClick={handleWindowsDirectInstall}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.5,
+                bgcolor: "#000000",
+                color: "#FFFFFF",
+                px: 2.5,
+                py: 1.2,
+                minHeight: 54,
+                boxSizing: "border-box",
+                borderRadius: "12px",
+                border: "1px solid rgba(255,255,255,0.25)",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                fontFamily: "inherit",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  borderColor: "#00A4EF",
+                  boxShadow: "0 8px 20px rgba(0, 164, 239, 0.25)",
+                },
+              }}
+            >
+              <WindowsIcon size={24} />
+              <Box sx={{ textAlign: "left" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    color: "#94A3B8",
+                    fontSize: "0.65rem",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                    lineHeight: 1,
+                  }}
+                >
+                  INSTALL ON
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#FFFFFF",
+                    fontWeight: 800,
+                    fontSize: "0.95rem",
+                    lineHeight: 1.2,
+                    mt: 0.25,
+                  }}
+                >
+                  Windows (PC)
+                </Typography>
+              </Box>
+              <Chip
+                label="Desktop App"
+                size="small"
+                sx={{
+                  ml: 0.5,
+                  bgcolor: "rgba(0, 164, 239, 0.2)",
+                  color: "#38BDF8",
+                  fontWeight: 800,
+                  fontSize: "0.65rem",
+                  height: 20,
+                  border: "1px solid rgba(0, 164, 239, 0.3)",
                 }}
               />
             </Box>

@@ -11,16 +11,10 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
-import Collapse from "@mui/material/Collapse";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import Tooltip from "@mui/material/Tooltip";
 import MicIcon from "@mui/icons-material/Mic";
@@ -31,13 +25,21 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CloseIcon from "@mui/icons-material/Close";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import PhoneIcon from "@mui/icons-material/Phone";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import InsightsIcon from "@mui/icons-material/Insights";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import GridViewIcon from "@mui/icons-material/GridView";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import CheckIcon from "@mui/icons-material/Check";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
+import SecurityIcon from "@mui/icons-material/Security";
+import ShareIcon from "@mui/icons-material/Share";
+import DescriptionIcon from "@mui/icons-material/Description";
 import AiSocialDigestModal from "@/components/AiSocialDigestModal";
 import {
   WEEKLY_LOTTERIES,
@@ -55,8 +57,60 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [lotteriesList, setLotteriesList] = useState(ALL_LOTTERIES);
+  const [uiMode, setUiMode] = useState<"normal" | "modern">("normal");
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem("kerala_lottery_ui_mode");
+      if (saved === "normal" || saved === "modern") {
+        setUiMode(saved as "normal" | "modern");
+      }
+    } catch {}
+
+    const handleUiModeChange = (e: any) => {
+      const mode = e?.detail?.mode || localStorage.getItem("kerala_lottery_ui_mode");
+      if (mode === "normal" || mode === "modern") {
+        setUiMode(mode as "normal" | "modern");
+      }
+    };
+    window.addEventListener("kerala_ui_mode_changed", handleUiModeChange);
+    return () => {
+      window.removeEventListener("kerala_ui_mode_changed", handleUiModeChange);
+    };
+  }, []);
+
+  const handleSelectUiMode = (mode: "normal" | "modern") => {
+    setUiMode(mode);
+    try {
+      localStorage.setItem("kerala_lottery_ui_mode", mode);
+      window.dispatchEvent(
+        new CustomEvent("kerala_ui_mode_changed", { detail: { mode } })
+      );
+    } catch {}
+  };
+
+  const handleShareApp = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "Kerala State Lottery Results Today",
+          text: "Check official Kerala Lottery Live Results, archives, ticket prize checker, and winner statistics.",
+          url: "https://www.keralalotteryresultstoday.in",
+        });
+      } catch {}
+    } else {
+      window.open(
+        `https://api.whatsapp.com/send?text=${encodeURIComponent(
+          "Check official Kerala Lottery Live Results: https://www.keralalotteryresultstoday.in"
+        )}`,
+        "_blank"
+      );
+    }
+  };
 
   const isLotteryPage =
+    pathname === "/lotteries" ||
+    pathname === "/lottery" ||
     ALL_LOTTERIES.some((l) => pathname.startsWith(getLotteryUrl(l.code))) ||
     pathname.startsWith("/lottery/");
 
@@ -437,6 +491,7 @@ export default function Navbar() {
             <Button
               component={Link}
               href="/app"
+              startIcon={<GetAppIcon sx={{ fontSize: 18 }} />}
               sx={{
                 background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
                 color: "#065F46",
@@ -456,7 +511,7 @@ export default function Navbar() {
                 },
               }}
             >
-              Download App
+              Install App
             </Button>
 
             {/* Direct Voice Search Mic */}
@@ -496,13 +551,14 @@ export default function Navbar() {
               component={Link}
               href="/app"
               size="small"
+              startIcon={<GetAppIcon sx={{ fontSize: 16 }} />}
               sx={{
                 background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
                 color: "#065F46",
                 fontWeight: 800,
                 fontSize: { xs: "0.75rem", sm: "0.825rem" },
                 borderRadius: "8px",
-                px: { xs: 1.4, sm: 2 },
+                px: { xs: 1.2, sm: 1.8 },
                 py: 0.6,
                 border: "1px solid #A7F3D0",
                 boxShadow: "0 2px 5px rgba(16, 185, 129, 0.12)",
@@ -513,7 +569,7 @@ export default function Navbar() {
                 },
               }}
             >
-              Download App
+              Install App
             </Button>
 
             <IconButton
@@ -534,7 +590,7 @@ export default function Navbar() {
         </Toolbar>
       </Container>
 
-      {/* Modern Mobile Drawer */}
+      {/* Mobile App Style Drawer */}
       <Drawer
         variant="temporary"
         anchor="left"
@@ -545,501 +601,802 @@ export default function Navbar() {
           display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            width: { xs: 290, sm: 320 },
-            bgcolor: "#FFFFFF",
+            width: { xs: "82vw", sm: 330 },
+            maxWidth: 330,
+            bgcolor: "#F8FAFC",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
+            boxShadow: "4px 0 24px rgba(0,0,0,0.15)",
           },
         }}
       >
-        <Box>
-          {/* Drawer Header with Branding & Close Button */}
-          <Box
-            sx={{
-              p: 2.5,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              bgcolor: "#F9FAFB",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Box
-                component="img"
-                src="/logo-round-192.png"
-                alt="kerala-lottery-results-logo"
+        {/* Drawer Header */}
+        <Box
+          sx={{
+            p: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            bgcolor: "#FAFAFA",
+            borderBottom: "1px solid #F1F5F9",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+            <Box
+              component="img"
+              src="/logo-round-192.png"
+              alt="Kerala Lottery Logo"
+              sx={{
+                width: 38,
+                height: 38,
+                borderRadius: "10px",
+                objectFit: "contain",
+              }}
+            />
+            <Box>
+              <Typography
                 sx={{
-                  width: 73,
-                  height: 75,
-                  borderRadius: "50%",
-                  objectFit: "contain",
+                  fontSize: "0.95rem",
+                  fontWeight: 800,
+                  color: "#0B3C5D",
+                  lineHeight: 1.2,
+                  letterSpacing: "-0.01em",
                 }}
-              />
+              >
+                Kerala Lottery
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: "0.68rem",
+                  fontWeight: 600,
+                  color: "#64748B",
+                  mt: 0.2,
+                }}
+              >
+                Official Results &amp; Live Draws
+              </Typography>
             </Box>
-
-            <IconButton
-              onClick={handleDrawerToggle}
-              size="small"
-              sx={{
-                bgcolor: "#FFFFFF",
-                border: "1px solid #E5E7EB",
-                "&:hover": { bgcolor: "#F3F4F6" },
-              }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
           </Box>
 
-          {/* Official App Mobile Banner Card */}
-          <Box
-            component={Link}
-            href="/app"
+          <IconButton
             onClick={handleDrawerToggle}
+            size="small"
             sx={{
-              display: "block",
-              textDecoration: "none",
-              m: 2,
-              mb: 1.5,
-              p: 2,
-              borderRadius: "14px",
-              background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
-              color: "#FFFFFF",
-              boxShadow: "0 8px 20px rgba(15, 23, 42, 0.15)",
-              border: "1px solid #334155",
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              bgcolor: "#F1F5F9",
+              color: "#64748B",
+              "&:hover": { bgcolor: "#E2E8F0", color: "#0F172A" },
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Box
-                component="img"
-                src="/logo-round-192.png"
-                alt="Kerala Lottery App"
-                sx={{ width: 44, height: 44, borderRadius: "10px", border: "1px solid rgba(255,255,255,0.2)" }}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="body2" sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "0.875rem" }}>
-                  Official Android App
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#94A3B8", fontSize: "0.725rem", display: "block" }}>
-                  Live 3 PM Results • 100% Free
-                </Typography>
-              </Box>
-            </Box>
-            <Button
-              variant="contained"
-              fullWidth
-              size="small"
-              sx={{
-                bgcolor: "#10B981",
-                color: "#FFFFFF",
-                fontWeight: 800,
-                fontSize: "0.775rem",
-                borderRadius: "8px",
-                mt: 1.5,
-                textTransform: "none",
-                "&:hover": { bgcolor: "#059669" },
-              }}
-            >
-              Download Official App
-            </Button>
-          </Box>
+            <CloseIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+        </Box>
 
-          <Divider />
-
-          {/* Navigation List */}
-          <Box sx={{ p: 2 }}>
+        {/* Drawer Scrollable Content */}
+        <Box sx={{ p: 1.75, pb: 4, overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 1.5 }}>
+          {/* Section 1: UI Theme & Layout */}
+          <Box
+            sx={{
+              bgcolor: "#FFFFFF",
+              borderRadius: "14px",
+              border: "1px solid #F1F5F9",
+              p: 1.5,
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
+            }}
+          >
             <Typography
               variant="caption"
               sx={{
-                color: "#9CA3AF",
-                fontWeight: 700,
-                px: 1.5,
-                mb: 1,
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                color: "#94A3B8",
+                letterSpacing: "0.08em",
                 display: "block",
-                letterSpacing: "0.05em",
+                mb: 1,
+              }}
+            >
+              APP UI THEME &amp; LAYOUT
+            </Typography>
+
+            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
+              {/* Normal UI */}
+              <Box
+                onClick={() => handleSelectUiMode("normal")}
+                sx={{
+                  p: 1.2,
+                  borderRadius: "12px",
+                  border: "1.5px solid",
+                  borderColor: uiMode === "normal" ? "#0B3C5D" : "#E2E8F0",
+                  bgcolor: uiMode === "normal" ? "#EFF6FF" : "#F8FAFC",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  display: "flex",
+                  flexDirection: "column",
+                  "&:hover": { bgcolor: "#EFF6FF" },
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.6 }}>
+                  <Box
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: "8px",
+                      bgcolor: uiMode === "normal" ? "#DBEAFE" : "#FFFFFF",
+                      border: "1px solid",
+                      borderColor: uiMode === "normal" ? "#BFDBFE" : "#E2E8F0",
+                      color: uiMode === "normal" ? "#0B3C5D" : "#64748B",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <GridViewIcon sx={{ fontSize: 15 }} />
+                  </Box>
+                  {uiMode === "normal" && (
+                    <Box
+                      sx={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        bgcolor: "#0B3C5D",
+                        color: "#FFFFFF",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <CheckIcon sx={{ fontSize: 12, strokeWidth: 2 }} />
+                    </Box>
+                  )}
+                </Box>
+                <Typography
+                  sx={{
+                    fontSize: "0.8rem",
+                    fontWeight: uiMode === "normal" ? 800 : 700,
+                    color: uiMode === "normal" ? "#0B3C5D" : "#334155",
+                  }}
+                >
+                  Normal UI
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B", mt: 0.2 }}>
+                  2-Column Grid
+                </Typography>
+              </Box>
+
+              {/* Modern UI */}
+              <Box
+                onClick={() => handleSelectUiMode("modern")}
+                sx={{
+                  p: 1.2,
+                  borderRadius: "12px",
+                  border: "1.5px solid",
+                  borderColor: uiMode === "modern" ? "#0B3C5D" : "#E2E8F0",
+                  bgcolor: uiMode === "modern" ? "#EFF6FF" : "#F8FAFC",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  display: "flex",
+                  flexDirection: "column",
+                  "&:hover": { bgcolor: "#EFF6FF" },
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.6 }}>
+                  <Box
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: "8px",
+                      bgcolor: uiMode === "modern" ? "#DBEAFE" : "#FFFFFF",
+                      border: "1px solid",
+                      borderColor: uiMode === "modern" ? "#BFDBFE" : "#E2E8F0",
+                      color: uiMode === "modern" ? "#0B3C5D" : "#64748B",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <DashboardIcon sx={{ fontSize: 15 }} />
+                  </Box>
+                  {uiMode === "modern" && (
+                    <Box
+                      sx={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        bgcolor: "#0B3C5D",
+                        color: "#FFFFFF",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <CheckIcon sx={{ fontSize: 12, strokeWidth: 2 }} />
+                    </Box>
+                  )}
+                </Box>
+                <Typography
+                  sx={{
+                    fontSize: "0.8rem",
+                    fontWeight: uiMode === "modern" ? 800 : 700,
+                    color: uiMode === "modern" ? "#0B3C5D" : "#334155",
+                  }}
+                >
+                  Modern UI
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B", mt: 0.2 }}>
+                  Live Dashboard
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Section 2: Navigation Menu */}
+          <Box
+            sx={{
+              bgcolor: "#FFFFFF",
+              borderRadius: "14px",
+              border: "1px solid #F1F5F9",
+              p: 1,
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                color: "#94A3B8",
+                letterSpacing: "0.08em",
+                display: "block",
+                px: 1,
+                pt: 0.5,
+                mb: 0.5,
               }}
             >
               NAVIGATION MENU
             </Typography>
 
-            <List disablePadding>
-              {/* Home */}
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  component={Link}
-                  href="/"
-                  onClick={handleDrawerToggle}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    bgcolor: pathname === "/" ? "#EBF5FF" : "transparent",
-                    color: pathname === "/" ? "#0B3C5D" : "#374151",
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      color: pathname === "/" ? "#0B3C5D" : "#6B7280",
-                      minWidth: 38,
-                    }}
-                  >
-                    <HomeIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Home"
-                    slotProps={{
-                      primary: {
-                        sx: { fontWeight: pathname === "/" ? 800 : 600 },
-                      },
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-
-              {/* Expandable Kerala Lotteries Submenu */}
-              <ListItem
-                disablePadding
-                sx={{ mb: 1, flexDirection: "column", alignItems: "stretch" }}
+            {/* Home */}
+            <Box
+              component={Link}
+              href="/"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
+                  color: "#0B3C5D",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                <ListItemButton
-                  onClick={() => setMobileSubmenuOpen(!mobileSubmenuOpen)}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    bgcolor: isLotteryPage ? "#EBF5FF" : "#F9FAFB",
-                    color: isLotteryPage ? "#0B3C5D" : "#374151",
-                  }}
-                >
-                  <ListItemIcon sx={{ color: "#0B3C5D", minWidth: 38 }}>
-                    <LocalActivityIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Kerala Lotteries"
-                    slotProps={{
-                      primary: {
-                        sx: { fontWeight: 800, fontSize: "0.925rem" },
-                      },
-                    }}
-                  />
-                  {mobileSubmenuOpen ? (
-                    <ExpandLess sx={{ color: "#0B3C5D" }} />
-                  ) : (
-                    <ExpandMore sx={{ color: "#6B7280" }} />
-                  )}
-                </ListItemButton>
+                <HomeIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/" ? 800 : 700, color: pathname === "/" ? "#0B3C5D" : "#0F172A" }}>
+                  Home
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Today&apos;s results &amp; updates
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
 
-                <Collapse in={mobileSubmenuOpen} timeout="auto" unmountOnExit>
-                  <List
-                    component="div"
-                    disablePadding
-                    sx={{ pl: 1, pr: 1, pt: 1 }}
-                  >
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        px: 1,
-                        color: "#0B3C5D",
-                        fontWeight: 800,
-                        fontSize: "0.68rem",
-                      }}
-                    >
-                      WEEKLY LOTTERIES
-                    </Typography>
-                    {WEEKLY_LOTTERIES.map((lottery) => {
-                      const targetUrl = getLotteryUrl(lottery.code);
-                      const isActive =
-                        pathname === targetUrl ||
-                        pathname.startsWith(targetUrl + "/");
-                      return (
-                        <ListItemButton
-                          key={lottery.code}
-                          onClick={() => handleLotterySelect(lottery.code)}
-                          sx={{
-                            borderRadius: "8px",
-                            py: 0.75,
-                            mb: 0.5,
-                            px: 1.5,
-                            bgcolor: isActive ? "#EBF5FF" : "transparent",
-                          }}
-                        >
-                          <Chip
-                            label={lottery.code}
-                            size="small"
-                            sx={{
-                              mr: 1.5,
-                              fontWeight: 800,
-                              bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
-                              color: isActive ? "#FFFFFF" : "#0369A1",
-                              height: 20,
-                              fontSize: "0.7rem",
-                            }}
-                          />
-                          <ListItemText
-                            primary={lottery.name}
-                            secondary={lottery.day}
-                            slotProps={{
-                              primary: {
-                                sx: {
-                                  fontWeight: isActive ? 800 : 600,
-                                  fontSize: "0.85rem",
-                                  color: isActive ? "#0B3C5D" : "#111827",
-                                },
-                              },
-                              secondary: { sx: { fontSize: "0.7rem" } },
-                            }}
-                          />
-                        </ListItemButton>
-                      );
-                    })}
+            {/* Lotteries */}
+            <Box
+              component={Link}
+              href="/lotteries"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/lotteries" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#F0FDF4",
+                  border: "1px solid #BBF7D0",
+                  color: "#16A34A",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ConfirmationNumberIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/lotteries" ? 800 : 700, color: pathname === "/lotteries" ? "#0B3C5D" : "#0F172A" }}>
+                  Kerala Lotteries
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Weekly &amp; Bumper schedules
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
 
-                    <Box
-                      sx={{
-                        mt: 1,
-                        mb: 0.5,
-                        px: 1,
-                        py: 0.5,
-                        bgcolor: "#F3F4F6",
-                        borderRadius: "6px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: "#374151",
-                          fontWeight: 800,
-                          fontSize: "0.68rem",
-                        }}
-                      >
-                        BUMPER LOTTERIES
-                      </Typography>
-                      <AutoAwesomeIcon
-                        sx={{ fontSize: 12, color: "#0B3C5D" }}
-                      />
-                    </Box>
+            {/* Ticket Checker */}
+            <Box
+              component={Link}
+              href="/search"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/search" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#FEF3C7",
+                  border: "1px solid #FDE68A",
+                  color: "#D97706",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <SearchIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/search" ? 800 : 700, color: pathname === "/search" ? "#0B3C5D" : "#0F172A" }}>
+                  Ticket Checker
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Instant winner search &amp; scan
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
 
-                    {BUMPER_LOTTERIES.map((bumper) => {
-                      const targetUrl = getLotteryUrl(bumper.code);
-                      const isActive =
-                        pathname === targetUrl ||
-                        pathname.startsWith(targetUrl + "/");
-                      return (
-                        <ListItemButton
-                          key={bumper.code}
-                          onClick={() => handleLotterySelect(bumper.code)}
-                          sx={{
-                            borderRadius: "8px",
-                            py: 0.75,
-                            mb: 0.5,
-                            px: 1.5,
-                            bgcolor: isActive ? "#EBF5FF" : "transparent",
-                          }}
-                        >
-                          <Chip
-                            label={bumper.code}
-                            size="small"
-                            sx={{
-                              mr: 1.5,
-                              fontWeight: 800,
-                              bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
-                              color: isActive ? "#FFFFFF" : "#0369A1",
-                              height: 20,
-                              fontSize: "0.7rem",
-                            }}
-                          />
-                          <ListItemText
-                            primary={bumper.name}
-                            secondary={`${bumper.jackpot} • ${bumper.draw_season}`}
-                            slotProps={{
-                              primary: {
-                                sx: {
-                                  fontWeight: isActive ? 800 : 600,
-                                  fontSize: "0.85rem",
-                                  color: isActive ? "#0B3C5D" : "#111827",
-                                },
-                              },
-                              secondary: {
-                                sx: {
-                                  fontSize: "0.7rem",
-                                  color: "#6B7280",
-                                  fontWeight: 600,
-                                },
-                              },
-                            }}
-                          />
-                        </ListItemButton>
-                      );
-                    })}
-                  </List>
-                </Collapse>
-              </ListItem>
-
-              {/* Contact */}
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  component={Link}
-                  href="/contact"
-                  onClick={handleDrawerToggle}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    bgcolor:
-                      pathname === "/contact" ? "#EBF5FF" : "transparent",
-                    color: pathname === "/contact" ? "#0B3C5D" : "#374151",
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      color: pathname === "/contact" ? "#0B3C5D" : "#6B7280",
-                      minWidth: 38,
-                    }}
-                  >
-                    <PhoneIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Contact Us"
-                    slotProps={{
-                      primary: {
-                        sx: { fontWeight: pathname === "/contact" ? 800 : 600 },
-                      },
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-
-              {/* AI Daily Status Digest */}
-              {/* <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  onClick={() => {
-                    handleDrawerToggle();
-                    setDigestOpen(true);
-                  }}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    color: "#0B3C5D",
-                  }}
-                >
-                  <ListItemIcon sx={{ color: "#25D366", minWidth: 38 }}>
-                    <WhatsAppIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="AI Daily WhatsApp Status" slotProps={{ primary: { sx: { fontWeight: 700 } } }} />
-                </ListItemButton>
-              </ListItem> */}
-
-              {/* Analytics & Trends */}
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  component={Link}
-                  href="/analytics"
-                  onClick={handleDrawerToggle}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    bgcolor:
-                      pathname === "/analytics" ? "#EBF5FF" : "transparent",
-                    color: pathname === "/analytics" ? "#0B3C5D" : "#374151",
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      color: pathname === "/analytics" ? "#0B3C5D" : "#6B7280",
-                      minWidth: 38,
-                    }}
-                  >
-                    <InsightsIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Analytics & Trends"
-                    slotProps={{
-                      primary: {
-                        sx: { fontWeight: pathname === "/analytics" ? 800 : 600 },
-                      },
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-
-              {/* Ticket Checker */}
-              <ListItem disablePadding sx={{ mb: 1 }}>
-                <ListItemButton
-                  component={Link}
-                  href="/search"
-                  onClick={handleDrawerToggle}
-                  sx={{
-                    borderRadius: "12px",
-                    py: 1.25,
-                    px: 1.5,
-                    bgcolor: pathname === "/search" ? "#EBF5FF" : "transparent",
-                    color: pathname === "/search" ? "#0B3C5D" : "#374151",
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      color: pathname === "/search" ? "#0B3C5D" : "#6B7280",
-                      minWidth: 38,
-                    }}
-                  >
-                    <SearchIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Ticket Checker"
-                    slotProps={{
-                      primary: {
-                        sx: { fontWeight: pathname === "/search" ? 800 : 600 },
-                      },
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            </List>
+            {/* Analytics */}
+            <Box
+              component={Link}
+              href="/analytics"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/analytics" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#FAF5FF",
+                  border: "1px solid #E9D5FF",
+                  color: "#9333EA",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <InsightsIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/analytics" ? 800 : 700, color: pathname === "/analytics" ? "#0B3C5D" : "#0F172A" }}>
+                  Analytics &amp; Trends
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  District leaderboard &amp; statistics
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
           </Box>
-        </Box>
 
-        {/* Drawer Footer Badge & Quick Action */}
-        <Box
-          sx={{ p: 2.5, bgcolor: "#F9FAFB", borderTop: "1px solid #E5E7EB" }}
-        >
-          <Button
-            component={Link}
-            href="/search"
-            onClick={handleDrawerToggle}
-            variant="contained"
-            fullWidth
-            startIcon={<SearchIcon />}
+          {/* Section 3: Guides & Resources */}
+          <Box
             sx={{
-              bgcolor: "#0B3C5D",
-              color: "#FFFFFF",
-              fontWeight: 800,
-              borderRadius: "10px",
-              py: 1.2,
-              fontSize: "0.875rem",
-              boxShadow: "0 4px 12px rgba(11,60,93,0.2)",
-              "&:hover": { bgcolor: "#0F2C59" },
+              bgcolor: "#FFFFFF",
+              borderRadius: "14px",
+              border: "1px solid #F1F5F9",
+              p: 1,
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
             }}
           >
-            Check Ticket Result
-          </Button>
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                color: "#94A3B8",
+                letterSpacing: "0.08em",
+                display: "block",
+                px: 1,
+                pt: 0.5,
+                mb: 0.5,
+              }}
+            >
+              GUIDES &amp; RESOURCES
+            </Typography>
 
-          <Typography
-            variant="caption"
+            {/* Prize Claim */}
+            <Box
+              component={Link}
+              href="/claim"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/claim" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#FEF3C7",
+                  border: "1px solid #FDE68A",
+                  color: "#D97706",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <EmojiEventsIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                  Prize Claim Guide
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Claim procedure &amp; required documents
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* Lottery Guide */}
+            <Box
+              component={Link}
+              href="/guide"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/guide" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#FAF5FF",
+                  border: "1px solid #E9D5FF",
+                  color: "#9333EA",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <MenuBookIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                  Lottery Guide
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Draw rules, timings &amp; verification
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* FAQ */}
+            <Box
+              component={Link}
+              href="/faq"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/faq" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
+                  color: "#2563EB",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <HelpOutlineIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                  FAQ (പതിവ് ചോദ്യങ്ങൾ)
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Frequently asked questions &amp; answers
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+          </Box>
+
+          {/* Section 4: Support & Legal */}
+          <Box
             sx={{
-              color: "#9CA3AF",
-              textAlign: "center",
-              display: "block",
-              mt: 2,
-              fontSize: "0.7rem",
-              fontWeight: 500,
+              bgcolor: "#FFFFFF",
+              borderRadius: "14px",
+              border: "1px solid #F1F5F9",
+              p: 1,
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
             }}
           >
-            © {new Date().getFullYear()} Kerala State Lottery Results
-          </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                color: "#94A3B8",
+                letterSpacing: "0.08em",
+                display: "block",
+                px: 1,
+                pt: 0.5,
+                mb: 0.5,
+              }}
+            >
+              SUPPORT &amp; LEGAL
+            </Typography>
+
+            {/* Contact */}
+            <Box
+              component={Link}
+              href="/contact"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/contact" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#ECFEFF",
+                  border: "1px solid #A5F3FC",
+                  color: "#0891B2",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <PhoneIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                  Contact Us
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Official Directorate helpline contacts
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* Terms */}
+            <Box
+              component={Link}
+              href="/terms-conditions"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/terms-conditions" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#F8FAFC",
+                  border: "1px solid #E2E8F0",
+                  color: "#475569",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <DescriptionIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                  Terms &amp; Conditions
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Terms of use &amp; policies
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* Privacy */}
+            <Box
+              component={Link}
+              href="/privacy-policy"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/privacy-policy" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#F0FDF4",
+                  border: "1px solid #BBF7D0",
+                  color: "#16A34A",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <SecurityIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                  Privacy Policy
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Privacy policy &amp; security
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* Share Web App */}
+            <Box
+              onClick={() => {
+                handleDrawerToggle();
+                handleShareApp();
+              }}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#FEF2F2",
+                  border: "1px solid #FECACA",
+                  color: "#DC2626",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ShareIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                  Share App
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Share with friends &amp; family
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+          </Box>
+
+          {/* Drawer Footer */}
+          <Box sx={{ px: 1, py: 1.5, textAlign: "center" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.75, mb: 0.5 }}>
+              <SecurityIcon sx={{ fontSize: 14, color: "#64748B" }} />
+              <Typography sx={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B" }}>
+                Kerala Lottery Results
+              </Typography>
+            </Box>
+            <Typography sx={{ fontSize: "0.65rem", color: "#94A3B8", lineHeight: 1.4 }}>
+              Data computed purely from official past draw records. 100% independent.
+            </Typography>
+          </Box>
         </Box>
       </Drawer>
 

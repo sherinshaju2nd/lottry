@@ -33,6 +33,8 @@ import Tooltip from "@mui/material/Tooltip";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HelpIcon from "@mui/icons-material/Help";
 import MicIcon from "@mui/icons-material/Mic";
@@ -73,6 +75,9 @@ import {
 } from "@/lib/supabase";
 import ShareButtons from "@/components/ShareButtons";
 import AiSocialDigestModal from "@/components/AiSocialDigestModal";
+import HomeNormalView from "@/components/HomeNormalView";
+import GridViewIcon from "@mui/icons-material/GridView";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 const searchSchema = yup.object({
@@ -112,6 +117,9 @@ export interface LotteryItem {
 }
 
 export default function HomePage() {
+  const theme = useTheme();
+  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("md"));
+
   const [todayLottery, setTodayLottery] = useState<LotteryItem>(
     WEEKLY_LOTTERIES[0],
   );
@@ -159,6 +167,39 @@ export default function HomePage() {
     seconds: 0,
     isDrawPassed: false,
   });
+
+  const [allDraws, setAllDraws] = useState<StructuredDrawResult[]>([]);
+  const [uiMode, setUiMode] = useState<"normal" | "modern">("normal");
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("kerala_lottery_ui_mode");
+      if (saved === "normal" || saved === "modern") {
+        setUiMode(saved as "normal" | "modern");
+      }
+    } catch {}
+
+    const handleUiModeChange = (e: any) => {
+      const mode = e?.detail?.mode || localStorage.getItem("kerala_lottery_ui_mode");
+      if (mode === "normal" || mode === "modern") {
+        setUiMode(mode as "normal" | "modern");
+      }
+    };
+    window.addEventListener("kerala_ui_mode_changed", handleUiModeChange);
+    return () => {
+      window.removeEventListener("kerala_ui_mode_changed", handleUiModeChange);
+    };
+  }, []);
+
+  const handleSetUiMode = (mode: "normal" | "modern") => {
+    setUiMode(mode);
+    try {
+      localStorage.setItem("kerala_lottery_ui_mode", mode);
+      window.dispatchEvent(
+        new CustomEvent("kerala_ui_mode_changed", { detail: { mode } })
+      );
+    } catch {}
+  };
 
   const todayISTDate = new Date().toLocaleDateString("en-CA", {
     timeZone: "Asia/Kolkata",
@@ -401,6 +442,7 @@ export default function HomePage() {
           Array.isArray(json.results) &&
           json.results.length > 0
         ) {
+          setAllDraws(json.results);
           const todayDate = new Date().toLocaleDateString("en-CA", {
             timeZone: "Asia/Kolkata",
           });
@@ -883,8 +925,22 @@ export default function HomePage() {
     >
 
 
-      {/* Hero Banner Container (2-Slide Carousel: Today's Draw & Yesterday's Result) */}
-      <Paper
+      {/* On Mobile and Tablet (< 900px): Render Normal UI (2-column grid) if uiMode === "normal", otherwise Modern UI.
+          On Desktop Web (>= 900px): Always render the full standard desktop Web dashboard UI as before. */}
+      {isMobileOrTablet && uiMode === "normal" ? (
+        <HomeNormalView
+          todayLottery={todayLottery}
+          todayISTDate={todayISTDate}
+          todayDrawResult={todayDrawResult}
+          allDraws={allDraws}
+          isLoading={isLoading}
+          isTodayBumper={isTodayBumper}
+          isAfter3PM={isAfter3PM}
+        />
+      ) : (
+        <>
+          {/* Hero Banner Container (2-Slide Carousel: Today's Draw & Yesterday's Result) */}
+          <Paper
         elevation={0}
         sx={{
           py: { xs: 4, sm: 5, md: 6 },
@@ -3809,6 +3865,8 @@ export default function HomePage() {
           ))}
         </Box>
       </Paper>
+        </>
+      )}
 
       {/* Ticket Search Result Dialog */}
       <Dialog

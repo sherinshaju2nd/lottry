@@ -25,7 +25,11 @@ import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import SecurityIcon from "@mui/icons-material/Security";
 import SmartphoneIcon from "@mui/icons-material/Smartphone";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { GooglePlayIcon, AppleIcon, PLAY_STORE_URL } from "@/components/DownloadAppModal";
+import IosShareIcon from "@mui/icons-material/IosShare";
+import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
+import TouchAppIcon from "@mui/icons-material/TouchApp";
+import DesktopWindowsIcon from "@mui/icons-material/DesktopWindows";
+import { GooglePlayIcon, AppleIcon, AndroidIcon, WindowsIcon, PLAY_STORE_URL } from "@/components/DownloadAppModal";
 import { supabase, WEEKLY_LOTTERIES } from "@/lib/supabase";
 
 const LOTTERY_PRIZES: Record<string, string> = {
@@ -296,10 +300,17 @@ export default function AppPage() {
     },
     {
       id: "faq5",
-      question: "Is there an iOS (iPhone) version available?",
-      questionMl: "ഐഫോൺ (iOS) വേർഷൻ ലഭ്യമാണോ?",
+      question: "How do I install the app on iPhone / iPad (iOS)?",
+      questionMl: "ഐഫോണിൽ (iOS) ആപ്പ് എങ്ങനെ ഇൻസ്റ്റാൾ ചെയ്യാം?",
       answer:
-        "The iOS version is currently in development and will be launching soon on the Apple App Store. iPhone users can bookmark and use our website at https://www.keralalotteryresultstoday.in.",
+        "iPhone and iPad users can install the official Kerala Lottery App directly via Safari: (1) Open https://www.keralalotteryresultstoday.in in Safari and tap the Share button (📤) at the bottom; (2) Scroll down and select 'Add to Home Screen' (➕ / ഹോം സ്ക്രീനിലേക്ക് ചേർക്കുക); (3) Tap 'Add' in the top-right corner. The app will immediately install to your home screen with 1-tap live 3 PM results and 0 MB phone storage used!",
+    },
+    {
+      id: "faq_windows",
+      question: "How do I install the app on Windows 10 / 11 PC?",
+      questionMl: "വിൻഡോസ് കമ്പ്യൂട്ടറിൽ (Windows PC) ആപ്പ് എങ്ങനെ ഇൻസ്റ്റാൾ ചെയ്യാം?",
+      answer:
+        "You can install Kerala Lottery Results Today directly as a native standalone desktop app in Google Chrome or Microsoft Edge: (1) Open https://www.keralalotteryresultstoday.in; (2) Click the 'Install' icon (🖥️ ➕) in the address bar (or click browser menu '...' > 'Install Kerala Lottery Results'); (3) Click 'Install'. The app will instantly appear on your Windows desktop, Start menu, and can be pinned to your Taskbar with zero disk space consumed!",
     },
     {
       id: "faq6",
@@ -533,20 +544,34 @@ export default function AppPage() {
                   </Box>
                 </Button>
 
-                {/* Apple App Store (Coming Soon) Button */}
+                {/* Apple App Store / iOS Web App Button */}
                 <Box
+                  component="button"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("open-ios-install-guide"));
+                  }}
                   sx={{
-                    bgcolor: "#000000",
-                    borderRadius: "14px",
-                    py: 1.5,
+                    bgcolor: "rgba(15, 23, 42, 0.8)",
+                    backdropFilter: "blur(8px)",
+                    borderRadius: "16px",
+                    py: 1.6,
                     px: 3,
-                    minHeight: 64,
+                    minHeight: 66,
                     boxSizing: "border-box",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 1.8,
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    border: "1px solid rgba(255, 255, 255, 0.25)",
                     boxShadow: "0 10px 25px rgba(0, 0, 0, 0.25)",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      bgcolor: "rgba(15, 23, 42, 0.95)",
+                      borderColor: "#38BDF8",
+                      boxShadow: "0 14px 30px rgba(56, 189, 248, 0.25)",
+                    },
                   }}
                 >
                   <Box sx={{ color: "#FFFFFF", display: "flex", alignItems: "center" }}>
@@ -565,7 +590,7 @@ export default function AppPage() {
                         lineHeight: 1,
                       }}
                     >
-                      DOWNLOAD ON THE
+                      INSTALL ON
                     </Typography>
                     <Typography
                       variant="h6"
@@ -577,20 +602,94 @@ export default function AppPage() {
                         mt: 0.25,
                       }}
                     >
-                      App Store (iOS)
+                      iPhone / iOS (PWA)
                     </Typography>
                   </Box>
                   <Chip
-                    label="Coming Soon"
+                    label="Install Guide"
                     size="small"
                     sx={{
                       ml: 0.5,
-                      bgcolor: "rgba(255, 255, 255, 0.15)",
-                      color: "#CBD5E1",
-                      fontWeight: 700,
+                      bgcolor: "rgba(56, 189, 248, 0.2)",
+                      color: "#38BDF8",
+                      fontWeight: 800,
                       fontSize: "0.7rem",
                       height: 22,
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      border: "1px solid rgba(56, 189, 248, 0.3)",
+                    }}
+                  />
+                </Box>
+
+                {/* Windows PC Desktop App Button */}
+                <Box
+                  component="button"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("open-windows-install-guide"));
+                  }}
+                  sx={{
+                    bgcolor: "rgba(15, 23, 42, 0.8)",
+                    backdropFilter: "blur(8px)",
+                    borderRadius: "16px",
+                    py: 1.6,
+                    px: 3,
+                    minHeight: 66,
+                    boxSizing: "border-box",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 1.8,
+                    border: "1px solid rgba(255, 255, 255, 0.25)",
+                    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.25)",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      bgcolor: "rgba(15, 23, 42, 0.95)",
+                      borderColor: "#00A4EF",
+                      boxShadow: "0 14px 30px rgba(0, 164, 239, 0.25)",
+                    },
+                  }}
+                >
+                  <WindowsIcon size={28} />
+                  <Box sx={{ textAlign: "left" }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        color: "#94A3B8",
+                        fontSize: "0.68rem",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
+                        lineHeight: 1,
+                      }}
+                    >
+                      INSTALL ON
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: "#FFFFFF",
+                        fontWeight: 900,
+                        fontSize: "1.15rem",
+                        lineHeight: 1.2,
+                        mt: 0.25,
+                      }}
+                    >
+                      Windows (PC)
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label="Desktop App"
+                    size="small"
+                    sx={{
+                      ml: 0.5,
+                      bgcolor: "rgba(0, 164, 239, 0.2)",
+                      color: "#38BDF8",
+                      fontWeight: 800,
+                      fontSize: "0.7rem",
+                      height: 22,
+                      border: "1px solid rgba(0, 164, 239, 0.3)",
                     }}
                   />
                 </Box>
@@ -894,101 +993,340 @@ export default function AppPage() {
                 mb: 1,
               }}
             >
-              How to Install in 3 Easy Steps
+              How to Install on Android, iPhone & Windows PC
             </Typography>
             <Typography variant="body2" sx={{ color: "#0369A1", fontWeight: 600 }}>
-              ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യാനുള്ള ലളിതമായ 3 ഘട്ടങ്ങൾ
+              ആൻഡ്രോയിഡ്, ഐഫോൺ & വിൻഡോസ് ഇൻസ്റ്റാളേഷൻ ഗൈഡ്
             </Typography>
           </Box>
 
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Box
-                sx={{
-                  bgcolor: "#FFFFFF",
-                  p: 3,
-                  borderRadius: "16px",
-                  border: "1px solid #E0F2FE",
-                  height: "100%",
-                }}
-              >
-                <Typography
-                  variant="h3"
+          {/* Android Steps */}
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <AndroidIcon size={22} color="#16A34A" />
+              <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", fontSize: "1.1rem" }}>
+                Android Installation (Google Play Store)
+              </Typography>
+            </Box>
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
                   sx={{
-                    fontWeight: 900,
-                    color: "#0B3C5D",
-                    mb: 1.5,
+                    bgcolor: "#FFFFFF",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #E0F2FE",
+                    height: "100%",
                   }}
                 >
-                  01
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
-                  Open Google Play
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.6 }}>
-                  Click the &quot;Google Play&quot; download button or search for &quot;Kerala Lottery Results Today&quot; on your Android device.
-                </Typography>
-              </Box>
-            </Grid>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 900,
+                      color: "#0B3C5D",
+                      mb: 1.5,
+                    }}
+                  >
+                    01
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
+                    Open Google Play
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.6 }}>
+                    Click the &quot;Google Play&quot; download button or search for &quot;Kerala Lottery Results Today&quot; on your Android device.
+                  </Typography>
+                </Box>
+              </Grid>
 
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Box
-                sx={{
-                  bgcolor: "#FFFFFF",
-                  p: 3,
-                  borderRadius: "16px",
-                  border: "1px solid #E0F2FE",
-                  height: "100%",
-                }}
-              >
-                <Typography
-                  variant="h3"
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
                   sx={{
-                    fontWeight: 900,
-                    color: "#10B981",
-                    mb: 1.5,
+                    bgcolor: "#FFFFFF",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #E0F2FE",
+                    height: "100%",
                   }}
                 >
-                  02
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
-                  Tap Install
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.6 }}>
-                  Hit &quot;Install&quot; — the lightweight app downloads in just 5 seconds without consuming heavy phone storage or battery.
-                </Typography>
-              </Box>
-            </Grid>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 900,
+                      color: "#10B981",
+                      mb: 1.5,
+                    }}
+                  >
+                    02
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
+                    Tap Install
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.6 }}>
+                    Hit &quot;Install&quot; — the lightweight app downloads in just 5 seconds without consuming heavy phone storage or battery.
+                  </Typography>
+                </Box>
+              </Grid>
 
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Box
-                sx={{
-                  bgcolor: "#FFFFFF",
-                  p: 3,
-                  borderRadius: "16px",
-                  border: "1px solid #E0F2FE",
-                  height: "100%",
-                }}
-              >
-                <Typography
-                  variant="h3"
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
                   sx={{
-                    fontWeight: 900,
-                    color: "#D97706",
-                    mb: 1.5,
+                    bgcolor: "#FFFFFF",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #E0F2FE",
+                    height: "100%",
                   }}
                 >
-                  03
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
-                  Get Live 3 PM Alerts
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.6 }}>
-                  Open the app, check today&apos;s draw results, scan your lottery ticket, or download the official Government Gazette PDF.
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 900,
+                      color: "#D97706",
+                      mb: 1.5,
+                    }}
+                  >
+                    03
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
+                    Get Live 3 PM Alerts
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.6 }}>
+                    Open the app, check today&apos;s draw results, scan your lottery ticket, or download the official Government Gazette PDF.
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* iOS (iPhone / iPad) Steps */}
+          <Box id="ios-guide" sx={{ pt: 2, pb: 4, borderTop: "1px dashed #CBD5E1" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ color: "#0F172A", display: "flex", alignItems: "center" }}>
+                  <AppleIcon size={22} />
+                </Box>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", fontSize: "1.1rem" }}>
+                  iPhone / iPad Installation (Safari Add to Home Screen)
                 </Typography>
               </Box>
+              <Button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("open-ios-install-guide"));
+                }}
+                variant="outlined"
+                size="small"
+                startIcon={<TouchAppIcon />}
+                sx={{
+                  borderColor: "#0B3C5D",
+                  color: "#0B3C5D",
+                  fontWeight: 800,
+                  fontSize: "0.8rem",
+                  borderRadius: "10px",
+                  textTransform: "none",
+                  "&:hover": { bgcolor: "#EBF5FF" },
+                }}
+              >
+                Launch Visual Guide
+              </Button>
+            </Box>
+
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
+                  sx={{
+                    bgcolor: "#F0F9FF",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #BAE6FD",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: "#0284C7" }}>
+                      01
+                    </Typography>
+                    <Box sx={{ bgcolor: "#E0F2FE", color: "#0284C7", p: 0.75, borderRadius: "10px" }}>
+                      <IosShareIcon sx={{ fontSize: 22 }} />
+                    </Box>
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#0C4A6E", mb: 1 }}>
+                    Tap Share in Safari
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.6 }}>
+                    Open this website in Safari and tap the <strong>Share button (📤)</strong> located in the bottom bar on iPhone (or top bar on iPad).
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
+                  sx={{
+                    bgcolor: "#ECFDF5",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #A7F3D0",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: "#10B981" }}>
+                      02
+                    </Typography>
+                    <Box sx={{ bgcolor: "#D1FAE5", color: "#059669", p: 0.75, borderRadius: "10px" }}>
+                      <AddBoxOutlinedIcon sx={{ fontSize: 22 }} />
+                    </Box>
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#064E3B", mb: 1 }}>
+                    Tap &quot;Add to Home Screen&quot;
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.6 }}>
+                    Scroll down through the share options and tap <strong>&quot;Add to Home Screen&quot; (ഹോം സ്ക്രീനിലേക്ക് ചേർക്കുക)</strong>.
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
+                  sx={{
+                    bgcolor: "#FFFBEB",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #FDE68A",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: "#D97706" }}>
+                      03
+                    </Typography>
+                    <Box sx={{ bgcolor: "#FEF3C7", color: "#D97706", p: 0.75, borderRadius: "10px" }}>
+                      <CheckCircleIcon sx={{ fontSize: 22 }} />
+                    </Box>
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#78350F", mb: 1 }}>
+                    Tap &quot;Add&quot; in Top-Right
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.6 }}>
+                    Tap <strong>&quot;Add&quot;</strong> in the top-right corner. The app icon will appear on your iPhone screen with 1-tap instant access!
+                  </Typography>
+                </Box>
+              </Grid>
             </Grid>
-          </Grid>
+          </Box>
+
+          {/* Windows PC Installation Steps */}
+          <Box id="windows-guide" sx={{ pt: 2, borderTop: "1px dashed #CBD5E1" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <WindowsIcon size={22} />
+                <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", fontSize: "1.1rem" }}>
+                  Windows 10 / 11 PC Installation (Chrome &amp; Edge Desktop App)
+                </Typography>
+              </Box>
+              <Button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("open-windows-install-guide"));
+                }}
+                variant="outlined"
+                size="small"
+                startIcon={<TouchAppIcon />}
+                sx={{
+                  borderColor: "#0078D7",
+                  color: "#0078D7",
+                  fontWeight: 800,
+                  fontSize: "0.8rem",
+                  borderRadius: "10px",
+                  textTransform: "none",
+                  "&:hover": { bgcolor: "#EBF5FF" },
+                }}
+              >
+                Launch Visual Guide
+              </Button>
+            </Box>
+
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
+                  sx={{
+                    bgcolor: "#F0F9FF",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #BAE6FD",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: "#0078D7" }}>
+                      01
+                    </Typography>
+                    <Box sx={{ bgcolor: "#E0F2FE", color: "#0078D7", p: 0.75, borderRadius: "10px" }}>
+                      <DesktopWindowsIcon sx={{ fontSize: 22 }} />
+                    </Box>
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#0C4A6E", mb: 1 }}>
+                    Address Bar Install Icon
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.6 }}>
+                    In Google Chrome or Microsoft Edge, look for the <strong>Install icon (🖥️ ➕)</strong> on the right side of the address bar.
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
+                  sx={{
+                    bgcolor: "#ECFDF5",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #A7F3D0",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: "#10B981" }}>
+                      02
+                    </Typography>
+                    <Box sx={{ bgcolor: "#D1FAE5", color: "#059669", p: 0.75, borderRadius: "10px" }}>
+                      <AddBoxOutlinedIcon sx={{ fontSize: 22 }} />
+                    </Box>
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#064E3B", mb: 1 }}>
+                    Or Browser Menu (⋮ or ...)
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.6 }}>
+                    Or click browser menu (<strong>⋮</strong>) &gt; <strong>&quot;Install Kerala Lottery Results&quot;</strong> (or <em>Apps &gt; Install this site as an app</em>).
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Box
+                  sx={{
+                    bgcolor: "#FFFBEB",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #FDE68A",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: "#D97706" }}>
+                      03
+                    </Typography>
+                    <Box sx={{ bgcolor: "#FEF3C7", color: "#D97706", p: 0.75, borderRadius: "10px" }}>
+                      <CheckCircleIcon sx={{ fontSize: 22 }} />
+                    </Box>
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: "#78350F", mb: 1 }}>
+                    Pin to Windows Taskbar
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.6 }}>
+                    Click <strong>&quot;Install&quot;</strong> — the app runs in its own window and can be pinned to your Taskbar and Start Menu!
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
         </Paper>
       </Container>
 
@@ -1127,31 +1465,98 @@ export default function AppPage() {
             Download the official Android app now and never miss a lucky winning number or official Government Gazette PDF.
           </Typography>
 
-          <Button
-            onClick={handleOpenPlayStore}
-            variant="contained"
+          <Box
             sx={{
-              bgcolor: "#10B981",
-              color: "#FFFFFF",
-              fontWeight: 900,
-              fontSize: "1.1rem",
-              py: 1.6,
-              px: 4,
-              borderRadius: "16px",
-              textTransform: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 1.5,
-              boxShadow: "0 8px 24px rgba(16, 185, 129, 0.35)",
-              "&:hover": {
-                bgcolor: "#059669",
-                transform: "translateY(-2px)",
-              },
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 2,
             }}
           >
-            <GooglePlayIcon size={28} />
-            <span>Download Official App (Free)</span>
-          </Button>
+            <Button
+              onClick={handleOpenPlayStore}
+              variant="contained"
+              sx={{
+                bgcolor: "#10B981",
+                color: "#FFFFFF",
+                fontWeight: 900,
+                fontSize: "1.05rem",
+                py: 1.5,
+                px: 3.5,
+                borderRadius: "16px",
+                textTransform: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.5,
+                boxShadow: "0 8px 24px rgba(16, 185, 129, 0.35)",
+                "&:hover": {
+                  bgcolor: "#059669",
+                  transform: "translateY(-2px)",
+                },
+              }}
+            >
+              <GooglePlayIcon size={26} />
+              <span>Download on Google Play</span>
+            </Button>
+
+            <Button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("open-ios-install-guide"));
+              }}
+              variant="outlined"
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.08)",
+                color: "#FFFFFF",
+                borderColor: "rgba(255, 255, 255, 0.25)",
+                fontWeight: 800,
+                fontSize: "1.05rem",
+                py: 1.5,
+                px: 3.5,
+                borderRadius: "16px",
+                textTransform: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.5,
+                "&:hover": {
+                  bgcolor: "rgba(255, 255, 255, 0.15)",
+                  borderColor: "#38BDF8",
+                  transform: "translateY(-2px)",
+                },
+              }}
+            >
+              <AppleIcon size={26} />
+              <span>Install on iPhone (iOS)</span>
+            </Button>
+
+            <Button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("open-windows-install-guide"));
+              }}
+              variant="outlined"
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.08)",
+                color: "#FFFFFF",
+                borderColor: "rgba(255, 255, 255, 0.25)",
+                fontWeight: 800,
+                fontSize: "1.05rem",
+                py: 1.5,
+                px: 3.5,
+                borderRadius: "16px",
+                textTransform: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.5,
+                "&:hover": {
+                  bgcolor: "rgba(255, 255, 255, 0.15)",
+                  borderColor: "#00A4EF",
+                  transform: "translateY(-2px)",
+                },
+              }}
+            >
+              <WindowsIcon size={24} />
+              <span>Install on Windows (PC)</span>
+            </Button>
+          </Box>
         </Paper>
       </Container>
     </Box>
