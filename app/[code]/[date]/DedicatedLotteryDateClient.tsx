@@ -126,8 +126,15 @@ export default function DedicatedLotteryDateClient({
 
   const handleCopyTicket = (ticketNum: string) => {
     if (!ticketNum || ticketNum === "PENDING" || ticketNum === "N/A") return;
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(ticketNum);
+    if (typeof navigator !== "undefined") {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(ticketNum);
+      }
+      if (navigator.vibrate) {
+        try {
+          navigator.vibrate(40);
+        } catch {}
+      }
     }
     setSnackbarMessage(`Ticket ${ticketNum} copied to clipboard!`);
     setSnackbarOpen(true);
@@ -411,15 +418,16 @@ export default function DedicatedLotteryDateClient({
   return (
     <Box
       sx={{
-        bgcolor: "#F9FAFB",
+        bgcolor: "#F8FAFC",
         color: "#111827",
         minHeight: "100vh",
-        py: { xs: 3, sm: 5, md: 6 },
+        pt: { xs: 1.5, sm: 3, md: 4 },
+        pb: { xs: 12, sm: 10, md: 6 },
       }}
     >
-      <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
-        {/* Breadcrumb Navigation */}
-        <Box sx={{ mb: 2.5 }}>
+      <Container maxWidth={false} sx={{ px: { xs: 1.5, sm: 3, md: 4, lg: 5 } }}>
+        {/* Desktop-only Breadcrumbs */}
+        <Box sx={{ mb: 2, display: { xs: "none", md: "block" } }}>
           <Breadcrumbs
             separator={<NavigateNextIcon fontSize="small" sx={{ color: "#9CA3AF" }} />}
             aria-label="breadcrumb"
@@ -458,10 +466,108 @@ export default function DedicatedLotteryDateClient({
           </Breadcrumbs>
         </Box>
 
-        {/* Navigation Bar, Date Selector & Export Actions */}
+        {/* Mobile & Tablet App-Style Top Header Banner */}
+        <Paper
+          elevation={0}
+          sx={{
+            display: { xs: "block", md: "none" },
+            p: 2,
+            mb: 2,
+            borderRadius: "16px",
+            background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
+            color: "#FFFFFF",
+            boxShadow: "0 4px 16px rgba(11, 60, 93, 0.15)",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <IconButton
+                component={Link}
+                href={getLotteryUrl(lotterySlug)}
+                size="small"
+                sx={{
+                  color: "#FFFFFF",
+                  bgcolor: "rgba(255, 255, 255, 0.15)",
+                  "&:hover": { bgcolor: "rgba(255, 255, 255, 0.25)" },
+                }}
+              >
+                <ArrowBackIcon fontSize="small" />
+              </IconButton>
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#FFFFFF", lineHeight: 1.2 }}>
+                  {drawResult?.draw_name || lotteryInfo.name}
+                </Typography>
+                {lotteryInfo.nameMl && (
+                  <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: 600 }}>
+                    {lotteryInfo.nameMl}
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+
+            {/* Mobile Top Action Buttons */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+              {drawResult && (
+                <IconButton
+                  component="a"
+                  href={`/api/pdf/${lotteryCode}/${selectedDate}`}
+                  download={`kerala-lottery-${lotteryCode}-${selectedDate}.pdf`}
+                  size="small"
+                  title="Download Official PDF"
+                  sx={{
+                    color: "#FFFFFF",
+                    bgcolor: "rgba(255, 255, 255, 0.15)",
+                    "&:hover": { bgcolor: "rgba(255, 255, 255, 0.25)" },
+                  }}
+                >
+                  <FileDownloadIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
+          </Box>
+
+          {/* Badges Row */}
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+            <Chip
+              label={drawResult?.draw_code || lotteryInfo.code}
+              size="small"
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.2)",
+                color: "#FFFFFF",
+                fontWeight: 800,
+                fontSize: "0.75rem",
+                borderRadius: "6px",
+              }}
+            />
+            <Chip
+              label={`📅 ${selectedDate}`}
+              size="small"
+              sx={{
+                bgcolor: "rgba(255, 255, 255, 0.2)",
+                color: "#FFFFFF",
+                fontWeight: 700,
+                fontSize: "0.75rem",
+                borderRadius: "6px",
+              }}
+            />
+            <Chip
+              label={drawResult ? "🟢 Official Result" : isAfter3PM ? "🔴 Live Drawing" : "🕒 Scheduled"}
+              size="small"
+              sx={{
+                bgcolor: drawResult ? "#DCFCE7" : "#FEF3C7",
+                color: drawResult ? "#166534" : "#92400E",
+                fontWeight: 800,
+                fontSize: "0.75rem",
+                borderRadius: "6px",
+              }}
+            />
+          </Box>
+        </Paper>
+
+        {/* Desktop-only Navigation Bar & Actions */}
         <Box
           sx={{
-            display: "flex",
+            display: { xs: "none", md: "flex" },
             flexWrap: "wrap",
             justifyContent: "space-between",
             alignItems: "center",
@@ -504,14 +610,13 @@ export default function DedicatedLotteryDateClient({
               alignItems: "center",
               gap: 1.5,
               flexWrap: "wrap",
-              width: { xs: "100%", sm: "auto" },
             }}
           >
             {availableDates.length > 0 && (
               <FormControl
                 size="small"
                 sx={{
-                  minWidth: { xs: "100%", sm: 200 },
+                  minWidth: 200,
                   bgcolor: "#FFFFFF",
                   borderRadius: "6px",
                 }}
@@ -553,7 +658,6 @@ export default function DedicatedLotteryDateClient({
                   borderRadius: "6px",
                   px: 2.5,
                   py: 1,
-                  width: { xs: "100%", sm: "auto" },
                   textDecoration: "none",
                   "&:hover": { bgcolor: "#0F2C59" },
                 }}
@@ -564,22 +668,22 @@ export default function DedicatedLotteryDateClient({
           </Box>
         </Box>
 
-        {/* Previous & Next Draw Navigation Links */}
+        {/* Date Navigation Ribbon (Desktop only) */}
         <Paper
           elevation={0}
           component="nav"
           aria-label="Draw Navigation"
           sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
+            display: { xs: "none", lg: "flex" },
             alignItems: "center",
+            justifyContent: "space-between",
             p: 1.5,
-            mb: 4,
-            borderRadius: "8px",
+            mb: 3.5,
+            borderRadius: "10px",
             bgcolor: "#FFFFFF",
-            border: "1px solid #E5E7EB",
-            gap: 1.5,
+            border: "1px solid #E2E8F0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+            gap: 1,
           }}
         >
           {prevDate ? (
@@ -592,29 +696,51 @@ export default function DedicatedLotteryDateClient({
                 color: "#0B3C5D",
                 fontWeight: 700,
                 textTransform: "none",
+                fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                px: { xs: 1, sm: 1.5 },
                 "&:hover": { bgcolor: "#EFF6FF" },
               }}
             >
-              Previous Result: {prevDate}
+              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>Previous: </Box>
+              {prevDate}
             </Button>
           ) : (
-            <Typography variant="caption" sx={{ color: "#9CA3AF" }}>
-              Oldest Recorded Result
+            <Typography variant="caption" sx={{ color: "#9CA3AF", px: 1, fontSize: "0.75rem" }}>
+              Oldest
             </Typography>
           )}
 
-          <Button
-            component={Link}
-            href={getLotteryUrl(lotterySlug)}
-            size="small"
-            sx={{
-              color: "#6B7280",
-              fontWeight: 600,
-              textTransform: "none",
-            }}
-          >
-            All {lotteryInfo.name} Results
-          </Button>
+          {/* Date Selector Dropdown in Middle */}
+          {availableDates.length > 0 && (
+            <FormControl
+              size="small"
+              sx={{
+                minWidth: { xs: 130, sm: 180 },
+                bgcolor: "#F8FAFC",
+                borderRadius: "8px",
+              }}
+            >
+              <Select
+                value={selectedDate}
+                onChange={handleDateChange}
+                displayEmpty
+                sx={{
+                  color: "#0B3C5D",
+                  borderRadius: "8px",
+                  fontWeight: 800,
+                  fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                  height: 36,
+                  "& .MuiSelect-select": { py: 0.5, px: 1 },
+                }}
+              >
+                {availableDates.map((d) => (
+                  <MenuItem key={d} value={d}>
+                    📅 {d}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
 
           {nextDate ? (
             <Button
@@ -626,20 +752,23 @@ export default function DedicatedLotteryDateClient({
                 color: "#0B3C5D",
                 fontWeight: 700,
                 textTransform: "none",
+                fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                px: { xs: 1, sm: 1.5 },
                 "&:hover": { bgcolor: "#EFF6FF" },
               }}
             >
-              Next Result: {nextDate}
+              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>Next: </Box>
+              {nextDate}
             </Button>
           ) : (
-            <Typography variant="caption" sx={{ color: "#9CA3AF" }}>
-              Latest Recorded Result
+            <Typography variant="caption" sx={{ color: "#9CA3AF", px: 1, fontSize: "0.75rem" }}>
+              Latest
             </Typography>
           )}
         </Paper>
 
-        {/* Page Title */}
-        <Box sx={{ mb: 3 }}>
+        {/* Desktop Page Title */}
+        <Box sx={{ mb: 3, display: { xs: "none", md: "block" } }}>
           <Typography
             variant="h4"
             component="h1"
@@ -753,15 +882,15 @@ export default function DedicatedLotteryDateClient({
             <Paper
               elevation={0}
               sx={{
-                p: 6,
+                p: { xs: 3, sm: 6 },
                 textAlign: "center",
-                borderRadius: "12px",
+                borderRadius: "16px",
                 border: "1px solid #E5E7EB",
                 bgcolor: "#FFFFFF",
                 mt: 3,
               }}
             >
-              <Typography variant="h6" sx={{ color: "#374151", mb: 1 }}>
+              <Typography variant="h6" sx={{ color: "#374151", mb: 1, fontWeight: 800 }}>
                 {selectedDate === todayISTDate
                   ? isAfter3PM
                     ? "Draw Results Are Being Published..."
@@ -779,7 +908,7 @@ export default function DedicatedLotteryDateClient({
                 component={Link}
                 href={getLotteryUrl(lotterySlug)}
                 variant="contained"
-                sx={{ bgcolor: "#0B3C5D", borderRadius: "8px" }}
+                sx={{ bgcolor: "#0B3C5D", borderRadius: "8px", fontWeight: 700 }}
               >
                 View Available {lotteryInfo.name} Draw Dates
               </Button>
@@ -787,11 +916,12 @@ export default function DedicatedLotteryDateClient({
           )
         ) : (
           <>
-            {/* Draw Overview Header Card */}
+            {/* Draw Overview Header Card (Desktop View) */}
             <Paper
               elevation={0}
               sx={{
-                p: { xs: 2.5, sm: 3.5 },
+                display: { xs: "none", md: "block" },
+                p: 3.5,
                 mb: 4,
                 borderRadius: "12px",
                 border: "1px solid #E5E7EB",
@@ -840,7 +970,7 @@ export default function DedicatedLotteryDateClient({
                   </Typography>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 5 }} sx={{ textAlign: { xs: "left", md: "right" } }}>
+                <Grid size={{ xs: 12, md: 5 }} sx={{ textAlign: "right" }}>
                   <ShareButtons
                     title={`${drawResult.draw_name} (${drawResult.draw_code}) Result - ${drawResult.draw_date}`}
                     text={`Kerala Lottery ${drawResult.draw_name} (${drawResult.draw_code}) results for ${drawResult.draw_date}. 1st Prize (${drawResult.prizes?.amounts?.["1st"] || "₹1 Crore"}): ${drawResult.first?.ticket || "Pending"}`}
@@ -850,13 +980,13 @@ export default function DedicatedLotteryDateClient({
               </Grid>
             </Paper>
 
-            {/* 1st Prize Winner Card */}
+            {/* 1st Prize Winner Hero Card */}
             <Paper
               elevation={0}
               sx={{
-                p: { xs: 3, sm: 4 },
-                mb: 4,
-                borderRadius: "16px",
+                p: { xs: 2.5, sm: 3.5, md: 4 },
+                mb: { xs: 2.5, sm: 3.5 },
+                borderRadius: { xs: "16px", sm: "16px" },
                 background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
                 color: "#FFFFFF",
                 boxShadow: "0 8px 24px rgba(11, 60, 93, 0.2)",
@@ -876,7 +1006,15 @@ export default function DedicatedLotteryDateClient({
                       border: "1px solid rgba(255, 193, 7, 0.4)",
                     }}
                   />
-                  <Typography variant="h3" sx={{ fontWeight: 900, fontSize: { xs: "1.8rem", sm: "2.5rem" }, color: "#FFFFFF", mb: 1 }}>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 900,
+                      fontSize: { xs: "1.6rem", sm: "2.2rem", md: "2.6rem" },
+                      color: "#FFFFFF",
+                      mb: 0.5,
+                    }}
+                  >
                     {drawResult.prizes?.amounts?.["1st"] || "₹1 Crore"}
                   </Typography>
                 </Box>
@@ -887,16 +1025,18 @@ export default function DedicatedLotteryDateClient({
                       <Button
                         variant="outlined"
                         size="small"
-                        startIcon={<ContentCopyIcon />}
+                        startIcon={<ContentCopyIcon fontSize="small" />}
                         onClick={() => handleCopyTicket(drawResult.first?.ticket || "")}
                         sx={{
                           color: "#FFFFFF",
                           borderColor: "rgba(255,255,255,0.4)",
                           borderRadius: "8px",
+                          fontWeight: 700,
+                          fontSize: { xs: "0.75rem", sm: "0.85rem" },
                           "&:hover": { borderColor: "#FFFFFF", bgcolor: "rgba(255,255,255,0.1)" },
                         }}
                       >
-                        Copy Number
+                        Copy
                       </Button>
                     </Tooltip>
                   )}
@@ -906,7 +1046,7 @@ export default function DedicatedLotteryDateClient({
               <Box
                 sx={{
                   bgcolor: "rgba(255, 255, 255, 0.08)",
-                  p: 2.5,
+                  p: { xs: 2, sm: 2.5 },
                   borderRadius: "12px",
                   mt: 2,
                   display: "flex",
@@ -917,40 +1057,42 @@ export default function DedicatedLotteryDateClient({
                 }}
               >
                 <Box>
-                  <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block" }}>
+                  <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block", fontSize: "0.75rem" }}>
                     Winning Ticket Serial Number:
                   </Typography>
                   <Typography
                     variant="h4"
+                    onClick={() => handleCopyTicket(drawResult.first?.ticket || "")}
                     sx={{
                       fontFamily: "monospace",
                       fontWeight: 900,
                       color: "#FFD54F",
-                      fontSize: { xs: "1.5rem", sm: "2.2rem" },
+                      fontSize: { xs: "1.4rem", sm: "1.9rem", md: "2.2rem" },
                       letterSpacing: "0.08em",
+                      cursor: "pointer",
                     }}
                   >
                     {drawResult.first?.ticket || "PENDING"}
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+                <Box sx={{ display: "flex", gap: { xs: 1.5, sm: 3 }, flexWrap: "wrap" }}>
                   {drawResult.first?.location && (
                     <Box>
-                      <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block" }}>
+                      <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block", fontSize: "0.75rem" }}>
                         Location / District:
                       </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 800, color: "#FFFFFF" }}>
+                      <Typography variant="body2" sx={{ fontWeight: 800, color: "#FFFFFF" }}>
                         📍 {drawResult.first.location}
                       </Typography>
                     </Box>
                   )}
                   {drawResult.first?.agent && (
                     <Box>
-                      <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block" }}>
+                      <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block", fontSize: "0.75rem" }}>
                         Selling Agent:
                       </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 800, color: "#FFFFFF" }}>
+                      <Typography variant="body2" sx={{ fontWeight: 800, color: "#FFFFFF" }}>
                         👤 {drawResult.first.agent}
                       </Typography>
                     </Box>
@@ -964,21 +1106,22 @@ export default function DedicatedLotteryDateClient({
               elevation={0}
               ref={checkerSectionRef}
               sx={{
-                p: { xs: 2.5, sm: 3.5 },
-                mb: 4,
-                borderRadius: "12px",
-                border: "1px solid #E5E7EB",
+                p: { xs: 2, sm: 3, md: 3.5 },
+                mb: { xs: 2.5, sm: 3.5 },
+                borderRadius: { xs: "14px", sm: "12px" },
+                border: "1px solid #E2E8F0",
                 bgcolor: "#FFFFFF",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                <ConfirmationNumberIcon sx={{ color: "#0B3C5D" }} />
-                <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827" }}>
-                  Check Your {drawResult.draw_name} Ticket ({selectedDate})
+                <ConfirmationNumberIcon sx={{ color: "#0B3C5D", fontSize: 22 }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#111827" }}>
+                  Check Your {drawResult.draw_name} Ticket
                 </Typography>
               </Box>
-              <Typography variant="body2" sx={{ color: "#6B7280", mb: 2.5 }}>
-                Enter your ticket number or the last 4 digits to instantly check if you have won any prize tier in this specific draw:
+              <Typography variant="body2" sx={{ color: "#6B7280", mb: 2, fontSize: "0.85rem" }}>
+                Enter ticket number or last 4 digits to instantly check if you won:
               </Typography>
 
               <Box component="form" onSubmit={handleCheckTicketSubmit} sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
@@ -987,7 +1130,12 @@ export default function DedicatedLotteryDateClient({
                   placeholder="e.g. 6429 or AB 123456"
                   value={checkerTicketInput}
                   onChange={(e) => setCheckerTicketInput(e.target.value)}
-                  sx={{ flex: { xs: "100%", sm: 1 }, bgcolor: "#F9FAFB", borderRadius: "6px" }}
+                  sx={{
+                    flex: { xs: "100%", sm: 1 },
+                    bgcolor: "#F8FAFC",
+                    borderRadius: "8px",
+                    "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                  }}
                 />
                 <Button
                   type="submit"
@@ -995,8 +1143,9 @@ export default function DedicatedLotteryDateClient({
                   sx={{
                     bgcolor: "#0B3C5D",
                     fontWeight: 800,
-                    borderRadius: "6px",
+                    borderRadius: "8px",
                     px: 3,
+                    py: { xs: 1.2, sm: 1 },
                     width: { xs: "100%", sm: "auto" },
                     "&:hover": { bgcolor: "#0F2C59" },
                   }}
@@ -1006,12 +1155,12 @@ export default function DedicatedLotteryDateClient({
               </Box>
 
               {checkerResult && (
-                <Box sx={{ mt: 2.5 }}>
+                <Box sx={{ mt: 2 }}>
                   {checkerResult.isWinner ? (
                     <Alert
                       icon={<CelebrationIcon fontSize="inherit" />}
                       severity="success"
-                      sx={{ borderRadius: "8px", fontWeight: 700 }}
+                      sx={{ borderRadius: "10px", fontWeight: 700 }}
                     >
                       🎉 CONGRATULATIONS! Matching winning numbers found:
                       <Box sx={{ mt: 1 }}>
@@ -1023,7 +1172,7 @@ export default function DedicatedLotteryDateClient({
                       </Box>
                     </Alert>
                   ) : (
-                    <Alert severity="info" sx={{ borderRadius: "8px" }}>
+                    <Alert severity="info" sx={{ borderRadius: "10px" }}>
                       {checkerResult.message || "No match found for this draw."}
                     </Alert>
                   )}
@@ -1031,8 +1180,8 @@ export default function DedicatedLotteryDateClient({
               )}
             </Paper>
 
-            {/* Prize Tier Breakdown Tables */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
+            {/* Prize Tier Breakdown Tables & Mobile Cards */}
+            <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }} sx={{ mb: 4 }}>
               {prizeTiers.map((tier) => {
                 const numbers = (drawResult.prizes as any)?.[tier.key] || [];
                 const amount = drawResult.prizes?.amounts?.[tier.key];
@@ -1043,17 +1192,18 @@ export default function DedicatedLotteryDateClient({
                     <Paper
                       elevation={0}
                       sx={{
-                        p: 2.5,
-                        borderRadius: "10px",
-                        border: "1px solid #E5E7EB",
+                        p: { xs: 2, sm: 2.5 },
+                        borderRadius: { xs: "14px", sm: "12px" },
+                        border: "1px solid #E2E8F0",
                         bgcolor: "#FFFFFF",
                         height: "100%",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
                       }}
                     >
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: tier.dotBg }} />
-                          <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#111827" }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#111827", fontSize: { xs: "0.9rem", sm: "1rem" } }}>
                             {tier.label}
                           </Typography>
                         </Box>
@@ -1061,26 +1211,59 @@ export default function DedicatedLotteryDateClient({
                           <Chip
                             label={amount}
                             size="small"
-                            sx={{ fontWeight: 800, bgcolor: "#EFF6FF", color: "#1D4ED8", borderRadius: "4px" }}
+                            sx={{
+                              fontWeight: 800,
+                              bgcolor: "#EFF6FF",
+                              color: "#1D4ED8",
+                              borderRadius: "6px",
+                              fontSize: "0.75rem",
+                            }}
                           />
                         )}
                       </Box>
 
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: {
+                            xs: "repeat(auto-fill, minmax(72px, 1fr))",
+                            sm: "repeat(auto-fill, minmax(80px, 1fr))",
+                            md: "repeat(auto-fill, minmax(86px, 1fr))",
+                          },
+                          gap: 1,
+                        }}
+                      >
                         {numbers.map((num: string, idx: number) => (
-                          <Chip
+                          <Box
                             key={idx}
-                            label={num}
                             onClick={() => handleCopyTicket(num)}
                             sx={{
                               fontFamily: "monospace",
-                              fontWeight: 700,
-                              bgcolor: "#F3F4F6",
-                              color: "#111827",
-                              borderRadius: "4px",
-                              "&:hover": { bgcolor: "#E5E7EB", cursor: "pointer" },
+                              fontWeight: 800,
+                              fontSize: { xs: "0.85rem", sm: "0.9rem" },
+                              bgcolor: "#F8FAFC",
+                              color: "#1E293B",
+                              border: "1px solid #E2E8F0",
+                              borderRadius: "8px",
+                              py: 0.8,
+                              px: 0.5,
+                              textAlign: "center",
+                              cursor: "pointer",
+                              transition: "all 0.15s ease",
+                              "&:hover": {
+                                bgcolor: "#EFF6FF",
+                                borderColor: "#3B82F6",
+                                color: "#1D4ED8",
+                                transform: "scale(1.03)",
+                              },
+                              "&:active": {
+                                bgcolor: "#DBEAFE",
+                                transform: "scale(0.97)",
+                              },
                             }}
-                          />
+                          >
+                            {num}
+                          </Box>
                         ))}
                       </Box>
                     </Paper>

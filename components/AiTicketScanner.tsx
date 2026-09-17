@@ -16,9 +16,10 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FlashOnIcon from "@mui/icons-material/FlashOn";
 import FlashOffIcon from "@mui/icons-material/FlashOff";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import { Html5Qrcode } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 
 import { useRouter } from "next/navigation";
+import BarcodeResultModal from "./BarcodeResultModal";
 
 interface AiTicketScannerProps {
   onTicketDetected?: (ticketNumber: string, lotteryCode?: string, drawDate?: string) => void;
@@ -68,6 +69,11 @@ export default function AiTicketScanner({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [torchOn, setTorchOn] = useState(false);
 
+  // Result modal state matching mobile app
+  const [resultModalOpen, setResultModalOpen] = useState(false);
+  const [detectedTicket, setDetectedTicket] = useState<string | null>(null);
+  const [detectedLotteryCode, setDetectedLotteryCode] = useState<string | null>(null);
+
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const videoTrackRef = useRef<MediaStreamTrack | null>(null);
 
@@ -98,8 +104,8 @@ export default function AiTicketScanner({
     setCameraError(null);
     setScannedResult(null);
 
-    // Wait for DOM container
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    // Wait for DOM container to mount
+    await new Promise((resolve) => setTimeout(resolve, 300));
     const readerElem = document.getElementById("kerala-barcode-reader");
     if (!readerElem) return;
 
@@ -113,33 +119,76 @@ export default function AiTicketScanner({
         } catch {}
       }
 
-      const html5QrCode = new Html5Qrcode("kerala-barcode-reader");
+      // Instantiate with broad Kerala lottery barcode & QR format support
+      const html5QrCode = new Html5Qrcode("kerala-barcode-reader", {
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.CODE_93,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.ITF,
+          Html5QrcodeSupportedFormats.QR_CODE,
+          Html5QrcodeSupportedFormats.DATA_MATRIX,
+        ],
+        verbose: false,
+      });
       scannerRef.current = html5QrCode;
 
-      // Clean config without qrbox so html5-qrcode scans the full camera stream without injecting competing white canvas corners
       const config = {
-        fps: 24,
+        fps: 25,
+        aspectRatio: undefined,
       };
 
-      await html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText) => {
-          handleBarcodeSuccess(decodedText);
-        },
-        () => {
-          // continuous frame parsing
-        }
-      );
-
-      // Attempt to acquire torch / flash track
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-        });
-        const track = stream.getVideoTracks()[0];
-        videoTrackRef.current = track;
-      } catch {}
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          config,
+          (decodedText) => {
+            handleBarcodeSuccess(decodedText);
+          },
+          () => {
+            // continuous frame parsing
+          }
+        );
+      } catch (primaryErr) {
+        console.warn("FacingMode 'environment' failed, attempting fallback to available cameras:", primaryErr);
+        const cameras = await Html5Qrcode.getCameras();
+        if (cameras && cameras.length > 0) {
+          // Select back/rear camera if present, or fallback to first available
+          const preferredCam =
+            cameras.find((c) => /back|rear|environment|outward/i.test(c.label)) ||
+            cameras[cameras.length - 1] ||
+            cameras[0];
+
+          await html5QrCode.start(
+            preferredCam.id,
+            config,
+            (decodedText) => {
+              handleBarcodeSuccess(decodedText);
+            },
+            () => {}
+          );
+        } else {
+          throw primaryErr;
+        }
+      }
+
+      // Safely acquire video track from existing HTMLVideoElement without conflicting getUserMedia
+      setTimeout(() => {
+        try {
+          const videoElem = readerElem.querySelector("video") as HTMLVideoElement | null;
+          if (videoElem && videoElem.srcObject) {
+            const stream = videoElem.srcObject as MediaStream;
+            const track = stream.getVideoTracks()[0];
+            if (track) {
+              videoTrackRef.current = track;
+            }
+          }
+        } catch {}
+      }, 500);
     } catch (err: any) {
       console.warn("Camera start error:", err);
       setCameraError(
@@ -202,13 +251,15 @@ export default function AiTicketScanner({
 
     setTimeout(() => {
       stopScanner();
+      setOpen(false);
       if (onTicketDetected) {
         onTicketDetected(ticketNumber, lotteryCode);
       } else {
-        router.push(`/search?q=${encodeURIComponent(ticketNumber)}`);
+        setDetectedTicket(ticketNumber);
+        setDetectedLotteryCode(lotteryCode || null);
+        setResultModalOpen(true);
       }
-      setOpen(false);
-    }, 750);
+    }, 600);
   };
 
   // Manage Camera on open/close
@@ -276,9 +327,13 @@ export default function AiTicketScanner({
           border-radius: 0 !important;
           margin: 0 !important;
           padding: 0 !important;
+          z-index: 2 !important;
         }
         #kerala-barcode-reader canvas {
-          display: none !important;
+          opacity: 0 !important;
+          position: absolute !important;
+          pointer-events: none !important;
+          z-index: 1 !important;
         }
         #kerala-barcode-reader img {
           display: none !important;
@@ -670,6 +725,18 @@ export default function AiTicketScanner({
           </Box>
         </DialogContent>
       </Dialog>
+
+      {/* Scanned Barcode Result Modal Matching Mobile App */}
+      <BarcodeResultModal
+        open={resultModalOpen}
+        scannedBarcode={detectedTicket}
+        targetLotteryCode={detectedLotteryCode}
+        onClose={() => setResultModalOpen(false)}
+        onRescan={() => {
+          setResultModalOpen(false);
+          handleOpen();
+        }}
+      />
     </>
   );
 }

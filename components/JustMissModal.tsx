@@ -1,28 +1,21 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
-  Typography,
-  Box,
-  Tabs,
-  Tab,
-  Chip,
-  Button,
-  Paper,
-} from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
 import CloseIcon from "@mui/icons-material/Close";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
-import ShuffleIcon from "@mui/icons-material/Shuffle";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import DescriptionIcon from "@mui/icons-material/Description";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import Link from "next/link";
-import { StructuredDrawResult, getLotteryUrl } from "@/lib/supabase";
+import DescriptionIcon from "@mui/icons-material/Description";
+import ShuffleIcon from "@mui/icons-material/Shuffle";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { StructuredDrawResult } from "@/lib/supabase";
 
 export interface NearMissItem {
   id: string;
@@ -35,6 +28,7 @@ export interface NearMissItem {
   tagEn: string;
   tagMl: string;
   diffExplanationEn: string;
+  diffExplanationMl: string;
   diffIndices: number[];
 }
 
@@ -42,7 +36,8 @@ interface JustMissModalProps {
   open: boolean;
   onClose: () => void;
   searchedTicket: string;
-  draw?: StructuredDrawResult | null;
+  draw: StructuredDrawResult | null;
+  onViewResult?: () => void;
 }
 
 function formatDisplayDate(dateStr?: string | null) {
@@ -59,11 +54,12 @@ export default function JustMissModal({
   onClose,
   searchedTicket,
   draw,
+  onViewResult,
 }: JustMissModalProps) {
   const [activeTab, setActiveTab] = useState<"all" | "1_digit" | "shuffled" | "2_digits">("all");
 
   const cleanQueryDigits = useMemo(() => {
-    return (searchedTicket || "").replace(/\D/g, "");
+    return searchedTicket.replace(/\D/g, "");
   }, [searchedTicket]);
 
   const nearMissList = useMemo(() => {
@@ -91,8 +87,7 @@ export default function JustMissModal({
         }
 
         const isNeighbor = Math.abs(Number(q) - Number(w)) === 1;
-        const isShuffled =
-          q.split("").sort().join("") === w.split("").sort().join("") && q !== w;
+        const isShuffled = q.split("").sort().join("") === w.split("").sort().join("") && q !== w;
 
         if (isNeighbor) {
           seenWinningTickets.add(winTicketStr);
@@ -106,7 +101,8 @@ export default function JustMissModal({
             matchType: "neighbor",
             tagEn: "Consecutive Serial (±1)",
             tagMl: "തൊട്ടടുത്ത നമ്പർ (±1)",
-            diffExplanationEn: "Serial difference is only 1 number away from this winning ticket!",
+            diffExplanationEn: `Serial difference is only 1 number away from this winning ticket!`,
+            diffExplanationMl: `വിജയിച്ച ടിക്കറ്റിൽ നിന്നും വെറും 1 നമ്പറിന്റെ മാത്രം വ്യത്യാസം!`,
             diffIndices,
           });
           return;
@@ -126,6 +122,7 @@ export default function JustMissModal({
             tagEn: "1 Digit Miss (5 of 6 Match)",
             tagMl: "1 അക്ക വ്യത്യാസം (5 അക്കം ശരി)",
             diffExplanationEn: `Position ${idx + 1}: Drawn '${w[idx]}' instead of your '${q[idx]}'. 5 digits matched exactly!`,
+            diffExplanationMl: `സ്ഥാനം ${idx + 1}: നിങ്ങളുടെ '${q[idx]}' ന് പകരം '${w[idx]}' വന്നു. 5 അക്കങ്ങൾ കൃത്യമായി ഒത്തുപോയി!`,
             diffIndices,
           });
           return;
@@ -143,7 +140,8 @@ export default function JustMissModal({
             matchType: "shuffled",
             tagEn: "Shuffled Anagram (All Digits)",
             tagMl: "ഷഫിൾഡ് (എല്ലാ അക്കങ്ങളും ഉണ്ട്)",
-            diffExplanationEn: "All 6 digits matched! The numbers appeared in a rearranged order.",
+            diffExplanationEn: `All 6 digits matched! The numbers appeared in a rearranged order.`,
+            diffExplanationMl: `എല്ലാ 6 അക്കങ്ങളും ലോട്ടറിയിൽ ഉണ്ടായിരുന്നു! ക്രമം മാറിയാണ് വന്നത്.`,
             diffIndices: [0, 1, 2, 3, 4, 5],
           });
           return;
@@ -162,6 +160,7 @@ export default function JustMissModal({
             tagEn: "2 Digits Miss (4 of 6 Match)",
             tagMl: "2 അക്ക വ്യത്യാസം (4 അക്കം ശരി)",
             diffExplanationEn: `Only 2 digits differed at positions ${diffIndices.map((i) => i + 1).join(" & ")}.`,
+            diffExplanationMl: `${diffIndices.map((i) => i + 1).join(", ")} സ്ഥാനങ്ങളിലെ 2 അക്കങ്ങൾ മാത്രമാണ് വ്യത്യാസപ്പെട്ടത്.`,
             diffIndices,
           });
           return;
@@ -178,8 +177,7 @@ export default function JustMissModal({
           if (q4[i] !== w4[i]) diffIndices.push(i);
         }
 
-        const isShuffled4 =
-          q4.split("").sort().join("") === w4.split("").sort().join("") && q4 !== w4;
+        const isShuffled4 = q4.split("").sort().join("") === w4.split("").sort().join("") && q4 !== w4;
 
         if (diffIndices.length === 1) {
           seenWinningTickets.add(winTicketStr);
@@ -195,6 +193,7 @@ export default function JustMissModal({
             tagEn: "1 Digit Miss (3 of 4 Match)",
             tagMl: "1 അക്ക വ്യത്യാസം (3 അക്കം ശരി)",
             diffExplanationEn: `Last 4 digits: drawn '${w4[idx]}' instead of '${q4[idx]}'. 3 digits matched!`,
+            diffExplanationMl: `അവസാന 4 അക്കങ്ങളിൽ 3 എണ്ണം ശരിയായി വന്നു. 1 അക്കം മാത്രം മാറി.`,
             diffIndices,
           });
           return;
@@ -213,6 +212,7 @@ export default function JustMissModal({
             tagEn: "Shuffled 4-Digit Match",
             tagMl: "4 അക്കങ്ങൾ ഷഫിൾഡ് മാച്ച്",
             diffExplanationEn: `All 4 digits matched in shuffled order in ${tier}.`,
+            diffExplanationMl: `${tier} സമ്മാനത്തിലെ 4 അക്കങ്ങളും മാറിമറിഞ്ഞ് ഒത്തുപോയി.`,
             diffIndices,
           });
           return;
@@ -231,6 +231,7 @@ export default function JustMissModal({
             tagEn: "2 Digits Miss (2 of 4 Match)",
             tagMl: "2 അക്ക വ്യത്യാസം",
             diffExplanationEn: `2 digits differed in ${tier} (${winTicketStr}).`,
+            diffExplanationMl: `${tier} ലെ നമ്പറുമായി 2 അക്ക വ്യത്യാസം.`,
             diffIndices,
           });
           return;
@@ -239,11 +240,11 @@ export default function JustMissModal({
     };
 
     // 1. 1st Prize
-    if (draw.first?.ticket && draw.first.ticket !== "N/A") {
+    if (draw.first?.ticket && draw.first.ticket !== "N/A" && draw.first.ticket !== "PENDING") {
       checkCandidate(
         draw.first.ticket,
         "1st Prize",
-        draw.prizes?.amounts?.["1st"] || "₹1,00,00,000"
+        draw.prizes?.amounts?.["1st"] || "₹80 Lakhs"
       );
     }
 
@@ -259,27 +260,18 @@ export default function JustMissModal({
     }
 
     // 3. Other Tiers
-    const tierKeys = [
-      { key: "2nd", label: "2nd Prize" },
-      { key: "3rd", label: "3rd Prize" },
-      { key: "4th", label: "4th Prize" },
-      { key: "5th", label: "5th Prize" },
-      { key: "6th", label: "6th Prize" },
-      { key: "7th", label: "7th Prize" },
-      { key: "8th", label: "8th Prize" },
-      { key: "9th", label: "9th Prize" },
-    ] as const;
-
-    tierKeys.forEach(({ key, label }) => {
+    const tierKeys = ["2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"] as const;
+    tierKeys.forEach((key) => {
       const arr = (draw.prizes as any)?.[key];
-      const amt = (draw.prizes as any)?.amounts?.[key];
+      const amt = draw.prizes?.amounts?.[key];
       if (Array.isArray(arr)) {
         arr.forEach((ticketNum) => {
-          checkCandidate(String(ticketNum), label, amt);
+          checkCandidate(String(ticketNum), `${key.toUpperCase()} Prize`, amt);
         });
       }
     });
 
+    // Priority Sort: neighbor -> 1_digit -> shuffled -> 2_digits
     const rankMap: Record<string, number> = {
       neighbor: 1,
       "1_digit": 2,
@@ -287,17 +279,13 @@ export default function JustMissModal({
       "2_digits": 4,
     };
 
-    return items.sort(
-      (a, b) => (rankMap[a.matchType] || 5) - (rankMap[b.matchType] || 5)
-    );
+    return items.sort((a, b) => (rankMap[a.matchType] || 5) - (rankMap[b.matchType] || 5));
   }, [draw, cleanQueryDigits]);
 
   const filteredItems = useMemo(() => {
     if (activeTab === "all") return nearMissList;
     if (activeTab === "1_digit") {
-      return nearMissList.filter(
-        (m) => m.matchType === "1_digit" || m.matchType === "neighbor"
-      );
+      return nearMissList.filter((m) => m.matchType === "1_digit" || m.matchType === "neighbor");
     }
     if (activeTab === "shuffled") {
       return nearMissList.filter((m) => m.matchType === "shuffled");
@@ -331,321 +319,416 @@ export default function JustMissModal({
       slotProps={{
         paper: {
           sx: {
-            width: { xs: "calc(100% - 16px)", sm: "100%" },
-            maxWidth: { xs: "100%", sm: "540px" },
-            m: { xs: 1, sm: 2 },
-            borderRadius: { xs: "16px", sm: "20px" },
-            overflow: "hidden",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.25)",
+            borderRadius: { xs: "24px 24px 0 0", sm: "24px" },
+            m: { xs: 0, sm: 2 },
+            position: { xs: "fixed", sm: "relative" },
+            bottom: { xs: 0, sm: "auto" },
+            maxHeight: { xs: "92vh", sm: "88vh" },
             bgcolor: "#F8FAFC",
-            maxHeight: { xs: "94vh", sm: "88vh" },
+            overflow: "hidden",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.25)",
           },
         },
       }}
     >
-      {/* Modal Header */}
-      <DialogTitle
+      {/* Header Matching Mobile App */}
+      <Box
         sx={{
-          m: 0,
-          p: { xs: 2, sm: 2.5 },
-          bgcolor: "#0B3C5D",
-          color: "#FFFFFF",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          px: 2,
+          py: 1.8,
+          bgcolor: "#FFFFFF",
+          borderBottom: "1px solid #E2E8F0",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
           <Box
             sx={{
               width: 38,
               height: 38,
-              borderRadius: "10px",
-              bgcolor: "rgba(255,255,255,0.15)",
+              borderRadius: "12px",
+              bgcolor: "#0B3C5D",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              flexShrink: 0,
             }}
           >
-            <TrackChangesIcon sx={{ color: "#F59E0B", fontSize: 22 }} />
+            <TrackChangesIcon sx={{ color: "#FFFFFF", fontSize: 20 }} />
           </Box>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 900, lineHeight: 1.2, color: "#FFFFFF", fontSize: { xs: "1.05rem", sm: "1.25rem" } }}>
-              Just Miss Analysis
+            <Typography sx={{ fontSize: "1rem", fontWeight: 900, color: "#0F172A", lineHeight: 1.2 }}>
+              🎯 Just Miss Analysis (ജസ്റ്റ് മിസ്സ് നമ്പറുകൾ)
             </Typography>
-            <Typography variant="caption" sx={{ color: "#93C5FD", fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.8rem" } }}>
-              {draw?.draw_name || draw?.lottery_code || "Lottery Draw"} • {formatDisplayDate(draw?.draw_date)}
+            <Typography sx={{ fontSize: "0.75rem", fontWeight: 600, color: "#64748B", mt: 0.2 }}>
+              {draw?.draw_name || draw?.lottery_code} • {formatDisplayDate(draw?.draw_date)}
             </Typography>
           </Box>
         </Box>
+
         <IconButton
+          size="small"
           onClick={onClose}
           sx={{
-            color: "#FFFFFF",
-            bgcolor: "rgba(255,255,255,0.1)",
-            "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
+            width: 34,
+            height: 34,
+            borderRadius: "50%",
+            bgcolor: "#F1F5F9",
+            "&:hover": { bgcolor: "#E2E8F0" },
           }}
         >
-          <CloseIcon fontSize="small" />
+          <CloseIcon fontSize="small" sx={{ color: "#1E293B" }} />
         </IconButton>
-      </DialogTitle>
+      </Box>
 
-      <DialogContent sx={{ p: { xs: 2, sm: 2.5 } }}>
-        {/* Searched Ticket Banner */}
-        <Paper
-          elevation={0}
+      {/* Ticket Summary Banner */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          bgcolor: "#FFFFFF",
+          mx: 2,
+          mt: 1.8,
+          p: 1.8,
+          borderRadius: "14px",
+          border: "1px solid #E2E8F0",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+        }}
+      >
+        <Box sx={{ flex: 1 }}>
+          <Typography sx={{ fontSize: "0.7rem", fontWeight: 800, color: "#64748B", letterSpacing: 0.5 }}>
+            YOUR SEARCHED TICKET:
+          </Typography>
+          <Typography sx={{ fontSize: "1.15rem", fontWeight: 900, color: "#0B3C5D", letterSpacing: 1, mt: 0.2 }}>
+            {searchedTicket}
+          </Typography>
+        </Box>
+
+        <Box
           sx={{
-            p: 2,
-            mb: 2,
-            borderRadius: "14px",
-            bgcolor: "#FFFFFF",
-            border: "1.5px solid #E2E8F0",
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
-            flexWrap: "wrap",
-            gap: 1,
+            gap: 0.6,
+            bgcolor: "#F0F9FF",
+            border: "1px solid #BAE6FD",
+            px: 1.2,
+            py: 0.6,
+            borderRadius: "10px",
           }}
         >
-          <Box>
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 800, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.05em" }}
-            >
-              YOUR SEARCHED TICKET:
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 900, color: "#0B3C5D", fontFamily: "monospace" }}>
-              {searchedTicket || "—"}
-            </Typography>
-          </Box>
-          <Chip
-            icon={<AutoAwesomeIcon sx={{ fontSize: 16, color: "#0B3C5D" }} />}
-            label={`${nearMissList.length} Near Misses`}
-            sx={{
-              bgcolor: "#E0F2FE",
-              color: "#0369A1",
-              fontWeight: 800,
-              borderRadius: "8px",
-            }}
-          />
-        </Paper>
+          <AutoAwesomeIcon sx={{ fontSize: 14, color: "#0B3C5D" }} />
+          <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: "#0B3C5D" }}>
+            {nearMissList.length} Near Misses
+          </Typography>
+        </Box>
+      </Box>
 
-        {/* Tab Filters */}
-        <Tabs
-          value={activeTab}
-          onChange={(_, val) => setActiveTab(val)}
-          variant="scrollable"
-          scrollButtons="auto"
+      {/* Segmented Filter Tabs Matching Mobile */}
+      <Box sx={{ display: "flex", px: 2, mt: 1.5, gap: 0.8 }}>
+        <Box
+          onClick={() => setActiveTab("all")}
           sx={{
-            minHeight: 38,
-            mb: 2,
-            "& .MuiTab-root": {
-              minHeight: 38,
-              py: 0.75,
-              px: 1.5,
-              fontWeight: 800,
-              fontSize: "0.8rem",
-              borderRadius: "10px",
-              textTransform: "none",
-              mr: 1,
-              bgcolor: "#FFFFFF",
-              border: "1px solid #E2E8F0",
-              color: "#64748B",
-              "&.Mui-selected": {
-                bgcolor: "#0B3C5D",
-                color: "#FFFFFF",
-                borderColor: "#0B3C5D",
-              },
-            },
-            "& .MuiTabs-indicator": { display: "none" },
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            py: 1,
+            borderRadius: "10px",
+            bgcolor: activeTab === "all" ? "#0B3C5D" : "#FFFFFF",
+            border: activeTab === "all" ? "1px solid #0B3C5D" : "1px solid #E2E8F0",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
           }}
         >
-          <Tab value="all" label={`All (${counts.all})`} />
-          <Tab
-            value="1_digit"
-            icon={<TrackChangesIcon sx={{ fontSize: 14 }} />}
-            iconPosition="start"
-            label={`1 Digit (${counts.oneDigit})`}
-          />
-          <Tab
-            value="shuffled"
-            icon={<ShuffleIcon sx={{ fontSize: 14 }} />}
-            iconPosition="start"
-            label={`Shuffled (${counts.shuffled})`}
-          />
-          <Tab value="2_digits" label={`2 Digits (${counts.twoDigits})`} />
-        </Tabs>
+          <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: activeTab === "all" ? "#FFFFFF" : "#475569" }}>
+            All ({counts.all})
+          </Typography>
+        </Box>
 
-        {/* Items List */}
-        {filteredItems.length === 0 ? (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              textAlign: "center",
-              bgcolor: "#FFFFFF",
-              borderRadius: "14px",
-              border: "1px dashed #CBD5E1",
-            }}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#475569" }}>
-              No near-miss matches in this category
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#94A3B8", mt: 0.5 }}>
-              Try viewing &quot;All&quot; to see matches across other difference patterns.
-            </Typography>
-          </Paper>
-        ) : (
+        <Box
+          onClick={() => setActiveTab("1_digit")}
+          sx={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 0.4,
+            py: 1,
+            borderRadius: "10px",
+            bgcolor: activeTab === "1_digit" ? "#0B3C5D" : "#FFFFFF",
+            border: activeTab === "1_digit" ? "1px solid #0B3C5D" : "1px solid #E2E8F0",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+          }}
+        >
+          <TrackChangesIcon sx={{ fontSize: 13, color: activeTab === "1_digit" ? "#FFFFFF" : "#0B3C5D" }} />
+          <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: activeTab === "1_digit" ? "#FFFFFF" : "#475569" }}>
+            1 Digit ({counts.oneDigit})
+          </Typography>
+        </Box>
+
+        <Box
+          onClick={() => setActiveTab("shuffled")}
+          sx={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 0.4,
+            py: 1,
+            borderRadius: "10px",
+            bgcolor: activeTab === "shuffled" ? "#0B3C5D" : "#FFFFFF",
+            border: activeTab === "shuffled" ? "1px solid #0B3C5D" : "1px solid #E2E8F0",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+          }}
+        >
+          <ShuffleIcon sx={{ fontSize: 13, color: activeTab === "shuffled" ? "#FFFFFF" : "#D97706" }} />
+          <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: activeTab === "shuffled" ? "#FFFFFF" : "#475569" }}>
+            Shuffled ({counts.shuffled})
+          </Typography>
+        </Box>
+
+        <Box
+          onClick={() => setActiveTab("2_digits")}
+          sx={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            py: 1,
+            borderRadius: "10px",
+            bgcolor: activeTab === "2_digits" ? "#0B3C5D" : "#FFFFFF",
+            border: activeTab === "2_digits" ? "1px solid #0B3C5D" : "1px solid #E2E8F0",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+          }}
+        >
+          <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: activeTab === "2_digits" ? "#FFFFFF" : "#475569" }}>
+            2 Digits ({counts.twoDigits})
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Scrollable Results List */}
+      <DialogContent sx={{ p: 2, overflowY: "auto" }}>
+        {filteredItems.length > 0 ? (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
             {filteredItems.map((item) => {
+              const isOneDigit = item.matchType === "1_digit" || item.matchType === "neighbor";
+              const isShuffled = item.matchType === "shuffled";
+
               return (
-                <Paper
+                <Box
                   key={item.id}
-                  elevation={0}
                   sx={{
-                    p: 2,
+                    p: 1.8,
                     borderRadius: "14px",
                     bgcolor: "#FFFFFF",
-                    border: "1.5px solid",
-                    borderColor:
-                      item.matchType === "neighbor"
-                        ? "#F59E0B"
-                        : item.matchType === "1_digit"
-                        ? "#3B82F6"
-                        : "#E2E8F0",
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
-                    },
+                    border: isOneDigit
+                      ? "1.5px solid #86EFAC"
+                      : isShuffled
+                      ? "1.5px solid #FDE68A"
+                      : "1px solid #E2E8F0",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      mb: 1,
-                      flexWrap: "wrap",
-                      gap: 1,
-                    }}
-                  >
-                    <Chip
-                      icon={<EmojiEventsIcon sx={{ fontSize: 14, color: "#D97706" }} />}
-                      label={item.prizeTier}
-                      size="small"
+                  {/* Top Row: Prize Tier & Badge */}
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.2 }}>
+                    <Box
                       sx={{
-                        fontWeight: 900,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.6,
                         bgcolor: "#FEF3C7",
-                        color: "#92400E",
+                        border: "1px solid #FDE68A",
+                        px: 1,
+                        py: 0.3,
                         borderRadius: "6px",
                       }}
-                    />
-                    <Chip
-                      label={item.tagEn}
-                      size="small"
-                      sx={{
-                        fontWeight: 800,
-                        bgcolor:
-                          item.matchType === "neighbor"
-                            ? "#FEF3C7"
-                            : item.matchType === "1_digit"
-                            ? "#EFF6FF"
-                            : "#F1F5F9",
-                        color:
-                          item.matchType === "neighbor"
-                            ? "#B45309"
-                            : item.matchType === "1_digit"
-                            ? "#1D4ED8"
-                            : "#475569",
-                        borderRadius: "6px",
-                        fontSize: "0.75rem",
-                      }}
-                    />
-                  </Box>
-
-                  {/* Number Comparison Row */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                      my: 1,
-                      p: 1.25,
-                      bgcolor: "#F8FAFC",
-                      borderRadius: "10px",
-                      border: "1px solid #E2E8F0",
-                    }}
-                  >
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
-                        Winning Number:
+                    >
+                      <EmojiEventsIcon sx={{ fontSize: 14, color: "#B45309" }} />
+                      <Typography sx={{ fontSize: "0.75rem", fontWeight: 800, color: "#92400E" }}>
+                        {item.prizeTier}
+                        {item.prizeAmount ? ` • ${item.prizeAmount}` : ""}
                       </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        bgcolor: isOneDigit ? "#DCFCE7" : isShuffled ? "#FEF3C7" : "#F1F5F9",
+                        border: isOneDigit
+                          ? "1px solid #86EFAC"
+                          : isShuffled
+                          ? "1px solid #FDE68A"
+                          : "1px solid #CBD5E1",
+                        px: 1,
+                        py: 0.3,
+                        borderRadius: "6px",
+                      }}
+                    >
                       <Typography
-                        variant="h6"
                         sx={{
-                          fontFamily: "monospace",
-                          fontWeight: 900,
-                          color: "#166534",
-                          letterSpacing: "0.08em",
+                          fontSize: "0.72rem",
+                          fontWeight: 800,
+                          color: isOneDigit ? "#166534" : isShuffled ? "#92400E" : "#475569",
                         }}
                       >
+                        {item.tagEn}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Character-by-Character Digit Box Visualizer */}
+                  <Box
+                    sx={{
+                      bgcolor: "#F8FAFC",
+                      p: 1.5,
+                      borderRadius: "10px",
+                      border: "1px solid #E2E8F0",
+                      mb: 1.2,
+                    }}
+                  >
+                    {/* Row 1: Drawn Win */}
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <Typography sx={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", minWidth: 70 }}>
+                        Drawn Win:
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 0.5 }}>
+                        {item.winningDigits.split("").map((digit, dIdx) => {
+                          const isDiff = item.diffIndices.includes(dIdx);
+                          return (
+                            <Box
+                              key={dIdx}
+                              sx={{
+                                width: 26,
+                                height: 28,
+                                borderRadius: "6px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                bgcolor: isDiff ? "#FEE2E2" : "#DCFCE7",
+                                border: isDiff ? "1px solid #FCA5A5" : "1px solid #86EFAC",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontFamily: "monospace",
+                                  fontWeight: 900,
+                                  fontSize: "0.85rem",
+                                  color: isDiff ? "#DC2626" : "#166534",
+                                }}
+                              >
+                                {digit}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                      <Typography sx={{ fontSize: "0.72rem", fontWeight: 800, color: "#0B3C5D", fontFamily: "monospace" }}>
                         {item.winningTicket}
                       </Typography>
                     </Box>
 
-                    {item.prizeAmount && (
-                      <Box sx={{ textAlign: "right" }}>
-                        <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
-                          Prize:
-                        </Typography>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: "#166534" }}>
-                          {item.prizeAmount}
-                        </Typography>
+                    {/* Row 2: Your Ticket */}
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 0.8 }}>
+                      <Typography sx={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B", minWidth: 70 }}>
+                        Your Ticket:
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 0.5 }}>
+                        {item.searchedDigits.split("").map((digit, dIdx) => {
+                          const isDiff = item.diffIndices.includes(dIdx);
+                          return (
+                            <Box
+                              key={dIdx}
+                              sx={{
+                                width: 26,
+                                height: 28,
+                                borderRadius: "6px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                bgcolor: isDiff ? "#FEE2E2" : "#DCFCE7",
+                                border: isDiff ? "1px solid #FCA5A5" : "1px solid #86EFAC",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontFamily: "monospace",
+                                  fontWeight: 900,
+                                  fontSize: "0.85rem",
+                                  color: isDiff ? "#DC2626" : "#166534",
+                                }}
+                              >
+                                {digit}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
                       </Box>
-                    )}
+                      <Typography sx={{ fontSize: "0.72rem", fontWeight: 800, color: "#64748B", fontFamily: "monospace" }}>
+                        {cleanQueryDigits}
+                      </Typography>
+                    </Box>
                   </Box>
 
-                  {/* Difference Explanation */}
-                  <Typography variant="body2" sx={{ color: "#334155", fontSize: "0.825rem", fontWeight: 600 }}>
+                  {/* Explanation Description */}
+                  <Typography sx={{ fontSize: "0.75rem", color: "#475569", fontWeight: 600, lineHeight: 1.4 }}>
                     💡 {item.diffExplanationEn}
                   </Typography>
-                </Paper>
+                </Box>
               );
             })}
           </Box>
-        )}
-
-        {/* Action Button: View Full Draw Details */}
-        {draw && (
-          <Box sx={{ mt: 2.5 }}>
-            <Link
-              href={getLotteryUrl(draw.lottery_code, draw.draw_date)}
-              style={{ textDecoration: "none" }}
-              onClick={onClose}
-            >
-              <Button
-                variant="contained"
-                fullWidth
-                size="large"
-                startIcon={<DescriptionIcon />}
-                endIcon={<ArrowForwardIcon />}
-                sx={{
-                  bgcolor: "#0B3C5D",
-                  color: "#FFFFFF",
-                  fontWeight: 900,
-                  py: 1.25,
-                  borderRadius: "12px",
-                  textTransform: "none",
-                  "&:hover": { bgcolor: "#0F2C59" },
-                }}
-              >
-                View Full Draw Breakdown Chart ({draw.draw_name || draw.lottery_code})
-              </Button>
-            </Link>
+        ) : (
+          <Box sx={{ py: 6, textAlign: "center" }}>
+            <InfoOutlinedIcon sx={{ fontSize: 42, color: "#94A3B8", mb: 1 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#334155", mb: 0.5 }}>
+              No Near Misses in this category
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", maxWidth: 360, mx: "auto" }}>
+              Check the full published draw results breakdown below.
+            </Typography>
           </Box>
         )}
       </DialogContent>
+
+      {/* Bottom Sticky Action Bar */}
+      {onViewResult && (
+        <Box
+          sx={{
+            p: 2,
+            borderTop: "1px solid #E2E8F0",
+            bgcolor: "#FFFFFF",
+          }}
+        >
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => {
+              onClose();
+              onViewResult();
+            }}
+            startIcon={<DescriptionIcon />}
+            endIcon={<ChevronRightIcon />}
+            sx={{
+              bgcolor: "#0B3C5D",
+              color: "#FFFFFF",
+              fontWeight: 800,
+              fontSize: "0.9rem",
+              borderRadius: "12px",
+              py: 1.3,
+              textTransform: "none",
+              boxShadow: "0 4px 14px rgba(11, 60, 93, 0.25)",
+              "&:hover": { bgcolor: "#0F2C59" },
+            }}
+          >
+            View Full Draw Breakdown
+          </Button>
+        </Box>
+      )}
     </Dialog>
   );
 }
