@@ -7,13 +7,26 @@ import { StructuredDrawResult } from "./supabase";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 
+const DEFAULT_MODELS = [
+  "gemini-3.8-flash",
+  "gemini-3.7-flash",
+  "gemini-3.6-flash",
+];
+
+const PREFERRED_MODEL = process.env.GEMINI_MODEL
+  ? [process.env.GEMINI_MODEL]
+  : [];
+export const GEMINI_MODELS = Array.from(
+  new Set([...PREFERRED_MODEL, ...DEFAULT_MODELS]),
+);
+
 export interface TicketScanResult {
   lottery_name?: string;
   lottery_code?: string;
   draw_date?: string; // YYYY-MM-DD
-  series?: string;     // 2 uppercase letters e.g. "KN" or "WA"
+  series?: string; // 2 uppercase letters e.g. "KN" or "WA"
   ticket_number?: string; // 6 digits e.g. "482910"
-  last_digits?: string;   // 4 digits e.g. "2910"
+  last_digits?: string; // 4 digits e.g. "2910"
   barcode_data?: string;
   confidence?: number;
   detected_text?: string;
@@ -26,12 +39,14 @@ export interface TicketScanResult {
  */
 export async function scanTicketWithGemini(
   base64Image: string,
-  mimeType: string = "image/jpeg"
+  mimeType: string = "image/jpeg",
 ): Promise<TicketScanResult> {
   const cleanBase64 = base64Image.replace(/^data:[^;]+;base64,/, "");
 
   if (!GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY is not configured in environment variables.");
+    throw new Error(
+      "GEMINI_API_KEY is not configured in environment variables.",
+    );
   }
 
   const prompt = `
@@ -61,14 +76,7 @@ Return ONLY a valid JSON object strictly matching this format without markdown c
 }
 `;
 
-  const models = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.1-pro",
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-  ];
+  const models = GEMINI_MODELS;
   let lastError: any = null;
 
   for (const model of models) {
@@ -97,19 +105,28 @@ Return ONLY a valid JSON object strictly matching this format without markdown c
               temperature: 0.1,
             },
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         const errText = await response.text();
-        console.warn(`Gemini model ${model} returned error ${response.status}:`, errText);
-        lastError = new Error(`Gemini API error (${response.status}): ${errText}`);
+        console.warn(
+          `Gemini model ${model} returned error ${response.status}:`,
+          errText,
+        );
+        lastError = new Error(
+          `Gemini API error (${response.status}): ${errText}`,
+        );
         continue;
       }
 
       const data = await response.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
-      const cleanedJson = rawText.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+      const rawText =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
+      const cleanedJson = rawText
+        .replace(/^```json\s*/i, "")
+        .replace(/```$/i, "")
+        .trim();
       const parsed: TicketScanResult = JSON.parse(cleanedJson);
       return parsed;
     } catch (err) {
@@ -127,12 +144,14 @@ Return ONLY a valid JSON object strictly matching this format without markdown c
  */
 export async function parseLotteryPdfWithGemini(
   base64File: string,
-  mimeType: string = "application/pdf"
+  mimeType: string = "application/pdf",
 ): Promise<StructuredDrawResult> {
   const cleanBase64 = base64File.replace(/^data:[^;]+;base64,/, "");
 
   if (!GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY is not configured in environment variables.");
+    throw new Error(
+      "GEMINI_API_KEY is not configured in environment variables.",
+    );
   }
 
   const prompt = `
@@ -209,14 +228,7 @@ Return ONLY a valid JSON object matching the exact structure below with NO markd
 }
 `;
 
-  const models = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.1-pro",
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-  ];
+  const models = GEMINI_MODELS;
   let lastError: any = null;
 
   for (const model of models) {
@@ -245,19 +257,28 @@ Return ONLY a valid JSON object matching the exact structure below with NO markd
               temperature: 0.1,
             },
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         const errText = await response.text();
-        console.warn(`Gemini model ${model} PDF error ${response.status}:`, errText);
-        lastError = new Error(`Gemini PDF API error (${response.status}): ${errText}`);
+        console.warn(
+          `Gemini model ${model} PDF error ${response.status}:`,
+          errText,
+        );
+        lastError = new Error(
+          `Gemini PDF API error (${response.status}): ${errText}`,
+        );
         continue;
       }
 
       const data = await response.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
-      const cleanedJson = rawText.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+      const rawText =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
+      const cleanedJson = rawText
+        .replace(/^```json\s*/i, "")
+        .replace(/```$/i, "")
+        .trim();
       const parsed: StructuredDrawResult = JSON.parse(cleanedJson);
       return parsed;
     } catch (err) {
@@ -275,7 +296,7 @@ Return ONLY a valid JSON object matching the exact structure below with NO markd
 export async function chatWithGeminiAssistant(
   userMessage: string,
   history: Array<{ role: "user" | "model"; text: string }> = [],
-  contextData?: string
+  contextData?: string,
 ): Promise<string> {
   if (!GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY is not configured.");
@@ -299,14 +320,20 @@ ${contextData || "No extra context provided."}
 `;
 
   // Ensure history properly starts with 'user' and alternates roles (Gemini requirement)
-  const validHistory: Array<{ role: "user" | "model"; parts: Array<{ text: string }> }> = [];
+  const validHistory: Array<{
+    role: "user" | "model";
+    parts: Array<{ text: string }>;
+  }> = [];
   for (const h of history) {
     if (!h.text || !h.text.trim()) continue;
     // Skip leading 'model' greeting messages
     if (validHistory.length === 0 && h.role === "model") continue;
 
     // Avoid consecutive same-role messages
-    if (validHistory.length > 0 && validHistory[validHistory.length - 1].role === h.role) {
+    if (
+      validHistory.length > 0 &&
+      validHistory[validHistory.length - 1].role === h.role
+    ) {
       validHistory[validHistory.length - 1].parts[0].text += `\n${h.text}`;
     } else {
       validHistory.push({
@@ -324,14 +351,7 @@ ${contextData || "No extra context provided."}
     },
   ];
 
-  const models = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.1-pro",
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-  ];
+  const models = GEMINI_MODELS;
   let lastError: any = null;
 
   for (const model of models) {
@@ -351,7 +371,7 @@ ${contextData || "No extra context provided."}
               max_output_tokens: 800,
             },
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -360,8 +380,13 @@ ${contextData || "No extra context provided."}
         if (text) return text;
       } else {
         const errText = await response.text();
-        console.warn(`Gemini Chat model ${model} returned ${response.status}:`, errText);
-        lastError = new Error(`Gemini API (${model}) error ${response.status}: ${errText}`);
+        console.warn(
+          `Gemini Chat model ${model} returned ${response.status}:`,
+          errText,
+        );
+        lastError = new Error(
+          `Gemini API (${model}) error ${response.status}: ${errText}`,
+        );
       }
     } catch (e) {
       console.warn(`Chat model ${model} error:`, e);
@@ -383,7 +408,7 @@ export interface SocialMediaDigest {
  * Generate viral WhatsApp Status & Telegram Digest text for today's lottery result
  */
 export async function generateSocialMediaDigests(
-  draw: StructuredDrawResult
+  draw: StructuredDrawResult,
 ): Promise<SocialMediaDigest> {
   if (!GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY is not configured.");
@@ -415,14 +440,7 @@ Return ONLY a JSON object:
 }
 `;
 
-  const models = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.1-pro",
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-  ];
+  const models = GEMINI_MODELS;
   for (const model of models) {
     try {
       const response = await fetch(
@@ -437,13 +455,17 @@ Return ONLY a JSON object:
               temperature: 0.3,
             },
           }),
-        }
+        },
       );
 
       if (response.ok) {
         const data = await response.json();
-        const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
-        const cleaned = raw.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+        const raw =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
+        const cleaned = raw
+          .replace(/^```json\s*/i, "")
+          .replace(/```$/i, "")
+          .trim();
         return JSON.parse(cleaned);
       }
     } catch (e) {
@@ -495,7 +517,11 @@ export interface LotteryAiPatternAnalysis {
   };
   top_predicted_numbers: Array<{
     number: string;
-    category: "Hot 4-Digit" | "Double Pattern" | "Balanced Sum" | "2nd/6th Target";
+    category:
+      | "Hot 4-Digit"
+      | "Double Pattern"
+      | "Balanced Sum"
+      | "2nd/6th Target";
     confidence_score: number;
     rationale: string;
   }>;
@@ -510,7 +536,7 @@ export async function analyzeLotteryPatternsWithGemini(
   lotteryName: string,
   lotteryCode: string,
   draws: StructuredDrawResult[],
-  lang: "en" | "ml" = "en"
+  lang: "en" | "ml" = "en",
 ): Promise<LotteryAiPatternAnalysis> {
   if (!GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY is not configured.");
@@ -705,14 +731,7 @@ Return strictly a valid JSON object matching this exact schema without markdown 
 ${JSON.stringify(formattedDraws, null, 2)}
 `;
 
-  const models = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.1-pro",
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-  ];
+  const models = GEMINI_MODELS;
   let lastError: any = null;
 
   for (const model of models) {
@@ -729,19 +748,28 @@ ${JSON.stringify(formattedDraws, null, 2)}
               temperature: 0.2,
             },
           }),
-        }
+        },
       );
 
       if (response.ok) {
         const data = await response.json();
-        const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
-        const cleaned = raw.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+        const raw =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
+        const cleaned = raw
+          .replace(/^```json\s*/i, "")
+          .replace(/```$/i, "")
+          .trim();
         const parsed: LotteryAiPatternAnalysis = JSON.parse(cleaned);
         return parsed;
       } else {
         const errText = await response.text();
-        console.warn(`Pattern model ${model} error ${response.status}:`, errText);
-        lastError = new Error(`Gemini API error (${response.status}): ${errText}`);
+        console.warn(
+          `Pattern model ${model} error ${response.status}:`,
+          errText,
+        );
+        lastError = new Error(
+          `Gemini API error (${response.status}): ${errText}`,
+        );
       }
     } catch (e) {
       console.warn(`Pattern model ${model} exception:`, e);
@@ -749,6 +777,8 @@ ${JSON.stringify(formattedDraws, null, 2)}
     }
   }
 
-  throw lastError || new Error("Failed to generate lottery pattern predictions with Gemini AI.");
+  throw (
+    lastError ||
+    new Error("Failed to generate lottery pattern predictions with Gemini AI.")
+  );
 }
-
