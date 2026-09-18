@@ -1,8 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 export * from "./lotteryConfig";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://dqsoseefmiwyjkgqmphh.supabase.co";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_bF2JcJ0IPvCaVgeybXJKGw_JBtrS7sx";
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "https://dqsoseefmiwyjkgqmphh.supabase.co";
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  "sb_publishable_bF2JcJ0IPvCaVgeybXJKGw_JBtrS7sx";
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -39,14 +43,82 @@ export interface StructuredDrawResult {
   created_at?: string;
 }
 
-export const WEEKLY_LOTTERIES = [
-  { day: "Monday", name: "Bhagyathara", nameMl: "ഭാഗ്യതാരാ", code: "BT", is_bumper: false },
-  { day: "Tuesday", name: "Sthree Sakthi", nameMl: "സ്ത്രീശക്തി", code: "SS", is_bumper: false },
-  { day: "Wednesday", name: "Dhanalekshmi", nameMl: "ധനലക്ഷ്മി", code: "DL", is_bumper: false },
-  { day: "Thursday", name: "Karunya Plus", nameMl: "കാരുണ്യ പ്ലസ്", code: "KN", is_bumper: false },
-  { day: "Friday", name: "Suvarna Keralam", nameMl: "സുവർണ്ണ കേരളം", code: "SK", is_bumper: false },
-  { day: "Saturday", name: "Karunya", nameMl: "കാരുണ്യ", code: "KR", is_bumper: false },
-  { day: "Sunday", name: "Samrudhi", nameMl: "സമൃദ്ധി", code: "SM", is_bumper: false },
+export interface WeeklyLotteryItem {
+  day: string;
+  name: string;
+  nameMl: string;
+  code: string;
+  is_bumper?: boolean;
+  jackpot?: string;
+  ticket_price?: string;
+  drawTime?: string;
+  draw_season?: string;
+}
+
+export const WEEKLY_LOTTERIES: WeeklyLotteryItem[] = [
+  {
+    day: "Monday",
+    name: "Bhagyathara",
+    nameMl: "ഭാഗ്യതാരാ",
+    code: "BT",
+    is_bumper: false,
+    jackpot: "₹1 Crore",
+    ticket_price: "₹50",
+  },
+  {
+    day: "Tuesday",
+    name: "Sthree Sakthi",
+    nameMl: "സ്ത്രീശക്തി",
+    code: "SS",
+    is_bumper: false,
+    jackpot: "₹1 Crore",
+    ticket_price: "₹50",
+  },
+  {
+    day: "Wednesday",
+    name: "Dhanalekshmi",
+    nameMl: "ധനലക്ഷ്മി",
+    code: "DL",
+    is_bumper: false,
+    jackpot: "₹1 Crore",
+    ticket_price: "₹50",
+  },
+  {
+    day: "Thursday",
+    name: "Karunya Plus",
+    nameMl: "കാരുണ്യ പ്ലസ്",
+    code: "KN",
+    is_bumper: false,
+    jackpot: "₹1 Crore",
+    ticket_price: "₹50",
+  },
+  {
+    day: "Friday",
+    name: "Suvarna Keralam",
+    nameMl: "സുവർണ്ണ കേരളം",
+    code: "SK",
+    is_bumper: false,
+    jackpot: "₹1 Crore",
+    ticket_price: "₹50",
+  },
+  {
+    day: "Saturday",
+    name: "Karunya",
+    nameMl: "കാരുണ്യ",
+    code: "KR",
+    is_bumper: false,
+    jackpot: "₹1 Crore",
+    ticket_price: "₹50",
+  },
+  {
+    day: "Sunday",
+    name: "Samrudhi",
+    nameMl: "സമൃദ്ധി",
+    code: "SM",
+    is_bumper: false,
+    jackpot: "₹1 Crore",
+    ticket_price: "₹50",
+  },
 ];
 
 export const BUMPER_LOTTERIES = [
@@ -166,6 +238,122 @@ export const SLUG_TO_LOTTERY_CODE: Record<string, string> = {
   pb: "PB",
 };
 
+export const LOTTERY_LOGOS: Record<string, string> = {
+  // Weekly lottery codes
+  BT: "/lottry-logos/bhagyathara-lottery-logo.jpg",
+  SS: "/lottry-logos/sthreesakthi-lottery-logo.jpg",
+  DL: "/lottry-logos/dhanalekshmi-lottery-logo.jpg",
+  KN: "/lottry-logos/karunyaplus-lottery-logo.jpg",
+  SK: "/lottry-logos/suvarnakeralam-lottery-logo.jpg",
+  KR: "/lottry-logos/karunya-lottery-logo.jpg",
+  SM: "/lottry-logos/samrudhi-lottery-logo.jpg",
+  // Bumper lottery codes
+  XN: "/lottry-logos/christmas-new-year-bumper-lottery-logo.jpg",
+  SB: "/lottry-logos/summer-bumper-lottery-logo.jpg",
+  VB: "/lottry-logos/vishu-bumper-lottery-logo.jpg",
+  MB: "/lottry-logos/monsoon-bumper-lottery-logo.jpg",
+  TH: "/lottry-logos/thiruvonam-bumper-lottery-logo.jpg",
+  PB: "/lottry-logos/pooja-bumper-lottery-logo.jpg",
+  // Weekly lottery slugs
+  bhagyathara: "/lottry-logos/bhagyathara-lottery-logo.jpg",
+  sthreesakthi: "/lottry-logos/sthreesakthi-lottery-logo.jpg",
+  "sthree-sakthi": "/lottry-logos/sthreesakthi-lottery-logo.jpg",
+  dhanalekshmi: "/lottry-logos/dhanalekshmi-lottery-logo.jpg",
+  karunyaplus: "/lottry-logos/karunyaplus-lottery-logo.jpg",
+  "karunya-plus": "/lottry-logos/karunyaplus-lottery-logo.jpg",
+  suvarnakeralam: "/lottry-logos/suvarnakeralam-lottery-logo.jpg",
+  "suvarna-keralam": "/lottry-logos/suvarnakeralam-lottery-logo.jpg",
+  karunya: "/lottry-logos/karunya-lottery-logo.jpg",
+  samrudhi: "/lottry-logos/samrudhi-lottery-logo.jpg",
+  // Bumper lottery slugs
+  "christmas-new-year-bumper":
+    "/lottry-logos/christmas-new-year-bumper-lottery-logo.jpg",
+  "christmas-new-year":
+    "/lottry-logos/christmas-new-year-bumper-lottery-logo.jpg",
+  "xmas-new-year-bumper":
+    "/lottry-logos/christmas-new-year-bumper-lottery-logo.jpg",
+  "summer-bumper": "/lottry-logos/summer-bumper-lottery-logo.jpg",
+  summer: "/lottry-logos/summer-bumper-lottery-logo.jpg",
+  "vishu-bumper": "/lottry-logos/vishu-bumper-lottery-logo.jpg",
+  vishu: "/lottry-logos/vishu-bumper-lottery-logo.jpg",
+  "monsoon-bumper": "/lottry-logos/monsoon-bumper-lottery-logo.jpg",
+  monsoon: "/lottry-logos/monsoon-bumper-lottery-logo.jpg",
+  "thiruvonam-bumper": "/lottry-logos/thiruvonam-bumper-lottery-logo.jpg",
+  thiruvonam: "/lottry-logos/thiruvonam-bumper-lottery-logo.jpg",
+  "onam-bumper": "/lottry-logos/thiruvonam-bumper-lottery-logo.jpg",
+  "pooja-bumper": "/lottry-logos/pooja-bumper-lottery-logo.jpg",
+  pooja: "/lottry-logos/pooja-bumper-lottery-logo.jpg",
+};
+
+/**
+ * Get the official lottery logo URL for any lottery code, slug, or name
+ */
+export function getLotteryLogo(codeOrName: string): string | null {
+  if (!codeOrName) return null;
+  const upper = codeOrName.toUpperCase().trim();
+  if (LOTTERY_LOGOS[upper]) return LOTTERY_LOGOS[upper];
+
+  const lower = codeOrName.toLowerCase().trim();
+  if (LOTTERY_LOGOS[lower]) return LOTTERY_LOGOS[lower];
+
+  const code = SLUG_TO_LOTTERY_CODE[lower];
+  if (code && LOTTERY_LOGOS[code]) return LOTTERY_LOGOS[code];
+
+  if (lower.includes("bhagya")) return LOTTERY_LOGOS.BT;
+  if (lower.includes("sthree") || lower.includes("sakthi"))
+    return LOTTERY_LOGOS.SS;
+  if (lower.includes("dhana") || lower.includes("lekshmi"))
+    return LOTTERY_LOGOS.DL;
+  if (lower.includes("karunya plus") || lower.includes("karunyaplus"))
+    return LOTTERY_LOGOS.KN;
+  if (lower.includes("suvarna") || lower.includes("keralam"))
+    return LOTTERY_LOGOS.SK;
+  if (lower.includes("karunya")) return LOTTERY_LOGOS.KR;
+  if (lower.includes("samrudhi")) return LOTTERY_LOGOS.SM;
+
+  // Bumper fallbacks
+  if (lower.includes("thiruvonam") || lower.includes("onam"))
+    return LOTTERY_LOGOS.TH;
+  if (lower.includes("vishu")) return LOTTERY_LOGOS.VB;
+  if (
+    lower.includes("christmas") ||
+    lower.includes("xmas") ||
+    lower.includes("new year")
+  )
+    return LOTTERY_LOGOS.XN;
+  if (lower.includes("pooja") || lower.includes("puja"))
+    return LOTTERY_LOGOS.PB;
+  if (lower.includes("monsoon")) return LOTTERY_LOGOS.MB;
+  if (lower.includes("summer")) return LOTTERY_LOGOS.SB;
+
+  return null;
+}
+
+/**
+ * Get the official 1st prize jackpot amount for any lottery code or name
+ */
+export function getLotteryJackpot(
+  codeOrSlug?: string,
+  customJackpot?: string,
+): string {
+  if (customJackpot && customJackpot.trim()) return customJackpot.trim();
+  if (!codeOrSlug) return "₹1 Crore";
+  const canonicalCode =
+    getLotteryCodeFromSlug(codeOrSlug) || codeOrSlug.toUpperCase();
+  const match = ALL_LOTTERIES.find((l) => l.code === canonicalCode);
+  if (match && (match as any).jackpot) return (match as any).jackpot;
+  return "₹1 Crore";
+}
+
+/**
+ * Get SEO-optimized alt text for a lottery logo
+ */
+export function getLotteryLogoAlt(lotteryName: string, day?: string): string {
+  const cleanName = lotteryName ? lotteryName.trim() : "Kerala";
+  const dayStr = day ? ` (${day})` : "";
+  return `${cleanName} Lottery Official Logo${dayStr} - Kerala State Lottery Results Today`;
+}
+
 /**
  * Get canonical URL slug for any lottery code or name
  */
@@ -216,7 +404,9 @@ let cachedDrawResults: StructuredDrawResult[] | null = null;
 let lastCacheTime = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-export function hasAnyDrawResult(draw: StructuredDrawResult | null | undefined): boolean {
+export function hasAnyDrawResult(
+  draw: StructuredDrawResult | null | undefined,
+): boolean {
   if (!draw) return false;
   if (
     draw.first?.ticket &&
@@ -272,15 +462,21 @@ export async function saveDrawResultToSupabase(data: {
   let matched = ALL_LOTTERIES.find((l) => l.code === lottery_code);
   if (!matched) {
     matched = ALL_LOTTERIES.find(
-      (l) => l.name.toLowerCase() === data.draw_name.toLowerCase()
+      (l) => l.name.toLowerCase() === data.draw_name.toLowerCase(),
     );
   }
 
   if (!matched) {
     // Special alias matching for bumper draws (e.g. BR code prefixes)
-    if (data.draw_name.toLowerCase().includes("thiruvonam") || data.draw_name.toLowerCase().includes("onam")) {
+    if (
+      data.draw_name.toLowerCase().includes("thiruvonam") ||
+      data.draw_name.toLowerCase().includes("onam")
+    ) {
       matched = BUMPER_LOTTERIES[0];
-    } else if (data.draw_name.toLowerCase().includes("christmas") || data.draw_name.toLowerCase().includes("new year")) {
+    } else if (
+      data.draw_name.toLowerCase().includes("christmas") ||
+      data.draw_name.toLowerCase().includes("new year")
+    ) {
       matched = BUMPER_LOTTERIES[1];
     } else if (data.draw_name.toLowerCase().includes("vishu")) {
       matched = BUMPER_LOTTERIES[2];
@@ -294,7 +490,9 @@ export async function saveDrawResultToSupabase(data: {
   }
 
   if (!matched) {
-    console.log(`Skipping save: ${lottery_code} (${data.draw_name}) is not recognized in lotteries list.`);
+    console.log(
+      `Skipping save: ${lottery_code} (${data.draw_name}) is not recognized in lotteries list.`,
+    );
     return;
   }
 
@@ -376,13 +574,19 @@ export async function getDrawResultFromSupabase(
       let prizesObj: PrizeData = {};
 
       try {
-        firstObj = typeof row.first_prize === "string" ? JSON.parse(row.first_prize) : (row.first_prize || {});
+        firstObj =
+          typeof row.first_prize === "string"
+            ? JSON.parse(row.first_prize)
+            : row.first_prize || {};
       } catch {
         firstObj = {};
       }
 
       try {
-        prizesObj = typeof row.prizes === "string" ? JSON.parse(row.prizes) : (row.prizes || {});
+        prizesObj =
+          typeof row.prizes === "string"
+            ? JSON.parse(row.prizes)
+            : row.prizes || {};
       } catch {
         prizesObj = {};
       }
@@ -425,9 +629,9 @@ export async function getDrawDatesFromSupabase(
   return [];
 }
 
-export async function fetchAllDrawResultsFromSupabase(forceRefresh = true): Promise<
-  StructuredDrawResult[]
-> {
+export async function fetchAllDrawResultsFromSupabase(
+  forceRefresh = true,
+): Promise<StructuredDrawResult[]> {
   // Bypassing in-memory cache to guarantee live results
   const now = Date.now();
 
@@ -441,12 +645,18 @@ export async function fetchAllDrawResultsFromSupabase(forceRefresh = true): Prom
         let firstObj: FirstPrize = {};
         let prizesObj: PrizeData = {};
         try {
-          firstObj = typeof row.first_prize === "string" ? JSON.parse(row.first_prize) : (row.first_prize || {});
+          firstObj =
+            typeof row.first_prize === "string"
+              ? JSON.parse(row.first_prize)
+              : row.first_prize || {};
         } catch {
           firstObj = {};
         }
         try {
-          prizesObj = typeof row.prizes === "string" ? JSON.parse(row.prizes) : (row.prizes || {});
+          prizesObj =
+            typeof row.prizes === "string"
+              ? JSON.parse(row.prizes)
+              : row.prizes || {};
         } catch {
           prizesObj = {};
         }
@@ -474,7 +684,7 @@ export async function fetchAllDrawResultsFromSupabase(forceRefresh = true): Prom
 }
 
 export async function getDrawHistoryFromSupabase(
-  lotteryCode: string
+  lotteryCode: string,
 ): Promise<StructuredDrawResult[]> {
   try {
     const { data, error } = await supabase
@@ -522,7 +732,7 @@ export async function getDrawHistoryFromSupabase(
 }
 
 export async function getRecentDrawsFromSupabase(
-  limit = 35
+  limit = 35,
 ): Promise<StructuredDrawResult[]> {
   try {
     const { data, error } = await supabase
@@ -578,7 +788,11 @@ export async function fetchDrawResultsForSitemap(): Promise<
   { lottery_code: string; draw_date: string; created_at?: string }[]
 > {
   const PAGE_SIZE = 1000;
-  const allRows: { lottery_code: string; draw_date: string; created_at?: string }[] = [];
+  const allRows: {
+    lottery_code: string;
+    draw_date: string;
+    created_at?: string;
+  }[] = [];
   let from = 0;
 
   try {
@@ -628,10 +842,16 @@ export function validateTicketMatch(
   rawPrize: string,
 ): { isMatch: boolean; exactSeriesMatch: boolean; seriesNote?: string } {
   const queryDigits = rawQuery.replace(/\D/g, "");
-  const querySeries = rawQuery.replace(/[^A-Z]/gi, "").trim().toUpperCase();
+  const querySeries = rawQuery
+    .replace(/[^A-Z]/gi, "")
+    .trim()
+    .toUpperCase();
 
   const prizeDigits = rawPrize.replace(/\D/g, "");
-  const prizeSeries = rawPrize.replace(/[^A-Z]/gi, "").trim().toUpperCase();
+  const prizeSeries = rawPrize
+    .replace(/[^A-Z]/gi, "")
+    .trim()
+    .toUpperCase();
 
   if (!queryDigits || !prizeDigits || queryDigits.length < 4) {
     return { isMatch: false, exactSeriesMatch: false };
@@ -698,7 +918,7 @@ export interface TopPrizeHint {
  */
 export function findTopPrizePartialHint(
   rawQuery: string,
-  draw: { first?: { ticket?: string }; prizes?: any }
+  draw: { first?: { ticket?: string }; prizes?: any },
 ): TopPrizeHint | null {
   const queryDigits = rawQuery.replace(/\D/g, "");
   if (!queryDigits || queryDigits.length < 4 || queryDigits.length >= 6) {
@@ -741,7 +961,10 @@ export function formatTicketSearchInput(text: string): string {
   if (!text) return "";
 
   // Extract up to 2 letters (series) and up to 6 digits (ticket number)
-  const letters = text.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 2);
+  const letters = text
+    .replace(/[^a-zA-Z]/g, "")
+    .toUpperCase()
+    .slice(0, 2);
   const digits = text.replace(/\D/g, "").slice(0, 6);
 
   if (letters.length > 0) {
@@ -762,7 +985,7 @@ export function formatTicketSearchInput(text: string): string {
 export function getSearchFeedbackMessage(
   queryInput: string,
   drawDate?: string,
-  topHint?: TopPrizeHint | null
+  topHint?: TopPrizeHint | null,
 ): string {
   const queryDigits = queryInput.replace(/\D/g, "");
   const dateStr = drawDate ? ` for ${drawDate}` : "";
@@ -856,7 +1079,8 @@ export async function searchTicketsInSupabase(queryTicket: string) {
             draw_name: draw.draw_name,
             draw_code: draw.draw_code,
             lottery_code: draw.lottery_code,
-            prize_tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+            prize_tier:
+              tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
             prize_amount: amount,
             ticket_matched: num,
             series_note: matchRes.seriesNote,
@@ -930,12 +1154,12 @@ export interface CronConfig {
 /**
  * Check if a given date has a Bumper Lottery scheduled in Supabase
  */
-export async function checkIsBumperDrawDate(date: string): Promise<LotteryRecord | null> {
+export async function checkIsBumperDrawDate(
+  date: string,
+): Promise<LotteryRecord | null> {
   try {
     const lotteries = await getLotteriesFromSupabase();
-    const bumper = lotteries.find(
-      (l) => l.is_bumper && l.draw_date === date
-    );
+    const bumper = lotteries.find((l) => l.is_bumper && l.draw_date === date);
     return bumper || null;
   } catch (e) {
     console.warn("checkIsBumperDrawDate error:", e);
@@ -946,7 +1170,9 @@ export async function checkIsBumperDrawDate(date: string): Promise<LotteryRecord
 /**
  * Fetch list of postponed/no-draw dates from Supabase
  */
-export async function getPostponedDraws(date?: string): Promise<PostponedDraw[]> {
+export async function getPostponedDraws(
+  date?: string,
+): Promise<PostponedDraw[]> {
   try {
     let query = supabase
       .from("postponed_draws")
@@ -972,7 +1198,7 @@ export async function getPostponedDraws(date?: string): Promise<PostponedDraw[]>
  */
 export async function checkIsDatePostponed(
   date: string,
-  lotteryCode?: string
+  lotteryCode?: string,
 ): Promise<PostponedDraw | null> {
   try {
     const list = await getPostponedDraws(date);
@@ -981,7 +1207,9 @@ export async function checkIsDatePostponed(
     if (lotteryCode) {
       const codeUpper = lotteryCode.toUpperCase();
       const specific = list.find(
-        (p) => p.lottery_code.toUpperCase() === codeUpper || p.lottery_code.toUpperCase() === "ALL"
+        (p) =>
+          p.lottery_code.toUpperCase() === codeUpper ||
+          p.lottery_code.toUpperCase() === "ALL",
       );
       return specific || null;
     }
@@ -997,7 +1225,9 @@ export async function checkIsDatePostponed(
  * Save or update a postponed draw entry
  */
 export async function savePostponedDraw(
-  item: Omit<PostponedDraw, "id" | "created_at" | "updated_at"> & { id?: number }
+  item: Omit<PostponedDraw, "id" | "created_at" | "updated_at"> & {
+    id?: number;
+  },
 ): Promise<{ success: boolean; data?: PostponedDraw; error?: string }> {
   try {
     const payload = {
@@ -1039,7 +1269,8 @@ export async function savePostponedDraw(
   } catch (err: unknown) {
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Failed to save postponed draw",
+      error:
+        err instanceof Error ? err.message : "Failed to save postponed draw",
     };
   }
 }
@@ -1049,7 +1280,10 @@ export async function savePostponedDraw(
  */
 export async function deletePostponedDraw(id: number): Promise<boolean> {
   try {
-    const { error } = await supabase.from("postponed_draws").delete().eq("id", id);
+    const { error } = await supabase
+      .from("postponed_draws")
+      .delete()
+      .eq("id", id);
     return !error;
   } catch (e) {
     console.warn("deletePostponedDraw error:", e);
@@ -1091,15 +1325,20 @@ export async function getLotteriesFromSupabase(): Promise<LotteryRecord[]> {
  * Save or update lottery definition (weekly or bumper)
  */
 export async function saveLotteryToSupabase(
-  lottery: Partial<LotteryRecord>
+  lottery: Partial<LotteryRecord>,
 ): Promise<{ success: boolean; data?: LotteryRecord; error?: string }> {
   try {
     const payload = {
-      day: lottery.day || (lottery.is_bumper ? `Bumper (${lottery.draw_season || "Special"})` : "Daily"),
+      day:
+        lottery.day ||
+        (lottery.is_bumper
+          ? `Bumper (${lottery.draw_season || "Special"})`
+          : "Daily"),
       name: lottery.name,
       name_ml: lottery.name_ml || lottery.name,
       code: (lottery.code || "").toUpperCase(),
-      draw_time: lottery.draw_time || (lottery.is_bumper ? "2:00 PM" : "3:00 PM"),
+      draw_time:
+        lottery.draw_time || (lottery.is_bumper ? "2:00 PM" : "3:00 PM"),
       is_bumper: !!lottery.is_bumper,
       jackpot: lottery.jackpot || null,
       ticket_price: lottery.ticket_price || null,
@@ -1156,7 +1395,9 @@ export async function deleteLotteryFromSupabase(id: number): Promise<boolean> {
 /**
  * Delete draw result from Supabase
  */
-export async function deleteDrawResultFromSupabase(id: number): Promise<boolean> {
+export async function deleteDrawResultFromSupabase(
+  id: number,
+): Promise<boolean> {
   try {
     bustDrawResultsCache();
     const { error } = await supabase.from("draw_results").delete().eq("id", id);
@@ -1171,7 +1412,7 @@ export async function deleteDrawResultFromSupabase(id: number): Promise<boolean>
  * Save manual draw result (Weekly or Bumper) with complete prize structure
  */
 export async function saveManualDrawResultToSupabase(
-  data: StructuredDrawResult
+  data: StructuredDrawResult,
 ): Promise<{ success: boolean; data?: StructuredDrawResult; error?: string }> {
   try {
     bustDrawResultsCache();
@@ -1249,16 +1490,33 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
 
       return {
         cron_enabled: configMap["cron_enabled"] !== "false",
-        cron_start_time: configMap["cron_start_time"] || defaultConfig.cron_start_time,
-        cron_phase1_end_time: configMap["cron_phase1_end_time"] || defaultConfig.cron_phase1_end_time,
-        cron_end_time: configMap["cron_end_time"] || defaultConfig.cron_end_time,
-        cron_frequency_mins: configMap["cron_frequency_mins"] || defaultConfig.cron_frequency_mins,
-        cron_phase2_frequency_mins: configMap["cron_phase2_frequency_mins"] || defaultConfig.cron_phase2_frequency_mins,
-        cron_bumper_start_time: configMap["cron_bumper_start_time"] || defaultConfig.cron_bumper_start_time,
-        cron_bumper_phase1_end_time: configMap["cron_bumper_phase1_end_time"] || defaultConfig.cron_bumper_phase1_end_time,
-        cron_bumper_end_time: configMap["cron_bumper_end_time"] || defaultConfig.cron_bumper_end_time,
-        cron_bumper_frequency_mins: configMap["cron_bumper_frequency_mins"] || defaultConfig.cron_bumper_frequency_mins,
-        cron_bumper_phase2_frequency_mins: configMap["cron_bumper_phase2_frequency_mins"] || defaultConfig.cron_bumper_phase2_frequency_mins,
+        cron_start_time:
+          configMap["cron_start_time"] || defaultConfig.cron_start_time,
+        cron_phase1_end_time:
+          configMap["cron_phase1_end_time"] ||
+          defaultConfig.cron_phase1_end_time,
+        cron_end_time:
+          configMap["cron_end_time"] || defaultConfig.cron_end_time,
+        cron_frequency_mins:
+          configMap["cron_frequency_mins"] || defaultConfig.cron_frequency_mins,
+        cron_phase2_frequency_mins:
+          configMap["cron_phase2_frequency_mins"] ||
+          defaultConfig.cron_phase2_frequency_mins,
+        cron_bumper_start_time:
+          configMap["cron_bumper_start_time"] ||
+          defaultConfig.cron_bumper_start_time,
+        cron_bumper_phase1_end_time:
+          configMap["cron_bumper_phase1_end_time"] ||
+          defaultConfig.cron_bumper_phase1_end_time,
+        cron_bumper_end_time:
+          configMap["cron_bumper_end_time"] ||
+          defaultConfig.cron_bumper_end_time,
+        cron_bumper_frequency_mins:
+          configMap["cron_bumper_frequency_mins"] ||
+          defaultConfig.cron_bumper_frequency_mins,
+        cron_bumper_phase2_frequency_mins:
+          configMap["cron_bumper_phase2_frequency_mins"] ||
+          defaultConfig.cron_bumper_phase2_frequency_mins,
         app_url: configMap["app_url"] || defaultConfig.app_url,
         cron_secret: configMap["cron_secret"] || defaultConfig.cron_secret,
       };
@@ -1274,7 +1532,7 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
  * Update Cron & App configurations in `app_config`
  */
 export async function updateCronConfigInSupabase(
-  configs: Record<string, string>
+  configs: Record<string, string>,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const upsertRows = Object.entries(configs).map(([key, value]) => ({
@@ -1304,7 +1562,7 @@ export async function updateCronConfigInSupabase(
  */
 export async function logCronExecutionInSupabase(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  log: Omit<CronLog, "id" | "created_at">
+  log: Omit<CronLog, "id" | "created_at">,
 ): Promise<void> {
   // Logging disabled
   return;
@@ -1344,7 +1602,7 @@ export interface CachedAiPatternRecord {
  * Tries `ai_pattern_predictions` table first, falls back to `app_config` table
  */
 export async function getCachedAiPatternPrediction(
-  lotteryCode: string
+  lotteryCode: string,
 ): Promise<CachedAiPatternRecord | null> {
   const code = (lotteryCode || "ALL").toUpperCase();
 
@@ -1390,7 +1648,7 @@ export async function getCachedAiPatternPrediction(
  * Persists to `ai_pattern_predictions` (and `app_config` as fallback)
  */
 export async function saveAiPatternPrediction(
-  record: CachedAiPatternRecord
+  record: CachedAiPatternRecord,
 ): Promise<boolean> {
   const code = (record.lottery_code || "ALL").toUpperCase();
   const now = new Date().toISOString();
@@ -1399,19 +1657,17 @@ export async function saveAiPatternPrediction(
 
   // 1. Try upserting to ai_pattern_predictions table
   try {
-    const { error } = await supabase
-      .from("ai_pattern_predictions")
-      .upsert(
-        {
-          lottery_code: code,
-          lottery_name: record.lottery_name,
-          draws_count: record.draws_count,
-          latest_draw_date: record.latest_draw_date || null,
-          analysis: record.analysis,
-          updated_at: now,
-        },
-        { onConflict: "lottery_code" }
-      );
+    const { error } = await supabase.from("ai_pattern_predictions").upsert(
+      {
+        lottery_code: code,
+        lottery_name: record.lottery_name,
+        draws_count: record.draws_count,
+        latest_draw_date: record.latest_draw_date || null,
+        analysis: record.analysis,
+        updated_at: now,
+      },
+      { onConflict: "lottery_code" },
+    );
 
     if (!error) {
       saved = true;
@@ -1431,7 +1687,7 @@ export async function saveAiPatternPrediction(
         }),
         updated_at: now,
       },
-      { onConflict: "key" }
+      { onConflict: "key" },
     );
     saved = true;
   } catch (err) {
@@ -1440,4 +1696,3 @@ export async function saveAiPatternPrediction(
 
   return saved;
 }
-

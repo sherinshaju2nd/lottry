@@ -17,6 +17,8 @@ import {
   WEEKLY_LOTTERIES,
   BUMPER_LOTTERIES,
   getLotteryUrl,
+  getLotteryLogo,
+  getLotteryLogoAlt,
 } from "@/lib/supabase";
 
 export default function Footer() {
@@ -458,23 +460,45 @@ export default function Footer() {
           >
             Weekly Lotteries:
           </Typography>
-          {WEEKLY_LOTTERIES.map((lottery) => (
-            <Typography
-              key={lottery.code}
-              variant="body2"
-              component={Link}
-              href={getLotteryUrl(lottery.code)}
-              sx={{
-                color: "#6B7280",
-                textDecoration: "none",
-                fontSize: "0.825rem",
-                fontWeight: 500,
-                "&:hover": { color: "#0B3C5D", textDecoration: "underline" },
-              }}
-            >
-              {lottery.name}
-            </Typography>
-          ))}
+          {WEEKLY_LOTTERIES.map((lottery) => {
+            const logo = getLotteryLogo(lottery.code);
+            return (
+              <Box
+                key={lottery.code}
+                component={Link}
+                href={getLotteryUrl(lottery.code)}
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  color: "#4B5563",
+                  textDecoration: "none",
+                  fontSize: "0.825rem",
+                  fontWeight: 600,
+                  py: 0.25,
+                  px: 0.5,
+                  borderRadius: "6px",
+                  transition: "all 0.15s ease",
+                  "&:hover": { color: "#0B3C5D", bgcolor: "#EFF6FF" },
+                }}
+              >
+                {logo && (
+                  <Box
+                    component="img"
+                    src={logo}
+                    alt={getLotteryLogoAlt(lottery.name, lottery.day)}
+                    sx={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: "4px",
+                      objectFit: "cover",
+                    }}
+                  />
+                )}
+                <span>{lottery.name}</span>
+              </Box>
+            );
+          })}
         </Box>
 
         {/* 3. Bumper Lotteries Direct Links */}
@@ -500,23 +524,45 @@ export default function Footer() {
           >
             Bumper Lotteries:
           </Typography>
-          {BUMPER_LOTTERIES.map((bumper) => (
-            <Typography
-              key={bumper.code}
-              variant="body2"
-              component={Link}
-              href={getLotteryUrl(bumper.code)}
-              sx={{
-                color: "#6B7280",
-                textDecoration: "none",
-                fontSize: "0.825rem",
-                fontWeight: 500,
-                "&:hover": { color: "#0B3C5D", textDecoration: "underline" },
-              }}
-            >
-              {bumper.name}
-            </Typography>
-          ))}
+          {BUMPER_LOTTERIES.map((bumper) => {
+            const logo = getLotteryLogo(bumper.code);
+            return (
+              <Box
+                key={bumper.code}
+                component={Link}
+                href={getLotteryUrl(bumper.code)}
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  color: "#4B5563",
+                  textDecoration: "none",
+                  fontSize: "0.825rem",
+                  fontWeight: 600,
+                  py: 0.25,
+                  px: 0.5,
+                  borderRadius: "6px",
+                  transition: "all 0.15s ease",
+                  "&:hover": { color: "#0B3C5D", bgcolor: "#EFF6FF" },
+                }}
+              >
+                {logo && (
+                  <Box
+                    component="img"
+                    src={logo}
+                    alt={getLotteryLogoAlt(bumper.name, bumper.day)}
+                    sx={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: "4px",
+                      objectFit: "cover",
+                    }}
+                  />
+                )}
+                <span>{bumper.name}</span>
+              </Box>
+            );
+          })}
         </Box>
 
         {/* Multilingual Regional Search Keywords */}

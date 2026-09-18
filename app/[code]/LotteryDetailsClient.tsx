@@ -36,6 +36,8 @@ import {
   BUMPER_LOTTERIES,
   StructuredDrawResult,
   getLotteryUrl,
+  getLotteryLogo,
+  getLotteryLogoAlt,
   supabase,
 } from "@/lib/supabase";
 
@@ -211,7 +213,7 @@ export default function LotteryDetailsClient({
                 fontSize: "0.875rem",
               }}
             >
-              {lotteryInfo.name} Results & Archives
+              {lotteryInfo.name} Results
             </Typography>
           </Breadcrumbs>
         </Box>
@@ -241,30 +243,68 @@ export default function LotteryDetailsClient({
               gap: 2,
             }}
           >
-            <Box sx={{ maxWidth: { xs: "100%", md: "70%" } }}>
-              <Typography
-                variant="h3"
-                component="h1"
-                sx={{
-                  fontWeight: 900,
-                  color: "#111827",
-                  fontSize: { xs: "1.4rem", sm: "2rem", md: "2.5rem" },
-                }}
-              >
-                {lotteryInfo.name} ({lotteryInfo.code}) Result Today & Archives
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  color: "#6B7280",
-                  mt: 0.5,
-                  fontSize: { xs: "0.85rem", sm: "1rem" },
-                }}
-              >
-                Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time:{" "}
-                <strong>{lotteryInfo.code.startsWith("Bumper") ? "2:00 PM" : "3:00 PM"}</strong> | Total Draws:{" "}
-                <strong>{filteredDraws.length}</strong>
-              </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 2, sm: 2.5 }, maxWidth: { xs: "100%", md: "75%" } }}>
+              {getLotteryLogo(lotteryCode) && (
+                <Box
+                  sx={{
+                    width: { xs: 72, sm: 84, md: 92 },
+                    height: { xs: 72, sm: 84, md: 92 },
+                    borderRadius: "18px",
+                    overflow: "hidden",
+                    border: "2px solid #E2E8F0",
+                    boxShadow: "0 6px 16px rgba(11, 60, 93, 0.12)",
+                    flexShrink: 0,
+                    bgcolor: "#FFFFFF",
+                  }}
+                >
+                  <img
+                    src={getLotteryLogo(lotteryCode)!}
+                    alt={getLotteryLogoAlt(lotteryInfo.name, lotteryInfo.day)}
+                    width={92}
+                    height={92}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </Box>
+              )}
+              <Box>
+                <Typography
+                  variant="h3"
+                  component="h1"
+                  sx={{
+                    fontWeight: 900,
+                    color: "#111827",
+                    fontSize: { xs: "1.35rem", sm: "1.85rem", md: "2.3rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {lotteryInfo.name} ({lotteryInfo.code}) Result Today & Live Draw
+                </Typography>
+                {lotteryInfo.nameMl && (
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      color: "#0B3C5D",
+                      fontWeight: 800,
+                      fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                      mt: 0.25,
+                    }}
+                  >
+                    {lotteryInfo.nameMl} ലോട്ടറി ഫലങ്ങൾ
+                  </Typography>
+                )}
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "#6B7280",
+                    mt: 0.5,
+                    fontSize: { xs: "0.825rem", sm: "0.95rem" },
+                  }}
+                >
+                  Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time:{" "}
+                  <strong>{lotteryInfo.code.startsWith("Bumper") ? "2:00 PM" : "3:00 PM"}</strong> | Total Draws:{" "}
+                  <strong>{filteredDraws.length}</strong>
+                </Typography>
+              </Box>
             </Box>
 
             <ToggleButtonGroup
@@ -754,12 +794,12 @@ export default function LotteryDetailsClient({
           </>
         )}
 
-        {/* Complete Crawlable Historical Draw Archive Links */}
+        {/* Complete Crawlable Historical Draw Results Links */}
         {drawHistory.length > 0 && (
           <Paper
             elevation={0}
             component="nav"
-            aria-label={`${lotteryInfo.name} Draw Archives Index`}
+            aria-label={`${lotteryInfo.name} Draw Results Index`}
             sx={{
               mt: 6,
               p: { xs: 2.5, sm: 3.5 },
@@ -841,28 +881,55 @@ export default function LotteryDetailsClient({
           </Typography>
 
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
-            {otherWeekly.map((item) => (
-              <Button
-                key={item.code}
-                component={Link}
-                href={getLotteryUrl(item.code)}
-                variant="outlined"
-                size="small"
-                sx={{
-                  color: "#374151",
-                  borderColor: "#E5E7EB",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  "&:hover": {
-                    borderColor: "#0B3C5D",
-                    bgcolor: "#F0F7FF",
-                    color: "#0B3C5D",
-                  },
-                }}
-              >
-                {item.name} ({item.day})
-              </Button>
-            ))}
+            {otherWeekly.map((item) => {
+              const logo = getLotteryLogo(item.code);
+              return (
+                <Button
+                  key={item.code}
+                  component={Link}
+                  href={getLotteryUrl(item.code)}
+                  variant="outlined"
+                  size="small"
+                  startIcon={
+                    logo ? (
+                      <Box
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: "6px",
+                          overflow: "hidden",
+                          display: "inline-flex",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <img
+                          src={logo}
+                          alt={getLotteryLogoAlt(item.name, item.day)}
+                          width={24}
+                          height={24}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </Box>
+                    ) : null
+                  }
+                  sx={{
+                    color: "#374151",
+                    borderColor: "#E5E7EB",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    px: 1.5,
+                    py: 0.8,
+                    "&:hover": {
+                      borderColor: "#0B3C5D",
+                      bgcolor: "#F0F7FF",
+                      color: "#0B3C5D",
+                    },
+                  }}
+                >
+                  {item.name} ({item.day})
+                </Button>
+              );
+            })}
           </Box>
 
           <Typography variant="caption" sx={{ fontWeight: 700, color: "#6B7280", display: "block", mb: 1 }}>

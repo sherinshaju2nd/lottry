@@ -14,6 +14,8 @@ async function runSupabaseMigrationAndSeed() {
         name_ml: item.nameMl,
         code: item.code,
         draw_time: item.is_bumper ? "2:00 PM (Bumper)" : "3:00 PM",
+        jackpot: (item as any).jackpot || "₹1 Crore",
+        ticket_price: (item as any).ticket_price || (item.is_bumper ? "₹500" : "₹50"),
       },
       { onConflict: "code" }
     );

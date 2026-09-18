@@ -65,6 +65,8 @@ import {
   PrizeData,
   PostponedDraw,
   getLotteryUrl,
+  getLotteryLogo,
+  getLotteryLogoAlt,
   supabase,
   formatTicketSearchInput,
   hasAnyDrawResult,
@@ -281,6 +283,14 @@ export default function HomePage() {
               code: d.code,
               drawTime: d.draw_time || "3:00 PM",
               is_bumper: d.is_bumper ?? d.day.toLowerCase().includes("bumper"),
+              jackpot:
+                d.jackpot ||
+                WEEKLY_LOTTERIES.find((w) => w.code === d.code)?.jackpot ||
+                "₹1 Crore",
+              ticket_price:
+                d.ticket_price ||
+                WEEKLY_LOTTERIES.find((w) => w.code === d.code)?.ticket_price ||
+                "₹50",
             }))
             .filter(
               (l: any) =>
@@ -2516,7 +2526,7 @@ export default function HomePage() {
                                   display: "block",
                                 }}
                               >
-                                Archive Available • Daily 3:10 PM Updates
+                                Results Available • Daily 3:10 PM Updates
                               </Typography>
                             </Box>
                           )}
@@ -2542,7 +2552,7 @@ export default function HomePage() {
                               fontSize: "0.78rem",
                             }}
                           >
-                            View Archives & Results
+                            View Draw Results
                           </Typography>
                           <ArrowForwardIcon
                             sx={{ color: "#0B3C5D", fontSize: 16 }}
@@ -2798,34 +2808,54 @@ export default function HomePage() {
                             />
                           </Box>
 
-                          {/* Main Title & Malayalam Name */}
-                          <Typography
-                            variant="h5"
-                            sx={{
-                              fontWeight: 900,
-                              color: isAnnouncedUpcoming
-                                ? "#78350F"
-                                : "#111827",
-                              mb: 0.2,
-                              fontSize: "1.25rem",
-                            }}
-                          >
-                            {bumper.name}
-                          </Typography>
-
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              fontWeight: 700,
-                              color: isAnnouncedUpcoming
-                                ? "#B45309"
-                                : "#0B3C5D",
-                              mb: 1.5,
-                              fontSize: "0.95rem",
-                            }}
-                          >
-                            {bumper.nameMl}
-                          </Typography>
+                          {/* Main Title, Logo & Malayalam Name */}
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+                            {getLotteryLogo(bumper.code) && (
+                              <Box
+                                component="img"
+                                src={getLotteryLogo(bumper.code)!}
+                                alt={getLotteryLogoAlt(bumper.name, bumper.day)}
+                                sx={{
+                                  width: 52,
+                                  height: 52,
+                                  borderRadius: "12px",
+                                  objectFit: "cover",
+                                  border: "1.5px solid #E2E8F0",
+                                  bgcolor: "#F8FAFC",
+                                  flexShrink: 0,
+                                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                                }}
+                              />
+                            )}
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Typography
+                                variant="h5"
+                                sx={{
+                                  fontWeight: 900,
+                                  color: isAnnouncedUpcoming
+                                    ? "#78350F"
+                                    : "#111827",
+                                  mb: 0.2,
+                                  fontSize: "1.2rem",
+                                  lineHeight: 1.25,
+                                }}
+                              >
+                                {bumper.name}
+                              </Typography>
+                              <Typography
+                                variant="subtitle2"
+                                sx={{
+                                  fontWeight: 700,
+                                  color: isAnnouncedUpcoming
+                                    ? "#B45309"
+                                    : "#0B3C5D",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                {bumper.nameMl}
+                              </Typography>
+                            </Box>
+                          </Box>
 
                           {/* Jackpot Box */}
                           <Box
@@ -3076,7 +3106,7 @@ export default function HomePage() {
                                   display: "block",
                                 }}
                               >
-                                Annual Draw Archive Available
+                                Annual Draw Results Available
                               </Typography>
                             </Box>
                           )}
@@ -3351,7 +3381,7 @@ export default function HomePage() {
               >
                 https://www.keralalotteryresultstoday.in/
               </Link>
-              ) to instantly access today&apos;s winning draw number, view yesterday&apos;s results, or download the historical monthly chart archives.
+              ) to instantly access today&apos;s winning draw number, view yesterday&apos;s results, or download the historical monthly charts.
             </Typography>
           </Paper>
         </Box>

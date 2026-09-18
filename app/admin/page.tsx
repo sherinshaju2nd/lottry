@@ -895,7 +895,7 @@ export default function AdminDashboardPage() {
             },
           }}
         >
-          <Tab icon={<TableChartIcon />} iconPosition="start" label={`Draw Results Archive (${draws.length})`} />
+          <Tab icon={<TableChartIcon />} iconPosition="start" label={`Draw Results (${draws.length})`} />
           <Tab icon={<EventBusyIcon />} iconPosition="start" label={`Postponed & No-Draw Spotter (${postponedList.length})`} />
           <Tab icon={<EmojiEventsIcon />} iconPosition="start" label={`Bumper Lotteries Hub (${bumperLotteries.length})`} />
           <Tab icon={<SettingsIcon />} iconPosition="start" label="Cron & Automation Settings" />
@@ -904,14 +904,14 @@ export default function AdminDashboardPage() {
       </Paper>
 
       {/* ========================================================================= */}
-      {/* TAB 0: DRAW RESULTS ARCHIVE & MANUAL ENTRY                               */}
+      {/* TAB 0: DRAW RESULTS DATABASE & MANUAL ENTRY                               */}
       {/* ========================================================================= */}
       {currentTab === 0 && (
         <Paper elevation={0} sx={{ borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", overflow: "hidden" }}>
           <Box sx={{ p: 3, borderBottom: "1px solid #E2E8F0", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B" }}>
-                Stored Draw Results Archive
+                Stored Draw Results Database
               </Typography>
               <Typography variant="body2" sx={{ color: "#64748B" }}>
                 View, manually enter, update, or remove weekly and bumper lottery results.
@@ -1799,7 +1799,7 @@ export default function AdminDashboardPage() {
                   🚀 Manual 1st Prize Broadcast Trigger
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#64748B", mb: 2 }}>
-                  Select any draw result from your archive to immediately push its 1st Prize announcement to Telegram and WhatsApp.
+                  Select any draw result from your database to immediately push its 1st Prize announcement to Telegram and WhatsApp.
                 </Typography>
 
                 <Box sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap", mb: 3 }}>

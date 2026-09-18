@@ -28,7 +28,6 @@ import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CasinoIcon from "@mui/icons-material/Casino";
 import confetti from "canvas-confetti";
@@ -45,6 +44,8 @@ import {
   findTopPrizePartialHint,
   getSearchFeedbackMessage,
   getLotteryUrl,
+  getLotteryLogo,
+  getLotteryLogoAlt,
   hasAnyDrawResult,
   getIsAfterDrawTime,
 } from "@/lib/supabase";
@@ -81,6 +82,7 @@ interface DedicatedLotteryDateClientProps {
   initialAvailableDates: string[];
   initialPostponement: PostponedDraw | null;
   recentOtherDraws: StructuredDrawResult[];
+  serverTodayDate?: string;
 }
 
 export default function DedicatedLotteryDateClient({
@@ -92,13 +94,16 @@ export default function DedicatedLotteryDateClient({
   initialAvailableDates,
   initialPostponement,
   recentOtherDraws,
+  serverTodayDate,
 }: DedicatedLotteryDateClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const todayISTDate = new Date().toLocaleDateString("en-CA", {
-    timeZone: "Asia/Kolkata",
-  });
+  const todayISTDate =
+    serverTodayDate ||
+    new Date().toLocaleDateString("en-CA", {
+      timeZone: "Asia/Kolkata",
+    });
 
   const [availableDates] = useState<string[]>(initialAvailableDates);
   const [selectedDate, setSelectedDate] = useState<string>(dateParam);
@@ -452,7 +457,7 @@ export default function DedicatedLotteryDateClient({
                 fontSize: "0.875rem",
               }}
             >
-              {lotteryInfo.name} Archives
+              {lotteryInfo.name} Results
             </Link>
             <Typography
               sx={{
@@ -493,6 +498,27 @@ export default function DedicatedLotteryDateClient({
               >
                 <ArrowBackIcon fontSize="small" />
               </IconButton>
+              {getLotteryLogo(lotteryCode) && (
+                <Box
+                  sx={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    border: "1.5px solid rgba(255,255,255,0.3)",
+                    flexShrink: 0,
+                    bgcolor: "#FFFFFF",
+                  }}
+                >
+                  <img
+                    src={getLotteryLogo(lotteryCode)!}
+                    alt={getLotteryLogoAlt(lotteryInfo.name, lotteryInfo.day)}
+                    width={38}
+                    height={38}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </Box>
+              )}
               <Box>
                 <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#FFFFFF", lineHeight: 1.2 }}>
                   {drawResult?.draw_name || lotteryInfo.name}
@@ -587,7 +613,7 @@ export default function DedicatedLotteryDateClient({
                 "&:hover": { color: "#0B3C5D" },
               }}
             >
-              Back to {lotteryInfo.name} Archives
+              Back to {lotteryInfo.name} Results
             </Button>
             <Button
               component={Link}
@@ -668,124 +694,50 @@ export default function DedicatedLotteryDateClient({
           </Box>
         </Box>
 
-        {/* Date Navigation Ribbon (Desktop only) */}
-        <Paper
-          elevation={0}
-          component="nav"
-          aria-label="Draw Navigation"
-          sx={{
-            display: { xs: "none", lg: "flex" },
-            alignItems: "center",
-            justifyContent: "space-between",
-            p: 1.5,
-            mb: 3.5,
-            borderRadius: "10px",
-            bgcolor: "#FFFFFF",
-            border: "1px solid #E2E8F0",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-            gap: 1,
-          }}
-        >
-          {prevDate ? (
-            <Button
-              component={Link}
-              href={getLotteryUrl(lotterySlug, prevDate)}
-              startIcon={<NavigateBeforeIcon />}
-              size="small"
-              sx={{
-                color: "#0B3C5D",
-                fontWeight: 700,
-                textTransform: "none",
-                fontSize: { xs: "0.75rem", sm: "0.85rem" },
-                px: { xs: 1, sm: 1.5 },
-                "&:hover": { bgcolor: "#EFF6FF" },
-              }}
-            >
-              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>Previous: </Box>
-              {prevDate}
-            </Button>
-          ) : (
-            <Typography variant="caption" sx={{ color: "#9CA3AF", px: 1, fontSize: "0.75rem" }}>
-              Oldest
-            </Typography>
-          )}
-
-          {/* Date Selector Dropdown in Middle */}
-          {availableDates.length > 0 && (
-            <FormControl
-              size="small"
-              sx={{
-                minWidth: { xs: 130, sm: 180 },
-                bgcolor: "#F8FAFC",
-                borderRadius: "8px",
-              }}
-            >
-              <Select
-                value={selectedDate}
-                onChange={handleDateChange}
-                displayEmpty
-                sx={{
-                  color: "#0B3C5D",
-                  borderRadius: "8px",
-                  fontWeight: 800,
-                  fontSize: { xs: "0.8rem", sm: "0.9rem" },
-                  height: 36,
-                  "& .MuiSelect-select": { py: 0.5, px: 1 },
-                }}
-              >
-                {availableDates.map((d) => (
-                  <MenuItem key={d} value={d}>
-                    📅 {d}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-
-          {nextDate ? (
-            <Button
-              component={Link}
-              href={getLotteryUrl(lotterySlug, nextDate)}
-              endIcon={<NavigateNextIcon />}
-              size="small"
-              sx={{
-                color: "#0B3C5D",
-                fontWeight: 700,
-                textTransform: "none",
-                fontSize: { xs: "0.75rem", sm: "0.85rem" },
-                px: { xs: 1, sm: 1.5 },
-                "&:hover": { bgcolor: "#EFF6FF" },
-              }}
-            >
-              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>Next: </Box>
-              {nextDate}
-            </Button>
-          ) : (
-            <Typography variant="caption" sx={{ color: "#9CA3AF", px: 1, fontSize: "0.75rem" }}>
-              Latest
-            </Typography>
-          )}
-        </Paper>
-
         {/* Desktop Page Title */}
-        <Box sx={{ mb: 3, display: { xs: "none", md: "block" } }}>
-          <Typography
-            variant="h4"
-            component="h1"
-            sx={{
-              fontWeight: 900,
-              color: "#111827",
-              fontSize: { xs: "1.5rem", sm: "2.2rem" },
-            }}
-          >
-            {drawResult?.draw_name || lotteryInfo.name} ({drawResult?.draw_code || lotteryInfo.code}) Result
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: "#6B7280", mt: 0.5, fontSize: "0.95rem" }}
-          >
-            Official Kerala State Lottery Winning Numbers for Draw on <strong>{selectedDate}</strong>
-          </Typography>
+        <Box sx={{ mb: 3, display: { xs: "none", md: "flex" }, alignItems: "center", gap: 2.5 }}>
+          {getLotteryLogo(lotteryCode) && (
+            <Box
+              sx={{
+                width: 72,
+                height: 72,
+                borderRadius: "16px",
+                overflow: "hidden",
+                border: "2px solid #E2E8F0",
+                boxShadow: "0 4px 12px rgba(11, 60, 93, 0.1)",
+                flexShrink: 0,
+                bgcolor: "#FFFFFF",
+              }}
+            >
+              <img
+                src={getLotteryLogo(lotteryCode)!}
+                alt={getLotteryLogoAlt(lotteryInfo.name, lotteryInfo.day)}
+                width={72}
+                height={72}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </Box>
+          )}
+          <Box>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: 900,
+                color: "#111827",
+                fontSize: { xs: "1.5rem", sm: "2.2rem" },
+                lineHeight: 1.2,
+              }}
+            >
+              {drawResult?.draw_name || lotteryInfo.name} ({drawResult?.draw_code || lotteryInfo.code}) Result
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ color: "#6B7280", mt: 0.5, fontSize: "0.95rem" }}
+            >
+              Official Kerala State Lottery Winning Numbers for Draw on <strong>{selectedDate}</strong>
+            </Typography>
+          </Box>
         </Box>
 
         {!drawResult ? (
@@ -875,7 +827,7 @@ export default function DedicatedLotteryDateClient({
                 variant="outlined"
                 sx={{ borderRadius: "8px", fontWeight: 800, borderColor: "#D97706", color: "#B45309" }}
               >
-                View Previous {lotteryInfo.name} Archives
+                View Previous {lotteryInfo.name} Results
               </Button>
             </Paper>
           ) : (
@@ -1416,28 +1368,55 @@ export default function DedicatedLotteryDateClient({
           </Typography>
 
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
-            {WEEKLY_LOTTERIES.map((item) => (
-              <Button
-                key={item.code}
-                component={Link}
-                href={getLotteryUrl(item.code)}
-                variant="outlined"
-                size="small"
-                sx={{
-                  color: "#374151",
-                  borderColor: "#E5E7EB",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  "&:hover": {
-                    borderColor: "#0B3C5D",
-                    bgcolor: "#F0F7FF",
-                    color: "#0B3C5D",
-                  },
-                }}
-              >
-                {item.name} ({item.day})
-              </Button>
-            ))}
+            {WEEKLY_LOTTERIES.map((item) => {
+              const logo = getLotteryLogo(item.code);
+              return (
+                <Button
+                  key={item.code}
+                  component={Link}
+                  href={getLotteryUrl(item.code)}
+                  variant="outlined"
+                  size="small"
+                  startIcon={
+                    logo ? (
+                      <Box
+                        sx={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "5px",
+                          overflow: "hidden",
+                          display: "inline-flex",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <img
+                          src={logo}
+                          alt={getLotteryLogoAlt(item.name, item.day)}
+                          width={22}
+                          height={22}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </Box>
+                    ) : null
+                  }
+                  sx={{
+                    color: "#374151",
+                    borderColor: "#E5E7EB",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    px: 1.5,
+                    py: 0.8,
+                    "&:hover": {
+                      borderColor: "#0B3C5D",
+                      bgcolor: "#F0F7FF",
+                      color: "#0B3C5D",
+                    },
+                  }}
+                >
+                  {item.name} ({item.day})
+                </Button>
+              );
+            })}
           </Box>
 
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>

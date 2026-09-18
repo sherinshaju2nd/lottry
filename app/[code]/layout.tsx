@@ -24,8 +24,8 @@ export async function generateMetadata({
 
   const slug = getLotterySlug(lotteryCode);
   const lotteryName = lottery.name;
-  const title = `${lotteryName} Result Archives & Info`;
-  const description = `Check ${lotteryName} Kerala lottery results, historical archives, draw schedule, and winning prize lists fast and accurately.`;
+  const title = `${lotteryName} Results & Live Info`;
+  const description = `Check ${lotteryName} Kerala lottery results, previous draw numbers, draw schedule, and winning prize lists fast and accurately.`;
   const url = `https://www.keralalotteryresultstoday.in/${slug}`;
 
   return {

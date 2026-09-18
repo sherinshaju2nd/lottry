@@ -49,6 +49,8 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
   StructuredDrawResult,
   WEEKLY_LOTTERIES,
+  getLotteryLogo,
+  getLotteryLogoAlt,
 } from "@/lib/supabase";
 import { LotteryAiPatternAnalysis } from "@/lib/gemini";
 
@@ -649,6 +651,7 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
             >
               {lotteryOptions.map((opt) => {
                 const isSelected = selectedLotteryCode === opt.code;
+                const logo = getLotteryLogo(opt.code);
                 return (
                   <Button
                     key={opt.code}
@@ -668,17 +671,35 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       borderRadius: "12px",
                       fontWeight: isSelected ? 800 : 600,
                       fontSize: "0.8rem",
-                      px: 2,
-                      py: 0.85,
+                      px: 1.6,
+                      py: 0.75,
                       textTransform: "none",
                       boxShadow: isSelected ? "0 4px 12px rgba(11, 60, 93, 0.18)" : "0 1px 2px rgba(0,0,0,0.03)",
                       transition: "all 0.15s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.2,
                       "&:hover": {
                         bgcolor: isSelected ? "#0B3C5D" : "#F8FAFC",
                         borderColor: isSelected ? "#0B3C5D" : "#CBD5E1",
                       },
                     }}
                   >
+                    {logo && (
+                      <Box
+                        component="img"
+                        src={logo}
+                        alt={getLotteryLogoAlt(opt.name, opt.day)}
+                        sx={{
+                          width: 26,
+                          height: 26,
+                          borderRadius: "6px",
+                          objectFit: "cover",
+                          border: isSelected ? "1px solid rgba(255,255,255,0.4)" : "1px solid #CBD5E1",
+                          flexShrink: 0,
+                        }}
+                      />
+                    )}
                     <Box sx={{ textAlign: "left" }}>
                       <Typography sx={{ fontWeight: 800, fontSize: "0.82rem", lineHeight: 1.2, whiteSpace: "nowrap" }}>
                         {opt.name}

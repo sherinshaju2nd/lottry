@@ -338,7 +338,7 @@ export default function KeralaLotteryAppPage() {
     },
     {
       icon: <HistoryEduIcon sx={{ fontSize: 26, color: "#A78BFA" }} />,
-      title: "Complete Draw Archives",
+      title: "Complete Draw Results",
       titleMl: "മുൻകാല റിസൾട്ടുകളുടെ ശേഖരം",
       desc: "Search historical results of all 7 weekly draws and seasonal Bumper lotteries (Onam, Vishu, Pooja, Christmas).",
       badge: "Full History",
@@ -590,32 +590,37 @@ export default function KeralaLotteryAppPage() {
         </Box>
 
         {/* Platform Selector Tabs (iOS Glass Pill Style) */}
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 4, px: { xs: 1, sm: 2 } }}>
           <Box
             sx={{
-              display: "inline-flex",
-              p: 0.6,
+              display: "flex",
+              width: "100%",
+              maxWidth: { xs: "100%", sm: 500, md: 540 },
+              p: { xs: 0.4, sm: 0.6 },
               borderRadius: "100px",
               bgcolor: "rgba(255, 255, 255, 0.05)",
               backdropFilter: "blur(20px)",
               border: "1px solid rgba(255, 255, 255, 0.12)",
               boxShadow: "0 12px 32px rgba(0, 0, 0, 0.3)",
-              gap: 0.5,
+              gap: { xs: 0.4, sm: 0.75 },
             }}
           >
             {/* iOS Button */}
             <Button
               onClick={() => setPlatformTab("ios")}
               sx={{
+                flex: 1,
                 borderRadius: "100px",
-                px: { xs: 2, sm: 3 },
-                py: 1,
-                fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                px: { xs: 0.8, sm: 2.2 },
+                py: { xs: 0.75, sm: 1 },
+                fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.925rem" },
                 fontWeight: 800,
                 textTransform: "none",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 1,
+                justifyContent: "center",
+                gap: { xs: 0.5, sm: 0.8 },
+                whiteSpace: "nowrap",
                 transition: "all 0.25s ease",
                 bgcolor: platformTab === "ios" ? "rgba(255, 255, 255, 0.15)" : "transparent",
                 color: platformTab === "ios" ? "#FFFFFF" : "#94A3B8",
@@ -627,16 +632,17 @@ export default function KeralaLotteryAppPage() {
                 },
               }}
             >
-              <AppleIcon size={18} />
+              <AppleIcon size={16} />
               <span>iPhone / iOS</span>
               {detectedOs === "iOS" && (
                 <Box
                   sx={{
-                    width: 6,
-                    height: 6,
+                    width: 5,
+                    height: 5,
                     borderRadius: "50%",
                     bgcolor: "#38BDF8",
-                    boxShadow: "0 0 8px #38BDF8",
+                    boxShadow: "0 0 6px #38BDF8",
+                    flexShrink: 0,
                   }}
                 />
               )}
@@ -646,15 +652,18 @@ export default function KeralaLotteryAppPage() {
             <Button
               onClick={() => setPlatformTab("windows")}
               sx={{
+                flex: 1,
                 borderRadius: "100px",
-                px: { xs: 2, sm: 3 },
-                py: 1,
-                fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                px: { xs: 0.8, sm: 2.2 },
+                py: { xs: 0.75, sm: 1 },
+                fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.925rem" },
                 fontWeight: 800,
                 textTransform: "none",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 1,
+                justifyContent: "center",
+                gap: { xs: 0.5, sm: 0.8 },
+                whiteSpace: "nowrap",
                 transition: "all 0.25s ease",
                 bgcolor: platformTab === "windows" ? "rgba(255, 255, 255, 0.15)" : "transparent",
                 color: platformTab === "windows" ? "#FFFFFF" : "#94A3B8",
@@ -666,16 +675,17 @@ export default function KeralaLotteryAppPage() {
                 },
               }}
             >
-              <WindowsIcon size={16} />
+              <WindowsIcon size={15} />
               <span>Windows PC</span>
               {detectedOs === "Windows" && (
                 <Box
                   sx={{
-                    width: 6,
-                    height: 6,
+                    width: 5,
+                    height: 5,
                     borderRadius: "50%",
                     bgcolor: "#38BDF8",
-                    boxShadow: "0 0 8px #38BDF8",
+                    boxShadow: "0 0 6px #38BDF8",
+                    flexShrink: 0,
                   }}
                 />
               )}
@@ -685,15 +695,18 @@ export default function KeralaLotteryAppPage() {
             <Button
               onClick={() => setPlatformTab("android")}
               sx={{
+                flex: 1,
                 borderRadius: "100px",
-                px: { xs: 2, sm: 3 },
-                py: 1,
-                fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                px: { xs: 0.8, sm: 2.2 },
+                py: { xs: 0.75, sm: 1 },
+                fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.925rem" },
                 fontWeight: 800,
                 textTransform: "none",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 1,
+                justifyContent: "center",
+                gap: { xs: 0.5, sm: 0.8 },
+                whiteSpace: "nowrap",
                 transition: "all 0.25s ease",
                 bgcolor: platformTab === "android" ? "rgba(255, 255, 255, 0.15)" : "transparent",
                 color: platformTab === "android" ? "#FFFFFF" : "#94A3B8",
@@ -705,16 +718,17 @@ export default function KeralaLotteryAppPage() {
                 },
               }}
             >
-              <AndroidIcon size={16} color="#34D399" />
+              <AndroidIcon size={15} color="#34D399" />
               <span>Android</span>
               {detectedOs === "Android" && (
                 <Box
                   sx={{
-                    width: 6,
-                    height: 6,
+                    width: 5,
+                    height: 5,
                     borderRadius: "50%",
                     bgcolor: "#38BDF8",
-                    boxShadow: "0 0 8px #38BDF8",
+                    boxShadow: "0 0 6px #38BDF8",
+                    flexShrink: 0,
                   }}
                 />
               )}

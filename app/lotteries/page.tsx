@@ -21,6 +21,8 @@ import {
   BUMPER_LOTTERIES,
   ALL_LOTTERIES,
   getLotteryUrl,
+  getLotteryLogo,
+  getLotteryLogoAlt,
   getLotteriesFromSupabase,
   LotteryRecord,
 } from "@/lib/supabase";
@@ -240,6 +242,8 @@ export default function LotteriesPage() {
             const ticketPrice = item.ticket_price || defaultMeta.price;
             const targetUrl = getLotteryUrl(item.code);
 
+            const logo = getLotteryLogo(item.code);
+
             return (
               <Paper
                 key={item.code}
@@ -398,32 +402,51 @@ export default function LotteriesPage() {
                   )}
                 </Box>
 
-                {/* Main Title Section */}
-                <Box sx={{ mb: 1.5 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 900,
-                      fontSize: { xs: "1.15rem", sm: "1.25rem" },
-                      color: "#0F172A",
-                      lineHeight: 1.25,
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                  {item.nameMl && item.nameMl !== item.name && (
-                    <Typography
-                      variant="body2"
+                {/* Main Title Section with Logo */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, sm: 2 }, mb: 1.5 }}>
+                  {logo && (
+                    <Box
+                      component="img"
+                      src={logo}
+                      alt={getLotteryLogoAlt(item.name, item.day)}
                       sx={{
-                        fontWeight: 600,
-                        color: "#64748B",
-                        fontSize: "0.85rem",
-                        mt: 0.25,
+                        width: { xs: 52, sm: 60 },
+                        height: { xs: 52, sm: 60 },
+                        borderRadius: "12px",
+                        objectFit: "cover",
+                        border: "1.5px solid #E2E8F0",
+                        bgcolor: "#F8FAFC",
+                        flexShrink: 0,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                      }}
+                    />
+                  )}
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 900,
+                        fontSize: { xs: "1.15rem", sm: "1.25rem" },
+                        color: "#0F172A",
+                        lineHeight: 1.25,
                       }}
                     >
-                      {item.nameMl}
+                      {item.name}
                     </Typography>
-                  )}
+                    {item.nameMl && item.nameMl !== item.name && (
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 600,
+                          color: "#64748B",
+                          fontSize: "0.85rem",
+                          mt: 0.25,
+                        }}
+                      >
+                        {item.nameMl}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
 
                 {/* Prize & Price Stats Chips */}
@@ -513,7 +536,7 @@ export default function LotteriesPage() {
 
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
                     <Typography sx={{ fontSize: "0.825rem", fontWeight: 800, color: "#0B3C5D" }}>
-                      View Archive (ഫലങ്ങൾ)
+                      View Results (ഫലങ്ങൾ)
                     </Typography>
                     <Box
                       sx={{

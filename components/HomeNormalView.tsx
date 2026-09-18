@@ -17,6 +17,7 @@ import {
   StructuredDrawResult,
   getLotteryUrl,
   hasAnyDrawResult,
+  getLotteryJackpot,
 } from "@/lib/supabase";
 import { LotteryItem } from "@/app/page";
 
@@ -124,6 +125,16 @@ export default function HomeNormalView({
   }, [topFeaturedDraw?.draw_date, todayISTDate, isTopLive, isTopCompleted]);
 
   const drawTimeDisplay = isTodayBumper ? "2:00 PM" : "3:00 PM";
+
+  const topJackpot = useMemo(() => {
+    return (
+      todayLottery.jackpot ||
+      getLotteryJackpot(
+        topFeaturedDraw.lottery_code || topFeaturedDraw.draw_code || todayLottery.code
+      ) ||
+      "₹1 Crore"
+    );
+  }, [todayLottery.jackpot, todayLottery.code, topFeaturedDraw]);
 
   // Remaining past draws excluding top featured draw
   const remainingDraws = useMemo(() => {
@@ -322,7 +333,7 @@ export default function HomeNormalView({
                 >
                   <EmojiEventsIcon sx={{ fontSize: 15, color: "#FDE047" }} />
                   <Typography sx={{ color: "#FFFFFF", fontSize: "0.82rem", fontWeight: 800 }}>
-                    1st Prize: {topFeaturedDraw.first?.ticket}
+                    1st Prize ({topJackpot}): {topFeaturedDraw.first?.ticket}
                   </Typography>
                 </Box>
               ) : isTopLive ? (
@@ -341,7 +352,7 @@ export default function HomeNormalView({
                 >
                   <BoltIcon sx={{ fontSize: 15, color: "#FDE047" }} />
                   <Typography sx={{ color: "#FFFFFF", fontSize: "0.8rem", fontWeight: 700 }}>
-                    Live Draw in Progress @ {drawTimeDisplay}
+                    Live Draw in Progress • 1st: {topJackpot}
                   </Typography>
                 </Box>
               ) : isTopPreDraw ? (
@@ -358,9 +369,9 @@ export default function HomeNormalView({
                     gap: 0.8,
                   }}
                 >
-                  <AccessTimeIcon sx={{ fontSize: 14, color: "#BAE6FD" }} />
-                  <Typography sx={{ color: "#FFFFFF", fontSize: "0.78rem", fontWeight: 700 }}>
-                    Draw @ {drawTimeDisplay}
+                  <EmojiEventsIcon sx={{ fontSize: 14, color: "#FDE047" }} />
+                  <Typography sx={{ color: "#FFFFFF", fontSize: "0.78rem", fontWeight: 800 }}>
+                    1st Prize: {topJackpot}
                   </Typography>
                 </Box>
               ) : null}

@@ -46,6 +46,8 @@ import {
   BUMPER_LOTTERIES,
   ALL_LOTTERIES,
   getLotteryUrl,
+  getLotteryLogo,
+  getLotteryLogoAlt,
   supabase,
 } from "@/lib/supabase";
 
@@ -94,7 +96,7 @@ export default function Navbar() {
       try {
         await navigator.share({
           title: "Kerala State Lottery Results Today",
-          text: "Check official Kerala Lottery Live Results, archives, ticket prize checker, and winner statistics.",
+          text: "Check official Kerala Lottery Live Results, ticket prize checker, and winner statistics.",
           url: "https://www.keralalotteryresultstoday.in",
         });
       } catch {}
@@ -283,6 +285,7 @@ export default function Navbar() {
                 const isActive =
                   pathname === targetUrl ||
                   pathname.startsWith(targetUrl + "/");
+                const logo = getLotteryLogo(lottery.code);
                 return (
                   <MenuItem
                     key={lottery.code}
@@ -302,34 +305,63 @@ export default function Navbar() {
                       "&:hover": { bgcolor: "#F0F7FF" },
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Chip
-                        label={lottery.code}
-                        size="small"
-                        sx={{
-                          fontWeight: 800,
-                          bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
-                          color: isActive ? "#FFFFFF" : "#0369A1",
-                          fontSize: "0.725rem",
-                          height: 20,
-                        }}
-                      />
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: isActive ? 800 : 700,
-                          color: "#111827",
-                        }}
-                      >
-                        {lottery.name}
-                      </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                      {logo ? (
+                        <Box
+                          component="img"
+                          src={logo}
+                          alt={getLotteryLogoAlt(lottery.name, lottery.day)}
+                          sx={{
+                            width: 26,
+                            height: 26,
+                            borderRadius: "6px",
+                            objectFit: "cover",
+                            border: "1px solid #E2E8F0",
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label={lottery.code}
+                          size="small"
+                          sx={{
+                            fontWeight: 800,
+                            bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
+                            color: isActive ? "#FFFFFF" : "#0369A1",
+                            fontSize: "0.725rem",
+                            height: 20,
+                          }}
+                        />
+                      )}
+                      <Box>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: isActive ? 800 : 700,
+                            color: "#111827",
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {lottery.name}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "#6B7280",
+                            fontSize: "0.68rem",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {lottery.code} • {lottery.day}
+                        </Typography>
+                      </Box>
                     </Box>
 
                     <Typography
                       variant="caption"
-                      sx={{ color: "#6B7280", fontWeight: 600 }}
+                      sx={{ color: "#0B3C5D", fontWeight: 700, fontSize: "0.75rem" }}
                     >
-                      {lottery.day}
+                      3 PM
                     </Typography>
                   </MenuItem>
                 );
@@ -369,6 +401,7 @@ export default function Navbar() {
                 const isActive =
                   pathname === targetUrl ||
                   pathname.startsWith(targetUrl + "/");
+                const logo = getLotteryLogo(bumper.code);
                 return (
                   <MenuItem
                     key={bumper.code}
@@ -388,18 +421,34 @@ export default function Navbar() {
                       "&:hover": { bgcolor: "#F0F7FF" },
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Chip
-                        label={bumper.code}
-                        size="small"
-                        sx={{
-                          fontWeight: 800,
-                          bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
-                          color: isActive ? "#FFFFFF" : "#0369A1",
-                          fontSize: "0.725rem",
-                          height: 20,
-                        }}
-                      />
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                      {logo ? (
+                        <Box
+                          component="img"
+                          src={logo}
+                          alt={getLotteryLogoAlt(bumper.name, bumper.day)}
+                          sx={{
+                            width: 26,
+                            height: 26,
+                            borderRadius: "6px",
+                            objectFit: "cover",
+                            border: "1px solid #E2E8F0",
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label={bumper.code}
+                          size="small"
+                          sx={{
+                            fontWeight: 800,
+                            bgcolor: isActive ? "#0B3C5D" : "#E0F2FE",
+                            color: isActive ? "#FFFFFF" : "#0369A1",
+                            fontSize: "0.725rem",
+                            height: 20,
+                          }}
+                        />
+                      )}
                       <Typography
                         variant="body2"
                         sx={{

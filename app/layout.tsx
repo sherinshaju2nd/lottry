@@ -201,7 +201,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: dynamicTitle,
       description:
-        "Search your Kerala Lottery ticket numbers instantly to see if you won! Live draw results, search checker engine, weekly schedule, and historical archive.",
+        "Search your Kerala Lottery ticket numbers instantly to see if you won! Live draw results, search checker engine, weekly schedule, and winning prize lists.",
       url: "https://www.keralalotteryresultstoday.in",
       siteName: "Kerala Lottery Result Today",
       images: [
