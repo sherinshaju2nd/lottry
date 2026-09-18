@@ -132,6 +132,11 @@ export default function ModernDatePicker({
         slotProps={{
           input: {
             readOnly: true,
+            sx: {
+              height: 47,
+              borderRadius: "12px",
+              fontSize: "0.95rem",
+            },
             startAdornment: <CalendarMonthIcon sx={{ color: "#0B3C5D", mr: 1, cursor: "pointer" }} />,
             endAdornment: value ? (
               <IconButton size="small" onClick={handleClear} sx={{ color: "#6B7280" }}>
@@ -143,7 +148,8 @@ export default function ModernDatePicker({
         sx={{
           cursor: "pointer",
           "& .MuiOutlinedInput-root": {
-            borderRadius: "10px",
+            height: 47,
+            borderRadius: "12px",
             bgcolor: "#FFFFFF",
             cursor: "pointer",
             "&:hover fieldset": { borderColor: "#0B3C5D" },

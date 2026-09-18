@@ -15,18 +15,23 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/app",
+        destination: "/kerala-lottery-app",
+        permanent: true,
+      },
+      {
         source: "/download",
-        destination: "/app",
+        destination: "/kerala-lottery-app",
         permanent: true,
       },
       {
         source: "/download-app",
-        destination: "/app",
+        destination: "/kerala-lottery-app",
         permanent: true,
       },
       {
         source: "/mobile-app",
-        destination: "/app",
+        destination: "/kerala-lottery-app",
         permanent: true,
       },
     ];

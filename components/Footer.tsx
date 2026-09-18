@@ -8,6 +8,8 @@ import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 import Link from "next/link";
 
+import { usePathname } from "next/navigation";
+
 import ShareButtons from "./ShareButtons";
 import { GooglePlayIcon, AppleIcon, WindowsIcon, PLAY_STORE_URL } from "./DownloadAppModal";
 
@@ -18,6 +20,9 @@ import {
 } from "@/lib/supabase";
 
 export default function Footer() {
+  const pathname = usePathname();
+  const isAppPage = pathname === "/kerala-lottery-app" || pathname === "/app";
+
   const handleWindowsDirectInstall = async () => {
     if (typeof window === "undefined") return;
     const win = window as unknown as {
@@ -62,275 +67,179 @@ export default function Footer() {
         maxWidth={false}
         sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 }, textAlign: "center" }}
       >
-        {/* App Download Promo Banner */}
-        <Box
-          sx={{
-            display: { xs: "none", md: "block" },
-            maxWidth: 820,
-            mx: "auto",
-            mb: 5,
-            p: { xs: 2.5, sm: 3.5 },
-            borderRadius: "20px",
-            background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
-            color: "#FFFFFF",
-            border: "1px solid #334155",
-            boxShadow: "0 16px 36px -8px rgba(15, 23, 42, 0.25)",
-            textAlign: "center",
-          }}
-        >
-          <Box sx={{ display: "flex", justifyContent: "center", mb: 1.5 }}>
-            <Chip
-              label="📱 OFFICIAL APP FOR MOBILE & PC"
-              size="small"
-              sx={{
-                bgcolor: "#10B981",
-                color: "#FFFFFF",
-                fontWeight: 900,
-                fontSize: "0.725rem",
-                letterSpacing: "0.06em",
-              }}
-            />
-          </Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 900,
-              color: "#FFFFFF",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-              mb: 1,
-            }}
-          >
-            Download Kerala Lottery Results Today App
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#94A3B8",
-              maxWidth: 580,
-              mx: "auto",
-              mb: 3,
-              fontSize: { xs: "0.85rem", sm: "0.925rem" },
-            }}
-          >
-            Get real-time 3:00 PM live draw results, instant ticket number scanner & official Government Gazette PDF downloads on Android, iPhone & Windows PC.
-          </Typography>
-
-          {/* Badges Container */}
+        {/* App Download Promo Banner (Sleek Modern Glass Design) */}
+        {!isAppPage && (
           <Box
             sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 2,
+              display: { xs: "none", md: "block" },
+              maxWidth: 820,
+              mx: "auto",
+              mb: 5,
+              p: { xs: 3, sm: 4 },
+              borderRadius: "24px",
+              background: "linear-gradient(135deg, #090D16 0%, #0F172A 100%)",
+              color: "#FFFFFF",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.35)",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            {/* Google Play Store Badge */}
+            {/* Soft Ambient Background Glow */}
             <Box
-              component="a"
-              href={PLAY_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
               sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 1.5,
-                bgcolor: "#000000",
-                color: "#FFFFFF",
-                px: 2.5,
-                py: 1.2,
-                minHeight: 54,
-                boxSizing: "border-box",
-                borderRadius: "12px",
-                textDecoration: "none",
-                border: "1px solid rgba(255,255,255,0.25)",
-                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
-                transition: "all 0.2s ease-in-out",
-                "&:hover": {
-                  transform: "translateY(-2px)",
-                  borderColor: "#10B981",
-                  boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
-                },
+                position: "absolute",
+                top: "-50%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "400px",
+                height: "200px",
+                borderRadius: "50%",
+                background:
+                  "radial-gradient(ellipse at center, rgba(56, 189, 248, 0.15) 0%, rgba(99, 102, 241, 0.08) 40%, transparent 70%)",
+                pointerEvents: "none",
               }}
-            >
-              <GooglePlayIcon size={26} />
-              <Box sx={{ textAlign: "left" }}>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    display: "block",
-                    color: "#94A3B8",
-                    fontSize: "0.65rem",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                    lineHeight: 1,
-                  }}
-                >
-                  GET IT ON
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "#FFFFFF",
-                    fontWeight: 800,
-                    fontSize: "0.95rem",
-                    lineHeight: 1.2,
-                    mt: 0.25,
-                  }}
-                >
-                  Google Play
-                </Typography>
-              </Box>
-            </Box>
+            />
 
-            {/* Apple App Store / iOS Web App Badge */}
-            <Box
-              component="button"
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent("open-ios-install-guide"));
-              }}
+            <Typography
+              variant="h5"
               sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 1.5,
-                bgcolor: "#000000",
+                fontWeight: 900,
+                fontSize: { xs: "1.35rem", sm: "1.65rem" },
                 color: "#FFFFFF",
-                px: 2.5,
-                py: 1.2,
-                minHeight: 54,
-                boxSizing: "border-box",
-                borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.25)",
-                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
-                cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
-                fontFamily: "inherit",
-                "&:hover": {
-                  transform: "translateY(-2px)",
-                  borderColor: "#38BDF8",
-                  boxShadow: "0 8px 20px rgba(56, 189, 248, 0.25)",
-                },
+                mb: 1,
+                position: "relative",
+                zIndex: 1,
               }}
             >
-              <Box sx={{ color: "#FFFFFF", display: "flex", alignItems: "center" }}>
-                <AppleIcon size={26} />
-              </Box>
-              <Box sx={{ textAlign: "left" }}>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    display: "block",
-                    color: "#94A3B8",
-                    fontSize: "0.65rem",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                    lineHeight: 1,
-                  }}
-                >
-                  INSTALL ON
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "#FFFFFF",
-                    fontWeight: 800,
-                    fontSize: "0.95rem",
-                    lineHeight: 1.2,
-                    mt: 0.25,
-                  }}
-                >
-                  iPhone / iOS
-                </Typography>
-              </Box>
-              <Chip
-                label="Install Guide"
-                size="small"
-                sx={{
-                  ml: 0.5,
-                  bgcolor: "rgba(56, 189, 248, 0.2)",
-                  color: "#38BDF8",
-                  fontWeight: 800,
-                  fontSize: "0.65rem",
-                  height: 20,
-                  border: "1px solid rgba(56, 189, 248, 0.3)",
-                }}
-              />
-            </Box>
+              Ready for Lightning-Fast 3:00 PM Results?
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#94A3B8",
+                maxWidth: 580,
+                mx: "auto",
+                mb: 3,
+                fontSize: "0.925rem",
+                lineHeight: 1.5,
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              Add the app to your iPhone, Windows PC, or Android phone today for zero-delay live Kerala lottery draw results.
+            </Typography>
 
-            {/* Windows PC Direct Install Button (No Modal) */}
+            {/* Badges Container (Sleek Glass Pill Buttons) */}
             <Box
-              component="button"
-              onClick={handleWindowsDirectInstall}
               sx={{
-                display: "inline-flex",
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
                 alignItems: "center",
                 gap: 1.5,
-                bgcolor: "#000000",
-                color: "#FFFFFF",
-                px: 2.5,
-                py: 1.2,
-                minHeight: 54,
-                boxSizing: "border-box",
-                borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.25)",
-                boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
-                cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
-                fontFamily: "inherit",
-                "&:hover": {
-                  transform: "translateY(-2px)",
-                  borderColor: "#00A4EF",
-                  boxShadow: "0 8px 20px rgba(0, 164, 239, 0.25)",
-                },
+                position: "relative",
+                zIndex: 1,
               }}
             >
-              <WindowsIcon size={24} />
-              <Box sx={{ textAlign: "left" }}>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    display: "block",
-                    color: "#94A3B8",
-                    fontSize: "0.65rem",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                    lineHeight: 1,
-                  }}
-                >
-                  INSTALL ON
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "#FFFFFF",
-                    fontWeight: 800,
-                    fontSize: "0.95rem",
-                    lineHeight: 1.2,
-                    mt: 0.25,
-                  }}
-                >
-                  Windows (PC)
-                </Typography>
-              </Box>
-              <Chip
-                label="Desktop App"
-                size="small"
-                sx={{
-                  ml: 0.5,
-                  bgcolor: "rgba(0, 164, 239, 0.2)",
-                  color: "#38BDF8",
-                  fontWeight: 800,
-                  fontSize: "0.65rem",
-                  height: 20,
-                  border: "1px solid rgba(0, 164, 239, 0.3)",
+              {/* iPhone / iOS Button */}
+              <Button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("open-ios-install-guide"));
                 }}
-              />
+                variant="outlined"
+                sx={{
+                  py: 1.25,
+                  px: 2.8,
+                  borderRadius: "14px",
+                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  color: "#FFFFFF",
+                  fontWeight: 800,
+                  fontSize: "0.925rem",
+                  textTransform: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 1,
+                  bgcolor: "rgba(255, 255, 255, 0.06)",
+                  boxShadow: "0 4px 14px rgba(0, 0, 0, 0.25)",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.14)",
+                    borderColor: "#38BDF8",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <AppleIcon size={20} />
+                <span>iPhone (iOS)</span>
+              </Button>
+
+              {/* Windows PC Button */}
+              <Button
+                onClick={handleWindowsDirectInstall}
+                variant="outlined"
+                sx={{
+                  py: 1.25,
+                  px: 2.8,
+                  borderRadius: "14px",
+                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  color: "#FFFFFF",
+                  fontWeight: 800,
+                  fontSize: "0.925rem",
+                  textTransform: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 1,
+                  bgcolor: "rgba(255, 255, 255, 0.06)",
+                  boxShadow: "0 4px 14px rgba(0, 0, 0, 0.25)",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.14)",
+                    borderColor: "#00A4EF",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <WindowsIcon size={18} />
+                <span>Windows (PC)</span>
+              </Button>
+
+              {/* Google Play Button */}
+              <Button
+                component="a"
+                href={PLAY_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outlined"
+                sx={{
+                  py: 1.25,
+                  px: 2.8,
+                  borderRadius: "14px",
+                  borderColor: "rgba(255, 255, 255, 0.2)",
+                  color: "#FFFFFF",
+                  fontWeight: 800,
+                  fontSize: "0.925rem",
+                  textTransform: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 1,
+                  bgcolor: "rgba(255, 255, 255, 0.06)",
+                  boxShadow: "0 4px 14px rgba(0, 0, 0, 0.25)",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.14)",
+                    borderColor: "#34D399",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <GooglePlayIcon size={20} />
+                <span>Google Play</span>
+              </Button>
             </Box>
           </Box>
-        </Box>
+        )}
 
         <Box
           sx={{
@@ -501,7 +410,7 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
-            href="/app"
+            href="/kerala-lottery-app"
             sx={{
               color: "#0B3C5D",
               textDecoration: "none",
@@ -509,7 +418,7 @@ export default function Footer() {
               "&:hover": { color: "#10B981" },
             }}
           >
-            📱 Official App
+            📱 Download App
           </Typography>
           <Typography
             variant="body2"

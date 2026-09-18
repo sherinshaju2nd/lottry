@@ -30,7 +30,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import InsightsIcon from "@mui/icons-material/Insights";
-import GetAppIcon from "@mui/icons-material/GetApp";
+import SmartphoneIcon from "@mui/icons-material/Smartphone";
 import GridViewIcon from "@mui/icons-material/GridView";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import CheckIcon from "@mui/icons-material/Check";
@@ -490,28 +490,28 @@ export default function Navbar() {
             {/* Download App Desktop Button */}
             <Button
               component={Link}
-              href="/app"
-              startIcon={<GetAppIcon sx={{ fontSize: 18 }} />}
+              href="/kerala-lottery-app"
+              startIcon={<SmartphoneIcon sx={{ fontSize: 18, color: "#FFFFFF" }} />}
               sx={{
-                background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
-                color: "#065F46",
+                background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
+                color: "#FFFFFF",
                 fontWeight: 800,
                 fontSize: "0.85rem",
                 borderRadius: "10px",
                 px: 2,
                 py: 0.8,
-                border: "1px solid #A7F3D0",
-                boxShadow: "0 2px 6px rgba(16, 185, 129, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                boxShadow: "0 2px 8px rgba(11, 60, 93, 0.25)",
                 textTransform: "none",
                 transition: "all 0.2s ease",
                 "&:hover": {
-                  background: "linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)",
+                  background: "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
                   transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
+                  boxShadow: "0 4px 14px rgba(11, 60, 93, 0.35)",
                 },
               }}
             >
-              Install App
+              Download App
             </Button>
 
             {/* Direct Voice Search Mic */}
@@ -549,27 +549,27 @@ export default function Navbar() {
           >
             <Button
               component={Link}
-              href="/app"
+              href="/kerala-lottery-app"
               size="small"
-              startIcon={<GetAppIcon sx={{ fontSize: 16 }} />}
+              startIcon={<SmartphoneIcon sx={{ fontSize: 16, color: "#FFFFFF" }} />}
               sx={{
-                background: "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
-                color: "#065F46",
+                background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
+                color: "#FFFFFF",
                 fontWeight: 800,
                 fontSize: { xs: "0.75rem", sm: "0.825rem" },
                 borderRadius: "8px",
                 px: { xs: 1.2, sm: 1.8 },
                 py: 0.6,
-                border: "1px solid #A7F3D0",
-                boxShadow: "0 2px 5px rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                boxShadow: "0 2px 6px rgba(11, 60, 93, 0.2)",
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 "&:hover": {
-                  background: "linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)",
+                  background: "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
                 },
               }}
             >
-              Install App
+              Download App
             </Button>
 
             <IconButton
@@ -1024,6 +1024,49 @@ export default function Navbar() {
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
                   District leaderboard &amp; statistics
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* Download Mobile App */}
+            <Box
+              component={Link}
+              href="/kerala-lottery-app"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/kerala-lottery-app" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
+                  color: "#0B3C5D",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <SmartphoneIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/kerala-lottery-app" ? 800 : 700, color: pathname === "/kerala-lottery-app" ? "#0B3C5D" : "#0F172A" }}>
+                  Download App (iOS &amp; Android)
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Live 3 PM stream &amp; ticket scanner
                 </Typography>
               </Box>
               <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />

@@ -15,7 +15,7 @@ const STATIC_ASSETS = [
   "/logo-master-1024.png",
   "/search",
   "/schedule",
-  "/app"
+  "/kerala-lottery-app"
 ];
 
 // Install Event - Pre-cache essential static shell

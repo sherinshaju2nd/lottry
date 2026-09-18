@@ -19,7 +19,7 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
     const staticPages = [
       baseUrl,
       `${baseUrl}/search`,
-      `${baseUrl}/app`,
+      `${baseUrl}/kerala-lottery-app`,
       `${baseUrl}/claim`,
       `${baseUrl}/guide`,
       `${baseUrl}/faq`,

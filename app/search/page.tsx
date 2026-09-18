@@ -636,6 +636,7 @@ export default function AdvancedSearchPage() {
                     slotProps={{
                       input: {
                         sx: {
+                          height: 47,
                           borderRadius: "12px",
                           bgcolor: "#F8FAFC",
                           fontSize: "0.95rem",
@@ -719,12 +720,14 @@ export default function AdvancedSearchPage() {
                       window.dispatchEvent(new CustomEvent("open-ai-ticket-scanner"));
                     }}
                     sx={{
-                      width: 48,
-                      height: 48,
+                      width: 47,
+                      height: 47,
+                      minWidth: 47,
                       borderRadius: "12px",
                       color: "#0B3C5D",
                       bgcolor: "#EFF6FF",
                       border: "1.5px solid #BFDBFE",
+                      flexShrink: 0,
                       "&:hover": { bgcolor: "#DBEAFE" },
                     }}
                   >

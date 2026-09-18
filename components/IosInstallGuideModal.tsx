@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import Box from "@mui/material/Box";
@@ -9,14 +9,20 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Chip from "@mui/material/Chip";
 import Grid from "@mui/material/Grid";
+import Tooltip from "@mui/material/Tooltip";
+
+// Icons
 import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import TouchAppIcon from "@mui/icons-material/TouchApp";
-import BoltIcon from "@mui/icons-material/Bolt";
-import SmartphoneIcon from "@mui/icons-material/Smartphone";
-import ScreenShareIcon from "@mui/icons-material/ScreenShare";
 import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
 import IosShareIcon from "@mui/icons-material/IosShare";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
+import ReplayIcon from "@mui/icons-material/Replay";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+
 import { AppleIcon } from "./DownloadAppModal";
 
 interface IosInstallGuideModalProps {
@@ -29,6 +35,11 @@ export default function IosInstallGuideModal({
   onClose: controlledOnClose,
 }: IosInstallGuideModalProps) {
   const [internalOpen, setInternalOpen] = useState(false);
+
+  // Video Player state
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(true);
 
   // Allow both controlled prop and global event bus
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
@@ -52,21 +63,48 @@ export default function IosInstallGuideModal({
     };
   }, []);
 
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        videoRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const restartVideo = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
+
   return (
     <Dialog
       open={isOpen}
       onClose={handleClose}
-      maxWidth="sm"
+      maxWidth="md"
       fullWidth
       slotProps={{
         paper: {
           sx: {
-            borderRadius: { xs: "20px", sm: "24px" },
-            p: { xs: 2, sm: 3 },
-            background: "linear-gradient(160deg, #0B3C5D 0%, #0F172A 100%)",
+            borderRadius: { xs: "24px", sm: "28px" },
+            p: { xs: 2.5, sm: 3.5 },
+            background: "linear-gradient(160deg, #090D16 0%, #0F172A 100%)",
             color: "#FFFFFF",
             border: "1px solid rgba(255, 255, 255, 0.12)",
-            boxShadow: "0 25px 60px -12px rgba(0, 0, 0, 0.6)",
+            boxShadow: "0 25px 60px -10px rgba(0, 0, 0, 0.7)",
             position: "relative",
             overflow: "hidden",
             maxHeight: "92vh",
@@ -74,102 +112,88 @@ export default function IosInstallGuideModal({
         },
       }}
     >
-      {/* Decorative Glow */}
+      {/* Decorative Ambient Glows */}
       <Box
         sx={{
           position: "absolute",
-          top: -60,
-          right: -60,
-          width: 200,
-          height: 200,
+          top: -80,
+          right: -80,
+          width: 250,
+          height: 250,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(0,0,0,0) 70%)",
+          background: "radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(0,0,0,0) 70%)",
           pointerEvents: "none",
         }}
       />
       <Box
         sx={{
           position: "absolute",
-          bottom: -60,
-          left: -60,
-          width: 200,
-          height: 200,
+          bottom: -80,
+          left: -80,
+          width: 250,
+          height: 250,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(0,0,0,0) 70%)",
+          background: "radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, rgba(0,0,0,0) 70%)",
           pointerEvents: "none",
         }}
       />
 
+      {/* Close Button */}
       <IconButton
         onClick={handleClose}
         size="small"
         sx={{
           position: "absolute",
-          right: 14,
-          top: 14,
+          right: 16,
+          top: 16,
           color: "#94A3B8",
-          bgcolor: "rgba(255, 255, 255, 0.08)",
-          "&:hover": { bgcolor: "rgba(255, 255, 255, 0.18)", color: "#FFFFFF" },
-          zIndex: 3,
+          bgcolor: "rgba(255, 255, 255, 0.06)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          "&:hover": { bgcolor: "rgba(255, 255, 255, 0.15)", color: "#FFFFFF" },
+          zIndex: 5,
         }}
       >
         <CloseIcon fontSize="small" />
       </IconButton>
 
       <DialogContent sx={{ p: { xs: 0.5, sm: 1 }, zIndex: 1 }}>
-        {/* Header with App Icon */}
-        <Box sx={{ textAlign: "center", mt: 1, mb: 2.5 }}>
-          <Box
-            sx={{
-              display: "inline-flex",
-              p: 0.75,
-              borderRadius: "22px",
-              bgcolor: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
-              mb: 1.5,
-            }}
-          >
-            <Box
-              component="img"
-              src="/logo-round-192.png"
-              alt="Kerala Lottery Logo"
-              sx={{ width: 64, height: 64, borderRadius: "18px" }}
-            />
-          </Box>
-
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 1 }}>
+        {/* Header with App Title & Badges */}
+        <Box sx={{ textAlign: "center", mb: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 1, flexWrap: "wrap" }}>
             <Chip
               icon={<AppleIcon size={16} />}
               label="iPhone & iPad (iOS)"
               size="small"
               sx={{
-                bgcolor: "rgba(255, 255, 255, 0.15)",
-                color: "#FFFFFF",
+                bgcolor: "rgba(56, 189, 248, 0.12)",
+                color: "#38BDF8",
                 fontWeight: 800,
                 fontSize: "0.75rem",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
+                border: "1px solid rgba(56, 189, 248, 0.25)",
               }}
             />
             <Chip
-              label="1-Tap Web App"
+              icon={<ShieldOutlinedIcon sx={{ "&&": { color: "#34D399", fontSize: 14 } }} />}
+              label="0 MB Storage • 1-Tap Access"
               size="small"
               sx={{
-                bgcolor: "#10B981",
-                color: "#FFFFFF",
-                fontWeight: 800,
+                bgcolor: "rgba(52, 211, 153, 0.1)",
+                color: "#A7F3D0",
+                fontWeight: 700,
                 fontSize: "0.75rem",
+                border: "1px solid rgba(52, 211, 153, 0.2)",
               }}
             />
           </Box>
 
           <Typography
-            variant="h5"
+            variant="h4"
             sx={{
               fontWeight: 900,
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
+              fontSize: { xs: "1.4rem", sm: "1.8rem" },
               letterSpacing: "-0.02em",
               color: "#FFFFFF",
+              mb: 0.5,
             }}
           >
             How to Install on iPhone / iPad
@@ -178,238 +202,334 @@ export default function IosInstallGuideModal({
           <Typography
             variant="body2"
             sx={{
-              color: "#38BDF8",
-              fontWeight: 700,
-              mt: 0.5,
+              color: "#94A3B8",
               fontSize: "0.875rem",
+              maxWidth: 520,
+              mx: "auto",
             }}
           >
-            ഐഫോണിൽ ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യാനുള്ള 3 ലളിതമായ വഴികൾ
+            Watch the video or follow the 3 quick steps below in <strong>Safari</strong> to add the app icon to your home screen.
           </Typography>
         </Box>
 
-        {/* 3 Step Cards */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 2.5 }}>
-          {/* Step 1 */}
-          <Box
-            sx={{
-              bgcolor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: "16px",
-              p: 2,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 2,
-              transition: "all 0.2s ease",
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.08)",
-                borderColor: "#38BDF8",
-              },
-            }}
-          >
-            <Box
-              sx={{
-                bgcolor: "#0284C7",
-                color: "#FFFFFF",
-                width: 36,
-                height: 36,
-                borderRadius: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 900,
-                fontSize: "1rem",
-                flexShrink: 0,
-              }}
-            >
-              1
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "0.95rem" }}>
-                  Tap the Share Button in Safari
-                </Typography>
+        {/* 2-Column Responsive Layout: Left Steps & Right Video */}
+        <Grid container spacing={3} sx={{ alignItems: "center", mb: 3 }}>
+          {/* Left Column: 3 Step Cards */}
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {/* Step 1 */}
+              <Box
+                sx={{
+                  bgcolor: "rgba(255, 255, 255, 0.04)",
+                  borderRadius: "16px",
+                  p: 2,
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 1.8,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.07)",
+                    borderColor: "rgba(56, 189, 248, 0.4)",
+                  },
+                }}
+              >
                 <Box
                   sx={{
-                    bgcolor: "rgba(56, 189, 248, 0.2)",
+                    bgcolor: "rgba(56, 189, 248, 0.15)",
+                    border: "1px solid rgba(56, 189, 248, 0.3)",
                     color: "#38BDF8",
-                    p: 0.4,
-                    borderRadius: "6px",
-                    display: "inline-flex",
+                    width: 34,
+                    height: 34,
+                    borderRadius: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 900,
+                    fontSize: "0.95rem",
+                    flexShrink: 0,
                   }}
                 >
-                  <IosShareIcon sx={{ fontSize: 18 }} />
+                  1
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.25 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "0.925rem" }}>
+                      Tap Share (📤) in Safari
+                    </Typography>
+                    <IosShareIcon sx={{ fontSize: 16, color: "#38BDF8" }} />
+                  </Box>
+                  <Typography variant="body2" sx={{ color: "#94A3B8", fontSize: "0.825rem", lineHeight: 1.5 }}>
+                    Open in Safari and tap the <strong>Share</strong> button (📤) in the bottom bar.
+                  </Typography>
                 </Box>
               </Box>
-              <Typography variant="body2" sx={{ color: "#CBD5E1", fontSize: "0.825rem", lineHeight: 1.5 }}>
-                Safari ബ്രൗസറിന്റെ താഴെയുള്ള (അല്ലെങ്കിൽ മുകളിലുള്ള) <strong>Share</strong> ചിഹ്നം ടാപ്പ് ചെയ്യുക.
-              </Typography>
-            </Box>
-          </Box>
 
-          {/* Step 2 */}
-          <Box
-            sx={{
-              bgcolor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: "16px",
-              p: 2,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 2,
-              transition: "all 0.2s ease",
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.08)",
-                borderColor: "#10B981",
-              },
-            }}
-          >
-            <Box
-              sx={{
-                bgcolor: "#10B981",
-                color: "#FFFFFF",
-                width: 36,
-                height: 36,
-                borderRadius: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 900,
-                fontSize: "1rem",
-                flexShrink: 0,
-              }}
-            >
-              2
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "0.95rem" }}>
-                  Select &quot;Add to Home Screen&quot;
-                </Typography>
+              {/* Step 2 */}
+              <Box
+                sx={{
+                  bgcolor: "rgba(255, 255, 255, 0.04)",
+                  borderRadius: "16px",
+                  p: 2,
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 1.8,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.07)",
+                    borderColor: "rgba(129, 140, 248, 0.4)",
+                  },
+                }}
+              >
                 <Box
                   sx={{
-                    bgcolor: "rgba(16, 185, 129, 0.2)",
-                    color: "#34D399",
-                    p: 0.4,
-                    borderRadius: "6px",
-                    display: "inline-flex",
+                    bgcolor: "rgba(129, 140, 248, 0.15)",
+                    border: "1px solid rgba(129, 140, 248, 0.3)",
+                    color: "#818CF8",
+                    width: 34,
+                    height: 34,
+                    borderRadius: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 900,
+                    fontSize: "0.95rem",
+                    flexShrink: 0,
                   }}
                 >
-                  <AddBoxOutlinedIcon sx={{ fontSize: 18 }} />
+                  2
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.25 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "0.925rem" }}>
+                      Select &quot;Add to Home Screen&quot;
+                    </Typography>
+                    <AddBoxOutlinedIcon sx={{ fontSize: 16, color: "#818CF8" }} />
+                  </Box>
+                  <Typography variant="body2" sx={{ color: "#94A3B8", fontSize: "0.825rem", lineHeight: 1.5 }}>
+                    Scroll down and tap <strong>&quot;Add to Home Screen&quot; (ഹോം സ്ക്രീനിലേക്ക് ചേർക്കുക)</strong>.
+                  </Typography>
                 </Box>
               </Box>
-              <Typography variant="body2" sx={{ color: "#CBD5E1", fontSize: "0.825rem", lineHeight: 1.5 }}>
-                താഴേക്ക് സ്ക്രോൾ ചെയ്ത് <strong>&quot;Add to Home Screen&quot;</strong> (ഹോം സ്ക്രീനിലേക്ക് ചേർക്കുക) എന്നത് തിരഞ്ഞെടുക്കുക.
-              </Typography>
-            </Box>
-          </Box>
 
-          {/* Step 3 */}
-          <Box
-            sx={{
-              bgcolor: "rgba(255, 255, 255, 0.05)",
-              borderRadius: "16px",
-              p: 2,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 2,
-              transition: "all 0.2s ease",
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.08)",
-                borderColor: "#F59E0B",
-              },
-            }}
-          >
-            <Box
-              sx={{
-                bgcolor: "#D97706",
-                color: "#FFFFFF",
-                width: 36,
-                height: 36,
-                borderRadius: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 900,
-                fontSize: "1rem",
-                flexShrink: 0,
-              }}
-            >
-              3
+              {/* Step 3 */}
+              <Box
+                sx={{
+                  bgcolor: "rgba(255, 255, 255, 0.04)",
+                  borderRadius: "16px",
+                  p: 2,
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 1.8,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.07)",
+                    borderColor: "rgba(52, 211, 153, 0.4)",
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    bgcolor: "rgba(52, 211, 153, 0.15)",
+                    border: "1px solid rgba(52, 211, 153, 0.3)",
+                    color: "#34D399",
+                    width: 34,
+                    height: 34,
+                    borderRadius: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 900,
+                    fontSize: "0.95rem",
+                    flexShrink: 0,
+                  }}
+                >
+                  3
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.25 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "0.925rem" }}>
+                      Tap &quot;Add&quot; in Top-Right
+                    </Typography>
+                    <CheckCircleIcon sx={{ fontSize: 16, color: "#34D399" }} />
+                  </Box>
+                  <Typography variant="body2" sx={{ color: "#94A3B8", fontSize: "0.825rem", lineHeight: 1.5 }}>
+                    Tap <strong>&quot;Add&quot;</strong> in the top-right corner. The app icon appears instantly on your iPhone!
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "0.95rem", mb: 0.5 }}>
-                Tap &quot;Add&quot; in Top-Right
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#CBD5E1", fontSize: "0.825rem", lineHeight: 1.5 }}>
-                മുകളിൽ വലതുവശത്തുള്ള <strong>&quot;Add&quot;</strong> (ചേർക്കുക) ബട്ടൺ അമർത്തുക. ആപ്പ് നിങ്ങളുടെ ഹോം സ്ക്രീനിൽ ഐക്കണായി വരും!
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
 
-        {/* Benefits Grid */}
-        <Box
-          sx={{
-            bgcolor: "rgba(0, 0, 0, 0.25)",
-            borderRadius: "14px",
-            p: 1.75,
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            mb: 2.5,
-          }}
-        >
-          <Grid container spacing={1}>
-            <Grid size={{ xs: 6 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                <CheckCircleIcon sx={{ color: "#10B981", fontSize: 16 }} />
-                <Typography variant="caption" sx={{ color: "#E2E8F0", fontWeight: 700, fontSize: "0.75rem" }}>
-                  Instant 3 PM Live Sync
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid size={{ xs: 6 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                <CheckCircleIcon sx={{ color: "#10B981", fontSize: 16 }} />
-                <Typography variant="caption" sx={{ color: "#E2E8F0", fontWeight: 700, fontSize: "0.75rem" }}>
-                  Full-Screen Native UI
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid size={{ xs: 6 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                <CheckCircleIcon sx={{ color: "#10B981", fontSize: 16 }} />
-                <Typography variant="caption" sx={{ color: "#E2E8F0", fontWeight: 700, fontSize: "0.75rem" }}>
-                  0 MB Storage Wasted
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid size={{ xs: 6 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                <CheckCircleIcon sx={{ color: "#10B981", fontSize: 16 }} />
-                <Typography variant="caption" sx={{ color: "#E2E8F0", fontWeight: 700, fontSize: "0.75rem" }}>
-                  Official PDF & Scanner
-                </Typography>
-              </Box>
-            </Grid>
+            {/* Micro Feature Highlights */}
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+              <Chip
+                icon={<CheckCircleIcon sx={{ "&&": { color: "#38BDF8", fontSize: 14 } }} />}
+                label="Instant 3 PM Live Sync"
+                size="small"
+                sx={{ bgcolor: "rgba(255, 255, 255, 0.05)", color: "#E2E8F0", fontSize: "0.75rem", fontWeight: 700 }}
+              />
+              <Chip
+                icon={<CheckCircleIcon sx={{ "&&": { color: "#38BDF8", fontSize: 14 } }} />}
+                label="Full-Screen Web App"
+                size="small"
+                sx={{ bgcolor: "rgba(255, 255, 255, 0.05)", color: "#E2E8F0", fontSize: "0.75rem", fontWeight: 700 }}
+              />
+              <Chip
+                icon={<CheckCircleIcon sx={{ "&&": { color: "#38BDF8", fontSize: 14 } }} />}
+                label="0 MB Storage Used"
+                size="small"
+                sx={{ bgcolor: "rgba(255, 255, 255, 0.05)", color: "#E2E8F0", fontSize: "0.75rem", fontWeight: 700 }}
+              />
+            </Box>
           </Grid>
-        </Box>
 
-        {/* Bottom Done Button */}
+          {/* Right Column: Embedded iPhone Video Player */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Box
+                sx={{
+                  width: { xs: 220, sm: 240 },
+                  borderRadius: "36px",
+                  p: "8px",
+                  bgcolor: "#1E293B",
+                  border: "2px solid rgba(255, 255, 255, 0.18)",
+                  boxShadow: "0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(56, 189, 248, 0.15)",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Dynamic Island Notch */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 14,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    width: 70,
+                    height: 14,
+                    borderRadius: "10px",
+                    bgcolor: "#000000",
+                    zIndex: 10,
+                  }}
+                />
+
+                {/* Video */}
+                <Box
+                  sx={{
+                    borderRadius: "28px",
+                    overflow: "hidden",
+                    position: "relative",
+                    bgcolor: "#000000",
+                    aspectRatio: "9/19.5",
+                    width: "100%",
+                  }}
+                >
+                  <video
+                    ref={videoRef}
+                    src="/ios-install-steps.mp4"
+                    autoPlay
+                    loop
+                    muted={isMuted}
+                    playsInline
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+
+                  {/* Video Overlay Controls */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 8,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      p: 0.4,
+                      borderRadius: "100px",
+                      bgcolor: "rgba(15, 23, 42, 0.8)",
+                      backdropFilter: "blur(12px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      zIndex: 5,
+                    }}
+                  >
+                    <Tooltip title={isPlaying ? "Pause" : "Play"}>
+                      <IconButton
+                        size="small"
+                        onClick={togglePlay}
+                        sx={{ color: "#FFFFFF", p: 0.4, "&:hover": { bgcolor: "rgba(255, 255, 255, 0.2)" } }}
+                      >
+                        {isPlaying ? <PauseIcon sx={{ fontSize: 14 }} /> : <PlayArrowIcon sx={{ fontSize: 14 }} />}
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Replay">
+                      <IconButton
+                        size="small"
+                        onClick={restartVideo}
+                        sx={{ color: "#FFFFFF", p: 0.4, "&:hover": { bgcolor: "rgba(255, 255, 255, 0.2)" } }}
+                      >
+                        <ReplayIcon sx={{ fontSize: 14 }} />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title={isMuted ? "Unmute" : "Mute"}>
+                      <IconButton
+                        size="small"
+                        onClick={toggleMute}
+                        sx={{ color: "#FFFFFF", p: 0.4, "&:hover": { bgcolor: "rgba(255, 255, 255, 0.2)" } }}
+                      >
+                        {isMuted ? <VolumeOffIcon sx={{ fontSize: 14 }} /> : <VolumeUpIcon sx={{ fontSize: 14 }} />}
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "#64748B",
+                  mt: 1,
+                  fontWeight: 700,
+                  fontSize: "0.7rem",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                }}
+              >
+                ▶ 3-Step Visual Video Guide
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+
+        {/* Bottom Done Action Button (Modern Glass Pill Style) */}
         <Button
           onClick={handleClose}
           variant="contained"
           fullWidth
           sx={{
-            bgcolor: "#10B981",
+            background: "linear-gradient(135deg, #0078D7 0%, #005A9E 100%)",
             color: "#FFFFFF",
             fontWeight: 800,
             fontSize: "0.95rem",
-            py: 1.2,
-            borderRadius: "12px",
+            py: 1.3,
+            borderRadius: "14px",
             textTransform: "none",
-            boxShadow: "0 8px 20px rgba(16, 185, 129, 0.3)",
-            "&:hover": { bgcolor: "#059669" },
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            boxShadow: "0 10px 24px rgba(0, 120, 215, 0.35)",
+            transition: "all 0.2s ease",
+            "&:hover": {
+              background: "linear-gradient(135deg, #0086F0 0%, #0066B3 100%)",
+              transform: "translateY(-1px)",
+              boxShadow: "0 14px 30px rgba(0, 120, 215, 0.45)",
+            },
           }}
         >
           Got It! I&apos;ll Add to Home Screen
