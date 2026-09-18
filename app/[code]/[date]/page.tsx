@@ -90,17 +90,77 @@ export default async function DedicatedLotteryDateDetailsPage({ params }: PagePr
     timeZone: "Asia/Kolkata",
   }).format(now);
 
+  const baseUrl = "https://www.keralalotteryresultstoday.in";
+  const drawUrl = `${baseUrl}/${lotterySlug}/${dateParam}`;
+  const firstPrizeTicket = drawResult?.first?.ticket ? ` - 1st Prize ${drawResult.first.ticket}` : "";
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: `${lotteryInfo.name} Lottery`,
+        item: `${baseUrl}/${lotterySlug}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: `${dateParam} Results`,
+        item: drawUrl,
+      },
+    ],
+  };
+
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: `Kerala Lottery ${lotteryInfo.name} (${drawResult?.draw_code || lotteryInfo.code}) Result ${dateParam}${firstPrizeTicket}`,
+    datePublished: drawResult?.created_at || `${dateParam}T15:00:00+05:30`,
+    dateModified: drawResult?.created_at || new Date().toISOString(),
+    mainEntityOfPage: drawUrl,
+    author: {
+      "@type": "Organization",
+      name: "Kerala Lottery Results Team",
+      url: baseUrl,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Kerala Lottery Result Today",
+      logo: {
+        "@type": "ImageObject",
+        url: `${baseUrl}/logo-master-1024.png`,
+      },
+    },
+    description: `Official Kerala State ${lotteryInfo.name} (${lotteryInfo.nameMl}) draw result held on ${dateParam}. Check winning tickets and prize chart.`,
+  };
+
   return (
-    <DedicatedLotteryDateClient
-      lotteryInfo={lotteryInfo}
-      lotteryCode={lotteryCode}
-      lotterySlug={lotterySlug}
-      dateParam={dateParam}
-      initialDrawResult={drawResult}
-      initialAvailableDates={availableDates}
-      initialPostponement={postponement}
-      recentOtherDraws={recentOtherDraws}
-      serverTodayDate={todayISTDate}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([breadcrumbSchema, articleSchema]),
+        }}
+      />
+      <DedicatedLotteryDateClient
+        lotteryInfo={lotteryInfo}
+        lotteryCode={lotteryCode}
+        lotterySlug={lotterySlug}
+        dateParam={dateParam}
+        initialDrawResult={drawResult}
+        initialAvailableDates={availableDates}
+        initialPostponement={postponement}
+        recentOtherDraws={recentOtherDraws}
+        serverTodayDate={todayISTDate}
+      />
+    </>
   );
 }

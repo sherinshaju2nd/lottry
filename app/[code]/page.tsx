@@ -84,14 +84,60 @@ export default async function LotteryDetailsPage({ params }: PageProps) {
   ]);
 
   const lotteryDbMeta = lotRes.data || null;
+  const baseUrl = "https://www.keralalotteryresultstoday.in";
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: `${lotteryInfo.name} Lottery`,
+        item: `${baseUrl}/${lotterySlug}`,
+      },
+    ],
+  };
+
+  const schemeSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `Kerala State ${lotteryInfo.name} Lottery Ticket`,
+    description: `Official Kerala State ${lotteryInfo.name} (${lotteryInfo.nameMl}) weekly lottery draw conducted every ${lotteryInfo.day} at 3:00 PM with a first prize of ${lotteryInfo.jackpot || "₹1 Crore"}.`,
+    brand: {
+      "@type": "Organization",
+      name: "Directorate of Kerala State Lotteries",
+    },
+    offers: {
+      "@type": "Offer",
+      price: "50",
+      priceCurrency: "INR",
+      availability: "https://schema.org/InStoreOnly",
+      url: `${baseUrl}/${lotterySlug}`,
+    },
+  };
 
   return (
-    <LotteryDetailsClient
-      lotteryInfo={lotteryInfo}
-      lotteryCode={lotteryCode}
-      lotterySlug={lotterySlug}
-      initialDraws={drawHistory}
-      initialLotteryMeta={lotteryDbMeta}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([breadcrumbSchema, schemeSchema]),
+        }}
+      />
+      <LotteryDetailsClient
+        lotteryInfo={lotteryInfo}
+        lotteryCode={lotteryCode}
+        lotterySlug={lotterySlug}
+        initialDraws={drawHistory}
+        initialLotteryMeta={lotteryDbMeta}
+      />
+    </>
   );
 }

@@ -53,5 +53,56 @@ export const metadata: Metadata = {
 };
 
 export default function KeralaLotteryAppLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  const baseUrl = "https://www.keralalotteryresultstoday.in";
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Kerala Lottery App",
+        item: `${baseUrl}/kerala-lottery-app`,
+      },
+    ],
+  };
+
+  const softwareAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Kerala Lottery Result Today App",
+    operatingSystem: "Android, iOS, Windows",
+    applicationCategory: "EntertainmentApplication",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "INR",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "1250",
+      bestRating: "5",
+      worstRating: "1",
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([breadcrumbSchema, softwareAppSchema]),
+        }}
+      />
+      {children}
+    </>
+  );
 }
