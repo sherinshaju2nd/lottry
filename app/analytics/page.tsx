@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
   const [draws, setDraws] = useState<StructuredDrawResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [horizon, setHorizon] = useState<"30" | "90" | "all">("90");
-  const [activeTab, setActiveTab] = useState<"numbers" | "districts">("numbers");
+  const [activeTab, setActiveTab] = useState<"ai-prediction" | "hot-picks" | "lucky-locations">("ai-prediction");
   const [lang, setLang] = useState<"en" | "ml">("en");
   const [districtQuery, setDistrictQuery] = useState("");
   const [copied, setCopied] = useState(false);
@@ -641,46 +641,70 @@ export default function AnalyticsPage() {
               borderRadius: "14px",
               gap: 1,
               width: { xs: "100%", md: "auto" },
+              flexWrap: { xs: "wrap", sm: "nowrap" },
             }}
           >
             <Button
-              onClick={() => setActiveTab("numbers")}
-              startIcon={<WhatshotIcon sx={{ color: activeTab === "numbers" ? "#EA580C" : "#64748B" }} />}
+              onClick={() => setActiveTab("ai-prediction")}
+              startIcon={<AutoAwesomeIcon sx={{ color: activeTab === "ai-prediction" ? "#7C3AED" : "#64748B" }} />}
               sx={{
-                flex: { xs: 1, md: "initial" },
-                bgcolor: activeTab === "numbers" ? "#FFFFFF" : "transparent",
-                color: activeTab === "numbers" ? "#0F172A" : "#64748B",
+                flex: { xs: 1, sm: "initial" },
+                bgcolor: activeTab === "ai-prediction" ? "#FFFFFF" : "transparent",
+                color: activeTab === "ai-prediction" ? "#0F172A" : "#64748B",
                 fontWeight: 800,
                 fontSize: "0.85rem",
                 borderRadius: "10px",
-                px: 2.5,
+                px: 2.2,
                 py: 1,
                 textTransform: "none",
-                boxShadow: activeTab === "numbers" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
-                "&:hover": { bgcolor: activeTab === "numbers" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
+                whiteSpace: "nowrap",
+                boxShadow: activeTab === "ai-prediction" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
+                "&:hover": { bgcolor: activeTab === "ai-prediction" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
               }}
             >
-              {isMl ? "നമ്പർ ട്രെൻഡുകൾ" : "Number Trends"}
+              {isMl ? "AI പ്രവചനങ്ങൾ" : "AI Prediction"}
             </Button>
 
             <Button
-              onClick={() => setActiveTab("districts")}
-              startIcon={<LocationOnIcon sx={{ color: activeTab === "districts" ? "#DC2626" : "#64748B" }} />}
+              onClick={() => setActiveTab("hot-picks")}
+              startIcon={<WhatshotIcon sx={{ color: activeTab === "hot-picks" ? "#EA580C" : "#64748B" }} />}
               sx={{
-                flex: { xs: 1, md: "initial" },
-                bgcolor: activeTab === "districts" ? "#FFFFFF" : "transparent",
-                color: activeTab === "districts" ? "#0F172A" : "#64748B",
+                flex: { xs: 1, sm: "initial" },
+                bgcolor: activeTab === "hot-picks" ? "#FFFFFF" : "transparent",
+                color: activeTab === "hot-picks" ? "#0F172A" : "#64748B",
                 fontWeight: 800,
                 fontSize: "0.85rem",
                 borderRadius: "10px",
-                px: 2.5,
+                px: 2.2,
                 py: 1,
                 textTransform: "none",
-                boxShadow: activeTab === "districts" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
-                "&:hover": { bgcolor: activeTab === "districts" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
+                whiteSpace: "nowrap",
+                boxShadow: activeTab === "hot-picks" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
+                "&:hover": { bgcolor: activeTab === "hot-picks" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
               }}
             >
-              {isMl ? "ഭാഗ്യ ജില്ലകൾ" : "Lucky Locations"}
+              {isMl ? "ഹോട്ട് പിക്കുകൾ" : "Hot Pick"}
+            </Button>
+
+            <Button
+              onClick={() => setActiveTab("lucky-locations")}
+              startIcon={<LocationOnIcon sx={{ color: activeTab === "lucky-locations" ? "#DC2626" : "#64748B" }} />}
+              sx={{
+                flex: { xs: 1, sm: "initial" },
+                bgcolor: activeTab === "lucky-locations" ? "#FFFFFF" : "transparent",
+                color: activeTab === "lucky-locations" ? "#0F172A" : "#64748B",
+                fontWeight: 800,
+                fontSize: "0.85rem",
+                borderRadius: "10px",
+                px: 2.2,
+                py: 1,
+                textTransform: "none",
+                whiteSpace: "nowrap",
+                boxShadow: activeTab === "lucky-locations" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
+                "&:hover": { bgcolor: activeTab === "lucky-locations" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
+              }}
+            >
+              {isMl ? "ഭാഗ്യ ജില്ലകൾ" : "Lucky Location"}
             </Button>
           </Box>
 
@@ -732,14 +756,15 @@ export default function AnalyticsPage() {
             <Skeleton variant="rectangular" height={220} sx={{ borderRadius: "20px" }} />
             <Skeleton variant="rectangular" height={280} sx={{ borderRadius: "20px" }} />
           </Box>
-        ) : activeTab === "numbers" ? (
+        ) : activeTab === "ai-prediction" ? (
+          /* Tab 1: AI Predictor View */
+          <Box>
+            <AiLotteryPatternPredictor allDraws={draws} lang={lang} />
+          </Box>
+        ) : activeTab === "hot-picks" ? (
+          /* Tab 2: Hot Picks & Number Trends View */
           <Grid container spacing={3}>
-            {/* 1. Top Card: Gemini AI Pattern & Digit Predictor */}
-            <Grid size={{ xs: 12 }}>
-              <AiLotteryPatternPredictor allDraws={draws} lang={lang} />
-            </Grid>
-
-            {/* 2. Full-Width Interactive 4-Digit Combination Explorer */}
+            {/* 1. Full-Width Interactive 4-Digit Combination Explorer */}
             <Grid size={{ xs: 12 }}>
               <Paper
                 elevation={0}
