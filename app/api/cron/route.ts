@@ -5,7 +5,10 @@ import {
   checkIsBumperDrawDate,
   getCronConfigFromSupabase,
   logCronExecutionInSupabase,
+  getLotterySlug,
 } from "@/lib/supabase";
+import { submitUrlsToIndexNow } from "@/app/api/indexnow/route";
+import { submitUrlsToGoogle } from "@/lib/google-indexing";
 
 export const dynamic = "force-dynamic";
 
@@ -283,6 +286,25 @@ async function handleCronExecution(req: NextRequest) {
     },
     duration_ms: executionTimeMs,
   });
+
+  // Automatically notify IndexNow & Google to re-crawl updated URLs immediately
+  try {
+    const draw = lastResult.data;
+    const lotterySlug = getLotterySlug(draw?.lottery_code || "");
+    const updatedUrls = [
+      "https://www.keralalotteryresultstoday.in",
+      "https://www.keralalotteryresultstoday.in/analytics",
+      "https://www.keralalotteryresultstoday.in/feed.xml",
+      ...(lotterySlug ? [`https://www.keralalotteryresultstoday.in/${lotterySlug}`] : []),
+      ...(lotterySlug && draw?.draw_date ? [`https://www.keralalotteryresultstoday.in/${lotterySlug}/${draw.draw_date}`] : []),
+    ];
+    await Promise.allSettled([
+      submitUrlsToIndexNow(updatedUrls),
+      submitUrlsToGoogle(updatedUrls),
+    ]);
+  } catch (indexErr) {
+    console.warn("[Crawler Auto-Ping Note]:", indexErr);
+  }
 
   return NextResponse.json(
     {

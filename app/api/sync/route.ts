@@ -1,8 +1,29 @@
 import { NextResponse } from "next/server";
 import { fetchAndSyncLatestLottery } from "@/lib/lottery-sync";
-import { fetchAllDrawResultsFromSupabase } from "@/lib/supabase";
+import { fetchAllDrawResultsFromSupabase, getLotterySlug } from "@/lib/supabase";
+import { submitUrlsToIndexNow } from "@/app/api/indexnow/route";
+import { submitUrlsToGoogle } from "@/lib/google-indexing";
 
 export const dynamic = "force-dynamic";
+
+async function notifyCrawlersForDraw(data: any) {
+  try {
+    const lotterySlug = getLotterySlug(data?.lottery_code || "");
+    const updatedUrls = [
+      "https://www.keralalotteryresultstoday.in",
+      "https://www.keralalotteryresultstoday.in/analytics",
+      "https://www.keralalotteryresultstoday.in/feed.xml",
+      ...(lotterySlug ? [`https://www.keralalotteryresultstoday.in/${lotterySlug}`] : []),
+      ...(lotterySlug && data?.draw_date ? [`https://www.keralalotteryresultstoday.in/${lotterySlug}/${data.draw_date}`] : []),
+    ];
+    await Promise.allSettled([
+      submitUrlsToIndexNow(updatedUrls),
+      submitUrlsToGoogle(updatedUrls),
+    ]);
+  } catch (err) {
+    console.warn("[Crawler Sync Ping Note]:", err);
+  }
+}
 
 export async function GET() {
   try {
@@ -16,6 +37,8 @@ export async function GET() {
         total_draws_in_db: allDraws.length,
       });
     }
+
+    await notifyCrawlersForDraw(result.data);
 
     return NextResponse.json({
       success: true,
@@ -41,6 +64,8 @@ export async function POST() {
         total_draws_in_db: allDraws.length,
       });
     }
+
+    await notifyCrawlersForDraw(result.data);
 
     return NextResponse.json({
       success: true,

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { ALL_LOTTERIES, fetchDrawResultsForSitemap, getLotteryUrl } from "@/lib/supabase";
 
-export const revalidate = 3600; // Revalidate sitemap cache every hour
+export const dynamic = "force-dynamic";
+export const revalidate = 900; // Fresh sitemap every 15 minutes
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://www.keralalotteryresultstoday.in";
