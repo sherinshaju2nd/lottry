@@ -59,7 +59,17 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [lotteriesList, setLotteriesList] = useState(ALL_LOTTERIES);
-  const [uiMode, setUiMode] = useState<"normal" | "modern">("normal");
+  const [uiMode, setUiMode] = useState<"normal" | "modern">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("kerala_lottery_ui_mode");
+        if (saved === "normal" || saved === "modern") {
+          return saved as "normal" | "modern";
+        }
+      } catch {}
+    }
+    return "normal";
+  });
 
   React.useEffect(() => {
     try {
