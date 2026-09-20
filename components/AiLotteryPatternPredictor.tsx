@@ -458,7 +458,7 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
   }, [analysis, selectedCategory]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, width: "100%", maxWidth: "100%", overflowX: "hidden", boxSizing: "border-box" }}>
       {/* 1. Top Setup & Lottery Selector Banner */}
       <Paper
         elevation={0}
@@ -470,6 +470,7 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
           boxShadow: "0 4px 20px rgba(15, 23, 42, 0.04)",
           position: "relative",
           overflow: "hidden",
+          maxWidth: "100%",
         }}
       >
         {/* Decorative background aura */}
@@ -497,9 +498,10 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
             alignItems: { xs: "flex-start", sm: "center" },
             gap: 2,
             mb: 2.5,
+            maxWidth: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0, maxWidth: "100%" }}>
             <Box
               sx={{
                 width: 46,
@@ -511,18 +513,19 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 justifyContent: "center",
                 color: "#FFFFFF",
                 boxShadow: "0 4px 14px rgba(11, 60, 93, 0.25)",
+                flexShrink: 0,
               }}
             >
               <PsychologyIcon sx={{ fontSize: 28 }} />
             </Box>
-            <Box>
+            <Box sx={{ minWidth: 0 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
                 <Typography
                   variant="h5"
                   sx={{
                     fontWeight: 900,
                     color: "#0F172A",
-                    fontSize: { xs: "1.2rem", md: "1.35rem" },
+                    fontSize: { xs: "1.15rem", md: "1.35rem" },
                     letterSpacing: "-0.01em",
                   }}
                 >
@@ -559,12 +562,13 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
               fontWeight: 800,
               fontSize: "0.75rem",
               border: `1px solid ${availableDraws.length > 0 ? "#BBF7D0" : "#FECACA"}`,
+              flexShrink: 0,
             }}
           />
         </Box>
 
         {/* Lottery Selection Carousel with Left/Right Arrows */}
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 3, maxWidth: "100%" }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.2 }}>
             <Typography
               variant="caption"
@@ -601,6 +605,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
               alignItems: "center",
               gap: { xs: 0.8, sm: 1 },
               position: "relative",
+              width: "100%",
+              maxWidth: "100%",
+              minWidth: 0,
             }}
           >
             {/* Left Scroll Arrow */}
@@ -645,6 +652,8 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 py: 0.5,
                 px: 0.5,
                 flex: 1,
+                minWidth: 0,
+                maxWidth: "100%",
                 scrollbarWidth: "none",
                 "&::-webkit-scrollbar": { display: "none" },
               }}
@@ -1072,7 +1081,7 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
 
       {/* 3. Analysis Results View */}
       {analysis && !loading && !isCheckingCache && (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
           {/* Action Bar: Download Doc / Share Report */}
           <Paper
             elevation={0}
@@ -1989,7 +1998,7 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                   : "Transparent dataset compiled from official Kerala Gazette draws containing 1st through 9th prize tiers evaluated by the AI Pattern Engine."}
               </Typography>
 
-              <TableContainer sx={{ maxHeight: 380 }}>
+              <TableContainer sx={{ maxHeight: 380, maxWidth: "100%", overflowX: "auto" }}>
                 <Table size="small" stickyHeader>
                   <TableHead>
                     <TableRow>

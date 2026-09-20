@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
@@ -15,13 +15,6 @@ import { ALL_LOTTERIES, getLotteryUrl } from "@/lib/supabase";
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
 
   const isHome = pathname === "/";
   const isSearch = pathname === "/search";

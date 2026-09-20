@@ -428,7 +428,7 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <Box sx={{ bgcolor: "#F8FAFC", minHeight: "100vh", pb: 8 }}>
+    <Box sx={{ bgcolor: "#F8FAFC", minHeight: "100vh", pb: { xs: 12, md: 8 }, width: "100%", maxWidth: "100vw", overflowX: "hidden", boxSizing: "border-box" }}>
       {/* Top Banner & Header */}
       <Box
         sx={{
@@ -438,9 +438,13 @@ export default function AnalyticsPage() {
           pb: { xs: 4, md: 4.5 },
           position: "relative",
           borderBottom: "1px solid #1E293B",
+          width: "100%",
+          maxWidth: "100%",
+          overflowX: "hidden",
+          boxSizing: "border-box",
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 }, maxWidth: "100%", overflowX: "hidden" }}>
           <Box
             sx={{
               display: "flex",
@@ -451,7 +455,7 @@ export default function AnalyticsPage() {
             }}
           >
             {/* Title & Subtitle */}
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1, minWidth: 0, maxWidth: "100%" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5, flexWrap: "wrap" }}>
                 <Chip
                   icon={<InsightsIcon sx={{ color: "#10B981 !important", fontSize: 16 }} />}
@@ -487,6 +491,7 @@ export default function AnalyticsPage() {
                   letterSpacing: isMl ? "0em" : "-0.02em",
                   color: "#FFFFFF",
                   mb: 1,
+                  wordBreak: "break-word",
                 }}
               >
                 {isMl ? "കേരള ലോട്ടറി ഫല സ്ഥിതിവിവരക്കണക്കുകൾ" : "Kerala Lottery Statistics & Trend Analytics"}
@@ -515,6 +520,7 @@ export default function AnalyticsPage() {
                 alignItems: "center",
                 gap: 1.5,
                 flexWrap: "wrap",
+                maxWidth: "100%",
               }}
             >
               {/* Language Switch */}
@@ -620,7 +626,7 @@ export default function AnalyticsPage() {
       </Box>
 
       {/* Main Container */}
-      <Container maxWidth="lg" sx={{ mt: 3 }}>
+      <Container maxWidth="lg" sx={{ mt: 3, px: { xs: 1.5, sm: 3 }, maxWidth: "100%", overflowX: "hidden", boxSizing: "border-box" }}>
         {/* Horizon Selector Bar & Tab Switcher */}
         <Box
           sx={{
@@ -630,6 +636,7 @@ export default function AnalyticsPage() {
             justifyContent: "space-between",
             gap: 2,
             mb: 3,
+            maxWidth: "100%",
           }}
         >
           {/* Main Tab Switcher */}
@@ -639,8 +646,9 @@ export default function AnalyticsPage() {
               bgcolor: "#E2E8F0",
               p: 0.5,
               borderRadius: "14px",
-              gap: 1,
+              gap: { xs: 0.5, sm: 1 },
               width: { xs: "100%", md: "auto" },
+              maxWidth: "100%",
               flexWrap: { xs: "wrap", sm: "nowrap" },
             }}
           >
@@ -652,10 +660,10 @@ export default function AnalyticsPage() {
                 bgcolor: activeTab === "ai-prediction" ? "#FFFFFF" : "transparent",
                 color: activeTab === "ai-prediction" ? "#0F172A" : "#64748B",
                 fontWeight: 800,
-                fontSize: "0.85rem",
+                fontSize: { xs: "0.78rem", sm: "0.85rem" },
                 borderRadius: "10px",
-                px: 2.2,
-                py: 1,
+                px: { xs: 1.2, sm: 2.2 },
+                py: 0.9,
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 boxShadow: activeTab === "ai-prediction" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
@@ -673,10 +681,10 @@ export default function AnalyticsPage() {
                 bgcolor: activeTab === "hot-picks" ? "#FFFFFF" : "transparent",
                 color: activeTab === "hot-picks" ? "#0F172A" : "#64748B",
                 fontWeight: 800,
-                fontSize: "0.85rem",
+                fontSize: { xs: "0.78rem", sm: "0.85rem" },
                 borderRadius: "10px",
-                px: 2.2,
-                py: 1,
+                px: { xs: 1.2, sm: 2.2 },
+                py: 0.9,
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 boxShadow: activeTab === "hot-picks" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
@@ -694,10 +702,10 @@ export default function AnalyticsPage() {
                 bgcolor: activeTab === "lucky-locations" ? "#FFFFFF" : "transparent",
                 color: activeTab === "lucky-locations" ? "#0F172A" : "#64748B",
                 fontWeight: 800,
-                fontSize: "0.85rem",
+                fontSize: { xs: "0.78rem", sm: "0.85rem" },
                 borderRadius: "10px",
-                px: 2.2,
-                py: 1,
+                px: { xs: 1.2, sm: 2.2 },
+                py: 0.9,
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 boxShadow: activeTab === "lucky-locations" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
@@ -716,14 +724,15 @@ export default function AnalyticsPage() {
               p: 0.5,
               borderRadius: "12px",
               border: "1px solid #E2E8F0",
-              gap: 0.8,
+              gap: 0.5,
               width: { xs: "100%", md: "auto" },
+              maxWidth: "100%",
             }}
           >
             {[
-              { key: "30", label: isMl ? "കഴിഞ്ഞ 30 നറുക്കെടുപ്പുകൾ" : "Last 30 Draws" },
-              { key: "90", label: isMl ? "കഴിഞ്ഞ 90 നറുക്കെടുപ്പുകൾ" : "Last 90 Draws" },
-              { key: "all", label: isMl ? "മുഴുവൻ ചരിത്രം" : "All History" },
+              { key: "30", label: isMl ? "കഴിഞ്ഞ 30" : "Last 30 Draws" },
+              { key: "90", label: isMl ? "കഴിഞ്ഞ 90" : "Last 90 Draws" },
+              { key: "all", label: isMl ? "മുഴുവൻ" : "All History" },
             ].map((tab) => {
               const active = horizon === tab.key;
               return (
@@ -736,11 +745,12 @@ export default function AnalyticsPage() {
                     bgcolor: active ? "#0B3C5D" : "transparent",
                     color: active ? "#FFFFFF" : "#64748B",
                     fontWeight: 800,
-                    fontSize: "0.78rem",
+                    fontSize: { xs: "0.72rem", sm: "0.78rem" },
                     borderRadius: "8px",
-                    px: 1.8,
+                    px: { xs: 0.8, sm: 1.8 },
                     py: 0.6,
                     textTransform: "none",
+                    whiteSpace: "nowrap",
                     "&:hover": { bgcolor: active ? "#0B3C5D" : "#F1F5F9" },
                   }}
                 >
