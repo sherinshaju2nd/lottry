@@ -593,47 +593,50 @@ export default function KeralaLotteryAppPage() {
         <Box sx={{ display: "flex", justifyContent: "center", mb: 4, px: { xs: 1, sm: 2 } }}>
           <Box
             sx={{
-              display: "flex",
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
               width: "100%",
-              maxWidth: { xs: "100%", sm: 500, md: 540 },
-              p: { xs: 0.4, sm: 0.6 },
+              maxWidth: { xs: 380, sm: 480, md: 520 },
+              p: { xs: "3px", sm: "5px" },
               borderRadius: "100px",
-              bgcolor: "rgba(255, 255, 255, 0.05)",
+              bgcolor: "rgba(15, 23, 42, 0.75)",
               backdropFilter: "blur(20px)",
               border: "1px solid rgba(255, 255, 255, 0.12)",
-              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.3)",
-              gap: { xs: 0.4, sm: 0.75 },
+              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.35)",
+              gap: { xs: "2px", sm: "6px" },
             }}
           >
             {/* iOS Button */}
             <Button
               onClick={() => setPlatformTab("ios")}
               sx={{
-                flex: 1,
+                width: "100%",
                 borderRadius: "100px",
-                px: { xs: 0.8, sm: 2.2 },
-                py: { xs: 0.75, sm: 1 },
-                fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.925rem" },
+                px: { xs: 0.5, sm: 1.5 },
+                py: { xs: 0.7, sm: 0.95 },
+                fontSize: { xs: "0.72rem", sm: "0.825rem", md: "0.9rem" },
                 fontWeight: 800,
                 textTransform: "none",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: { xs: 0.5, sm: 0.8 },
+                gap: { xs: 0.4, sm: 0.6 },
                 whiteSpace: "nowrap",
                 transition: "all 0.25s ease",
-                bgcolor: platformTab === "ios" ? "rgba(255, 255, 255, 0.15)" : "transparent",
+                bgcolor: platformTab === "ios" ? "rgba(255, 255, 255, 0.16)" : "transparent",
                 color: platformTab === "ios" ? "#FFFFFF" : "#94A3B8",
                 border: platformTab === "ios" ? "1px solid rgba(255, 255, 255, 0.25)" : "1px solid transparent",
-                boxShadow: platformTab === "ios" ? "0 4px 16px rgba(0, 0, 0, 0.25)" : "none",
+                boxShadow: platformTab === "ios" ? "0 4px 16px rgba(0, 0, 0, 0.3)" : "none",
                 "&:hover": {
                   bgcolor: platformTab === "ios" ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.06)",
                   color: "#FFFFFF",
                 },
               }}
             >
-              <AppleIcon size={16} />
-              <span>iPhone / iOS</span>
+              <AppleIcon size={15} />
+              <span>
+                <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>iPhone / </Box>iOS
+              </span>
               {detectedOs === "iOS" && (
                 <Box
                   sx={{
@@ -652,31 +655,33 @@ export default function KeralaLotteryAppPage() {
             <Button
               onClick={() => setPlatformTab("windows")}
               sx={{
-                flex: 1,
+                width: "100%",
                 borderRadius: "100px",
-                px: { xs: 0.8, sm: 2.2 },
-                py: { xs: 0.75, sm: 1 },
-                fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.925rem" },
+                px: { xs: 0.5, sm: 1.5 },
+                py: { xs: 0.7, sm: 0.95 },
+                fontSize: { xs: "0.72rem", sm: "0.825rem", md: "0.9rem" },
                 fontWeight: 800,
                 textTransform: "none",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: { xs: 0.5, sm: 0.8 },
+                gap: { xs: 0.4, sm: 0.6 },
                 whiteSpace: "nowrap",
                 transition: "all 0.25s ease",
-                bgcolor: platformTab === "windows" ? "rgba(255, 255, 255, 0.15)" : "transparent",
+                bgcolor: platformTab === "windows" ? "rgba(255, 255, 255, 0.16)" : "transparent",
                 color: platformTab === "windows" ? "#FFFFFF" : "#94A3B8",
                 border: platformTab === "windows" ? "1px solid rgba(255, 255, 255, 0.25)" : "1px solid transparent",
-                boxShadow: platformTab === "windows" ? "0 4px 16px rgba(0, 0, 0, 0.25)" : "none",
+                boxShadow: platformTab === "windows" ? "0 4px 16px rgba(0, 0, 0, 0.3)" : "none",
                 "&:hover": {
                   bgcolor: platformTab === "windows" ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.06)",
                   color: "#FFFFFF",
                 },
               }}
             >
-              <WindowsIcon size={15} />
-              <span>Windows PC</span>
+              <WindowsIcon size={14} />
+              <span>
+                Windows<Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}> PC</Box>
+              </span>
               {detectedOs === "Windows" && (
                 <Box
                   sx={{
@@ -695,30 +700,30 @@ export default function KeralaLotteryAppPage() {
             <Button
               onClick={() => setPlatformTab("android")}
               sx={{
-                flex: 1,
+                width: "100%",
                 borderRadius: "100px",
-                px: { xs: 0.8, sm: 2.2 },
-                py: { xs: 0.75, sm: 1 },
-                fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.925rem" },
+                px: { xs: 0.5, sm: 1.5 },
+                py: { xs: 0.7, sm: 0.95 },
+                fontSize: { xs: "0.72rem", sm: "0.825rem", md: "0.9rem" },
                 fontWeight: 800,
                 textTransform: "none",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: { xs: 0.5, sm: 0.8 },
+                gap: { xs: 0.4, sm: 0.6 },
                 whiteSpace: "nowrap",
                 transition: "all 0.25s ease",
-                bgcolor: platformTab === "android" ? "rgba(255, 255, 255, 0.15)" : "transparent",
+                bgcolor: platformTab === "android" ? "rgba(255, 255, 255, 0.16)" : "transparent",
                 color: platformTab === "android" ? "#FFFFFF" : "#94A3B8",
                 border: platformTab === "android" ? "1px solid rgba(255, 255, 255, 0.25)" : "1px solid transparent",
-                boxShadow: platformTab === "android" ? "0 4px 16px rgba(0, 0, 0, 0.25)" : "none",
+                boxShadow: platformTab === "android" ? "0 4px 16px rgba(0, 0, 0, 0.3)" : "none",
                 "&:hover": {
                   bgcolor: platformTab === "android" ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.06)",
                   color: "#FFFFFF",
                 },
               }}
             >
-              <AndroidIcon size={15} color="#34D399" />
+              <AndroidIcon size={14} color="#34D399" />
               <span>Android</span>
               {detectedOs === "Android" && (
                 <Box

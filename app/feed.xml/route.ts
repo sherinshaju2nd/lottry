@@ -36,7 +36,7 @@ export async function GET() {
   try {
     const { data: draws, error } = await supabase
       .from("draw_results")
-      .select("draw_name, draw_code, lottery_code, draw_date, first, created_at")
+      .select("draw_name, draw_code, lottery_code, draw_date, first_prize, created_at")
       .order("draw_date", { ascending: false })
       .limit(30);
 
@@ -68,10 +68,17 @@ export async function GET() {
     }
 
     const itemsXml = draws
-      .map((draw) => {
+      .map((draw: any) => {
         const slug = getLotterySlug(draw.lottery_code);
         const url = `${baseUrl}/${slug}/${draw.draw_date}`;
-        const firstPrizeTicket = draw.first?.ticket ? ` | 1st Prize: ${draw.first.ticket}` : "";
+        let firstTicket = "";
+        try {
+          const fp = typeof draw.first_prize === "string" ? JSON.parse(draw.first_prize) : draw.first_prize;
+          firstTicket = fp?.ticket || "";
+        } catch {
+          firstTicket = "";
+        }
+        const firstPrizeTicket = firstTicket ? ` | 1st Prize: ${firstTicket}` : "";
         const title = `${draw.draw_name} (${draw.draw_code || draw.lottery_code}) Results Today ${draw.draw_date}${firstPrizeTicket}`;
         const description = `Live Kerala State Lottery results for ${draw.draw_name} (${draw.draw_code || draw.lottery_code}) held on ${draw.draw_date}. Check winning ticket numbers, prize list breakdown, and gazette status.`;
         const pubDate = draw.created_at

@@ -130,14 +130,22 @@ async function getTodaySEOPackage(): Promise<TodaySEOData> {
     // 3. Check if today's draw is already synced in draw_results (e.g. SS-536)
     const { data: drawResult } = await supabase
       .from("draw_results")
-      .select("draw_name, draw_code, lottery_code")
+      .select("draw_name, draw_code, lottery_code, first_prize")
       .eq("draw_date", isoDate)
       .maybeSingle();
 
     if (drawResult && drawResult.draw_name) {
       const codePart = drawResult.draw_code || drawResult.lottery_code || "";
-      const title = `LIVE Kerala Lottery Result Today (${formattedDate}) | ${drawResult.draw_name} (${codePart}) Results`;
-      const description = `Kerala Lottery Result Today (${formattedDate}) for ${drawResult.draw_name} (${codePart}). Check today's 1st prize winning ticket numbers, live 3 PM draw results, prize breakdown, and official Gazette PDF download.`;
+      let firstTicket = "";
+      try {
+        const fp = typeof drawResult.first_prize === "string" ? JSON.parse(drawResult.first_prize) : drawResult.first_prize;
+        firstTicket = fp?.ticket || "";
+      } catch {
+        firstTicket = "";
+      }
+      const firstPrizeText = firstTicket ? ` | 1st Prize: ${firstTicket}` : "";
+      const title = `LIVE Kerala Lottery Result Today (${formattedDate}) | ${drawResult.draw_name} (${codePart}) Results${firstPrizeText}`;
+      const description = `Kerala Lottery Result Today (${formattedDate}) for ${drawResult.draw_name} (${codePart}). Check today's 1st prize winning ticket numbers${firstTicket ? ` (${firstTicket})` : ""}, live 3 PM draw results, prize breakdown, and official Gazette PDF download.`;
       return {
         title,
         description,
@@ -347,6 +355,35 @@ export default async function RootLayout({
       url: "https://www.keralalotteryresultstoday.in",
       logo: "https://www.keralalotteryresultstoday.in/logo-master-1024.png",
       sameAs: ["https://www.keralalotteryresultstoday.in"],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "LiveBlogPosting",
+      headline: seoData.title,
+      description: seoData.description,
+      coverageStartTime: `${seoData.isoDate}T00:00:00+05:30`,
+      coverageEndTime: `${seoData.isoDate}T23:59:59+05:30`,
+      datePublished: `${seoData.isoDate}T00:00:00+05:30`,
+      dateModified: new Date().toISOString(),
+      url: "https://www.keralalotteryresultstoday.in",
+      publisher: {
+        "@type": "Organization",
+        name: "Kerala Lottery Result Today",
+        url: "https://www.keralalotteryresultstoday.in",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://www.keralalotteryresultstoday.in/logo-master-1024.png",
+        },
+      },
+      liveBlogUpdate: [
+        {
+          "@type": "BlogPosting",
+          headline: `Kerala Lottery ${seoData.lotteryName} (${seoData.lotteryCode}) Results Today - ${seoData.formattedDate}`,
+          articleBody: seoData.description,
+          datePublished: `${seoData.isoDate}T00:00:00+05:30`,
+          dateModified: new Date().toISOString(),
+        },
+      ],
     },
     {
       "@context": "https://schema.org",

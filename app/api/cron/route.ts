@@ -295,9 +295,27 @@ async function handleCronExecution(req: NextRequest) {
       "https://www.keralalotteryresultstoday.in",
       "https://www.keralalotteryresultstoday.in/analytics",
       "https://www.keralalotteryresultstoday.in/feed.xml",
+      "https://www.keralalotteryresultstoday.in/sitemap.xml",
       ...(lotterySlug ? [`https://www.keralalotteryresultstoday.in/${lotterySlug}`] : []),
       ...(lotterySlug && draw?.draw_date ? [`https://www.keralalotteryresultstoday.in/${lotterySlug}/${draw.draw_date}`] : []),
     ];
+
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath("/");
+      revalidatePath("/sitemap.xml");
+      revalidatePath("/feed.xml");
+      revalidatePath("/analytics");
+      if (lotterySlug) {
+        revalidatePath(`/${lotterySlug}`);
+        if (draw?.draw_date) {
+          revalidatePath(`/${lotterySlug}/${draw.draw_date}`);
+        }
+      }
+    } catch (cacheErr) {
+      console.warn("[Cache Revalidate Note]:", cacheErr);
+    }
+
     await Promise.allSettled([
       submitUrlsToIndexNow(updatedUrls),
       submitUrlsToGoogle(updatedUrls),

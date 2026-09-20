@@ -8,6 +8,8 @@ import {
   logCronExecutionInSupabase,
 } from "@/lib/supabase";
 
+import { revalidatePath } from "next/cache";
+
 export const dynamic = "force-dynamic";
 
 function getTodayISTInfo() {
@@ -67,6 +69,19 @@ export async function GET(req: NextRequest) {
       `${baseUrl}/analytics`,
       `${baseUrl}/search`,
     ];
+
+    // Purge any cached Next.js ISR HTML
+    try {
+      revalidatePath("/");
+      revalidatePath("/sitemap.xml");
+      revalidatePath("/feed.xml");
+      revalidatePath("/analytics");
+      if (todaySlug) {
+        revalidatePath(`/${todaySlug}`);
+      }
+    } catch (e) {
+      console.warn("Revalidate cache note:", e);
+    }
 
     // 3. Submit to IndexNow (Bing, Yahoo, Naver, Seznam) and Google Indexing
     const [indexNowResult, googleResult] = await Promise.allSettled([

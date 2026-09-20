@@ -47,6 +47,15 @@ const nextConfig: NextConfig = {
           { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" },
         ],
       },
+      {
+        source: "/(feed.xml|sitemap.xml)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
     ];
   },
 };

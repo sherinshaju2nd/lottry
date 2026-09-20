@@ -321,7 +321,8 @@ export default function DownloadAppModal({ open, onClose, defaultTab }: Download
               bgcolor: "#F1F5F9",
               p: 0.5,
               borderRadius: "14px",
-              display: "flex",
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
               width: "100%",
               gap: 0.5,
             }}
@@ -330,13 +331,13 @@ export default function DownloadAppModal({ open, onClose, defaultTab }: Download
               onClick={() => setActiveTab("android")}
               fullWidth
               size="small"
-              startIcon={<AndroidIcon size={18} color={activeTab === "android" ? "#16A34A" : "#64748B"} />}
+              startIcon={<AndroidIcon size={16} color={activeTab === "android" ? "#16A34A" : "#64748B"} />}
               sx={{
                 borderRadius: "10px",
                 py: 0.8,
-                px: 1,
+                px: { xs: 0.5, sm: 1 },
                 fontWeight: 800,
-                fontSize: { xs: "0.75rem", sm: "0.825rem" },
+                fontSize: { xs: "0.72rem", sm: "0.825rem" },
                 textTransform: "none",
                 bgcolor: activeTab === "android" ? "#FFFFFF" : "transparent",
                 color: activeTab === "android" ? "#0F172A" : "#64748B",
@@ -352,15 +353,15 @@ export default function DownloadAppModal({ open, onClose, defaultTab }: Download
               size="small"
               startIcon={
                 <Box sx={{ color: activeTab === "ios" ? "#0F172A" : "#64748B", display: "flex", alignItems: "center" }}>
-                  <AppleIcon size={16} />
+                  <AppleIcon size={15} />
                 </Box>
               }
               sx={{
                 borderRadius: "10px",
                 py: 0.8,
-                px: 1,
+                px: { xs: 0.5, sm: 1 },
                 fontWeight: 800,
-                fontSize: { xs: "0.75rem", sm: "0.825rem" },
+                fontSize: { xs: "0.72rem", sm: "0.825rem" },
                 textTransform: "none",
                 bgcolor: activeTab === "ios" ? "#FFFFFF" : "transparent",
                 color: activeTab === "ios" ? "#0F172A" : "#64748B",
@@ -368,19 +369,19 @@ export default function DownloadAppModal({ open, onClose, defaultTab }: Download
                 "&:hover": { bgcolor: activeTab === "ios" ? "#FFFFFF" : "#E2E8F0" },
               }}
             >
-              iPhone (iOS)
+              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>iPhone </Box>iOS
             </Button>
             <Button
               onClick={() => setActiveTab("windows")}
               fullWidth
               size="small"
-              startIcon={<WindowsIcon size={16} />}
+              startIcon={<WindowsIcon size={15} />}
               sx={{
                 borderRadius: "10px",
                 py: 0.8,
-                px: 1,
+                px: { xs: 0.5, sm: 1 },
                 fontWeight: 800,
-                fontSize: { xs: "0.75rem", sm: "0.825rem" },
+                fontSize: { xs: "0.72rem", sm: "0.825rem" },
                 textTransform: "none",
                 bgcolor: activeTab === "windows" ? "#FFFFFF" : "transparent",
                 color: activeTab === "windows" ? "#0F172A" : "#64748B",
@@ -388,7 +389,7 @@ export default function DownloadAppModal({ open, onClose, defaultTab }: Download
                 "&:hover": { bgcolor: activeTab === "windows" ? "#FFFFFF" : "#E2E8F0" },
               }}
             >
-              Windows (PC)
+              Windows<Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}> PC</Box>
             </Button>
           </Box>
         </Box>

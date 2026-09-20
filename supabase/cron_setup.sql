@@ -122,9 +122,79 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
--- 5. Schedule continuous 1-minute cron job (08:00 to 13:00 UTC = 1:30 PM to 6:30 PM IST daily)
+-- 5. Create stored function to trigger Next.js Midnight SEO & Indexing API /api/cron/midnight route via pg_net
+CREATE OR REPLACE FUNCTION public.trigger_midnight_sync(
+    target_app_url TEXT DEFAULT NULL,
+    target_secret TEXT DEFAULT NULL
+)
+RETURNS bigint
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, net, pg_temp
+AS $$
+DECLARE
+    req_id bigint;
+    final_app_url text;
+    final_secret text;
+    target_endpoint text;
+    req_headers jsonb;
+BEGIN
+    -- Fetch app_url dynamically from app_config
+    IF target_app_url IS NULL OR target_app_url = '' THEN
+        SELECT value INTO final_app_url FROM public.app_config WHERE key = 'app_url';
+    ELSE
+        final_app_url := target_app_url;
+    END IF;
+
+    -- Fetch cron_secret dynamically from app_config
+    IF target_secret IS NULL OR target_secret = '' THEN
+        SELECT value INTO final_secret FROM public.app_config WHERE key = 'cron_secret';
+    ELSE
+        final_secret := target_secret;
+    END IF;
+
+    -- Fallback default if app_config row is missing
+    IF final_app_url IS NULL OR final_app_url = '' THEN
+        final_app_url := 'https://www.keralalotteryresultstoday.in';
+    END IF;
+
+    target_endpoint := rtrim(final_app_url, '/') || '/api/cron/midnight';
+
+    IF final_secret IS NOT NULL AND final_secret != '' THEN
+        req_headers := jsonb_build_object(
+            'Authorization', 'Bearer ' || final_secret,
+            'User-Agent', 'Supabase-pg_cron/1.0'
+        );
+    ELSE
+        req_headers := jsonb_build_object(
+            'User-Agent', 'Supabase-pg_cron/1.0'
+        );
+    END IF;
+
+    -- Send non-blocking HTTP GET request to /api/cron/midnight
+    SELECT net.http_get(
+        url := target_endpoint,
+        headers := req_headers
+    ) INTO req_id;
+
+    RETURN req_id;
+EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Error in trigger_midnight_sync: %', SQLERRM;
+    RETURN NULL;
+END;
+$$;
+
+-- 6. Schedule continuous 1-minute cron job (08:00 to 13:00 UTC = 1:30 PM to 6:30 PM IST daily)
 SELECT cron.schedule(
     'lottery_sync_master_daily',
     '* 8-13 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
+
+-- 7. Schedule 12:00 Midnight IST SEO & Search Crawler Ping (18:30 UTC daily)
+SELECT cron.schedule(
+    'lottery_midnight_seo_ping',
+    '30 18 * * *',
+    $$SELECT public.trigger_midnight_sync();$$
+);
+
