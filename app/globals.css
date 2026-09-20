@@ -81,3 +81,32 @@ body {
     padding-bottom: 64px;
   }
 }
+
+/* Zero-Flash UI Mode Layout Switcher Rules */
+/* Default / Normal Mode: Mobile shows normal view, Desktop shows modern view */
+html:not([data-ui-mode="modern"]) .home-normal-view {
+  display: block;
+}
+@media (min-width: 900px) {
+  html:not([data-ui-mode="modern"]) .home-normal-view {
+    display: none !important;
+  }
+}
+
+html:not([data-ui-mode="modern"]) .home-modern-view {
+  display: none;
+}
+@media (min-width: 900px) {
+  html:not([data-ui-mode="modern"]) .home-modern-view {
+    display: block !important;
+  }
+}
+
+/* Modern Mode: Always hide normal view and always show modern view across all screens */
+html[data-ui-mode="modern"] .home-normal-view {
+  display: none !important;
+}
+
+html[data-ui-mode="modern"] .home-modern-view {
+  display: block !important;
+}

@@ -171,17 +171,7 @@ export default function HomePage() {
   });
 
   const [allDraws, setAllDraws] = useState<StructuredDrawResult[]>([]);
-  const [uiMode, setUiMode] = useState<"normal" | "modern">(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("kerala_lottery_ui_mode");
-        if (saved === "normal" || saved === "modern") {
-          return saved as "normal" | "modern";
-        }
-      } catch {}
-    }
-    return "normal";
-  });
+  const [uiMode, setUiMode] = useState<"normal" | "modern">("normal");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -209,6 +199,7 @@ export default function HomePage() {
     setUiMode(mode);
     try {
       localStorage.setItem("kerala_lottery_ui_mode", mode);
+      document.documentElement.setAttribute("data-ui-mode", mode);
       window.dispatchEvent(
         new CustomEvent("kerala_ui_mode_changed", { detail: { mode } })
       );
@@ -947,29 +938,21 @@ export default function HomePage() {
     >
 
 
-      {/* 1. Mobile Normal UI (rendered only when uiMode === "normal") */}
-      {uiMode === "normal" && (
-        <Box sx={{ display: { xs: "block", md: "none" } }}>
-          <HomeNormalView
-            todayLottery={todayLottery}
-            todayISTDate={todayISTDate}
-            todayDrawResult={todayDrawResult}
-            allDraws={allDraws}
-            isLoading={isLoading}
-            isTodayBumper={isTodayBumper}
-            isAfter3PM={isAfter3PM}
-          />
-        </Box>
-      )}
+      {/* 1. Mobile Normal UI (2-column quick grid) */}
+      <Box className="home-normal-view">
+        <HomeNormalView
+          todayLottery={todayLottery}
+          todayISTDate={todayISTDate}
+          todayDrawResult={todayDrawResult}
+          allDraws={allDraws}
+          isLoading={isLoading}
+          isTodayBumper={isTodayBumper}
+          isAfter3PM={isAfter3PM}
+        />
+      </Box>
 
-      {/* 2. Modern Dashboard View:
-          - If uiMode === "normal": visible only on desktop (md+) via CSS { xs: "none", md: "block" }
-          - If uiMode === "modern": visible on ALL screens via CSS { xs: "block", md: "block" } */}
-      <Box
-        sx={{
-          display: uiMode === "normal" ? { xs: "none", md: "block" } : "block",
-        }}
-      >
+      {/* 2. Modern Dashboard View */}
+      <Box className="home-modern-view">
         {/* Hero Banner Container (2-Slide Carousel: Today's Draw & Yesterday's Result) */}
         <Paper
         elevation={0}

@@ -472,7 +472,7 @@ export default async function RootLayout({
   ];
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Google Search Console Verification */}
         <meta
@@ -539,15 +539,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {/* Daily RSS / Atom Feed for Fast Googlebot & Search Engine Daily Crawling */}
         <link rel="alternate" type="application/rss+xml" href="/feed.xml" title="Kerala Lottery Results Daily RSS Feed" />
 
-        {/* JSON-LD Structured Data for SEO & AI */}
+        {/* Instant UI Mode Initializer (Prevents any flash on hard reload) */}
         <script
-          type="application/ld+json"
+          id="kerala-ui-mode-init"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredSchemas),
+            __html: `
+              (function() {
+                try {
+                  var mode = localStorage.getItem('kerala_lottery_ui_mode');
+                  if (mode === 'modern') {
+                    document.documentElement.setAttribute('data-ui-mode', 'modern');
+                  } else {
+                    document.documentElement.setAttribute('data-ui-mode', 'normal');
+                  }
+                } catch(e) {}
+              })();
+            `,
           }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
