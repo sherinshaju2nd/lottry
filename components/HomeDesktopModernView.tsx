@@ -11,8 +11,6 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
-import Snackbar from "@mui/material/Snackbar";
-import Tooltip from "@mui/material/Tooltip";
 import Skeleton from "@mui/material/Skeleton";
 import Alert from "@mui/material/Alert";
 
@@ -34,7 +32,6 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import BoltIcon from "@mui/icons-material/Bolt";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -89,7 +86,11 @@ function formatFullDate(dateStr?: string): string {
   try {
     const parts = dateStr.split("T")[0].split("-");
     if (parts.length === 3) {
-      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      const d = new Date(
+        parseInt(parts[0]),
+        parseInt(parts[1]) - 1,
+        parseInt(parts[2]),
+      );
       return d.toLocaleDateString("en-US", {
         weekday: "long",
         day: "numeric",
@@ -107,7 +108,11 @@ function formatShortDate(dateStr?: string): string {
   try {
     const parts = dateStr.split("T")[0].split("-");
     if (parts.length === 3) {
-      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      const d = new Date(
+        parseInt(parts[0]),
+        parseInt(parts[1]) - 1,
+        parseInt(parts[2]),
+      );
       return d.toLocaleDateString("en-US", {
         day: "numeric",
         month: "short",
@@ -155,7 +160,8 @@ export default function HomeDesktopModernView({
   setHeroSlideIndex,
 }: HomeDesktopModernViewProps) {
   const router = useRouter();
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(todayISTDate);
+  const [selectedCalendarDate, setSelectedCalendarDate] =
+    useState<string>(todayISTDate);
 
   // Calendar View Month State (Full Month Navigation)
   const [calendarViewDate, setCalendarViewDate] = useState<Date>(() => {
@@ -173,7 +179,11 @@ export default function HomeDesktopModernView({
   // Real today result check (Only true when today's result actually exists in DB)
   const hasTodayResult = useMemo(() => {
     if (!isToday) return true;
-    return !!todayDrawResult && todayDrawResult.draw_date === todayISTDate && hasAnyDrawResult(todayDrawResult);
+    return (
+      !!todayDrawResult &&
+      todayDrawResult.draw_date === todayISTDate &&
+      hasAnyDrawResult(todayDrawResult)
+    );
   }, [isToday, todayDrawResult, todayISTDate]);
 
   const isPostponed = useMemo(() => {
@@ -181,12 +191,35 @@ export default function HomeDesktopModernView({
   }, [isToday, todayPostponement]);
 
   const isPreDraw = useMemo(() => {
-    return isToday && !hasTodayResult && !isAfter3PM && !countdown.isDrawPassed && !isPostponed;
-  }, [isToday, hasTodayResult, isAfter3PM, countdown.isDrawPassed, isPostponed]);
+    return (
+      isToday &&
+      !hasTodayResult &&
+      !isAfter3PM &&
+      !countdown.isDrawPassed &&
+      !isPostponed
+    );
+  }, [
+    isToday,
+    hasTodayResult,
+    isAfter3PM,
+    countdown.isDrawPassed,
+    isPostponed,
+  ]);
 
   const isLiveInProgress = useMemo(() => {
-    return isToday && !hasTodayResult && (isAfter3PM || countdown.isDrawPassed) && !isPostponed;
-  }, [isToday, hasTodayResult, isAfter3PM, countdown.isDrawPassed, isPostponed]);
+    return (
+      isToday &&
+      !hasTodayResult &&
+      (isAfter3PM || countdown.isDrawPassed) &&
+      !isPostponed
+    );
+  }, [
+    isToday,
+    hasTodayResult,
+    isAfter3PM,
+    countdown.isDrawPassed,
+    isPostponed,
+  ]);
 
   // Active draw data: for Today only use real todayDrawResult, for Previous use latestPreviousDraw / allDraws[0]
   const activeDraw = useMemo<StructuredDrawResult | null>(() => {
@@ -201,12 +234,20 @@ export default function HomeDesktopModernView({
 
   const currentLotteryName = useMemo(() => {
     if (isToday) return todayLottery.name;
-    return activeDraw?.draw_name || latestPreviousDraw?.draw_name || todayLottery.name;
+    return (
+      activeDraw?.draw_name ||
+      latestPreviousDraw?.draw_name ||
+      todayLottery.name
+    );
   }, [isToday, todayLottery, activeDraw, latestPreviousDraw]);
 
   const currentLotteryCode = useMemo(() => {
     if (isToday) return todayLottery.code;
-    return activeDraw?.lottery_code || activeDraw?.draw_code?.split("-")[0] || todayLottery.code;
+    return (
+      activeDraw?.lottery_code ||
+      activeDraw?.draw_code?.split("-")[0] ||
+      todayLottery.code
+    );
   }, [isToday, todayLottery, activeDraw]);
 
   const currentDrawNumber = useMemo(() => {
@@ -252,7 +293,10 @@ export default function HomeDesktopModernView({
   }, [currentJackpotAmount]);
 
   const firstPrizeTicket = useMemo(() => {
-    if (activeDraw?.first?.ticket && activeDraw.first.ticket.trim().length > 3) {
+    if (
+      activeDraw?.first?.ticket &&
+      activeDraw.first.ticket.trim().length > 3
+    ) {
       return activeDraw.first.ticket.trim();
     }
     return "";
@@ -269,27 +313,39 @@ export default function HomeDesktopModernView({
   const firstPrizeLocation = activeDraw?.first?.location;
   const firstPrizeAgent = activeDraw?.first?.agent;
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  const handleCopyTicket = (ticketNum: string) => {
-    if (!ticketNum || ticketNum === "PENDING" || ticketNum === "N/A") return;
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      try {
-        navigator.clipboard.writeText(ticketNum);
-      } catch {}
-    }
-    setSnackbarMessage(`Ticket ${ticketNum} copied to clipboard!`);
-    setSnackbarOpen(true);
-  };
-
   // Real consolation prizes from activeDraw ONLY
   const consolationPrizesList = useMemo(() => {
-    if (activeDraw?.prizes?.consolation && Array.isArray(activeDraw.prizes.consolation) && activeDraw.prizes.consolation.length > 0) {
+    if (
+      activeDraw?.prizes?.consolation &&
+      Array.isArray(activeDraw.prizes.consolation) &&
+      activeDraw.prizes.consolation.length > 0
+    ) {
       return activeDraw.prizes.consolation;
     }
     return [];
   }, [activeDraw]);
+
+  // Dynamic Consolation Prize amount directly from active draw prizes amounts API
+  const consolationAmount = useMemo(() => {
+    const raw =
+      activeDraw?.prizes?.amounts?.["consolation"] ||
+      (activeDraw?.prizes?.amounts as any)?.consolation;
+    if (raw && typeof raw === "string" && raw.trim().length > 0) {
+      let formatted = raw.trim();
+      if (!formatted.startsWith("₹")) {
+        formatted = `₹${formatted}`;
+      }
+      if (
+        !formatted.endsWith("/-") &&
+        !formatted.includes("Lakh") &&
+        !formatted.includes("Crore")
+      ) {
+        formatted = `${formatted}/-`;
+      }
+      return formatted;
+    }
+    return isTodayBumper ? "₹5,00,000/-" : "₹8,000/-";
+  }, [activeDraw, isTodayBumper]);
 
   // Real prize tiers from activeDraw ONLY (NO hardcoded fake numbers)
   const allPrizeTiersList = useMemo(() => {
@@ -307,14 +363,62 @@ export default function HomeDesktopModernView({
     };
 
     const tierConfigs = [
-      { key: "2nd", label: "2nd Prize", dotBg: "#D97706", badgeBg: "#FEF3C7", badgeColor: "#B45309" },
-      { key: "3rd", label: "3rd Prize", dotBg: "#0B3C5D", badgeBg: "#EFF6FF", badgeColor: "#1D4ED8" },
-      { key: "4th", label: "4th Prize", dotBg: "#2563EB", badgeBg: "#EFF6FF", badgeColor: "#1D4ED8" },
-      { key: "5th", label: "5th Prize", dotBg: "#059669", badgeBg: "#ECFDF5", badgeColor: "#047857" },
-      { key: "6th", label: "6th Prize", dotBg: "#0284C7", badgeBg: "#E0F2FE", badgeColor: "#0369A1" },
-      { key: "7th", label: "7th Prize", dotBg: "#7C3AED", badgeBg: "#F5F3FF", badgeColor: "#6D28D9" },
-      { key: "8th", label: "8th Prize", dotBg: "#475569", badgeBg: "#F1F5F9", badgeColor: "#334155" },
-      { key: "9th", label: "9th Prize", dotBg: "#64748B", badgeBg: "#F1F5F9", badgeColor: "#334155" },
+      {
+        key: "2nd",
+        label: "2nd Prize",
+        dotBg: "#D97706",
+        badgeBg: "#FEF3C7",
+        badgeColor: "#B45309",
+      },
+      {
+        key: "3rd",
+        label: "3rd Prize",
+        dotBg: "#0B3C5D",
+        badgeBg: "#EFF6FF",
+        badgeColor: "#1D4ED8",
+      },
+      {
+        key: "4th",
+        label: "4th Prize",
+        dotBg: "#2563EB",
+        badgeBg: "#EFF6FF",
+        badgeColor: "#1D4ED8",
+      },
+      {
+        key: "5th",
+        label: "5th Prize",
+        dotBg: "#059669",
+        badgeBg: "#ECFDF5",
+        badgeColor: "#047857",
+      },
+      {
+        key: "6th",
+        label: "6th Prize",
+        dotBg: "#0284C7",
+        badgeBg: "#E0F2FE",
+        badgeColor: "#0369A1",
+      },
+      {
+        key: "7th",
+        label: "7th Prize",
+        dotBg: "#7C3AED",
+        badgeBg: "#F5F3FF",
+        badgeColor: "#6D28D9",
+      },
+      {
+        key: "8th",
+        label: "8th Prize",
+        dotBg: "#475569",
+        badgeBg: "#F1F5F9",
+        badgeColor: "#334155",
+      },
+      {
+        key: "9th",
+        label: "9th Prize",
+        dotBg: "#64748B",
+        badgeBg: "#F1F5F9",
+        badgeColor: "#334155",
+      },
     ];
 
     return tierConfigs
@@ -324,7 +428,9 @@ export default function HomeDesktopModernView({
           return null;
         }
         const amount =
-          activeDraw.prizes?.amounts?.[tier.key] || defaultAmounts[tier.key] || "";
+          activeDraw.prizes?.amounts?.[tier.key] ||
+          defaultAmounts[tier.key] ||
+          "";
         return {
           ...tier,
           numbers,
@@ -332,14 +438,14 @@ export default function HomeDesktopModernView({
         };
       })
       .filter(Boolean) as Array<{
-        key: string;
-        label: string;
-        dotBg: string;
-        badgeBg: string;
-        badgeColor: string;
-        numbers: string[];
-        amount: string;
-      }>;
+      key: string;
+      label: string;
+      dotBg: string;
+      badgeBg: string;
+      badgeColor: string;
+      numbers: string[];
+      amount: string;
+    }>;
   }, [activeDraw]);
 
   // Set of dates that have an actual lottery result
@@ -362,11 +468,20 @@ export default function HomeDesktopModernView({
       set.add(yesterdayISTDate);
     }
     return set;
-  }, [allDraws, recentDrawsMap, todayDrawResult, todayISTDate, yesterdayISTDate]);
+  }, [
+    allDraws,
+    recentDrawsMap,
+    todayDrawResult,
+    todayISTDate,
+    yesterdayISTDate,
+  ]);
 
   // Full Month Calendar Generation
   const currentMonthYearHeader = useMemo(() => {
-    return calendarViewDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    return calendarViewDate.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
   }, [calendarViewDate]);
 
   const fullMonthGridDays = useMemo(() => {
@@ -465,16 +580,21 @@ export default function HomeDesktopModernView({
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       const existingDraw =
-        allDraws.find((d) => d.draw_date === dateStr) || recentDrawsMap[dateStr];
+        allDraws.find((d) => d.draw_date === dateStr) ||
+        recentDrawsMap[dateStr];
       if (existingDraw?.lottery_code) {
         router.push(getLotteryUrl(existingDraw.lottery_code, dateStr));
       } else {
         try {
           const parts = dateStr.split("-");
-          const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+          const d = new Date(
+            parseInt(parts[0]),
+            parseInt(parts[1]) - 1,
+            parseInt(parts[2]),
+          );
           const dayName = d.toLocaleDateString("en-US", { weekday: "long" });
           const matchingLottery = lotteriesList.find(
-            (l) => l.day?.toLowerCase() === dayName.toLowerCase()
+            (l) => l.day?.toLowerCase() === dayName.toLowerCase(),
           );
           if (matchingLottery?.code) {
             router.push(getLotteryUrl(matchingLottery.code, dateStr));
@@ -548,7 +668,8 @@ export default function HomeDesktopModernView({
                 fontSize: { md: "1.7rem", lg: "2.05rem" },
                 color: "#4A7C99",
                 lineHeight: 1.15,
-                textShadow: "0 1px 4px rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.8)",
+                textShadow:
+                  "0 1px 4px rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.8)",
                 letterSpacing: "0.01em",
               }}
             >
@@ -576,14 +697,55 @@ export default function HomeDesktopModernView({
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-              <svg width="40" height="40" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 33C16.8 24 20 18 24 13" stroke="#047857" strokeWidth="2.5" strokeLinecap="round"/>
-                <path d="M19 18C15 16 9 16 6 21" stroke="#059669" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M21 15C18 12 13 10 9 13" stroke="#10B981" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M23 13C21 9 18 6 13 7" stroke="#059669" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M24 13C26 9 29 7 34 8" stroke="#10B981" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M24 15C27 12 32 11 35 15" stroke="#059669" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M22 18C25 17 30 18 32 22" stroke="#047857" strokeWidth="2" strokeLinecap="round"/>
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 36 36"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16 33C16.8 24 20 18 24 13"
+                  stroke="#047857"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M19 18C15 16 9 16 6 21"
+                  stroke="#059669"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M21 15C18 12 13 10 9 13"
+                  stroke="#10B981"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M23 13C21 9 18 6 13 7"
+                  stroke="#059669"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M24 13C26 9 29 7 34 8"
+                  stroke="#10B981"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M24 15C27 12 32 11 35 15"
+                  stroke="#059669"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M22 18C25 17 30 18 32 22"
+                  stroke="#047857"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
               <Typography
                 sx={{
@@ -610,7 +772,15 @@ export default function HomeDesktopModernView({
             >
               God&apos;s Own Land
             </Typography>
-            <Box sx={{ width: "100%", height: "2px", bgcolor: "#10B981", mt: 0.4, borderRadius: "2px" }} />
+            <Box
+              sx={{
+                width: "100%",
+                height: "2px",
+                bgcolor: "#10B981",
+                mt: 0.4,
+                borderRadius: "2px",
+              }}
+            />
           </Box>
 
           {/* Center Banner Content */}
@@ -723,7 +893,12 @@ export default function HomeDesktopModernView({
               sx={{
                 fontWeight: 900,
                 color: "#0A2540",
-                fontSize: { xs: "1.85rem", sm: "2.5rem", md: "2.9rem", lg: "3.2rem" },
+                fontSize: {
+                  xs: "1.85rem",
+                  sm: "2.5rem",
+                  md: "2.9rem",
+                  lg: "3.2rem",
+                },
                 letterSpacing: "-0.025em",
                 textShadow: "0 1px 4px rgba(255,255,255,0.9)",
                 mb: 0.8,
@@ -757,13 +932,24 @@ export default function HomeDesktopModernView({
                   mb: 0.8,
                 }}
               >
-                {currentLotteryName} {currentDrawNumber ? `(${currentDrawNumber})` : ""} • {formatFullDate(currentDrawDate)} •{" "}
-                {currentDrawTime}
+                {currentLotteryName}{" "}
+                {currentDrawNumber ? `(${currentDrawNumber})` : ""} •{" "}
+                {formatFullDate(currentDrawDate)} • {currentDrawTime}
               </Typography>
             )}
 
             {/* Status Pill Badge */}
-            {isPostponed ? (
+            {isLoading ? (
+              <Skeleton
+                variant="rounded"
+                width={170}
+                height={28}
+                sx={{
+                  bgcolor: "rgba(255, 255, 255, 0.45)",
+                  borderRadius: "20px",
+                }}
+              />
+            ) : isPostponed ? (
               <Box
                 sx={{
                   display: "inline-flex",
@@ -780,7 +966,8 @@ export default function HomeDesktopModernView({
               >
                 <WarningAmberIcon sx={{ fontSize: 16, color: "#D97706" }} />
                 <Typography sx={{ fontWeight: 800, fontSize: "0.78rem" }}>
-                  Draw {todayPostponement?.status?.toUpperCase() || "POSTPONED"} ({todayISTDate})
+                  Draw {todayPostponement?.status?.toUpperCase() || "POSTPONED"}{" "}
+                  ({todayISTDate})
                 </Typography>
               </Box>
             ) : isPreDraw ? (
@@ -800,7 +987,8 @@ export default function HomeDesktopModernView({
               >
                 <AccessTimeIcon sx={{ fontSize: 16, color: "#2563EB" }} />
                 <Typography sx={{ fontWeight: 800, fontSize: "0.78rem" }}>
-                  Live Draw Today at {currentDrawTime} • Results at {isTodayBumper ? "2:10 PM" : "3:10 PM"}
+                  Live Draw Today at {currentDrawTime} • Results at{" "}
+                  {isTodayBumper ? "2:10 PM" : "3:10 PM"}
                 </Typography>
               </Box>
             ) : isLiveInProgress ? (
@@ -907,7 +1095,9 @@ export default function HomeDesktopModernView({
                   boxShadow: "0 4px 12px rgba(10, 60, 100, 0.25)",
                 }}
               >
-                <ConfirmationNumberIcon sx={{ fontSize: 26, transform: "rotate(-10deg)" }} />
+                <ConfirmationNumberIcon
+                  sx={{ fontSize: 26, transform: "rotate(-10deg)" }}
+                />
               </Box>
               <Box>
                 <Typography
@@ -986,7 +1176,9 @@ export default function HomeDesktopModernView({
               type="submit"
               variant="contained"
               disabled={!hasTodayResult || isSearching}
-              endIcon={<ArrowForwardIcon sx={{ fontSize: "20px !important" }} />}
+              endIcon={
+                <ArrowForwardIcon sx={{ fontSize: "20px !important" }} />
+              }
               sx={{
                 height: "50px",
                 width: { xs: "100%", sm: "auto" },
@@ -998,10 +1190,14 @@ export default function HomeDesktopModernView({
                 textTransform: "none",
                 fontSize: "0.95rem",
                 whiteSpace: "nowrap",
-                boxShadow: hasTodayResult ? "0 4px 14px rgba(10, 60, 100, 0.25)" : "none",
+                boxShadow: hasTodayResult
+                  ? "0 4px 14px rgba(10, 60, 100, 0.25)"
+                  : "none",
                 "&:hover": {
                   bgcolor: hasTodayResult ? "#062947" : "#94A3B8",
-                  boxShadow: hasTodayResult ? "0 6px 18px rgba(10, 60, 100, 0.35)" : "none",
+                  boxShadow: hasTodayResult
+                    ? "0 6px 18px rgba(10, 60, 100, 0.35)"
+                    : "none",
                 },
               }}
             >
@@ -1065,7 +1261,12 @@ export default function HomeDesktopModernView({
                       <Skeleton variant="text" width={260} height={20} />
                     </Box>
                   </Box>
-                  <Skeleton variant="rounded" width={160} height={32} sx={{ borderRadius: "14px" }} />
+                  <Skeleton
+                    variant="rounded"
+                    width={160}
+                    height={32}
+                    sx={{ borderRadius: "14px" }}
+                  />
                 </Box>
 
                 <Skeleton
@@ -1113,13 +1314,17 @@ export default function HomeDesktopModernView({
                           lineHeight: 1.2,
                         }}
                       >
-                        {hasTodayResult ? "Winning Numbers" : "Today's Draw Status"}
+                        {hasTodayResult
+                          ? "Winning Numbers"
+                          : "Today's Draw Status"}
                       </Typography>
                       <Typography
                         variant="body2"
                         sx={{ color: "#64748B", fontWeight: 600, mt: 0.2 }}
                       >
-                        {currentLotteryName} {currentDrawNumber ? `(${currentDrawNumber})` : ""} | {formatFullDate(currentDrawDate)}
+                        {currentLotteryName}{" "}
+                        {currentDrawNumber ? `(${currentDrawNumber})` : ""} |{" "}
+                        {formatFullDate(currentDrawDate)}
                       </Typography>
                     </Box>
                   </Box>
@@ -1127,7 +1332,11 @@ export default function HomeDesktopModernView({
                   {/* Top-Right Status Badge */}
                   {isPostponed ? (
                     <Chip
-                      icon={<WarningAmberIcon sx={{ fontSize: "14px !important", color: "#D97706" }} />}
+                      icon={
+                        <WarningAmberIcon
+                          sx={{ fontSize: "14px !important", color: "#D97706" }}
+                        />
+                      }
                       label="Draw Postponed"
                       size="small"
                       sx={{
@@ -1141,7 +1350,11 @@ export default function HomeDesktopModernView({
                     />
                   ) : isPreDraw ? (
                     <Chip
-                      icon={<AccessTimeIcon sx={{ fontSize: "14px !important", color: "#2563EB" }} />}
+                      icon={
+                        <AccessTimeIcon
+                          sx={{ fontSize: "14px !important", color: "#2563EB" }}
+                        />
+                      }
                       label={`Draw Scheduled ${currentDrawTime}`}
                       size="small"
                       sx={{
@@ -1223,12 +1436,19 @@ export default function HomeDesktopModernView({
                       color: "#92400E",
                     }}
                   >
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 0.5 }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 800, mb: 0.5 }}
+                    >
                       📢 Official Notice: {todayPostponement.reason}
                     </Typography>
                     {todayPostponement.rescheduled_date && (
-                      <Typography variant="body2" sx={{ fontWeight: 700, mt: 0.5 }}>
-                        🗓️ Rescheduled Draw Date: {todayPostponement.rescheduled_date}
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 700, mt: 0.5 }}
+                      >
+                        🗓️ Rescheduled Draw Date:{" "}
+                        {todayPostponement.rescheduled_date}
                       </Typography>
                     )}
                   </Alert>
@@ -1245,7 +1465,8 @@ export default function HomeDesktopModernView({
                       sx={{
                         p: { xs: 2.5, sm: 3.5 },
                         borderRadius: "16px",
-                        background: "linear-gradient(135deg, #0B3C5D 0%, #06283D 100%)",
+                        background:
+                          "linear-gradient(135deg, #0B3C5D 0%, #06283D 100%)",
                         color: "#FFFFFF",
                         mb: 3,
                         boxShadow: "0 10px 28px rgba(11, 60, 93, 0.28)",
@@ -1263,8 +1484,12 @@ export default function HomeDesktopModernView({
                           gap: 1,
                         }}
                       >
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <HourglassTopIcon sx={{ color: "#FBBF24", fontSize: 22 }} />
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <HourglassTopIcon
+                            sx={{ color: "#FBBF24", fontSize: 22 }}
+                          />
                           <Typography
                             sx={{
                               fontWeight: 900,
@@ -1451,18 +1676,57 @@ export default function HomeDesktopModernView({
                       }}
                     >
                       <Box>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.8 }}>
-                          <EmojiEventsIcon sx={{ color: "#D97706", fontSize: 24 }} />
-                          <Typography sx={{ fontWeight: 900, fontSize: "1.1rem", color: "#0F172A" }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            mb: 0.8,
+                          }}
+                        >
+                          <EmojiEventsIcon
+                            sx={{ color: "#D97706", fontSize: 24 }}
+                          />
+                          <Typography
+                            sx={{
+                              fontWeight: 900,
+                              fontSize: "1.1rem",
+                              color: "#0F172A",
+                            }}
+                          >
                             1st Prize: {currentJackpotAmount}
                           </Typography>
                         </Box>
-                        <Typography sx={{ color: "#475569", fontSize: "0.88rem", lineHeight: 1.6, maxWidth: 520 }}>
-                          Today&apos;s official draw for <strong>{todayLottery.name} ({todayLottery.code})</strong> will take place at <strong>{currentDrawTime}</strong>. Full winning results will be published automatically right here at <strong>{isTodayBumper ? "2:10 PM" : "3:10 PM"}</strong>.
+                        <Typography
+                          sx={{
+                            color: "#475569",
+                            fontSize: "0.88rem",
+                            lineHeight: 1.6,
+                            maxWidth: 520,
+                          }}
+                        >
+                          Today&apos;s official draw for{" "}
+                          <strong>
+                            {todayLottery.name} ({todayLottery.code})
+                          </strong>{" "}
+                          will take place at <strong>{currentDrawTime}</strong>.
+                          Full winning results will be published automatically
+                          right here at{" "}
+                          <strong>
+                            {isTodayBumper ? "2:10 PM" : "3:10 PM"}
+                          </strong>
+                          .
                         </Typography>
                       </Box>
 
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, width: { xs: "100%", sm: "auto" } }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                          width: { xs: "100%", sm: "auto" },
+                        }}
+                      >
                         <Button
                           onClick={() => setHeroSlideIndex(1)}
                           variant="outlined"
@@ -1478,7 +1742,10 @@ export default function HomeDesktopModernView({
                             py: 1,
                             px: 2,
                             whiteSpace: "nowrap",
-                            "&:hover": { bgcolor: "#DBEAFE", borderColor: "#60A5FA" },
+                            "&:hover": {
+                              bgcolor: "#DBEAFE",
+                              borderColor: "#60A5FA",
+                            },
                           }}
                         >
                           View Yesterday&apos;s Results
@@ -1495,7 +1762,9 @@ export default function HomeDesktopModernView({
                   <Box sx={{ mb: 3 }}>
                     <Alert
                       severity="info"
-                      icon={<BoltIcon sx={{ color: "#E11D48", fontSize: 24 }} />}
+                      icon={
+                        <BoltIcon sx={{ color: "#E11D48", fontSize: 24 }} />
+                      }
                       sx={{
                         mb: 3,
                         p: 2,
@@ -1507,10 +1776,14 @@ export default function HomeDesktopModernView({
                       }}
                     >
                       <Typography sx={{ fontWeight: 800, fontSize: "0.95rem" }}>
-                        Drawing is currently in progress at Gorky Bhavan, Thiruvananthapuram...
+                        Drawing is currently in progress at Gorky Bhavan,
+                        Thiruvananthapuram...
                       </Typography>
-                      <Typography sx={{ fontSize: "0.84rem", mt: 0.3, color: "#7F1D1D" }}>
-                        Results will update automatically on this page as each prize tier is drawn.
+                      <Typography
+                        sx={{ fontSize: "0.84rem", mt: 0.3, color: "#7F1D1D" }}
+                      >
+                        Results will update automatically on this page as each
+                        prize tier is drawn.
                       </Typography>
                     </Alert>
 
@@ -1520,7 +1793,8 @@ export default function HomeDesktopModernView({
                       sx={{
                         p: { xs: 2.5, sm: 3.5 },
                         borderRadius: "16px",
-                        background: "linear-gradient(135deg, #0B3C5D 0%, #06283D 100%)",
+                        background:
+                          "linear-gradient(135deg, #0B3C5D 0%, #06283D 100%)",
                         color: "#FFFFFF",
                         display: "flex",
                         alignItems: "center",
@@ -1530,7 +1804,14 @@ export default function HomeDesktopModernView({
                         boxShadow: "0 10px 28px rgba(11, 60, 93, 0.28)",
                       }}
                     >
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, flex: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2.5,
+                          flex: 1,
+                        }}
+                      >
                         <Box
                           sx={{
                             width: 68,
@@ -1544,7 +1825,9 @@ export default function HomeDesktopModernView({
                             flexShrink: 0,
                           }}
                         >
-                          <EmojiEventsIcon sx={{ color: "#FBBF24", fontSize: 38 }} />
+                          <EmojiEventsIcon
+                            sx={{ color: "#FBBF24", fontSize: 38 }}
+                          />
                         </Box>
                         <Box>
                           <Typography
@@ -1569,7 +1852,9 @@ export default function HomeDesktopModernView({
                               mt: 0.5,
                             }}
                           >
-                            {hasFirstPrize ? firstPrizeTicket : "DRAWING IN PROGRESS..."}
+                            {hasFirstPrize
+                              ? firstPrizeTicket
+                              : "DRAWING IN PROGRESS..."}
                           </Typography>
                         </Box>
                       </Box>
@@ -1588,7 +1873,8 @@ export default function HomeDesktopModernView({
                       sx={{
                         p: { xs: 2.5, sm: 3.5, xl: 4 },
                         borderRadius: "16px",
-                        background: "linear-gradient(135deg, #0B3C5D 0%, #06283D 100%)",
+                        background:
+                          "linear-gradient(135deg, #0B3C5D 0%, #06283D 100%)",
                         color: "#FFFFFF",
                         display: "flex",
                         alignItems: "center",
@@ -1600,7 +1886,14 @@ export default function HomeDesktopModernView({
                       }}
                     >
                       {/* Left: 1st Prize & Big Ticket Number */}
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, flex: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2.5,
+                          flex: 1,
+                        }}
+                      >
                         <Box
                           sx={{
                             width: 68,
@@ -1614,10 +1907,18 @@ export default function HomeDesktopModernView({
                             flexShrink: 0,
                           }}
                         >
-                          <EmojiEventsIcon sx={{ color: "#FBBF24", fontSize: 38 }} />
+                          <EmojiEventsIcon
+                            sx={{ color: "#FBBF24", fontSize: 38 }}
+                          />
                         </Box>
                         <Box>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
                             <Typography
                               sx={{
                                 color: "#FBBF24",
@@ -1629,58 +1930,79 @@ export default function HomeDesktopModernView({
                             >
                               1st Prize
                             </Typography>
-                            {hasFirstPrize && (
-                              <Tooltip title="Click to copy ticket number" arrow>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleCopyTicket(firstPrizeTicket)}
-                                  sx={{
-                                    color: "rgba(255, 255, 255, 0.7)",
-                                    p: 0.3,
-                                    "&:hover": { color: "#FFFFFF", bgcolor: "rgba(255, 255, 255, 0.15)" },
-                                  }}
-                                >
-                                  <ContentCopyIcon sx={{ fontSize: 16 }} />
-                                </IconButton>
-                              </Tooltip>
-                            )}
                           </Box>
 
-                          <Tooltip title="Click to copy ticket number" arrow placement="bottom-start">
-                            <Typography
-                              onClick={() => hasFirstPrize && handleCopyTicket(firstPrizeTicket)}
-                              sx={{
-                                fontFamily: "'Geist Mono', monospace, sans-serif",
-                                fontWeight: 900,
-                                fontSize: { xs: "2.2rem", sm: "2.8rem", md: "3.2rem", xl: "3.6rem" },
-                                color: "#FFFFFF",
-                                letterSpacing: "0.04em",
-                                lineHeight: 1.1,
-                                textShadow: "0 2px 10px rgba(0,0,0,0.35)",
-                                cursor: hasFirstPrize ? "pointer" : "default",
-                                transition: "opacity 0.15s ease",
-                                "&:hover": { opacity: hasFirstPrize ? 0.9 : 1 },
-                              }}
-                            >
-                              {hasFirstPrize ? firstPrizeTicket : "PENDING"}
-                            </Typography>
-                          </Tooltip>
+                          <Typography
+                            sx={{
+                              fontFamily:
+                                "'Geist Mono', monospace, sans-serif",
+                              fontWeight: 900,
+                              fontSize: {
+                                xs: "2.2rem",
+                                sm: "2.8rem",
+                                md: "3.2rem",
+                                xl: "3.6rem",
+                              },
+                              color: "#FFFFFF",
+                              letterSpacing: "0.04em",
+                              lineHeight: 1.1,
+                              textShadow: "0 2px 10px rgba(0,0,0,0.35)",
+                              userSelect: "text",
+                            }}
+                          >
+                            {hasFirstPrize ? firstPrizeTicket : "PENDING"}
+                          </Typography>
 
                           {/* Winner Location & Agent info if available */}
                           {(firstPrizeLocation || firstPrizeAgent) && (
-                            <Box sx={{ display: "flex", gap: 2, mt: 1, flexWrap: "wrap" }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                gap: 2,
+                                mt: 1,
+                                flexWrap: "wrap",
+                              }}
+                            >
                               {firstPrizeLocation && (
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                  <LocationOnIcon sx={{ color: "#FDE68A", fontSize: 16 }} />
-                                  <Typography sx={{ color: "rgba(255, 255, 255, 0.9)", fontSize: "0.82rem", fontWeight: 700 }}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
+                                  }}
+                                >
+                                  <LocationOnIcon
+                                    sx={{ color: "#FDE68A", fontSize: 16 }}
+                                  />
+                                  <Typography
+                                    sx={{
+                                      color: "rgba(255, 255, 255, 0.9)",
+                                      fontSize: "0.82rem",
+                                      fontWeight: 700,
+                                    }}
+                                  >
                                     {firstPrizeLocation}
                                   </Typography>
                                 </Box>
                               )}
                               {firstPrizeAgent && (
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                  <PersonIcon sx={{ color: "#FDE68A", fontSize: 16 }} />
-                                  <Typography sx={{ color: "rgba(255, 255, 255, 0.9)", fontSize: "0.82rem", fontWeight: 700 }}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
+                                  }}
+                                >
+                                  <PersonIcon
+                                    sx={{ color: "#FDE68A", fontSize: 16 }}
+                                  />
+                                  <Typography
+                                    sx={{
+                                      color: "rgba(255, 255, 255, 0.9)",
+                                      fontSize: "0.82rem",
+                                      fontWeight: 700,
+                                    }}
+                                  >
                                     Agent: {firstPrizeAgent}
                                   </Typography>
                                 </Box>
@@ -1719,7 +2041,12 @@ export default function HomeDesktopModernView({
                         <Typography
                           sx={{
                             fontWeight: 900,
-                            fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.6rem", xl: "2.85rem" },
+                            fontSize: {
+                              xs: "1.8rem",
+                              sm: "2.2rem",
+                              md: "2.6rem",
+                              xl: "2.85rem",
+                            },
                             color: "#FBBF24",
                             letterSpacing: "-0.01em",
                             lineHeight: 1.15,
@@ -1751,8 +2078,16 @@ export default function HomeDesktopModernView({
                             mb: 1.8,
                           }}
                         >
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <CardGiftcardIcon sx={{ color: "#0B3C5D", fontSize: 22 }} />
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <CardGiftcardIcon
+                              sx={{ color: "#0B3C5D", fontSize: 22 }}
+                            />
                             <Typography
                               sx={{
                                 fontWeight: 800,
@@ -1761,12 +2096,18 @@ export default function HomeDesktopModernView({
                               }}
                             >
                               Consolation Prizes{" "}
-                              <Box
-                                component="span"
-                                sx={{ color: "#64748B", fontWeight: 600, fontSize: "0.9rem" }}
-                              >
-                                (₹8,000/- each)
-                              </Box>
+                              {consolationAmount && (
+                                <Box
+                                  component="span"
+                                  sx={{
+                                    color: "#64748B",
+                                    fontWeight: 600,
+                                    fontSize: "0.9rem",
+                                  }}
+                                >
+                                  ({consolationAmount} each)
+                                </Box>
+                              )}
                             </Typography>
                           </Box>
                           <Typography
@@ -1784,43 +2125,31 @@ export default function HomeDesktopModernView({
                         <Grid container spacing={1.5}>
                           {consolationPrizesList.map((ticket, idx) => (
                             <Grid size={{ xs: 6, sm: 4, md: 2.4 }} key={idx}>
-                              <Tooltip title="Click to copy" arrow placement="top">
-                                <Paper
-                                  elevation={0}
-                                  onClick={() => handleCopyTicket(ticket)}
+                              <Paper
+                                elevation={0}
+                                sx={{
+                                  py: 1.4,
+                                  px: 1,
+                                  textAlign: "center",
+                                  borderRadius: "10px",
+                                  bgcolor: "#F8FAFC",
+                                  border: "1px solid #E2E8F0",
+                                  userSelect: "text",
+                                }}
+                              >
+                                <Typography
                                   sx={{
-                                    py: 1.4,
-                                    px: 1,
-                                    textAlign: "center",
-                                    borderRadius: "10px",
-                                    bgcolor: "#F8FAFC",
-                                    border: "1px solid #E2E8F0",
-                                    cursor: "pointer",
-                                    transition: "all 0.15s ease",
-                                    "&:hover": {
-                                      bgcolor: "#EFF6FF",
-                                      borderColor: "#93C5FD",
-                                      transform: "translateY(-1.5px)",
-                                      boxShadow: "0 3px 8px rgba(59, 130, 246, 0.12)",
-                                    },
-                                    "&:active": {
-                                      transform: "scale(0.97)",
-                                    },
+                                    fontFamily:
+                                      "'Geist Mono', monospace, sans-serif",
+                                    fontWeight: 800,
+                                    fontSize: "0.95rem",
+                                    color: "#1E293B",
+                                    letterSpacing: "0.02em",
                                   }}
                                 >
-                                  <Typography
-                                    sx={{
-                                      fontFamily: "'Geist Mono', monospace, sans-serif",
-                                      fontWeight: 800,
-                                      fontSize: "0.95rem",
-                                      color: "#1E293B",
-                                      letterSpacing: "0.02em",
-                                    }}
-                                  >
-                                    {ticket}
-                                  </Typography>
-                                </Paper>
-                              </Tooltip>
+                                  {ticket}
+                                </Typography>
+                              </Paper>
                             </Grid>
                           ))}
                         </Grid>
@@ -1829,14 +2158,20 @@ export default function HomeDesktopModernView({
 
                     {/* All Remaining Prize Tiers List (2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th) */}
                     {allPrizeTiersList.length > 0 && (
-                      <Box sx={{ mt: 3, pt: 3, borderTop: "1px dashed #CBD5E1" }}>
+                      <Box
+                        sx={{ mt: 3, pt: 3, borderTop: "1px dashed #CBD5E1" }}
+                      >
                         <Grid container spacing={2.5}>
                           {allPrizeTiersList.map((tier) => {
-                            const isHighTier = tier.key === "2nd" || tier.key === "3rd";
+                            const isHighTier =
+                              tier.key === "2nd" || tier.key === "3rd";
                             const isLargeGrid = tier.numbers.length > 15;
                             return (
                               <Grid
-                                size={{ xs: 12, md: isHighTier ? 6 : isLargeGrid ? 12 : 6 }}
+                                size={{
+                                  xs: 12,
+                                  md: isHighTier ? 6 : isLargeGrid ? 12 : 6,
+                                }}
                                 key={tier.key}
                               >
                                 <Paper
@@ -1846,12 +2181,15 @@ export default function HomeDesktopModernView({
                                     borderRadius: "14px",
                                     bgcolor: "#FFFFFF",
                                     border: "1px solid #E2E8F0",
-                                    boxShadow: "0 2px 8px rgba(15, 23, 42, 0.03)",
+                                    boxShadow:
+                                      "0 2px 8px rgba(15, 23, 42, 0.03)",
                                     height: "100%",
-                                    transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                                    transition:
+                                      "border-color 0.2s ease, box-shadow 0.2s ease",
                                     "&:hover": {
                                       borderColor: "#CBD5E1",
-                                      boxShadow: "0 4px 14px rgba(15, 23, 42, 0.06)",
+                                      boxShadow:
+                                        "0 4px 14px rgba(15, 23, 42, 0.06)",
                                     },
                                   }}
                                 >
@@ -1866,7 +2204,13 @@ export default function HomeDesktopModernView({
                                       gap: 1,
                                     }}
                                   >
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1.2,
+                                      }}
+                                    >
                                       <Box
                                         sx={{
                                           width: 10,
@@ -1879,7 +2223,10 @@ export default function HomeDesktopModernView({
                                       <Typography
                                         sx={{
                                           fontWeight: 900,
-                                          fontSize: { xs: "0.95rem", sm: "1.02rem" },
+                                          fontSize: {
+                                            xs: "0.95rem",
+                                            sm: "1.02rem",
+                                          },
                                           color: "#0F172A",
                                         }}
                                       >
@@ -1907,7 +2254,10 @@ export default function HomeDesktopModernView({
                                         color: "#64748B",
                                       }}
                                     >
-                                      {tier.numbers.length} {tier.numbers.length === 1 ? "Prize" : "Prizes"}
+                                      {tier.numbers.length}{" "}
+                                      {tier.numbers.length === 1
+                                        ? "Prize"
+                                        : "Prizes"}
                                     </Typography>
                                   </Box>
 
@@ -1916,53 +2266,52 @@ export default function HomeDesktopModernView({
                                     sx={{
                                       display: "grid",
                                       gridTemplateColumns: {
-                                        xs: isHighTier ? "repeat(auto-fill, minmax(110px, 1fr))" : "repeat(auto-fill, minmax(68px, 1fr))",
-                                        sm: isHighTier ? "repeat(auto-fill, minmax(130px, 1fr))" : "repeat(auto-fill, minmax(78px, 1fr))",
-                                        md: isHighTier ? "repeat(auto-fill, minmax(140px, 1fr))" : "repeat(auto-fill, minmax(82px, 1fr))",
+                                        xs: isHighTier
+                                          ? "repeat(auto-fill, minmax(110px, 1fr))"
+                                          : "repeat(auto-fill, minmax(68px, 1fr))",
+                                        sm: isHighTier
+                                          ? "repeat(auto-fill, minmax(130px, 1fr))"
+                                          : "repeat(auto-fill, minmax(78px, 1fr))",
+                                        md: isHighTier
+                                          ? "repeat(auto-fill, minmax(140px, 1fr))"
+                                          : "repeat(auto-fill, minmax(82px, 1fr))",
                                       },
                                       gap: 1,
                                     }}
                                   >
                                     {tier.numbers.map((num, idx) => (
-                                      <Tooltip key={idx} title="Click to copy" arrow placement="top">
-                                        <Box
-                                          onClick={() => handleCopyTicket(num)}
+                                      <Box
+                                        key={idx}
+                                        sx={{
+                                          py: isHighTier ? 1.2 : 0.85,
+                                          px: 1,
+                                          textAlign: "center",
+                                          borderRadius: "8px",
+                                          bgcolor: "#F8FAFC",
+                                          border: "1px solid #E2E8F0",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          userSelect: "text",
+                                        }}
+                                      >
+                                        <Typography
                                           sx={{
-                                            py: isHighTier ? 1.2 : 0.85,
-                                            px: 1,
-                                            textAlign: "center",
-                                            borderRadius: "8px",
-                                            bgcolor: "#F8FAFC",
-                                            border: "1px solid #E2E8F0",
-                                            cursor: "pointer",
-                                            transition: "all 0.15s ease",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            "&:hover": {
-                                              bgcolor: "#EFF6FF",
-                                              borderColor: "#93C5FD",
-                                              transform: "translateY(-1.5px)",
-                                              boxShadow: "0 3px 8px rgba(59, 130, 246, 0.12)",
-                                            },
-                                            "&:active": {
-                                              transform: "scale(0.97)",
-                                            },
+                                            fontFamily:
+                                              "'Geist Mono', monospace, sans-serif",
+                                            fontWeight: 800,
+                                            fontSize: isHighTier
+                                              ? "0.95rem"
+                                              : "0.9rem",
+                                            color: isHighTier
+                                              ? "#0F172A"
+                                              : "#1E293B",
+                                            letterSpacing: "0.03em",
                                           }}
                                         >
-                                          <Typography
-                                            sx={{
-                                              fontFamily: "'Geist Mono', monospace, sans-serif",
-                                              fontWeight: 800,
-                                              fontSize: isHighTier ? "0.95rem" : "0.9rem",
-                                              color: isHighTier ? "#0F172A" : "#1E293B",
-                                              letterSpacing: "0.03em",
-                                            }}
-                                          >
-                                            {num}
-                                          </Typography>
-                                        </Box>
-                                      </Tooltip>
+                                          {num}
+                                        </Typography>
+                                      </Box>
                                     ))}
                                   </Box>
                                 </Paper>
@@ -1994,21 +2343,51 @@ export default function HomeDesktopModernView({
                 }}
               >
                 {/* Header Skeleton */}
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 3,
+                  }}
+                >
                   <Skeleton variant="text" width={150} height={30} />
-                  <Skeleton variant="rounded" width={90} height={24} sx={{ borderRadius: "12px" }} />
+                  <Skeleton
+                    variant="rounded"
+                    width={90}
+                    height={24}
+                    sx={{ borderRadius: "12px" }}
+                  />
                 </Box>
 
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    mb: 3,
+                  }}
+                >
                   {[1, 2, 3, 4, 5].map((idx) => (
-                    <Box key={idx} sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Box
+                      key={idx}
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
                       <Skeleton variant="text" width={100} height={22} />
                       <Skeleton variant="text" width={120} height={22} />
                     </Box>
                   ))}
                 </Box>
-                <Skeleton variant="rounded" height={42} sx={{ borderRadius: "8px", mb: 3 }} />
-                <Skeleton variant="rounded" height={260} sx={{ borderRadius: "16px" }} />
+                <Skeleton
+                  variant="rounded"
+                  height={42}
+                  sx={{ borderRadius: "8px", mb: 3 }}
+                />
+                <Skeleton
+                  variant="rounded"
+                  height={260}
+                  sx={{ borderRadius: "16px" }}
+                />
               </Paper>
             ) : (
               <Paper
@@ -2031,7 +2410,9 @@ export default function HomeDesktopModernView({
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-                    <CalendarMonthIcon sx={{ color: "#0B3C5D", fontSize: 26 }} />
+                    <CalendarMonthIcon
+                      sx={{ color: "#0B3C5D", fontSize: 26 }}
+                    />
                     <Typography
                       sx={{
                         fontWeight: 900,
@@ -2045,7 +2426,11 @@ export default function HomeDesktopModernView({
 
                   {isPostponed ? (
                     <Chip
-                      icon={<WarningAmberIcon sx={{ fontSize: "14px !important", color: "#D97706" }} />}
+                      icon={
+                        <WarningAmberIcon
+                          sx={{ fontSize: "14px !important", color: "#D97706" }}
+                        />
+                      }
                       label="Postponed"
                       size="small"
                       sx={{
@@ -2059,7 +2444,11 @@ export default function HomeDesktopModernView({
                     />
                   ) : isPreDraw ? (
                     <Chip
-                      icon={<AccessTimeIcon sx={{ fontSize: "14px !important", color: "#2563EB" }} />}
+                      icon={
+                        <AccessTimeIcon
+                          sx={{ fontSize: "14px !important", color: "#2563EB" }}
+                        />
+                      }
                       label="Upcoming Draw"
                       size="small"
                       sx={{
@@ -2122,96 +2511,140 @@ export default function HomeDesktopModernView({
                 </Box>
 
                 {/* Lottery Key-Value Specs */}
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    mb: 3,
+                  }}
+                >
                   {/* Row 1: Lottery Name */}
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <BadgeIcon sx={{ color: "#64748B", fontSize: 19 }} />
-                      <Typography sx={{ color: "#64748B", fontSize: "0.9rem", fontWeight: 600 }}>
+                      <Typography
+                        sx={{
+                          color: "#64748B",
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                        }}
+                      >
                         Lottery Name
                       </Typography>
                     </Box>
-                    <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", color: "#0F172A" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: "0.95rem",
+                        color: "#0F172A",
+                      }}
+                    >
                       {currentLotteryName} ({currentLotteryCode})
                     </Typography>
                   </Box>
 
                   {/* Row 2: Draw No */}
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <TrackChangesIcon sx={{ color: "#64748B", fontSize: 19 }} />
-                      <Typography sx={{ color: "#64748B", fontSize: "0.9rem", fontWeight: 600 }}>
+                      <TrackChangesIcon
+                        sx={{ color: "#64748B", fontSize: 19 }}
+                      />
+                      <Typography
+                        sx={{
+                          color: "#64748B",
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                        }}
+                      >
                         Draw No.
                       </Typography>
                     </Box>
-                    <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", color: "#0F172A" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: "0.95rem",
+                        color: "#0F172A",
+                      }}
+                    >
                       {currentDrawNumber || `${currentLotteryCode}`}
                     </Typography>
                   </Box>
 
                   {/* Row 3: Draw Date */}
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <CalendarMonthIcon sx={{ color: "#64748B", fontSize: 19 }} />
-                      <Typography sx={{ color: "#64748B", fontSize: "0.9rem", fontWeight: 600 }}>
+                      <CalendarMonthIcon
+                        sx={{ color: "#64748B", fontSize: 19 }}
+                      />
+                      <Typography
+                        sx={{
+                          color: "#64748B",
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                        }}
+                      >
                         Draw Date
                       </Typography>
                     </Box>
-                    <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", color: "#0F172A" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: "0.95rem",
+                        color: "#0F172A",
+                      }}
+                    >
                       {formatFullDate(currentDrawDate)}
                     </Typography>
                   </Box>
 
                   {/* Row 4: Draw Time */}
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <AccessTimeIcon sx={{ color: "#64748B", fontSize: 19 }} />
-                      <Typography sx={{ color: "#64748B", fontSize: "0.9rem", fontWeight: 600 }}>
+                      <Typography
+                        sx={{
+                          color: "#64748B",
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                        }}
+                      >
                         Draw Time
                       </Typography>
                     </Box>
-                    <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", color: "#0F172A" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: "0.95rem",
+                        color: "#0F172A",
+                      }}
+                    >
                       {currentDrawTime}
                     </Typography>
-                  </Box>
-
-                  {/* Row 5: Status */}
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <VerifiedUserIcon sx={{ color: "#64748B", fontSize: 19 }} />
-                      <Typography sx={{ color: "#64748B", fontSize: "0.9rem", fontWeight: 600 }}>
-                        Status
-                      </Typography>
-                    </Box>
-                    {isPostponed ? (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <WarningAmberIcon sx={{ color: "#D97706", fontSize: 18 }} />
-                        <Typography sx={{ fontWeight: 800, fontSize: "0.88rem", color: "#92400E" }}>
-                          Postponed
-                        </Typography>
-                      </Box>
-                    ) : isPreDraw ? (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <AccessTimeIcon sx={{ color: "#2563EB", fontSize: 18 }} />
-                        <Typography sx={{ fontWeight: 800, fontSize: "0.88rem", color: "#1E40AF" }}>
-                          Awaiting Draw at {currentDrawTime}
-                        </Typography>
-                      </Box>
-                    ) : isLiveInProgress ? (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: "#DC2626", animation: "pulseDot 1.2s infinite" }} />
-                        <Typography sx={{ fontWeight: 800, fontSize: "0.88rem", color: "#991B1B" }}>
-                          Live Drawing
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <CheckCircleIcon sx={{ color: "#10B981", fontSize: 18 }} />
-                        <Typography sx={{ fontWeight: 800, fontSize: "0.88rem", color: "#065F46" }}>
-                          {isToday ? "Result Updated" : "Official Result Confirmed"}
-                        </Typography>
-                      </Box>
-                    )}
                   </Box>
                 </Box>
 
@@ -2220,9 +2653,22 @@ export default function HomeDesktopModernView({
 
                 {/* Quick Links */}
                 <Box sx={{ mb: 3 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      mb: 1.5,
+                    }}
+                  >
                     <LinkIcon sx={{ color: "#0B3C5D", fontSize: 18 }} />
-                    <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", color: "#0F172A" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: "0.95rem",
+                        color: "#0F172A",
+                      }}
+                    >
                       Quick Links
                     </Typography>
                   </Box>
@@ -2244,7 +2690,10 @@ export default function HomeDesktopModernView({
                         textTransform: "none",
                         fontSize: "0.82rem",
                         py: 0.85,
-                        "&:hover": { bgcolor: "#F1F5F9", borderColor: "#CBD5E1" },
+                        "&:hover": {
+                          bgcolor: "#F1F5F9",
+                          borderColor: "#CBD5E1",
+                        },
                       }}
                     >
                       All Results
@@ -2266,7 +2715,10 @@ export default function HomeDesktopModernView({
                         textTransform: "none",
                         fontSize: "0.82rem",
                         py: 0.85,
-                        "&:hover": { bgcolor: "#F1F5F9", borderColor: "#CBD5E1" },
+                        "&:hover": {
+                          bgcolor: "#F1F5F9",
+                          borderColor: "#CBD5E1",
+                        },
                       }}
                     >
                       Download App
@@ -2291,7 +2743,10 @@ export default function HomeDesktopModernView({
                         textTransform: "none",
                         fontSize: "0.82rem",
                         py: 0.85,
-                        "&:hover": { bgcolor: "#F1F5F9", borderColor: "#CBD5E1" },
+                        "&:hover": {
+                          bgcolor: "#F1F5F9",
+                          borderColor: "#CBD5E1",
+                        },
                       }}
                     >
                       Today&apos;s PDF
@@ -2310,8 +2765,16 @@ export default function HomeDesktopModernView({
                     }}
                   >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <CalendarMonthIcon sx={{ color: "#0B3C5D", fontSize: 20 }} />
-                      <Typography sx={{ fontWeight: 800, fontSize: "0.98rem", color: "#0F172A" }}>
+                      <CalendarMonthIcon
+                        sx={{ color: "#0B3C5D", fontSize: 20 }}
+                      />
+                      <Typography
+                        sx={{
+                          fontWeight: 800,
+                          fontSize: "0.98rem",
+                          color: "#0F172A",
+                        }}
+                      >
                         {currentMonthYearHeader}
                       </Typography>
                     </Box>
@@ -2321,7 +2784,12 @@ export default function HomeDesktopModernView({
                         size="small"
                         onClick={() =>
                           setCalendarViewDate(
-                            (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+                            (prev) =>
+                              new Date(
+                                prev.getFullYear(),
+                                prev.getMonth() - 1,
+                                1,
+                              ),
                           )
                         }
                         sx={{
@@ -2337,7 +2805,12 @@ export default function HomeDesktopModernView({
                         size="small"
                         onClick={() =>
                           setCalendarViewDate(
-                            (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+                            (prev) =>
+                              new Date(
+                                prev.getFullYear(),
+                                prev.getMonth() + 1,
+                                1,
+                              ),
                           )
                         }
                         sx={{
@@ -2362,18 +2835,20 @@ export default function HomeDesktopModernView({
                       mb: 1.2,
                     }}
                   >
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, idx) => (
-                      <Typography
-                        key={idx}
-                        sx={{
-                          fontSize: "0.78rem",
-                          fontWeight: 700,
-                          color: "#94A3B8",
-                        }}
-                      >
-                        {day}
-                      </Typography>
-                    ))}
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                      (day, idx) => (
+                        <Typography
+                          key={idx}
+                          sx={{
+                            fontSize: "0.78rem",
+                            fontWeight: 700,
+                            color: "#94A3B8",
+                          }}
+                        >
+                          {day}
+                        </Typography>
+                      ),
+                    )}
                   </Box>
 
                   {/* Full Month Grid Days */}
@@ -2409,7 +2884,12 @@ export default function HomeDesktopModernView({
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontWeight: isItemToday || isSelected ? 800 : isClickable ? 700 : 500,
+                            fontWeight:
+                              isItemToday || isSelected
+                                ? 800
+                                : isClickable
+                                  ? 700
+                                  : 500,
                             fontSize: "0.85rem",
                             transition: "all 0.15s ease",
                             opacity: isClickable ? 1 : 0.3,
@@ -2418,14 +2898,18 @@ export default function HomeDesktopModernView({
                               : isSelected && isClickable
                                 ? "#1E293B"
                                 : "transparent",
-                            color: isItemToday || (isSelected && isClickable)
-                              ? "#FFFFFF"
-                              : isClickable
-                                ? "#0F172A"
-                                : "#94A3B8",
+                            color:
+                              isItemToday || (isSelected && isClickable)
+                                ? "#FFFFFF"
+                                : isClickable
+                                  ? "#0F172A"
+                                  : "#94A3B8",
                             "&:hover": isClickable
                               ? {
-                                  bgcolor: isItemToday || isSelected ? "#072840" : "#F1F5F9",
+                                  bgcolor:
+                                    isItemToday || isSelected
+                                      ? "#072840"
+                                      : "#F1F5F9",
                                   transform: "scale(1.08)",
                                 }
                               : {},
@@ -2442,25 +2926,6 @@ export default function HomeDesktopModernView({
           </Grid>
         </Grid>
       </Box>
-
-      {/* Snackbar notification for copied tickets */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={2500}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        sx={{
-          "& .MuiSnackbarContent-root": {
-            bgcolor: "#0F172A",
-            color: "#FFFFFF",
-            fontWeight: 700,
-            borderRadius: "10px",
-            fontSize: "0.88rem",
-            boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
-          },
-        }}
-      />
     </Box>
   );
 }

@@ -1,9 +1,8 @@
 import { supabase, getCronConfigFromSupabase } from "../lib/supabase";
 
 async function inspect() {
-  console.log("=== CRON CONFIG FROM SUPABASE ===");
-  const config = await getCronConfigFromSupabase();
-  console.log(JSON.stringify(config, null, 2));
+  const { data, error } = await supabase.from('draw_results').select('*').order('created_at', { ascending: false }).limit(2);
+  console.log("=== RECENT DRAWS ===", JSON.stringify(data, null, 2));
 }
 
 inspect();

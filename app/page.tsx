@@ -468,8 +468,6 @@ export default function HomePage() {
         ) {
           setTodayDrawResult(json.result);
           todayDrawResultRef.current = json.result;
-          // Auto-switch hero banner to Today's Draw when today's result arrives
-          setHeroSlideIndex(0);
         } else if (!json.result || !hasAnyDrawResult(json.result)) {
           // Never overwrite existing valid confirmed result for today with null
           if (!todayDrawResultRef.current || !hasAnyDrawResult(todayDrawResultRef.current)) {
@@ -503,7 +501,6 @@ export default function HomePage() {
           if (todayResultFromAll) {
             setTodayDrawResult(todayResultFromAll);
             todayDrawResultRef.current = todayResultFromAll;
-            setHeroSlideIndex(0);
           }
 
           // Previous draw is the most recent draw published prior to todayDate (or json.results[0] if today is not published)
@@ -555,8 +552,6 @@ export default function HomePage() {
           if (payload.new) {
             const newRow = payload.new as any;
             if (newRow.draw_date === todayISTDate) {
-              // Auto-focus Hero Banner to Today's Draw on live result stream
-              setHeroSlideIndex(0);
               setSocketStatus("live_updating");
               setTimeout(() => setSocketStatus("connected"), 4000);
 
