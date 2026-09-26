@@ -1433,7 +1433,7 @@ export default function HomePageClient({
                         }}
                       />
                     }
-                    label="OFFICIAL RESULT CONFIRMED"
+                    label="RESULT UPDATED"
                     sx={{
                       bgcolor: "#ECFDF5",
                       color: "#065F46",

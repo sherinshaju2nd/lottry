@@ -853,7 +853,7 @@ export default function HomeDesktopModernView({
               >
                 <CheckCircleIcon sx={{ fontSize: 16, color: "#059669" }} />
                 <Typography sx={{ fontWeight: 800, fontSize: "0.78rem" }}>
-                  Official Result Confirmed
+                  {isToday ? "Result Updated" : "Result Confirmed"}
                 </Typography>
               </Box>
             )}
@@ -2107,7 +2107,7 @@ export default function HomeDesktopModernView({
                           }}
                         />
                       }
-                      label="Official Result"
+                      label={isToday ? "Result Updated" : "Official Result"}
                       size="small"
                       sx={{
                         bgcolor: "#ECFDF5",
@@ -2208,7 +2208,7 @@ export default function HomeDesktopModernView({
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <CheckCircleIcon sx={{ color: "#10B981", fontSize: 18 }} />
                         <Typography sx={{ fontWeight: 800, fontSize: "0.88rem", color: "#065F46" }}>
-                          Official Result Confirmed
+                          {isToday ? "Result Updated" : "Official Result Confirmed"}
                         </Typography>
                       </Box>
                     )}
@@ -2230,7 +2230,7 @@ export default function HomeDesktopModernView({
                   <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                     <Button
                       component={Link}
-                      href="/search"
+                      href={getLotteryUrl(currentLotteryCode)}
                       size="small"
                       startIcon={<ArticleIcon fontSize="small" />}
                       sx={{
@@ -2244,7 +2244,7 @@ export default function HomeDesktopModernView({
                         textTransform: "none",
                         fontSize: "0.82rem",
                         py: 0.85,
-                        "&:hover": { bgcolor: "#F1F5F9" },
+                        "&:hover": { bgcolor: "#F1F5F9", borderColor: "#CBD5E1" },
                       }}
                     >
                       All Results
@@ -2252,7 +2252,7 @@ export default function HomeDesktopModernView({
 
                     <Button
                       component={Link}
-                      href={getLotteryUrl(currentLotteryCode, currentDrawDate)}
+                      href="/kerala-lottery-app"
                       size="small"
                       startIcon={<MonetizationOnIcon fontSize="small" />}
                       sx={{
@@ -2266,15 +2266,18 @@ export default function HomeDesktopModernView({
                         textTransform: "none",
                         fontSize: "0.82rem",
                         py: 0.85,
-                        "&:hover": { bgcolor: "#F1F5F9" },
+                        "&:hover": { bgcolor: "#F1F5F9", borderColor: "#CBD5E1" },
                       }}
                     >
-                      Prize Structure
+                      Download App
                     </Button>
 
                     <Button
-                      component={Link}
-                      href={getLotteryUrl(currentLotteryCode, currentDrawDate)}
+                      component="a"
+                      href={`/api/pdf/${currentLotteryCode}/${currentDrawDate}`}
+                      download={`kerala-lottery-${currentLotteryCode}-${currentDrawDate}.pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       size="small"
                       startIcon={<PictureAsPdfIcon fontSize="small" />}
                       sx={{
@@ -2288,7 +2291,7 @@ export default function HomeDesktopModernView({
                         textTransform: "none",
                         fontSize: "0.82rem",
                         py: 0.85,
-                        "&:hover": { bgcolor: "#F1F5F9" },
+                        "&:hover": { bgcolor: "#F1F5F9", borderColor: "#CBD5E1" },
                       }}
                     >
                       Today&apos;s PDF

@@ -32,8 +32,8 @@ export const LOTTERY_TIMING_CONFIG: {
     switchThresholdMinute: 45, // 2:45 PM IST
     pollingStartHour: 14,
     pollingStartMinute: 50, // 2:50 PM IST
-    pollingEndHour: 18,
-    pollingEndMinute: 0, // 6:00 PM IST
+    pollingEndHour: 17,
+    pollingEndMinute: 0, // 5:00 PM IST (aligns with database cron_end_time)
   },
   bumper: {
     drawTimeDisplay: "2:00 PM",
@@ -43,8 +43,8 @@ export const LOTTERY_TIMING_CONFIG: {
     switchThresholdMinute: 45, // 1:45 PM IST (15 minutes before 2:00 PM draw)
     pollingStartHour: 13,
     pollingStartMinute: 45, // 1:45 PM IST
-    pollingEndHour: 18,
-    pollingEndMinute: 0, // 6:00 PM IST
+    pollingEndHour: 17,
+    pollingEndMinute: 0, // 5:00 PM IST (aligns with database cron_bumper_end_time)
   },
 };
 
