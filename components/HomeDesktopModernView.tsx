@@ -617,11 +617,11 @@ export default function HomeDesktopModernView({
         sx={{
           width: "100%",
           height: { xs: "auto", md: "390px" },
-          minHeight: "390px",
+          minHeight: "450px",
           position: "relative",
-          backgroundImage: "url('/kerala-banner-bg.jpg')",
+          backgroundImage: "url('/kerala-banner-bg-4k.webp?v=4k')",
           backgroundSize: "cover",
-          backgroundPosition: "center 73%",
+          backgroundPosition: "center 48%",
           backgroundRepeat: "no-repeat",
           pt: { xs: 3, md: 0 },
           pb: 0,
@@ -631,7 +631,7 @@ export default function HomeDesktopModernView({
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 45%, rgba(244, 247, 251, 0.35) 80%, rgba(244, 247, 251, 0.75) 100%)",
+              "linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 45%, rgba(255, 247, 251, 0.35) 80%, rgba(255, 247, 251, 0.75) 100%)",
             zIndex: 1,
           },
         }}
@@ -1934,8 +1934,7 @@ export default function HomeDesktopModernView({
 
                           <Typography
                             sx={{
-                              fontFamily:
-                                "'Geist Mono', monospace, sans-serif",
+                              fontFamily: "'Geist Mono', monospace, sans-serif",
                               fontWeight: 900,
                               fontSize: {
                                 xs: "2.2rem",
