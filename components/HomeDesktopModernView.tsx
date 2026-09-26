@@ -800,7 +800,7 @@ export default function HomeDesktopModernView({
               >
                 <AccessTimeIcon sx={{ fontSize: 16, color: "#2563EB" }} />
                 <Typography sx={{ fontWeight: 800, fontSize: "0.78rem" }}>
-                  Live Draw Today at {currentDrawTime} • Results at 3:10 PM
+                  Live Draw Today at {currentDrawTime} • Results at {isTodayBumper ? "2:10 PM" : "3:10 PM"}
                 </Typography>
               </Box>
             ) : isLiveInProgress ? (
@@ -932,7 +932,7 @@ export default function HomeDesktopModernView({
                 >
                   {hasTodayResult
                     ? "Enter your ticket number to view the result"
-                    : "Activates at 3:10 PM once results are drawn"}
+                    : `Activates at ${isTodayBumper ? "2:10 PM" : "3:10 PM"} once results are drawn`}
                 </Typography>
               </Box>
             </Box>
@@ -945,7 +945,7 @@ export default function HomeDesktopModernView({
                 placeholder={
                   hasTodayResult
                     ? `Enter ticket number (e.g. ${firstPrizeTicket || `${currentLotteryCode} 123456`})`
-                    : `Ticket checker activates at 3:10 PM once results are published`
+                    : `Ticket checker activates at ${isTodayBumper ? "2:10 PM" : "3:10 PM"} once results are published`
                 }
                 {...register("ticketNumber")}
                 error={!!errors.ticketNumber}
@@ -1458,7 +1458,7 @@ export default function HomeDesktopModernView({
                           </Typography>
                         </Box>
                         <Typography sx={{ color: "#475569", fontSize: "0.88rem", lineHeight: 1.6, maxWidth: 520 }}>
-                          Today&apos;s official draw for <strong>{todayLottery.name} ({todayLottery.code})</strong> will take place at <strong>{currentDrawTime}</strong>. Full winning results will be published automatically right here at <strong>3:10 PM</strong>.
+                          Today&apos;s official draw for <strong>{todayLottery.name} ({todayLottery.code})</strong> will take place at <strong>{currentDrawTime}</strong>. Full winning results will be published automatically right here at <strong>{isTodayBumper ? "2:10 PM" : "3:10 PM"}</strong>.
                         </Typography>
                       </Box>
 

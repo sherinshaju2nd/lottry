@@ -72,6 +72,7 @@ import {
   hasAnyDrawResult,
   calculateDrawCountdown,
   getIsAfterDrawTime,
+  getIsBeforeSwitchTime,
   getIsPollingWindow,
   getDrawTimeDisplay,
 } from "@/lib/supabase";
@@ -134,6 +135,8 @@ export default function HomePage() {
   const [todayDayName, setTodayDayName] = useState("Sunday");
   const [isTodayBumper, setIsTodayBumper] = useState(false);
   const isTodayBumperRef = useRef(false);
+  const todayCodeRef = useRef<string>("");
+  const todayDrawResultRef = useRef<StructuredDrawResult | null>(null);
   const [todayBumperInfo, setTodayBumperInfo] = useState<any>(null);
   const [todayDrawResult, setTodayDrawResult] =
     useState<StructuredDrawResult | null>(null);
@@ -255,7 +258,30 @@ export default function HomePage() {
       WEEKLY_LOTTERIES.find(
         (l) => l.day.toLowerCase() === istDayName.toLowerCase(),
       ) || WEEKLY_LOTTERIES[0];
-    setTodayLottery(matched);
+
+    const initialBumper = BUMPER_LOTTERIES.find(
+      (b: any) => b.draw_date === todayISTDate,
+    );
+    if (initialBumper) {
+      todayCodeRef.current = initialBumper.code;
+      isTodayBumperRef.current = true;
+      setIsTodayBumper(true);
+      setTodayBumperInfo(initialBumper as any);
+      setTodayLottery({
+        day: initialBumper.day || "Bumper Draw",
+        name: initialBumper.name,
+        nameMl: initialBumper.nameMl || initialBumper.name,
+        code: initialBumper.code,
+        drawTime: "2:00 PM",
+        is_bumper: true,
+        jackpot: initialBumper.jackpot || "₹25 Crore",
+        ticket_price: "₹500",
+        draw_season: initialBumper.draw_season || initialBumper.day,
+      });
+    } else {
+      todayCodeRef.current = matched.code;
+      setTodayLottery(matched);
+    }
 
     const updateCountdown = () => {
       try {
@@ -310,6 +336,7 @@ export default function HomePage() {
           );
 
           if (todayBumper) {
+            todayCodeRef.current = todayBumper.code;
             isTodayBumperRef.current = true;
             setIsTodayBumper(true);
             setTodayBumperInfo(todayBumper);
@@ -325,6 +352,9 @@ export default function HomePage() {
               draw_season: todayBumper.draw_season || todayBumper.day,
             });
             checkTodayData(todayBumper.code);
+            // Auto-switch hero tab: 15 mins before 2:00 PM (1:45 PM IST) or later -> Today's Draw (0)
+            const isBeforeSwitch = getIsBeforeSwitchTime(true);
+            setHeroSlideIndex(isBeforeSwitch ? 1 : 0);
           } else if (weeklyMapped.length > 0) {
             isTodayBumperRef.current = false;
             setIsTodayBumper(false);
@@ -336,8 +366,12 @@ export default function HomePage() {
               ) ||
               weeklyMapped[0] ||
               WEEKLY_LOTTERIES[0];
+            todayCodeRef.current = matchedDb.code;
             setTodayLottery(matchedDb);
             checkTodayData(matchedDb.code);
+            // Auto-switch hero tab: 15 mins before 3:00 PM (2:45 PM IST) or later -> Today's Draw (0)
+            const isBeforeSwitch = getIsBeforeSwitchTime(false);
+            setHeroSlideIndex(isBeforeSwitch ? 1 : 0);
           }
 
           const bumperMapped = data
@@ -382,21 +416,16 @@ export default function HomePage() {
     // Dynamic reference for today's lottery code to avoid stale closures in socket callbacks
     let currentTodayCode = matched.code;
 
-    // Calculate IST time to determine default banner tab (Before 2:30 PM -> Previous Day Result, After 2:30 PM -> Today's Draw)
+    // Calculate IST time to determine default banner tab:
+    // Before 15-min threshold (2:45 PM for regular, 1:45 PM for bumper) -> Previous Day Result (1), After threshold -> Today's Draw (0)
     try {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString("en-GB", {
-        timeZone: "Asia/Kolkata",
-        hour12: false,
-      });
-      const [hStr, mStr] = timeStr.split(":");
-      const istHours = parseInt(hStr, 10);
-      const istMinutes = parseInt(mStr, 10);
-      const isAfter230PM =
-        istHours > 14 || (istHours === 14 && istMinutes >= 30);
-      setHeroSlideIndex(isAfter230PM ? 0 : 1);
+      const isInitialBumper = BUMPER_LOTTERIES.some(
+        (b: any) => b.draw_date === todayISTDate,
+      );
+      const isBeforeSwitch = getIsBeforeSwitchTime(isInitialBumper);
+      setHeroSlideIndex(isBeforeSwitch ? 1 : 0);
     } catch {
-      setHeroSlideIndex(1);
+      setHeroSlideIndex(0);
     }
 
     async function checkTodayPostponement() {
@@ -425,7 +454,8 @@ export default function HomePage() {
 
     async function checkTodayData(codeToFetch?: string) {
       try {
-        const targetCode = codeToFetch || currentTodayCode;
+        const targetCode = codeToFetch || todayCodeRef.current;
+        if (!targetCode) return;
         const res = await fetch(
           `/api/draws?code=${targetCode}&date=${todayISTDate}&t=${Date.now()}`,
         );
@@ -437,10 +467,15 @@ export default function HomePage() {
           hasAnyDrawResult(json.result)
         ) {
           setTodayDrawResult(json.result);
+          todayDrawResultRef.current = json.result;
           // Auto-switch hero banner to Today's Draw when today's result arrives
           setHeroSlideIndex(0);
         } else if (!json.result || !hasAnyDrawResult(json.result)) {
-          setTodayDrawResult(null);
+          // Never overwrite existing valid confirmed result for today with null
+          if (!todayDrawResultRef.current || !hasAnyDrawResult(todayDrawResultRef.current)) {
+            setTodayDrawResult(null);
+            todayDrawResultRef.current = null;
+          }
         }
       } catch {
         // Keep existing data on transient fetch failure
@@ -460,6 +495,17 @@ export default function HomePage() {
           const todayDate = new Date().toLocaleDateString("en-CA", {
             timeZone: "Asia/Kolkata",
           });
+
+          // Check if today's result is in allDraws
+          const todayResultFromAll = json.results.find(
+            (d: StructuredDrawResult) => d.draw_date === todayDate && hasAnyDrawResult(d)
+          );
+          if (todayResultFromAll) {
+            setTodayDrawResult(todayResultFromAll);
+            todayDrawResultRef.current = todayResultFromAll;
+            setHeroSlideIndex(0);
+          }
+
           // Previous draw is the most recent draw published prior to todayDate (or json.results[0] if today is not published)
           const prevDraw =
             json.results.find(
@@ -539,6 +585,7 @@ export default function HomePage() {
                 };
                 if (hasAnyDrawResult(liveStructuredDraw)) {
                   setTodayDrawResult(liveStructuredDraw);
+                  todayDrawResultRef.current = liveStructuredDraw;
                 }
               } catch (e) {
                 console.warn("Failed to parse live socket row payload:", e);
