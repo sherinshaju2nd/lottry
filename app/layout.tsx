@@ -491,6 +491,14 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Kerala Lottery" />
         <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
 
+        {/* Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap"
+          rel="stylesheet"
+        />
+
         {/* Google Tag Manager */}
         <Script
           id="gtm-script"

@@ -40,9 +40,9 @@ export const LOTTERY_TIMING_CONFIG: {
     drawHour: 14,
     drawMinute: 0,
     switchThresholdHour: 13,
-    switchThresholdMinute: 30, // 1:30 PM IST
+    switchThresholdMinute: 45, // 1:45 PM IST (15 minutes before 2:00 PM draw)
     pollingStartHour: 13,
-    pollingStartMinute: 50, // 1:50 PM IST
+    pollingStartMinute: 45, // 1:45 PM IST
     pollingEndHour: 18,
     pollingEndMinute: 0, // 6:00 PM IST
   },
