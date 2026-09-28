@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@mui/material", "@mui/icons-material", "@mui/system"],
   serverExternalPackages: ["pdfkit"],
   async redirects() {
     return [

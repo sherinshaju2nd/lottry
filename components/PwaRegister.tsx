@@ -19,23 +19,38 @@ declare global {
 
 export default function PwaRegister() {
   useEffect(() => {
-    // 1. Register Service Worker (active in all environments so install icon shows in Chrome/Edge)
+    // 1. Register Service Worker in production only. In development, unregister any existing service worker to prevent Turbopack/Next.js chunk caching issues
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      const registerSW = () => {
-        navigator.serviceWorker
-          .register("/sw.js")
-          .then((registration) => {
-            console.log("[PWA] Service Worker registered with scope:", registration.scope);
-          })
-          .catch((error) => {
-            console.warn("[PWA] Service Worker registration failed:", error);
+      if (process.env.NODE_ENV !== "production") {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
+        });
+        if ("caches" in window) {
+          caches.keys().then((names) => {
+            for (const name of names) {
+              caches.delete(name);
+            }
           });
-      };
-
-      if (document.readyState === "complete") {
-        registerSW();
+        }
       } else {
-        window.addEventListener("load", registerSW);
+        const registerSW = () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((registration) => {
+              console.log("[PWA] Service Worker registered with scope:", registration.scope);
+            })
+            .catch((error) => {
+              console.warn("[PWA] Service Worker registration failed:", error);
+            });
+        };
+
+        if (document.readyState === "complete") {
+          registerSW();
+        } else {
+          window.addEventListener("load", registerSW);
+        }
       }
     }
 

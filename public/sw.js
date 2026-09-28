@@ -1,5 +1,5 @@
 // Kerala Lottery Results Today - PWA Service Worker
-const CACHE_NAME = "kerala-lottery-pwa-v1";
+const CACHE_NAME = "kerala-lottery-pwa-v2";
 
 const STATIC_ASSETS = [
   "/",
@@ -51,8 +51,6 @@ self.addEventListener("activate", (event) => {
 });
 
 // Fetch Event - Smart Strategy:
-// 1. Static images & fonts: Cache-first with network fallback
-// 2. HTML pages & API routes: Network-first with cache fallback (always deliver fresh 3 PM results!)
 self.addEventListener("fetch", (event) => {
   const request = event.request;
 
@@ -63,33 +61,27 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // Skip browser extensions or cross-origin external analytics (GTM, Google Analytics)
-  if (url.origin !== self.location.origin) {
+  // Skip browser extensions, cross-origin requests, Next.js internal dev/HMR endpoints
+  if (
+    url.origin !== self.location.origin ||
+    url.pathname.includes("__nextjs") ||
+    url.pathname.includes("webpack-hmr") ||
+    url.pathname.includes("hot-update")
+  ) {
     return;
   }
 
-  // Static Assets (Icons, Images, Fonts, CSS, JS chunks) -> Cache-first / Stale-While-Revalidate
+  // Static Assets (Icons, Images, Fonts, CSS) -> Cache-first with network fallback
   const isStaticAsset =
-    url.pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|woff2|woff|ttf|css)$/) ||
-    url.pathname.startsWith("/_next/static/");
+    url.pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|woff2|woff|ttf|css)$/) &&
+    !url.pathname.startsWith("/api/");
 
   if (isStaticAsset) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
         if (cachedResponse) {
-          // Return cached and fetch in background to refresh cache
-          fetch(request)
-            .then((networkResponse) => {
-              if (networkResponse && networkResponse.status === 200) {
-                caches.open(CACHE_NAME).then((cache) => {
-                  cache.put(request, networkResponse);
-                });
-              }
-            })
-            .catch(() => {});
           return cachedResponse;
         }
-
         return fetch(request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const responseClone = networkResponse.clone();
@@ -104,11 +96,29 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Next.js static JS chunks - Network-first to avoid outdated module factory errors, fallback to cache
+  if (url.pathname.startsWith("/_next/static/")) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
   // HTML Pages & Navigation & APIs -> Network-first for fresh results, fallback to cache
   event.respondWith(
     fetch(request)
       .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse && networkResponse.status === 200 && !url.pathname.startsWith("/api/")) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(request, responseClone);
