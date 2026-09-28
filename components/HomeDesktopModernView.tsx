@@ -609,7 +609,7 @@ export default function HomeDesktopModernView({
   };
 
   return (
-    <Box sx={{ width: "100%", bgcolor: "#F4F7FB", minHeight: "100vh" }}>
+    <Box sx={{ width: "100%", bgcolor: "#FFFFFF", minHeight: "100vh" }}>
       {/* ========================================================================= */}
       {/* 1. FULL-WIDTH HERO BANNER (Edge-to-edge scenic Kerala backwaters)         */}
       {/* ========================================================================= */}
@@ -631,7 +631,7 @@ export default function HomeDesktopModernView({
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.52) 35%, rgba(244, 247, 251, 0.88) 75%, #F4F7FB 100%)",
+              "linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.52) 35%, rgba(255, 255, 255, 0.88) 75%, #FFFFFF 100%)",
             backdropFilter: "blur(1.5px)",
             zIndex: 1,
           },

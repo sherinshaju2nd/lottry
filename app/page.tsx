@@ -981,9 +981,9 @@ export default function HomePage() {
   };
 
   return (
-    <Box sx={{ width: "100%", overflowX: "hidden", minHeight: "100vh" }}>
+    <Box sx={{ width: "100%", overflowX: "hidden", minHeight: "100vh", bgcolor: "#FFFFFF" }}>
       {/* 1. Mobile Normal UI (2-column quick grid) */}
-      <Box className="home-normal-view" sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 4 } }}>
+      <Box className="home-normal-view" sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 4 }, bgcolor: "#FFFFFF" }}>
         <HomeNormalView
           todayLottery={todayLottery}
           todayISTDate={todayISTDate}
@@ -1027,32 +1027,10 @@ export default function HomePage() {
       </Box>
 
       {/* ========================================================================= */}
-      {/* SEO & Comprehensive Information Section (Modern Glassmorphic Bento UI)     */}
+      {/* SEO & Comprehensive Information Section (Modern Clean Layout)               */}
       {/* ========================================================================= */}
-      <Box sx={{ width: "100%", px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 }, pt: "24px", pb: 8 }}>
-        <Paper
-          elevation={0}
-          sx={{
-            mt: 0,
-            mb: 4,
-            p: { xs: 2.5, sm: 4, md: 6 },
-            borderRadius: { xs: "24px", sm: "32px" },
-            bgcolor: "#FFFFFF",
-            border: "1px solid rgba(226, 232, 240, 0.95)",
-            boxShadow: "0 14px 45px rgba(11, 60, 93, 0.06)",
-            position: "relative",
-            overflow: "hidden",
-            "&::before": {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "6px",
-              background: "linear-gradient(90deg, #0B3C5D 0%, #10B981 50%, #0A3C64 100%)",
-            },
-          }}
-        >
+      <Box sx={{ width: "100%", px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 }, pt: 0, pb: 8, bgcolor: "#FFFFFF" }}>
+        <Box sx={{ mt: "50px", mb: 4 }}>
           {/* Section Header: Title & Badges */}
           <Box sx={{ mb: { xs: 3.5, md: 4.5 }, textAlign: { xs: "left", md: "center" } }}>
             <Box
@@ -2114,7 +2092,7 @@ export default function HomePage() {
               ))}
             </Box>
           </Box>
-        </Paper>
+        </Box>
 
       {/* Ticket Search Result Dialog */}
       <Dialog
