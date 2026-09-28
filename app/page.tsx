@@ -52,9 +52,15 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SecurityIcon from "@mui/icons-material/Security";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import GavelIcon from "@mui/icons-material/Gavel";
 import confetti from "canvas-confetti";
 import {
   WEEKLY_LOTTERIES,
@@ -1020,755 +1026,1095 @@ export default function HomePage() {
         />
       </Box>
 
-      {/* SEO & Comprehensive Information Section */}
-      <Box sx={{ width: "100%", px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 }, pt: "20px", pb: 6 }}>
-      <Paper
-        elevation={0}
-        sx={{
-          mt: 0,
-          mb: 4,
-          p: { xs: 3, sm: 4, md: 5 },
-          borderRadius: { xs: "20px", sm: "24px" },
-          bgcolor: "#FFFFFF",
-          border: "1px solid #E5E7EB",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
-        }}
-      >
-        {/* Section Pill & Main Title */}
-        <Box sx={{ mb: 3.5 }}>
-          <Chip
-            icon={<AutoAwesomeIcon sx={{ fontSize: "14px !important", color: "#0B3C5D" }} />}
-            label="DAILY DRAW GUIDE & OFFICIAL CHART"
-            size="small"
-            sx={{
-              bgcolor: "#EBF5FF",
-              color: "#0B3C5D",
-              fontWeight: 800,
-              fontSize: "0.72rem",
-              borderRadius: "8px",
-              mb: 1.5,
-              border: "1px solid #BFDBFE",
-            }}
-          />
-          <Typography
-            variant="h4"
-            component="h2"
-            sx={{
-              fontWeight: 900,
-              color: "#0B3C5D",
-              fontSize: { xs: "1.35rem", sm: "1.75rem", md: "2.1rem" },
-              letterSpacing: "-0.02em",
-              lineHeight: 1.3,
-            }}
-          >
-            Live Kerala Lottery Result Today 2026: Daily Draw Chart
-          </Typography>
-        </Box>
-
-        {/* Quick Facts Container */}
-        <Box
+      {/* ========================================================================= */}
+      {/* SEO & Comprehensive Information Section (Modern Glassmorphic Bento UI)     */}
+      {/* ========================================================================= */}
+      <Box sx={{ width: "100%", px: { xs: 2, sm: 3, md: 4, lg: 5, xl: 6 }, pt: "24px", pb: 8 }}>
+        <Paper
+          elevation={0}
           sx={{
-            p: { xs: 2.5, sm: 3 },
-            bgcolor: "#F8FAFC",
-            borderRadius: "16px",
-            border: "1.5px solid #0056b3",
+            mt: 0,
             mb: 4,
-            boxShadow: "0 4px 15px rgba(0, 86, 179, 0.06)",
+            p: { xs: 2.5, sm: 4, md: 6 },
+            borderRadius: { xs: "24px", sm: "32px" },
+            bgcolor: "#FFFFFF",
+            border: "1px solid rgba(226, 232, 240, 0.95)",
+            boxShadow: "0 14px 45px rgba(11, 60, 93, 0.06)",
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "6px",
+              background: "linear-gradient(90deg, #0B3C5D 0%, #10B981 50%, #0A3C64 100%)",
+            },
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-            <MonetizationOnIcon sx={{ color: "#0056b3", fontSize: 24 }} />
-            <Typography
-              variant="subtitle1"
+          {/* Section Header: Title & Badges */}
+          <Box sx={{ mb: { xs: 3.5, md: 4.5 }, textAlign: { xs: "left", md: "center" } }}>
+            <Box
               sx={{
-                fontWeight: 800,
-                color: "#0056b3",
-                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+                bgcolor: "rgba(11, 60, 93, 0.06)",
+                border: "1px solid rgba(11, 60, 93, 0.15)",
+                px: 2,
+                py: 0.7,
+                borderRadius: "30px",
+                mb: 2,
               }}
             >
-              Kerala Lottery Result Today Quick Facts (केरल लॉटरी के नतीजे / கேரளா லாட்டரி குலுக்கல்):
+              <AutoAwesomeIcon sx={{ fontSize: 16, color: "#0B3C5D" }} />
+              <Typography
+                sx={{
+                  fontWeight: 800,
+                  fontSize: "0.78rem",
+                  color: "#0B3C5D",
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Official 2026 Government Information &amp; Schedule
+              </Typography>
+            </Box>
+
+            <Typography
+              variant="h3"
+              component="h2"
+              sx={{
+                fontWeight: 900,
+                color: "#0A2540",
+                fontSize: { xs: "1.6rem", sm: "2.1rem", md: "2.55rem" },
+                letterSpacing: "-0.03em",
+                lineHeight: 1.25,
+                mb: 1.5,
+              }}
+            >
+              Live Kerala Lottery Result Today 2026: Daily Draw Chart
+            </Typography>
+
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#475569",
+                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                maxWidth: 820,
+                mx: { xs: 0, md: "auto" },
+                lineHeight: 1.65,
+              }}
+            >
+              Official live draw timings, daily prize charts, bumper schedules, and claim procedures directly from the Directorate of Kerala State Lotteries (केरल लॉटरी के नतीजे / கேரளா லாட்டரி குலுக்கல்).
             </Typography>
           </Box>
 
-          <Grid container spacing={2}>
-            {[
-              {
-                icon: <AccessTimeIcon sx={{ color: "#0B3C5D", fontSize: 20 }} />,
-                label: "Today's Live Draw Time",
-                value: "Starts at 2:55 PM IST daily.",
-                bg: "#FFFFFF",
-              },
-              {
-                icon: <PictureAsPdfIcon sx={{ color: "#DC2626", fontSize: 20 }} />,
-                label: "Official Chart & Gazette PDF Publication",
-                value: "Available at 4:00 PM IST.",
-                bg: "#FFFFFF",
-              },
-              {
-                icon: <PlaceIcon sx={{ color: "#059669", fontSize: 20 }} />,
-                label: "Live Stream Venue",
-                value: "Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram.",
-                bg: "#FFFFFF",
-              },
-              {
-                icon: <AccountBalanceIcon sx={{ color: "#2563EB", fontSize: 20 }} />,
-                label: "Governing Body",
-                value: "Directorate of Kerala State Lotteries (Taxes Dept., Govt. of Kerala).",
-                bg: "#FFFFFF",
-              },
-              {
-                icon: <EmojiEventsIcon sx={{ color: "#D97706", fontSize: 20 }} />,
-                label: "2026 Active Lotteries",
-                value: "7 Weekly Schemes (Samrudhi, Karunya, Suvarna Keralam, Karunya Plus, Dhanalekshmi, Sthree-Sakthi, Bhagyathara) & 6 Seasonal Bumper Series.",
-                bg: "#FFFFFF",
-              },
-              {
-                icon: <ConfirmationNumberIcon sx={{ color: "#7C3AED", fontSize: 20 }} />,
-                label: "Official Ticket Price & Form",
-                value: "₹50 per paper ticket (Standard Weekly Series). Digital online sales are strictly unauthorized.",
-                bg: "#FFFFFF",
-              },
-            ].map((fact, idx) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
-                <Paper
-                  variant="outlined"
+          {/* 1. Quick Facts Bento Grid (6 Interactive Cards) */}
+          <Box
+            sx={{
+              p: { xs: 2, sm: 3 },
+              bgcolor: "#F8FAFC",
+              borderRadius: "22px",
+              border: "1px solid #E2E8F0",
+              mb: 5,
+              boxShadow: "0 6px 20px rgba(11, 60, 93, 0.03)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1.5, mb: 2.5, px: 0.5 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                <Box
                   sx={{
-                    p: 2,
-                    borderRadius: "12px",
-                    bgcolor: fact.bg,
-                    border: "1px solid #E2E8F0",
-                    height: "100%",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "10px",
+                    bgcolor: "#0B3C5D",
                     display: "flex",
-                    flexDirection: "column",
-                    gap: 0.5,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#FFFFFF",
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                    {fact.icon}
+                  <InfoOutlinedIcon sx={{ fontSize: 20 }} />
+                </Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 800,
+                    color: "#0A2540",
+                    fontSize: { xs: "1.02rem", sm: "1.15rem" },
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Kerala Lottery Quick Facts &amp; Draw Standards
+                </Typography>
+              </Box>
+
+              <Chip
+                label="Updated for 2026 Cycle"
+                size="small"
+                sx={{
+                  bgcolor: "#DCFCE7",
+                  color: "#15803D",
+                  fontWeight: 800,
+                  fontSize: "0.72rem",
+                  borderRadius: "20px",
+                  border: "1px solid #86EFAC",
+                }}
+              />
+            </Box>
+
+            <Grid container spacing={2}>
+              {[
+                {
+                  icon: <AccessTimeIcon sx={{ color: "#0284C7", fontSize: 22 }} />,
+                  iconBg: "#E0F2FE",
+                  label: "Today's Live Draw Time",
+                  value: "Starts at 2:55 PM IST daily",
+                  desc: "Live stream telecast commences from Gorky Bhavan.",
+                },
+                {
+                  icon: <PictureAsPdfIcon sx={{ color: "#DC2626", fontSize: 22 }} />,
+                  iconBg: "#FEE2E2",
+                  label: "Official Gazette PDF",
+                  value: "Published at 4:00 PM IST",
+                  desc: "Signed Government Gazette document published daily.",
+                },
+                {
+                  icon: <PlaceIcon sx={{ color: "#059669", fontSize: 22 }} />,
+                  iconBg: "#D1FAE5",
+                  label: "Live Venue Location",
+                  value: "Gorky Bhavan, Trivandrum",
+                  desc: "Near Bakery Junction, Thiruvananthapuram, Kerala.",
+                },
+                {
+                  icon: <AccountBalanceIcon sx={{ color: "#2563EB", fontSize: 22 }} />,
+                  iconBg: "#DBEAFE",
+                  label: "Governing Authority",
+                  value: "Directorate of State Lotteries",
+                  desc: "Taxes Department, Government of Kerala.",
+                },
+                {
+                  icon: <EmojiEventsIcon sx={{ color: "#D97706", fontSize: 22 }} />,
+                  iconBg: "#FEF3C7",
+                  label: "Active Draw Schemes",
+                  value: "7 Weekly + 6 Seasonal Bumpers",
+                  desc: "Bhagyathara, Sthree-Sakthi, Dhanalekshmi & series.",
+                },
+                {
+                  icon: <ConfirmationNumberIcon sx={{ color: "#7C3AED", fontSize: 22 }} />,
+                  iconBg: "#EDE9FE",
+                  label: "Ticket Price & Format",
+                  value: "₹50 Physical Paper Ticket",
+                  desc: "Online digital purchase is strictly unauthorized.",
+                },
+              ].map((fact, idx) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2.2,
+                      borderRadius: "16px",
+                      bgcolor: "#FFFFFF",
+                      border: "1px solid #E2E8F0",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 0.8,
+                      transition: "all 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
+                      "&:hover": {
+                        transform: "translateY(-3px)",
+                        boxShadow: "0 10px 25px rgba(11, 60, 93, 0.08)",
+                        borderColor: "#93C5FD",
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                      <Box
+                        sx={{
+                          width: 38,
+                          height: 38,
+                          borderRadius: "10px",
+                          bgcolor: fact.iconBg,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {fact.icon}
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 800,
+                            color: "#64748B",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.04em",
+                            fontSize: "0.7rem",
+                            display: "block",
+                          }}
+                        >
+                          {fact.label}
+                        </Typography>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 800,
+                            color: "#0F172A",
+                            fontSize: "0.92rem",
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {fact.value}
+                        </Typography>
+                      </Box>
+                    </Box>
                     <Typography
-                      variant="caption"
+                      variant="body2"
                       sx={{
-                        fontWeight: 800,
                         color: "#475569",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.03em",
-                        fontSize: "0.72rem",
+                        fontSize: "0.82rem",
+                        lineHeight: 1.45,
+                        mt: 0.3,
                       }}
                     >
-                      {fact.label}
+                      {fact.desc}
                     </Typography>
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 700,
-                      color: "#1E293B",
-                      fontSize: "0.875rem",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {fact.value}
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
 
-        {/* Weekly Schedule & Lottery Results Infographic Chart */}
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: 820,
-            mx: "auto",
-            mb: 4,
-            borderRadius: "16px",
-            overflow: "hidden",
-            border: "1px solid #E2E8F0",
-            bgcolor: "#FAFAFA",
-            p: { xs: 1, sm: 2 },
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
+          {/* 2. Weekly Schedule & Results Infographic Chart */}
           <Box
-            component="img"
-            src="/kerala-lottery-weekly-draw-schedule.jpg"
-            alt="Kerala State Lottery Weekly Draw Schedule and Results Chart - Monday to Sunday (Bhagyathara, Sthree Sakthi, Dhanalekshmi, Karunya Plus, Suvarna Keralam, Karunya, Samrudhi)"
-            loading="lazy"
             sx={{
               width: "100%",
-              height: "auto",
-              maxHeight: 560,
-              objectFit: "contain",
-              borderRadius: "12px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-            }}
-          />
-        </Box>
-
-        {/* Welcome & Streaming Details */}
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="body1"
-            sx={{
-              color: "#374151",
-              mb: 2,
-              lineHeight: 1.8,
-              fontSize: { xs: "0.95rem", sm: "1.025rem" },
-            }}
-          >
-            Welcome to <strong>Kerala Lottery Results Today</strong> (केरल लॉटरी के नतीजे / கேரளா லாட்டரி குலுக்கல்), your trusted portal for daily live updates. The Kerala state lottery draws are held every afternoon live at Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram.
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: "#374151",
-              mb: 2.5,
-              lineHeight: 1.8,
-              fontSize: { xs: "0.95rem", sm: "1.025rem" },
-            }}
-          >
-            The live streaming starts at 2:55 PM, and results are announced on national television networks at 3:00 PM. If you miss the live broadcast, the complete official Kerala lottery result chart and winning numbers list are updated here at 4:00 PM.
-          </Typography>
-
-          {/* Bookmark & Domain Callout */}
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 2.5,
-              borderRadius: "12px",
-              bgcolor: "#F0FDF4",
-              border: "1px solid #BBF7D0",
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-              mb: 2.5,
-            }}
-          >
-            <BookmarkBorderIcon sx={{ color: "#16A34A", fontSize: 28, display: { xs: "none", sm: "block" } }} />
-            <Typography variant="body2" sx={{ color: "#166534", lineHeight: 1.6, fontWeight: 500 }}>
-              Bookmark our domain <strong>Kerala Lottery Results Today</strong> (
-              <Link
-                href="https://www.keralalotteryresultstoday.in/"
-                style={{ color: "#15803D", fontWeight: 800, textDecoration: "underline" }}
-              >
-                https://www.keralalotteryresultstoday.in/
-              </Link>
-              ) to instantly access today&apos;s winning draw number, view yesterday&apos;s results, or download the historical monthly charts.
-            </Typography>
-          </Paper>
-        </Box>
-
-        {/* Official Kerala Lottery Weekly Draw Schedule & Prizes Table */}
-        <Box sx={{ mb: 4.5 }}>
-          <Typography
-            variant="h5"
-            component="h3"
-            sx={{ fontWeight: 800, color: "#0B3C5D", mb: 1 }}
-          >
-            Kerala Lottery Weekly Draw Schedule &amp; Prizes
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#6B7280", mb: 2 }}>
-            The Kerala State Lottery Department runs seven different weekly lotteries. Match your ticket code and draw number using our official weekly schedule:
-          </Typography>
-
-          <Paper
-            elevation={0}
-            sx={{
-              borderRadius: "12px",
-              border: "1px solid #E5E7EB",
+              maxWidth: 860,
+              mx: "auto",
+              mb: 5,
+              borderRadius: "20px",
               overflow: "hidden",
-              mb: 2,
+              border: "1px solid #E2E8F0",
+              bgcolor: "#F8FAFC",
+              p: { xs: 1.5, sm: 2.5 },
+              boxShadow: "0 8px 30px rgba(0, 0, 0, 0.04)",
             }}
           >
-            <TableContainer>
-              <Table size="small">
-                <TableHead sx={{ bgcolor: "#F8FAFC" }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.5 }}>
-                      Lottery Name
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.5 }}>
-                      Day of Draw
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.5 }}>
-                      Ticket Code
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.5 }}>
-                      1st Prize Amount
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.5 }}>
-                      Ticket Cost
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {[
-                    { name: "BHAGYATHARA", day: "Monday", code: "BT", prize: "₹1 Crore", cost: "₹50", slug: "bhagyathara" },
-                    { name: "STHREE-SAKTHI", day: "Tuesday", code: "SS", prize: "₹1 Crore", cost: "₹50", slug: "sthreesakthi" },
-                    { name: "DHANALEKSHMI", day: "Wednesday", code: "DL", prize: "₹1 Crore", cost: "₹50", slug: "dhanalekshmi" },
-                    { name: "KARUNYA PLUS", day: "Thursday", code: "KN", prize: "₹1 Crore", cost: "₹50", slug: "karunyaplus" },
-                    { name: "SUVARNA KERALAM", day: "Friday", code: "SK", prize: "₹1 Crore", cost: "₹50", slug: "suvarnakeralam" },
-                    { name: "KARUNYA", day: "Saturday", code: "KR", prize: "₹1 Crore", cost: "₹50", slug: "karunya" },
-                    { name: "SAMRUDHI", day: "Sunday", code: "SM", prize: "₹1 Crore", cost: "₹50", slug: "samrudhi" },
-                  ].map((row) => (
-                    <TableRow key={row.code} hover>
-                      <TableCell sx={{ fontWeight: 700 }}>
-                        <Link
-                          href={`/${row.slug}`}
-                          style={{ color: "#0B3C5D", textDecoration: "none", fontWeight: 700 }}
-                        >
-                          {row.name}
-                        </Link>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5, px: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <CalendarMonthIcon sx={{ color: "#0B3C5D", fontSize: 20 }} />
+                <Typography sx={{ fontWeight: 800, color: "#0B3C5D", fontSize: "0.88rem" }}>
+                  Weekly Schedule &amp; Results Infographic Poster
+                </Typography>
+              </Box>
+              <Chip
+                label="Official Chart"
+                size="small"
+                sx={{ bgcolor: "#EFF6FF", color: "#1D4ED8", fontWeight: 700, fontSize: "0.7rem" }}
+              />
+            </Box>
+
+            <Box
+              component="img"
+              src="/kerala-lottery-weekly-draw-schedule.jpg"
+              alt="Kerala State Lottery Weekly Draw Schedule and Results Chart - Monday to Sunday (Bhagyathara, Sthree Sakthi, Dhanalekshmi, Karunya Plus, Suvarna Keralam, Karunya, Samrudhi)"
+              loading="lazy"
+              sx={{
+                width: "100%",
+                height: "auto",
+                maxHeight: 560,
+                objectFit: "contain",
+                borderRadius: "14px",
+                bgcolor: "#FFFFFF",
+              }}
+            />
+          </Box>
+
+          {/* 3. Welcome & Streaming Details + Verified Bookmark Callout */}
+          <Box sx={{ mb: 5 }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#334155",
+                mb: 2,
+                lineHeight: 1.8,
+                fontSize: { xs: "0.98rem", sm: "1.05rem" },
+              }}
+            >
+              Welcome to <strong>Kerala Lottery Results Today</strong> (केरल लॉटरी के नतीजे / கேரளா லாட்டரி குலுக்கல்), your trusted platform for instant daily draw updates. All draws are conducted by authorized lottery officials live at Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram.
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#334155",
+                mb: 3,
+                lineHeight: 1.8,
+                fontSize: { xs: "0.98rem", sm: "1.05rem" },
+              }}
+            >
+              The live streaming commences at <strong>2:55 PM IST</strong>, and winning numbers are drawn live starting at 3:00 PM. Following the draw conclusion, the full official Kerala lottery result chart and signed Gazette PDF are uploaded at <strong>4:00 PM IST</strong>.
+            </Typography>
+
+            {/* Bookmark & Verified Domain Callout Card */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 2.2, sm: 2.8 },
+                borderRadius: "18px",
+                background: "linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%)",
+                border: "1.5px solid #A7F3D0",
+                boxShadow: "0 6px 22px rgba(16, 185, 129, 0.08)",
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "12px",
+                  bgcolor: "#059669",
+                  display: { xs: "none", sm: "flex" },
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#FFFFFF",
+                  flexShrink: 0,
+                }}
+              >
+                <BookmarkBorderIcon sx={{ fontSize: 24 }} />
+              </Box>
+
+              <Box>
+                <Typography variant="subtitle2" sx={{ color: "#065F46", fontWeight: 800, fontSize: "0.95rem", mb: 0.3 }}>
+                  Official Verified Bookmark Portal
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#166534", lineHeight: 1.6, fontWeight: 500, fontSize: "0.88rem" }}>
+                  Save and bookmark{" "}
+                  <Link
+                    href="https://www.keralalotteryresultstoday.in/"
+                    style={{ color: "#047857", fontWeight: 800, textDecoration: "underline" }}
+                  >
+                    https://www.keralalotteryresultstoday.in/
+                  </Link>{" "}
+                  for daily live prize updates, yesterday&apos;s draw archives, and instant ticket barcode scanning.
+                </Typography>
+              </Box>
+            </Paper>
+          </Box>
+
+          {/* 4. Official Weekly Draw Schedule & Prizes (Modern Glass Table) */}
+          <Box sx={{ mb: 5, pt: 3, borderTop: "1px solid #F1F5F9" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
+              <Box>
+                <Typography
+                  variant="h5"
+                  component="h3"
+                  sx={{ fontWeight: 900, color: "#0A2540", letterSpacing: "-0.02em" }}
+                >
+                  Kerala Lottery Weekly Draw Schedule &amp; Prizes
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#64748B", mt: 0.5 }}>
+                  The Kerala State Lottery Department runs seven regular weekly lotteries across Monday to Sunday.
+                </Typography>
+              </Box>
+              <Chip
+                icon={<MilitaryTechIcon sx={{ color: "#D97706 !important" }} />}
+                label="1st Prize: ₹1 Crore Guaranteed"
+                sx={{ bgcolor: "#FEF3C7", color: "#92400E", fontWeight: 800, border: "1px solid #FDE68A" }}
+              />
+            </Box>
+
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: "18px",
+                border: "1px solid #E2E8F0",
+                overflow: "hidden",
+                mb: 2.5,
+                boxShadow: "0 4px 18px rgba(11, 60, 93, 0.04)",
+              }}
+            >
+              <TableContainer>
+                <Table size="medium">
+                  <TableHead sx={{ bgcolor: "#F8FAFC" }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.8, fontSize: "0.85rem" }}>
+                        LOTTERY NAME
                       </TableCell>
-                      <TableCell sx={{ color: "#374151" }}>{row.day}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={row.code}
-                          size="small"
-                          sx={{ fontWeight: 800, bgcolor: "#EFF6FF", color: "#1D4ED8", borderRadius: "4px" }}
-                        />
+                      <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.8, fontSize: "0.85rem" }}>
+                        DRAW DAY
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: "#15803D" }}>{row.prize}</TableCell>
-                      <TableCell sx={{ color: "#4B5563" }}>{row.cost}</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.8, fontSize: "0.85rem" }}>
+                        CODE
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.8, fontSize: "0.85rem" }}>
+                        1ST PRIZE JACKPOT
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.8, fontSize: "0.85rem" }}>
+                        TICKET PRICE
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: "#0B3C5D", py: 1.8, fontSize: "0.85rem", textAlign: "right" }}>
+                        ACTION
+                      </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
+                  </TableHead>
+                  <TableBody>
+                    {[
+                      { name: "BHAGYATHARA", day: "Monday", code: "BT", prize: "₹1 Crore", cost: "₹50", slug: "bhagyathara" },
+                      { name: "STHREE-SAKTHI", day: "Tuesday", code: "SS", prize: "₹1 Crore", cost: "₹50", slug: "sthreesakthi" },
+                      { name: "DHANALEKSHMI", day: "Wednesday", code: "DL", prize: "₹1 Crore", cost: "₹50", slug: "dhanalekshmi" },
+                      { name: "KARUNYA PLUS", day: "Thursday", code: "KN", prize: "₹1 Crore", cost: "₹50", slug: "karunyaplus" },
+                      { name: "SUVARNA KERALAM", day: "Friday", code: "SK", prize: "₹1 Crore", cost: "₹50", slug: "suvarnakeralam" },
+                      { name: "KARUNYA", day: "Saturday", code: "KR", prize: "₹1 Crore", cost: "₹50", slug: "karunya" },
+                      { name: "SAMRUDHI", day: "Sunday", code: "SM", prize: "₹1 Crore", cost: "₹50", slug: "samrudhi" },
+                    ].map((row, idx) => (
+                      <TableRow
+                        key={row.code}
+                        sx={{
+                          bgcolor: idx % 2 === 1 ? "#FAFCFF" : "#FFFFFF",
+                          transition: "background-color 0.15s ease",
+                          "&:hover": { bgcolor: "#F0F7FF" },
+                        }}
+                      >
+                        <TableCell sx={{ fontWeight: 800, py: 1.8 }}>
+                          <Link
+                            href={`/${row.slug}`}
+                            style={{
+                              color: "#0B3C5D",
+                              textDecoration: "none",
+                              fontWeight: 800,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            {row.name}
+                            <ArrowForwardIcon sx={{ fontSize: 15, color: "#2563EB" }} />
+                          </Link>
+                        </TableCell>
+                        <TableCell sx={{ color: "#334155", fontWeight: 600 }}>{row.day}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={row.code}
+                            size="small"
+                            sx={{
+                              fontWeight: 800,
+                              bgcolor: "#EFF6FF",
+                              color: "#1D4ED8",
+                              borderRadius: "8px",
+                              border: "1px solid #BFDBFE",
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={row.prize}
+                            size="small"
+                            icon={<EmojiEventsIcon sx={{ fontSize: "14px !important", color: "#15803D !important" }} />}
+                            sx={{
+                              fontWeight: 800,
+                              bgcolor: "#DCFCE7",
+                              color: "#15803D",
+                              borderRadius: "8px",
+                              border: "1px solid #86EFAC",
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ color: "#475569", fontWeight: 700 }}>{row.cost}</TableCell>
+                        <TableCell sx={{ textAlign: "right" }}>
+                          <Button
+                            component={Link}
+                            href={`/${row.slug}`}
+                            size="small"
+                            variant="outlined"
+                            sx={{
+                              textTransform: "none",
+                              borderRadius: "8px",
+                              fontWeight: 700,
+                              fontSize: "0.78rem",
+                              py: 0.4,
+                              px: 1.4,
+                              borderColor: "#CBD5E1",
+                              color: "#0B3C5D",
+                              "&:hover": { borderColor: "#0B3C5D", bgcolor: "rgba(11, 60, 93, 0.04)" },
+                            }}
+                          >
+                            View Result
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
 
-          <Typography
-            variant="caption"
-            sx={{
-              color: "#6B7280",
-              display: "block",
-              fontStyle: "italic",
-              bgcolor: "#F9FAFB",
-              p: 1.5,
-              borderRadius: "8px",
-              border: "1px solid #F3F4F6",
-            }}
-          >
-            (Note: Previous lotteries from the 2020–2025 cycle, such as Fifty-Fifty, Win-Win, Nirmal, and Akshaya, have been updated in our system to reflect the current 2026 active draw roster).
-          </Typography>
-        </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.2,
+                p: 1.8,
+                borderRadius: "12px",
+                bgcolor: "#F8FAFC",
+                border: "1px solid #E2E8F0",
+              }}
+            >
+              <InfoOutlinedIcon sx={{ color: "#64748B", fontSize: 20 }} />
+              <Typography variant="caption" sx={{ color: "#475569", lineHeight: 1.5, fontSize: "0.8rem" }}>
+                <strong>2026 Active Roster Note:</strong> Previous lotteries from earlier cycles (Fifty-Fifty, Win-Win, Nirmal, Akshaya) have transitioned into the 2026 series (Samrudhi, Suvarna Keralam, Dhanalekshmi, Bhagyathara).
+              </Typography>
+            </Box>
+          </Box>
 
-        {/* Prize Structure & Consolation */}
-        <Box sx={{ mb: 4.5, pt: 3, borderTop: "1px solid #F3F4F6" }}>
-          <Typography
-            variant="h5"
-            component="h3"
-            sx={{ fontWeight: 800, color: "#0B3C5D", mb: 1 }}
-          >
-            Understanding the Ticket Prize &amp; Consolation Structure
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: "#4B5563", mb: 2.5, lineHeight: 1.7 }}
-          >
-            Kerala (KL) lotteries are paper raffle tickets printed with a distinct{" "}
-            <strong>Alphabetical Series Code</strong> followed by a{" "}
-            <strong>6-digit number</strong> (e.g., <code>BT 123456</code>).
-          </Typography>
+          {/* 5. Understanding Ticket Prize & Consolation Structure */}
+          <Box sx={{ mb: 5, pt: 3, borderTop: "1px solid #F1F5F9" }}>
+            <Typography
+              variant="h5"
+              component="h3"
+              sx={{ fontWeight: 900, color: "#0A2540", mb: 1, letterSpacing: "-0.02em" }}
+            >
+              Understanding the Ticket Prize &amp; Consolation Structure
+            </Typography>
+            <Typography variant="body1" sx={{ color: "#475569", mb: 3, lineHeight: 1.7 }}>
+              Kerala State Lotteries are authentic paper tickets containing a <strong>2-letter Alphabetical Series Code</strong> followed by a <strong>6-digit number</strong> (e.g., <code>BT 123456</code>).
+            </Typography>
 
-          <Grid container spacing={2.5}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2.5,
-                  borderRadius: "14px",
-                  bgcolor: "#FFFDF0",
-                  border: "1.5px solid #FDE68A",
-                  height: "100%",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                  <MilitaryTechIcon sx={{ color: "#D97706", fontSize: 24 }} />
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#92400E" }}>
-                    1st Prize (Jackpot Winning Match)
-                  </Typography>
-                </Box>
-                <Typography variant="body2" sx={{ color: "#78350F", lineHeight: 1.65 }}>
-                  Awarded exclusively to the exact alphabetical series letter and 6-digit number combination drawn (e.g., <strong>BT 123456</strong>).
-                </Typography>
-              </Paper>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2.5,
-                  borderRadius: "14px",
-                  bgcolor: "#EFF6FF",
-                  border: "1.5px solid #BFDBFE",
-                  height: "100%",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                  <EmojiEventsIcon sx={{ color: "#2563EB", fontSize: 24 }} />
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1E40AF" }}>
-                    Consolation Prize (₹5,000)
-                  </Typography>
-                </Box>
-                <Typography variant="body2" sx={{ color: "#1E3A8A", lineHeight: 1.65 }}>
-                  Awarded to ticket holders who hold the exact same 6-digit winning number across all remaining non-winning series letters (e.g., <strong>[AA-ZZ except BT] 123456</strong>).
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Box>
-
-        {/* Kerala State Bumper Lotteries Seasonal Calendar */}
-        <Box sx={{ mb: 4.5, pt: 3, borderTop: "1px solid #F3F4F6" }}>
-          <Typography
-            variant="h5"
-            component="h3"
-            sx={{ fontWeight: 800, color: "#0B3C5D", mb: 1 }}
-          >
-            Kerala State Bumper Lotteries
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#6B7280", mb: 2 }}>
-            Beyond the daily draws, massive festival jackpots are organized throughout the year. You can download the full bumper result lists right here when drawn:
-          </Typography>
-
-          <Grid container spacing={2}>
-            {[
-              { month: "January", name: "Christmas New Year Bumper", slug: "christmas-new-year-bumper", jackpot: "₹20 Crore" },
-              { month: "March", name: "Summer Bumper", slug: "summer-bumper", jackpot: "₹10 Crore" },
-              { month: "May", name: "Vishu Bumper", slug: "vishu-bumper", jackpot: "₹12 Crore" },
-              { month: "July", name: "Monsoon Bumper", slug: "monsoon-bumper", jackpot: "₹10 Crore" },
-              { month: "September", name: "Thiruvonam Bumper", slug: "thiruvonam-bumper", jackpot: "₹25 Crore" },
-              { month: "November", name: "Pooja Bumper", slug: "pooja-bumper", jackpot: "₹12 Crore" },
-            ].map((b, idx) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
+            <Grid container spacing={2.5}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Paper
-                  variant="outlined"
+                  elevation={0}
                   sx={{
-                    p: 2,
-                    borderRadius: "10px",
-                    bgcolor: "#FFFFFF",
-                    border: "1px solid #E5E7EB",
-                    transition: "all 0.15s ease",
-                    "&:hover": { borderColor: "#0B3C5D", transform: "translateY(-2px)" },
+                    p: 3,
+                    borderRadius: "20px",
+                    background: "linear-gradient(135deg, #FFFDF5 0%, #FEF9C3 100%)",
+                    border: "1.5px solid #FDE68A",
+                    boxShadow: "0 6px 20px rgba(217, 119, 6, 0.08)",
+                    height: "100%",
                   }}
                 >
-                  <Typography variant="caption" sx={{ color: "#D97706", fontWeight: 800, textTransform: "uppercase" }}>
-                    📅 {b.month} Draw
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 1.5 }}>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "10px",
+                        bgcolor: "#F59E0B",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      <MilitaryTechIcon sx={{ fontSize: 24 }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#92400E", fontSize: "1.05rem" }}>
+                        1st Prize (Jackpot Winning Match)
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "#B45309", fontWeight: 700 }}>
+                        Exact Series + 6-Digit Number
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography variant="body2" sx={{ color: "#78350F", lineHeight: 1.65, mb: 2 }}>
+                    Awarded exclusively to the single ticket that matches both the exact alphabetical series letter code and the 6-digit number drawn by the machine.
                   </Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#111827", mt: 0.25 }}>
-                    <Link href={`/${b.slug}`} style={{ color: "#0B3C5D", textDecoration: "none" }}>
-                      {b.name}
-                    </Link>
+
+                  <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, bgcolor: "#FFFFFF", px: 2, py: 0.8, borderRadius: "10px", border: "1px solid #FCD34D" }}>
+                    <Typography sx={{ fontFamily: "monospace", fontWeight: 900, color: "#92400E", fontSize: "0.95rem" }}>
+                      Example: BT 123456
+                    </Typography>
+                    <Chip label="₹1,00,00,000" size="small" sx={{ bgcolor: "#FEF3C7", color: "#92400E", fontWeight: 800 }} />
+                  </Box>
+                </Paper>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: "20px",
+                    background: "linear-gradient(135deg, #F8FAFF 0%, #EFF6FF 100%)",
+                    border: "1.5px solid #BFDBFE",
+                    boxShadow: "0 6px 20px rgba(37, 99, 235, 0.08)",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 1.5 }}>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "10px",
+                        bgcolor: "#2563EB",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      <EmojiEventsIcon sx={{ fontSize: 24 }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1E40AF", fontSize: "1.05rem" }}>
+                        Consolation Prize (₹5,000 Each)
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "#1D4ED8", fontWeight: 700 }}>
+                        Matching 6 Digits in Remaining Series
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography variant="body2" sx={{ color: "#1E3A8A", lineHeight: 1.65, mb: 2 }}>
+                    Awarded to all ticket holders possessing the exact same 6-digit number across all non-jackpot printed series letters of that draw.
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "#15803D", fontWeight: 700, display: "block", mt: 0.5 }}>
-                    Jackpot: {b.jackpot}
+
+                  <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, bgcolor: "#FFFFFF", px: 2, py: 0.8, borderRadius: "10px", border: "1px solid #BFDBFE" }}>
+                    <Typography sx={{ fontFamily: "monospace", fontWeight: 900, color: "#1E40AF", fontSize: "0.95rem" }}>
+                      Example: [Other Series] 123456
+                    </Typography>
+                    <Chip label="₹5,000 Payout" size="small" sx={{ bgcolor: "#DBEAFE", color: "#1E40AF", fontWeight: 800 }} />
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* 6. Kerala State Bumper Lotteries (6 Seasonal Editions) */}
+          <Box sx={{ mb: 5, pt: 3, borderTop: "1px solid #F1F5F9" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
+              <Box>
+                <Typography
+                  variant="h5"
+                  component="h3"
+                  sx={{ fontWeight: 900, color: "#0A2540", letterSpacing: "-0.02em" }}
+                >
+                  Kerala State Bumper Lotteries Seasonal Calendar
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#64748B", mt: 0.5 }}>
+                  Massive festive bumper draws held throughout the year with jackpots ranging up to ₹25 Crore.
+                </Typography>
+              </Box>
+            </Box>
+
+            <Grid container spacing={2}>
+              {[
+                { month: "January", emoji: "🎄", name: "Christmas New Year Bumper", slug: "christmas-new-year-bumper", jackpot: "₹20 Crore", color: "#DC2626", bg: "#FEF2F2" },
+                { month: "March", emoji: "☀️", name: "Summer Bumper", slug: "summer-bumper", jackpot: "₹10 Crore", color: "#D97706", bg: "#FFFBEB" },
+                { month: "May", emoji: "🌸", name: "Vishu Bumper", slug: "vishu-bumper", jackpot: "₹12 Crore", color: "#7C3AED", bg: "#F5F3FF" },
+                { month: "July", emoji: "🌧️", name: "Monsoon Bumper", slug: "monsoon-bumper", jackpot: "₹10 Crore", color: "#0284C7", bg: "#F0F9FF" },
+                { month: "September", emoji: "🌼", name: "Thiruvonam Bumper", slug: "thiruvonam-bumper", jackpot: "₹25 Crore", color: "#059669", bg: "#ECFDF5" },
+                { month: "November", emoji: "🪔", name: "Pooja Bumper", slug: "pooja-bumper", jackpot: "₹12 Crore", color: "#EA580C", bg: "#FFF7ED" },
+              ].map((b, idx) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2.5,
+                      borderRadius: "18px",
+                      bgcolor: "#FFFFFF",
+                      border: "1px solid #E2E8F0",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      transition: "all 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
+                      "&:hover": {
+                        transform: "translateY(-3px)",
+                        boxShadow: "0 10px 25px rgba(11, 60, 93, 0.08)",
+                        borderColor: b.color,
+                      },
+                    }}
+                  >
+                    <Box>
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+                        <Chip
+                          label={`${b.emoji} ${b.month} Draw`}
+                          size="small"
+                          sx={{
+                            fontWeight: 800,
+                            bgcolor: b.bg,
+                            color: b.color,
+                            fontSize: "0.72rem",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Typography sx={{ fontWeight: 900, color: "#15803D", fontSize: "0.95rem" }}>
+                          {b.jackpot}
+                        </Typography>
+                      </Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#0A2540", mt: 0.5, lineHeight: 1.3 }}>
+                        <Link href={`/${b.slug}`} style={{ color: "#0A2540", textDecoration: "none" }}>
+                          {b.name}
+                        </Link>
+                      </Typography>
+                    </Box>
+
+                    <Button
+                      component={Link}
+                      href={`/${b.slug}`}
+                      size="small"
+                      endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
+                      sx={{
+                        mt: 2,
+                        textTransform: "none",
+                        fontWeight: 700,
+                        color: "#0B3C5D",
+                        p: 0,
+                        justifyContent: "flex-start",
+                        "&:hover": { bgcolor: "transparent", color: "#2563EB" },
+                      }}
+                    >
+                      View Bumper Details
+                    </Button>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
+          {/* 7. Safety & Anti-Fraud Advisory */}
+          <Box
+            sx={{
+              mb: 5,
+              p: { xs: 2.5, sm: 3.5 },
+              borderRadius: "22px",
+              bgcolor: "#FFFBEB",
+              border: "1.5px solid #FCD34D",
+              boxShadow: "0 8px 25px rgba(217, 119, 6, 0.06)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2 }}>
+              <SecurityIcon sx={{ color: "#D97706", fontSize: 28 }} />
+              <Typography
+                variant="h6"
+                component="h3"
+                sx={{
+                  fontWeight: 900,
+                  color: "#92400E",
+                  fontSize: { xs: "1.1rem", sm: "1.25rem" },
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Government Consumer Protection &amp; Anti-Fraud Advisory
+              </Typography>
+            </Box>
+
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.2,
+                    borderRadius: "14px",
+                    bgcolor: "#FFFFFF",
+                    border: "1px solid #FDE68A",
+                    height: "100%",
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#DC2626", mb: 0.6, display: "flex", alignItems: "center", gap: 0.8 }}>
+                    🚫 No Online Sales
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.86rem" }}>
+                    The Government of Kerala strictly prohibits digital/online sales of lottery tickets. Physical paper tickets are the only valid legal format.
                   </Typography>
                 </Paper>
               </Grid>
-            ))}
-          </Grid>
-        </Box>
 
-        {/* Kerala Lottery Ticket Purchasing & Anti-Fraud Advisory */}
-        <Box
-          sx={{
-            mb: 4.5,
-            p: { xs: 2.5, sm: 3 },
-            borderRadius: "16px",
-            bgcolor: "#FFFBEB",
-            border: "1.5px solid #FCD34D",
-            boxShadow: "0 4px 14px rgba(217, 119, 6, 0.06)",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 1.5 }}>
-            <SecurityIcon sx={{ color: "#D97706", fontSize: 26 }} />
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.2,
+                    borderRadius: "14px",
+                    bgcolor: "#FFFFFF",
+                    border: "1px solid #FDE68A",
+                    height: "100%",
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#D97706", mb: 0.6, display: "flex", alignItems: "center", gap: 0.8 }}>
+                    ⚠️ Beware of Fake Apps &amp; Schemes
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.86rem" }}>
+                    Websites or unauthorized portals claiming digital purchases or unofficial &ldquo;Dear Lottery&rdquo; predictions are financial frauds.
+                  </Typography>
+                </Paper>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.2,
+                    borderRadius: "14px",
+                    bgcolor: "#FFFFFF",
+                    border: "1px solid #FDE68A",
+                    height: "100%",
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#059669", mb: 0.6, display: "flex", alignItems: "center", gap: 0.8 }}>
+                    🛒 Purchase From Registered Agents
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.86rem" }}>
+                    Always buy your genuine paper tickets directly from authorized offline retailers across Kerala at the standard ₹50 price.
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* 8. How to Claim Your Prize Money (Tiered Roadmap) */}
+          <Box sx={{ mb: 5, pt: 3, borderTop: "1px solid #F1F5F9" }}>
             <Typography
-              variant="h6"
+              variant="h5"
               component="h3"
+              sx={{ fontWeight: 900, color: "#0A2540", mb: 1, letterSpacing: "-0.02em" }}
+            >
+              How to Claim Your Prize Money
+            </Typography>
+            <Typography variant="body1" sx={{ color: "#475569", mb: 3, lineHeight: 1.7 }}>
+              Prize claims must be officially filed within <strong>90 days</strong> from the draw date. Sign the back of your ticket immediately upon winning.
+            </Typography>
+
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              {[
+                {
+                  tier: "Tier 1: Up to ₹5,000",
+                  office: "Local Retail Agents",
+                  desc: "Claimable instantly directly at any authorized retail lottery shop across Kerala upon ticket handover.",
+                  icon: <StorefrontIcon sx={{ color: "#059669" }} />,
+                  badge: "Instant Cash Payout",
+                },
+                {
+                  tier: "Tier 2: ₹5,001 – ₹1,00,000",
+                  office: "District Lottery Offices",
+                  desc: "Must be submitted at any District Lottery Office across Kerala with original identity proofs.",
+                  icon: <AccountBalanceWalletIcon sx={{ color: "#2563EB" }} />,
+                  badge: "District Office Verification",
+                },
+                {
+                  tier: "Tier 3: Above ₹1,00,000",
+                  office: "State Directorate Office",
+                  desc: "Must be presented at the Directorate of Kerala State Lotteries at Vikas Bhavan, Thiruvananthapuram.",
+                  icon: <AccountBalanceIcon sx={{ color: "#7C3AED" }} />,
+                  badge: "Direct Bank Transfer",
+                },
+              ].map((c, idx) => (
+                <Grid size={{ xs: 12, md: 4 }} key={idx}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2.5,
+                      borderRadius: "16px",
+                      bgcolor: "#F8FAFC",
+                      border: "1px solid #E2E8F0",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.2 }}>
+                        {c.icon}
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0A2540", fontSize: "0.95rem" }}>
+                          {c.tier}
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.5, fontSize: "0.85rem", mb: 1.5 }}>
+                        {c.desc}
+                      </Typography>
+                    </Box>
+                    <Chip label={c.badge} size="small" sx={{ bgcolor: "#FFFFFF", color: "#0F172A", fontWeight: 700, border: "1px solid #CBD5E1", alignSelf: "flex-start" }} />
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+
+            {/* Tax TDS Regulation */}
+            <Paper
+              elevation={0}
               sx={{
-                fontWeight: 800,
-                color: "#92400E",
-                fontSize: { xs: "1.05rem", sm: "1.2rem" },
+                p: 2.5,
+                borderRadius: "16px",
+                bgcolor: "#FEF2F2",
+                border: "1px solid #FECACA",
+                mb: 3,
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 1.5,
               }}
             >
-              Kerala Lottery Ticket Purchasing &amp; Safety Advisory
+              <GavelIcon sx={{ color: "#DC2626", mt: 0.2 }} />
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#991B1B", mb: 0.3 }}>
+                  Mandatory Tax Deduction at Source (TDS):
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#7F1D1D", lineHeight: 1.6, fontSize: "0.88rem" }}>
+                  All prize payouts exceeding ₹10,000 attract a mandatory flat <strong>30% TDS</strong> under Indian Income Tax Act regulations. A valid PAN card and active bank account are mandatory for payouts.
+                </Typography>
+              </Box>
+            </Paper>
+
+            {/* Required Documents Checklist */}
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#0A2540", mb: 1.5 }}>
+              Mandatory Documents Checklist for Claim Verification:
+            </Typography>
+            <Grid container spacing={1.5}>
+              {[
+                "Original winning ticket signed on the back with your contact details",
+                "Kerala State Lottery official claim application form with passport photographs",
+                "Government Photo ID Proof (Aadhaar Card, PAN Card, Passport, or Voter ID)",
+                "Bank Account passbook / cancelled cheque for direct RTGS/NEFT electronic transfer",
+              ].map((doc, idx) => (
+                <Grid size={{ xs: 12, sm: 6 }} key={idx}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.2,
+                      bgcolor: "#F8FAFC",
+                      p: 1.8,
+                      borderRadius: "12px",
+                      border: "1px solid #E2E8F0",
+                    }}
+                  >
+                    <CheckCircleIcon sx={{ color: "#059669", fontSize: 20, flexShrink: 0 }} />
+                    <Typography variant="body2" sx={{ color: "#334155", fontWeight: 600, fontSize: "0.86rem" }}>
+                      {doc}
+                    </Typography>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
+          {/* 9. About Kerala State Lottery (History & Welfare Impact) */}
+          <Box sx={{ mb: 5, pt: 3, borderTop: "1px solid #F1F5F9" }}>
+            <Typography
+              variant="h5"
+              component="h3"
+              sx={{ fontWeight: 900, color: "#0A2540", mb: 1, letterSpacing: "-0.02em" }}
+            >
+              About the Kerala State Lottery (History &amp; Social Welfare)
+            </Typography>
+            <Typography variant="body1" sx={{ color: "#475569", lineHeight: 1.8, fontSize: "0.95rem" }}>
+              Established over 54 years ago in 1967 under the vision of then Finance Minister <strong>P.K. Kunju Sahib</strong>, the Kerala State Lottery was the very first government-operated lottery system in India. The initiative directly funds state welfare schemes, healthcare subsidies (Karunya Benevolent Fund), government hospitals, and employment for thousands of differently-abled retail agents.
             </Typography>
           </Box>
 
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2,
-                  borderRadius: "12px",
-                  bgcolor: "#FFFFFF",
-                  border: "1px solid #FDE68A",
-                  height: "100%",
-                }}
+          {/* 10. Frequently Asked Questions (Collapsible Modern Accordions) */}
+          <Box sx={{ pt: 3, borderTop: "1px solid #F1F5F9" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2.5 }}>
+              <HelpIcon sx={{ color: "#0B3C5D", fontSize: 26 }} />
+              <Typography
+                variant="h5"
+                component="h3"
+                sx={{ fontWeight: 900, color: "#0A2540", letterSpacing: "-0.02em" }}
               >
-                <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 800, color: "#B45309", mb: 0.5 }}
-                >
-                  🚫 No Online Sales
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.875rem" }}
-                >
-                  The Government of Kerala does not sell lottery tickets online. Any website or mobile app claiming digital sales is strictly unauthorized.
-                </Typography>
-              </Paper>
-            </Grid>
+                Frequently Asked Questions (Kerala Lottery Queries)
+              </Typography>
+            </Box>
 
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2,
-                  borderRadius: "12px",
-                  bgcolor: "#FFFFFF",
-                  border: "1px solid #FDE68A",
-                  height: "100%",
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 800, color: "#DC2626", mb: 0.5 }}
-                >
-                  ⚠️ Beware of Frauds
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.875rem" }}
-                >
-                  Websites or mobile apps offering digital sales of Kerala lotteries or &ldquo;Dear Lottery&rdquo; charts are financial scams.
-                </Typography>
-              </Paper>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2,
-                  borderRadius: "12px",
-                  bgcolor: "#FFFFFF",
-                  border: "1px solid #FDE68A",
-                  height: "100%",
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 800, color: "#059669", mb: 0.5 }}
-                >
-                  🛒 Buy Offline Only
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#78350F", lineHeight: 1.6, fontSize: "0.875rem" }}
-                >
-                  Always purchase your physical paper tickets from a government-authorized offline retail agent. The official ticket price is ₹50.
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Box>
-
-        {/* How to Claim Your Prize Money & Verification Documents */}
-        <Box sx={{ mb: 4.5, pt: 3, borderTop: "1px solid #F3F4F6" }}>
-          <Typography
-            variant="h5"
-            component="h3"
-            sx={{ fontWeight: 800, color: "#0B3C5D", mb: 1 }}
-          >
-            How to Claim Your Prize Money
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#4B5563", mb: 2.5, lineHeight: 1.7 }}>
-            Winnings must be officially claimed within <strong>90 days</strong> from the draw date. Be sure to check your numbers carefully and sign the back of your physical ticket immediately.
-          </Typography>
-
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid size={{ xs: 12, sm: 4 }}>
-              <Paper
-                variant="outlined"
-                sx={{ p: 2, borderRadius: "10px", bgcolor: "#F8FAFC", border: "1px solid #E2E8F0", height: "100%" }}
-              >
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0B3C5D" }}>
-                  Up to ₹5,000
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#475569", mt: 0.5, fontSize: "0.85rem" }}>
-                  Can be claimed directly from any local authorized lottery shop or retail agent across Kerala.
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
-              <Paper
-                variant="outlined"
-                sx={{ p: 2, borderRadius: "10px", bgcolor: "#F8FAFC", border: "1px solid #E2E8F0", height: "100%" }}
-              >
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0B3C5D" }}>
-                  ₹5,001 to ₹1,00,000
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#475569", mt: 0.5, fontSize: "0.85rem" }}>
-                  Must be processed at any District Lottery Office with identity verification.
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
-              <Paper
-                variant="outlined"
-                sx={{ p: 2, borderRadius: "10px", bgcolor: "#F8FAFC", border: "1px solid #E2E8F0", height: "100%" }}
-              >
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0B3C5D" }}>
-                  Above ₹1,00,000
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#475569", mt: 0.5, fontSize: "0.85rem" }}>
-                  Must be submitted to the Directorate of Kerala State Lotteries office, located at Vikas Bhavan P.O., Thiruvananthapuram.
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 2.5,
-              borderRadius: "12px",
-              bgcolor: "#FEF2F2",
-              border: "1px solid #FECACA",
-              mb: 3,
-            }}
-          >
-            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#991B1B", mb: 0.5 }}>
-              Taxation &amp; TDS Deduction:
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#7F1D1D", lineHeight: 1.6 }}>
-              All prize payouts exceeding ₹10,000 attract a mandatory flat <strong>30% Tax Deduction at Source (TDS)</strong> under Indian tax regulations. A valid PAN card is required for verification.
-            </Typography>
-          </Paper>
-
-          {/* Documents Required */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#111827", mb: 1.5 }}>
-            Documents Required for Prize Verification:
-          </Typography>
-          <Grid container spacing={1.5}>
-            {[
-              "Original Winning Ticket (signed on the back)",
-              "Kerala Lottery Prize Claim Form and official declaration form",
-              "Valid Photo Identity Proof (Aadhaar Card, PAN Card, Voter ID, or Passport)",
-              "Bank Account Passbook Copy for direct electronic fund transfer",
-            ].map((doc, idx) => (
-              <Grid size={{ xs: 12, sm: 6 }} key={idx}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, bgcolor: "#F9FAFB", p: 1.5, borderRadius: "8px", border: "1px solid #E5E7EB" }}>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: "#0B3C5D" }}>✓</Typography>
-                  <Typography variant="body2" sx={{ color: "#374151", fontWeight: 500 }}>{doc}</Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* About the Kerala State Lottery */}
-        <Box sx={{ mb: 4.5, pt: 3, borderTop: "1px solid #F3F4F6" }}>
-          <Typography
-            variant="h5"
-            component="h3"
-            sx={{ fontWeight: 800, color: "#0B3C5D", mb: 1 }}
-          >
-            About the Kerala State Lottery
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#4B5563", lineHeight: 1.8 }}>
-            Established 54 years ago in 1967, the Kerala state lottery scheme was envisioned by the then Finance Minister, <strong>P.K. Kunju Sahib</strong>. The initiative was designed to support social welfare programs and provide stable employment. It remains India&apos;s pioneer, fully transparent, government-regulated lottery platform.
-          </Typography>
-        </Box>
-
-        {/* Frequently Asked Questions (Collapsible Accordions) */}
-        <Typography
-          variant="h5"
-          component="h3"
-          sx={{ fontWeight: 800, color: "#0B3C5D", mb: 2.5 }}
-        >
-          Frequently Asked Questions (Kerala Lottery Queries)
-        </Typography>
-
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-          {[
-            {
-              q: "What is Kerala Lottery?",
-              a: "The Kerala State Lottery is India's first government-run paper lottery scheme established in 1967 by the Directorate of Kerala State Lotteries. It operates 7 regular weekly draws and 6 seasonal bumper lotteries with revenue funding state welfare, hospitals, and public health schemes.",
-            },
-            {
-              q: "How to Get Kerala Lottery Ticket & Can You Buy Online?",
-              a: "Kerala lottery tickets can only be purchased in person as physical paper tickets from government-authorized offline lottery agents across Kerala. The Government of Kerala strictly does NOT sell lottery tickets online, and digital online purchase portals are unauthorized.",
-            },
-            {
-              q: "What is the Price of Kerala Lottery Ticket?",
-              a: "The official ticket price for all 7 standard weekly lotteries (Bhagyathara, Sthree-Sakthi, Dhanalekshmi, Karunya Plus, Suvarna Keralam, Karunya, and Samrudhi) is ₹50 per paper ticket. Seasonal bumper lottery tickets range from ₹250 to ₹500 depending on the bumper edition.",
-            },
-            {
-              q: "How to See Kerala Lottery Result Today?",
-              a: "You can see today's Kerala lottery result live right here on Kerala Lottery Results Today (https://www.keralalotteryresultstoday.in/). Live drawing starts at 2:55 PM IST, and complete prize chart breakdown is updated by 4:00 PM IST. You can also use our instant Ticket Checker search tool at the top of the page.",
-            },
-            {
-              q: "How to Download Kerala Lottery Result PDF?",
-              a: "To download the official Kerala lottery result PDF and Government Gazette chart, visit any lottery draw result page on our website and tap 'Download Official PDF'. The PDF format includes all winning ticket numbers from 1st prize down to consolation and 9th prize.",
-            },
-          ].map((faq, idx) => (
-            <Accordion
-              key={idx}
-              elevation={0}
-              sx={{
-                border: "1px solid #E5E7EB",
-                borderRadius: "12px !important",
-                overflow: "hidden",
-                "&:before": { display: "none" },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon sx={{ color: "#0B3C5D" }} />}
-                sx={{
-                  bgcolor: "#F9FAFB",
-                  px: { xs: 2, sm: 3 },
-                  py: 0.5,
-                  "&.Mui-expanded": { bgcolor: "#EBF5FF" },
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <HelpIcon sx={{ color: "#0B3C5D", fontSize: 20 }} />
-                  <Typography
-                    sx={{
-                      fontWeight: 700,
-                      color: "#111827",
-                      fontSize: { xs: "0.9rem", sm: "1rem" },
-                    }}
-                  >
-                    {faq.q}
-                  </Typography>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails
-                sx={{ px: { xs: 2, sm: 3 }, py: 2, bgcolor: "#FFFFFF" }}
-              >
-                <Typography
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {[
+                {
+                  num: "01",
+                  q: "What is Kerala Lottery?",
+                  a: "The Kerala State Lottery is India's first government-run paper lottery scheme established in 1967 by the Directorate of Kerala State Lotteries. It operates 7 regular weekly draws and 6 seasonal bumper lotteries with revenue funding state welfare, hospitals, and public health schemes.",
+                },
+                {
+                  num: "02",
+                  q: "How to Get Kerala Lottery Ticket & Can You Buy Online?",
+                  a: "Kerala lottery tickets can only be purchased in person as physical paper tickets from government-authorized offline lottery agents across Kerala. The Government of Kerala strictly does NOT sell lottery tickets online, and digital online purchase portals are unauthorized.",
+                },
+                {
+                  num: "03",
+                  q: "What is the Price of Kerala Lottery Ticket?",
+                  a: "The official ticket price for all 7 standard weekly lotteries (Bhagyathara, Sthree-Sakthi, Dhanalekshmi, Karunya Plus, Suvarna Keralam, Karunya, and Samrudhi) is ₹50 per paper ticket. Seasonal bumper lottery tickets range from ₹250 to ₹500 depending on the bumper edition.",
+                },
+                {
+                  num: "04",
+                  q: "How to See Kerala Lottery Result Today?",
+                  a: "You can see today's Kerala lottery result live right here on Kerala Lottery Results Today (https://www.keralalotteryresultstoday.in/). Live drawing starts at 2:55 PM IST, and complete prize chart breakdown is updated by 4:00 PM IST. You can also use our instant Ticket Checker search tool at the top of the page.",
+                },
+                {
+                  num: "05",
+                  q: "How to Download Kerala Lottery Result PDF?",
+                  a: "To download the official Kerala lottery result PDF and Government Gazette chart, visit any lottery draw result page on our website and tap 'Download Official PDF'. The PDF format includes all winning ticket numbers from 1st prize down to consolation and 9th prize.",
+                },
+              ].map((faq, idx) => (
+                <Accordion
+                  key={idx}
+                  elevation={0}
                   sx={{
-                    color: "#4B5563",
-                    lineHeight: 1.7,
-                    fontSize: { xs: "0.875rem", sm: "0.95rem" },
+                    border: "1px solid #E2E8F0",
+                    borderRadius: "16px !important",
+                    overflow: "hidden",
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 2px 8px rgba(11, 60, 93, 0.02)",
+                    "&:before": { display: "none" },
+                    "&.Mui-expanded": {
+                      borderColor: "#93C5FD",
+                      boxShadow: "0 6px 20px rgba(11, 60, 93, 0.06)",
+                    },
                   }}
                 >
-                  {faq.a}
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </Box>
-      </Paper>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon sx={{ color: "#0B3C5D" }} />}
+                    sx={{
+                      bgcolor: "#F8FAFC",
+                      px: { xs: 2, sm: 3 },
+                      py: 1,
+                      "&.Mui-expanded": { bgcolor: "#EFF6FF" },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.8 }}>
+                      <Chip
+                        label={faq.num}
+                        size="small"
+                        sx={{
+                          fontWeight: 900,
+                          bgcolor: "#FFFFFF",
+                          color: "#0B3C5D",
+                          border: "1px solid #CBD5E1",
+                          fontSize: "0.72rem",
+                        }}
+                      />
+                      <Typography
+                        sx={{
+                          fontWeight: 800,
+                          color: "#0F172A",
+                          fontSize: { xs: "0.92rem", sm: "1.02rem" },
+                        }}
+                      >
+                        {faq.q}
+                      </Typography>
+                    </Box>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ px: { xs: 2.5, sm: 3.5 }, py: 2.5, bgcolor: "#FFFFFF" }}>
+                    <Typography
+                      sx={{
+                        color: "#475569",
+                        lineHeight: 1.75,
+                        fontSize: { xs: "0.9rem", sm: "0.96rem" },
+                      }}
+                    >
+                      {faq.a}
+                    </Typography>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </Box>
+          </Box>
+        </Paper>
 
       {/* Ticket Search Result Dialog */}
       <Dialog

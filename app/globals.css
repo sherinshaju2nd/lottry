@@ -22,9 +22,12 @@
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   overflow-x: hidden;
   max-width: 100vw;
   width: 100%;
+  touch-action: manipulation;
 }
 
 body {
@@ -33,9 +36,41 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   overflow-x: hidden;
   max-width: 100vw;
   width: 100%;
+  touch-action: manipulation;
+}
+
+/* Prevent mobile browser automatic zoom on input focus (requires >=16px font-size) */
+input,
+textarea,
+select,
+input[type="text"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="email"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="password"],
+[contenteditable="true"],
+.MuiInputBase-input,
+.MuiOutlinedInput-input,
+.MuiFilledInput-input,
+.MuiInput-input {
+  font-size: 16px !important;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+button,
+a {
+  touch-action: manipulation;
 }
 
 /* Micro-interaction & Smooth Transition Tokens */
