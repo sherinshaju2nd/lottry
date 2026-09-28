@@ -16,8 +16,6 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
-import Tooltip from "@mui/material/Tooltip";
-import MicIcon from "@mui/icons-material/Mic";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import HomeIcon from "@mui/icons-material/Home";
@@ -40,6 +38,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
 import SecurityIcon from "@mui/icons-material/Security";
 import ShareIcon from "@mui/icons-material/Share";
 import DescriptionIcon from "@mui/icons-material/Description";
+import LocalCafeIcon from "@mui/icons-material/LocalCafe";
 import AiSocialDigestModal from "@/components/AiSocialDigestModal";
 import {
   WEEKLY_LOTTERIES,
@@ -564,29 +563,32 @@ export default function Navbar() {
               Download App
             </Button>
 
-            {/* Direct Voice Search Mic */}
-            <Tooltip title="Direct Voice Search (സംസാരിച്ച് പരിശോധിക്കുക)">
-              <IconButton
-                onClick={() => {
-                  window.dispatchEvent(
-                    new CustomEvent("open-ai-voice-assistant", {
-                      detail: { startListening: true },
-                    }),
-                  );
-                }}
-                sx={{
-                  color: "#DC2626",
-                  bgcolor: "#FEF2F2",
-                  border: "1px solid #FECACA",
-                  p: 1,
-                  borderRadius: "10px",
-                  transition: "all 0.2s",
-                  "&:hover": { bgcolor: "#FEE2E2", transform: "scale(1.08)" },
-                }}
-              >
-                <MicIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {/* Buy Me a Coffee / Support Button */}
+            <Button
+              component={Link}
+              href="/support"
+              startIcon={<LocalCafeIcon sx={{ fontSize: 18, color: pathname === "/support" ? "#92400E" : "#B45309" }} />}
+              sx={{
+                bgcolor: pathname === "/support" ? "#FDE68A" : "#FFFBEB",
+                color: "#92400E",
+                fontWeight: 800,
+                fontSize: "0.85rem",
+                borderRadius: "10px",
+                px: 1.8,
+                py: 0.8,
+                border: "1px solid #FDE68A",
+                textTransform: "none",
+                transition: "all 0.2s ease",
+                boxShadow: "0 1px 3px rgba(245, 158, 11, 0.15)",
+                "&:hover": {
+                  bgcolor: "#FEF3C7",
+                  transform: "translateY(-1px)",
+                  boxShadow: "0 4px 12px rgba(245, 158, 11, 0.25)",
+                },
+              }}
+            >
+              Support Us ☕
+            </Button>
           </Box>
 
           {/* Mobile Right Controls: App Button & Drawer Toggle */}
@@ -1304,6 +1306,51 @@ export default function Navbar() {
             >
               SUPPORT &amp; LEGAL
             </Typography>
+
+            {/* Buy Me a Coffee / Support */}
+            <Box
+              component={Link}
+              href="/support"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/support" ? "#FEF3C7" : "#FFFBEB",
+                border: "1px solid #FDE68A",
+                mb: 0.8,
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#FEF3C7" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#FEF3C7",
+                  border: "1px solid #F59E0B",
+                  color: "#D97706",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <LocalCafeIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: "0.875rem", fontWeight: 800, color: "#92400E" }}>
+                  Support Us (Buy a Coffee ☕)
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#B45309" }}>
+                  Support future app &amp; server development
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#D97706" }} />
+            </Box>
 
             {/* Contact */}
             <Box

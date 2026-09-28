@@ -96,6 +96,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/support`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/buy-me-a-coffee`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    },
   ];
 
   // 2. Weekly and Bumper lottery archives categories

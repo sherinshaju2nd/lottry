@@ -425,6 +425,24 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
+            href="/support"
+            sx={{
+              color: "#B45309",
+              textDecoration: "none",
+              fontWeight: 800,
+              bgcolor: "#FFFBEB",
+              px: 1,
+              py: 0.3,
+              borderRadius: "6px",
+              border: "1px solid #FDE68A",
+              "&:hover": { color: "#92400E", bgcolor: "#FEF3C7" },
+            }}
+          >
+            ☕ Support Us
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
             href="/contact"
             sx={{
               color: "#4B5563",
