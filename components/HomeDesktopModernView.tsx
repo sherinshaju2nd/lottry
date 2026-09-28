@@ -631,7 +631,8 @@ export default function HomeDesktopModernView({
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 45%, rgba(255, 247, 251, 0.35) 80%, rgba(255, 247, 251, 0.75) 100%)",
+              "linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.52) 35%, rgba(244, 247, 251, 0.88) 75%, #F4F7FB 100%)",
+            backdropFilter: "blur(1.5px)",
             zIndex: 1,
           },
         }}
@@ -654,22 +655,27 @@ export default function HomeDesktopModernView({
             sx={{
               display: { xs: "none", md: "block" },
               position: "absolute",
-              top: { md: 22, lg: 28 },
-              left: { md: 28, lg: 48, xl: 64 },
-              transform: "rotate(-5deg)",
+              top: { md: 20, lg: 24 },
+              left: { md: 24, lg: 40, xl: 56 },
+              transform: "rotate(-3deg)",
               zIndex: 5,
               userSelect: "none",
+              bgcolor: "rgba(255, 255, 255, 0.88)",
+              backdropFilter: "blur(12px)",
+              px: 2.2,
+              py: 1.2,
+              borderRadius: "16px",
+              border: "1px solid rgba(255, 255, 255, 0.95)",
+              boxShadow: "0 4px 20px rgba(11, 60, 93, 0.10)",
             }}
           >
             <Typography
               sx={{
                 fontFamily: "'Caveat', cursive, sans-serif",
                 fontWeight: 700,
-                fontSize: { md: "1.7rem", lg: "2.05rem" },
-                color: "#4A7C99",
+                fontSize: { md: "1.55rem", lg: "1.85rem" },
+                color: "#0B3C5D",
                 lineHeight: 1.15,
-                textShadow:
-                  "0 1px 4px rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.8)",
                 letterSpacing: "0.01em",
               }}
             >
@@ -688,12 +694,19 @@ export default function HomeDesktopModernView({
             sx={{
               display: { xs: "none", md: "flex" },
               position: "absolute",
-              top: { md: 22, lg: 28 },
-              right: { md: 28, lg: 48, xl: 64 },
+              top: { md: 20, lg: 24 },
+              right: { md: 24, lg: 40, xl: 56 },
               flexDirection: "column",
               alignItems: "flex-end",
               zIndex: 5,
               userSelect: "none",
+              bgcolor: "rgba(255, 255, 255, 0.88)",
+              backdropFilter: "blur(12px)",
+              px: 2,
+              py: 1,
+              borderRadius: "16px",
+              border: "1px solid rgba(255, 255, 255, 0.95)",
+              boxShadow: "0 4px 20px rgba(11, 60, 93, 0.10)",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
@@ -754,7 +767,6 @@ export default function HomeDesktopModernView({
                   color: "#0B3C5D",
                   letterSpacing: "-0.02em",
                   lineHeight: 1,
-                  textShadow: "0 1px 3px rgba(255,255,255,0.9)",
                 }}
               >
                 Kerala
@@ -767,7 +779,6 @@ export default function HomeDesktopModernView({
                 color: "#334155",
                 letterSpacing: "0.03em",
                 mt: 0.3,
-                textShadow: "0 1px 3px rgba(255,255,255,0.9)",
               }}
             >
               God&apos;s Own Land
@@ -799,12 +810,12 @@ export default function HomeDesktopModernView({
               sx={{
                 display: "inline-flex",
                 alignItems: "center",
-                bgcolor: "rgba(255, 255, 255, 0.85)",
-                backdropFilter: "blur(12px)",
-                p: "4px",
+                bgcolor: "rgba(255, 255, 255, 0.92)",
+                backdropFilter: "blur(14px)",
+                p: "5px",
                 borderRadius: "32px",
-                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)",
-                border: "1px solid rgba(255, 255, 255, 0.95)",
+                boxShadow: "0 4px 18px rgba(11, 60, 93, 0.12)",
+                border: "1px solid rgba(255, 255, 255, 0.98)",
                 mb: 1.8,
                 gap: 0.5,
               }}
@@ -892,7 +903,7 @@ export default function HomeDesktopModernView({
               component="h1"
               sx={{
                 fontWeight: 900,
-                color: "#0A2540",
+                color: "#062238",
                 fontSize: {
                   xs: "1.85rem",
                   sm: "2.5rem",
@@ -900,8 +911,9 @@ export default function HomeDesktopModernView({
                   lg: "3.2rem",
                 },
                 letterSpacing: "-0.025em",
-                textShadow: "0 1px 4px rgba(255,255,255,0.9)",
-                mb: 0.8,
+                textShadow:
+                  "0 2px 14px rgba(255, 255, 255, 0.95), 0 0 24px rgba(255, 255, 255, 0.85)",
+                mb: 1,
               }}
             >
               {isToday
@@ -909,33 +921,50 @@ export default function HomeDesktopModernView({
                 : "Kerala Lottery Result Yesterday"}
             </Typography>
 
-            {/* Subtitle with dynamic name, code, date & draw time */}
+            {/* Subtitle with dynamic name, code, date & draw time in Frosted Pill */}
             {isLoading ? (
               <Skeleton
                 variant="rounded"
                 width={360}
-                height={26}
+                height={28}
                 sx={{
-                  bgcolor: "rgba(255, 255, 255, 0.45)",
-                  borderRadius: "8px",
+                  bgcolor: "rgba(255, 255, 255, 0.6)",
+                  borderRadius: "20px",
                   mb: 1.2,
                 }}
               />
             ) : (
-              <Typography
-                variant="subtitle1"
+              <Box
                 sx={{
-                  fontWeight: 800,
-                  color: "#1E3A5F",
-                  fontSize: { xs: "0.92rem", sm: "1.1rem", md: "1.18rem" },
-                  textShadow: "0 1px 4px rgba(255,255,255,0.9)",
-                  mb: 0.8,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: "rgba(255, 255, 255, 0.90)",
+                  backdropFilter: "blur(12px)",
+                  px: { xs: 2, sm: 2.8 },
+                  py: { xs: 0.6, sm: 0.75 },
+                  borderRadius: "24px",
+                  border: "1px solid rgba(255, 255, 255, 0.95)",
+                  boxShadow: "0 3px 14px rgba(11, 60, 93, 0.08)",
+                  mb: 1.2,
+                  maxWidth: "95%",
                 }}
               >
-                {currentLotteryName}{" "}
-                {currentDrawNumber ? `(${currentDrawNumber})` : ""} •{" "}
-                {formatFullDate(currentDrawDate)} • {currentDrawTime}
-              </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 800,
+                    color: "#0B3C5D",
+                    fontSize: { xs: "0.88rem", sm: "1.02rem", md: "1.1rem" },
+                    lineHeight: 1.3,
+                    textAlign: "center",
+                  }}
+                >
+                  {currentLotteryName}{" "}
+                  {currentDrawNumber ? `(${currentDrawNumber})` : ""} •{" "}
+                  {formatFullDate(currentDrawDate)} • {currentDrawTime}
+                </Typography>
+              </Box>
             )}
 
             {/* Status Pill Badge */}
