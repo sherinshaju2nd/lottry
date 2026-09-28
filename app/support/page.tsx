@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import SupportClient, { BUY_ME_A_COFFEE_URL } from "./SupportClient";
 
 export const metadata: Metadata = {
-  title: "Support Kerala Lottery Development | Buy Me a Coffee ☕",
+  title: "Support Kerala Lottery Development | Buy Me a Coffee",
   description:
     "Support the ongoing development of Kerala Lottery Results Today. Buy us a coffee to fuel 3:00 PM zero-lag live servers, AI Ticket Scanner OCR improvements, and keep the app 100% ad-free.",
   keywords: [
@@ -37,13 +37,14 @@ export default function SupportPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "DonateAction",
-    "name": "Support Kerala Lottery Results Development",
-    "description": "Financial support to maintain live draw servers, AI OCR models, and ad-free utility services.",
-    "url": "https://www.keralalotteryresultstoday.in/support",
-    "recipient": {
+    name: "Support Kerala Lottery Results Development",
+    description:
+      "Financial support to maintain live draw servers, AI OCR models, and ad-free utility services.",
+    url: "https://www.keralalotteryresultstoday.in/support",
+    recipient: {
       "@type": "Person",
-      "name": "Sherin",
-      "sameAs": BUY_ME_A_COFFEE_URL,
+      name: "Sherin",
+      sameAs: BUY_ME_A_COFFEE_URL,
     },
   };
 

@@ -32,7 +32,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/sherin80";
 export const UPI_ID = "sherinshaju80-2@okicici";
-export const UPI_PAY_URL = "upi://pay?pa=sherinshaju80-2@okicici&pn=Sherin%20Shaju&cu=INR&tn=Kerala%20Lottery%20App%20Support";
+
+const PRESET_AMOUNTS = ["20", "50", "100", "200", "500"];
 
 const ROADMAP_ITEMS = [
   {
@@ -67,12 +68,12 @@ const ROADMAP_ITEMS = [
 
 const FAQS = [
   {
-    q: "How does Buy Me a Coffee work?",
-    a: "Buy Me a Coffee is a trusted, secure creator support platform. It allows users to support independent software developers with one-time contributions or memberships using UPI, Google Pay, Credit/Debit Cards, Net Banking, Apple Pay, and PayPal.",
+    q: "How does UPI and GPay payment work?",
+    a: "You can directly scan the UPI QR code using Google Pay, PhonePe, Paytm, Super.money, BHIM, or use the UPI ID sherinshaju80-2@okicici for direct instant transfer with zero platform fee.",
   },
   {
-    q: "Can I pay with UPI (Google Pay / PhonePe / Paytm)?",
-    a: "Yes! You can directly scan the UPI QR Code with Google Pay, PhonePe, Paytm, BHIM, or use the UPI ID sherinshaju80-2@okicici for direct instant transfer.",
+    q: "Can I choose my own support amount?",
+    a: "Yes! You can click on any preset amount chip (₹20, ₹50, ₹100, ₹200, ₹500) to update the dynamic QR code and UPI link with your desired amount.",
   },
   {
     q: "Why do you need financial support?",
@@ -85,12 +86,25 @@ const FAQS = [
 ];
 
 export default function SupportClient() {
+  const [selectedAmount, setSelectedAmount] = useState<string>("50");
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
 
+  const getCleanAmount = (amt: string) => {
+    const num = parseFloat(amt);
+    if (isNaN(num) || num <= 0) return "50.00";
+    return num.toFixed(2);
+  };
+
+  const getUpiPayUrl = (amt: string) => {
+    const cleanAmt = getCleanAmount(amt);
+    return `upi://pay?pa=${UPI_ID}&pn=Sherin%20Shaju&am=${cleanAmt}&cu=INR&tn=Kerala%20Lottery%20App%20Support`;
+  };
+
   useEffect(() => {
-    QRCode.toDataURL(UPI_PAY_URL, {
+    const currentUrl = getUpiPayUrl(selectedAmount);
+    QRCode.toDataURL(currentUrl, {
       width: 400,
       margin: 2,
       color: {
@@ -101,7 +115,7 @@ export default function SupportClient() {
     })
       .then((url) => setQrCodeUrl(url))
       .catch((err) => console.error("UPI QR Code generation error:", err));
-  }, []);
+  }, [selectedAmount]);
 
   const handleOpenBMC = () => {
     window.open(BUY_ME_A_COFFEE_URL, "_blank", "noopener,noreferrer");
@@ -122,8 +136,9 @@ export default function SupportClient() {
   const handleUpiClick = () => {
     if (typeof window !== "undefined") {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const url = getUpiPayUrl(selectedAmount);
       if (isMobile) {
-        window.location.href = UPI_PAY_URL;
+        window.location.href = url;
       } else {
         handleCopyUpi();
       }
@@ -133,7 +148,7 @@ export default function SupportClient() {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(BUY_ME_A_COFFEE_URL);
-      setToastMsg("Buy Me a Coffee link copied to clipboard! ☕");
+      setToastMsg("Buy Me a Coffee link copied to clipboard! ");
       setToastOpen(true);
     } catch {
       setToastMsg("Link: " + BUY_ME_A_COFFEE_URL);
@@ -176,7 +191,8 @@ export default function SupportClient() {
       {/* Hero Banner with Dark Gold Glow */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #090D16 0%, #171C2D 50%, #0F172A 100%)",
+          background:
+            "linear-gradient(135deg, #090D16 0%, #171C2D 50%, #0F172A 100%)",
           color: "#FFFFFF",
           pt: { xs: 6, md: 9 },
           pb: { xs: 8, md: 12 },
@@ -196,14 +212,22 @@ export default function SupportClient() {
             width: "600px",
             height: "350px",
             borderRadius: "50%",
-            background: "radial-gradient(ellipse at center, rgba(245, 158, 11, 0.22) 0%, rgba(234, 88, 12, 0.08) 50%, transparent 80%)",
+            background:
+              "radial-gradient(ellipse at center, rgba(245, 158, 11, 0.22) 0%, rgba(234, 88, 12, 0.08) 50%, transparent 80%)",
             pointerEvents: "none",
           }}
         />
 
-        <Container maxWidth="md" sx={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+        <Container
+          maxWidth="md"
+          sx={{ textAlign: "center", position: "relative", zIndex: 1 }}
+        >
           <Chip
-            icon={<AutoAwesomeIcon sx={{ fontSize: "16px !important", color: "#F59E0B" }} />}
+            icon={
+              <AutoAwesomeIcon
+                sx={{ fontSize: "16px !important", color: "#F59E0B" }}
+              />
+            }
             label="SUPPORT FUTURE DEVELOPMENT"
             sx={{
               bgcolor: "rgba(245, 158, 11, 0.15)",
@@ -229,7 +253,7 @@ export default function SupportClient() {
               color: "#FFFFFF",
             }}
           >
-            Buy Us a Coffee <span style={{ color: "#FFDD00" }}>☕</span>
+            Buy Us a Coffee
           </Typography>
 
           <Typography
@@ -242,7 +266,8 @@ export default function SupportClient() {
               mb: 2,
             }}
           >
-            Fuel the Development of Kerala&apos;s Fastest Lottery Results &amp; AI Scanner
+            Fuel the Development of Kerala&apos;s Fastest Lottery Results &amp;
+            AI Scanner
           </Typography>
 
           <Typography
@@ -256,8 +281,10 @@ export default function SupportClient() {
               mb: 4,
             }}
           >
-            We are dedicated to keeping Kerala Lottery Results 100% free, lightning-fast, and ad-free.
-            Your kind support helps us maintain high-speed 3:00 PM live draw cloud servers, train AI OCR ticket models, and ship continuous upgrades.
+            We are dedicated to keeping Kerala Lottery Results 100% free,
+            lightning-fast, and ad-free. Your kind support helps us maintain
+            high-speed 3:00 PM live draw cloud servers, train AI OCR ticket
+            models, and ship continuous upgrades.
           </Typography>
 
           {/* Quick CTA Buttons */}
@@ -273,8 +300,12 @@ export default function SupportClient() {
               onClick={handleOpenBMC}
               variant="contained"
               size="large"
-              startIcon={<LocalCafeIcon sx={{ color: "#000000", fontSize: 24 }} />}
-              endIcon={<OpenInNewIcon sx={{ color: "#000000", fontSize: 18 }} />}
+              startIcon={
+                <LocalCafeIcon sx={{ color: "#000000", fontSize: 24 }} />
+              }
+              endIcon={
+                <OpenInNewIcon sx={{ color: "#000000", fontSize: 18 }} />
+              }
               sx={{
                 bgcolor: "#FFDD00",
                 color: "#000000",
@@ -324,7 +355,10 @@ export default function SupportClient() {
       </Box>
 
       {/* Main Content Container */}
-      <Container maxWidth="lg" sx={{ mt: { xs: -4, md: -6 }, position: "relative", zIndex: 2 }}>
+      <Container
+        maxWidth="lg"
+        sx={{ mt: { xs: -4, md: -6 }, position: "relative", zIndex: 2 }}
+      >
         {/* Two-Column Section: Why Support & QR Scan */}
         <Grid container spacing={4} sx={{ mb: 5 }}>
           {/* Why Support Matters */}
@@ -339,7 +373,9 @@ export default function SupportClient() {
                 height: "100%",
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}
+              >
                 <Box
                   sx={{
                     width: 40,
@@ -355,10 +391,20 @@ export default function SupportClient() {
                   <FavoriteIcon />
                 </Box>
                 <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.35rem" }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 900,
+                      color: "#0F172A",
+                      fontSize: "1.35rem",
+                    }}
+                  >
                     Why Your Support Matters
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "#64748B", fontSize: "0.85rem" }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#64748B", fontSize: "0.85rem" }}
+                  >
                     Direct impact of your contribution on our platform
                   </Typography>
                 </Box>
@@ -383,11 +429,22 @@ export default function SupportClient() {
                     <SpeedIcon />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.975rem" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        color: "#0F172A",
+                        fontSize: "0.975rem",
+                      }}
+                    >
                       Zero-Latency 3:00 PM Live Draw Sync
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.875rem", mt: 0.3 }}>
-                      Over 100,000+ users flood the servers at 2:55 PM every day. Your support keeps our real-time database and edge servers blazing fast without lag.
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#64748B", fontSize: "0.875rem", mt: 0.3 }}
+                    >
+                      Over 100,000+ users flood the servers at 2:55 PM every
+                      day. Your support keeps our real-time database and edge
+                      servers blazing fast without lag.
                     </Typography>
                   </Box>
                 </Box>
@@ -410,11 +467,22 @@ export default function SupportClient() {
                     <CameraAltIcon />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.975rem" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        color: "#0F172A",
+                        fontSize: "0.975rem",
+                      }}
+                    >
                       AI Camera Ticket Scanner Models
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.875rem", mt: 0.3 }}>
-                      Continuous training of specialized computer vision models for instant barcode and serial OCR verification across varied phone cameras.
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#64748B", fontSize: "0.875rem", mt: 0.3 }}
+                    >
+                      Continuous training of specialized computer vision models
+                      for instant barcode and serial OCR verification across
+                      varied phone cameras.
                     </Typography>
                   </Box>
                 </Box>
@@ -437,11 +505,22 @@ export default function SupportClient() {
                     <ShieldIcon />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.975rem" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        color: "#0F172A",
+                        fontSize: "0.975rem",
+                      }}
+                    >
                       100% Ad-Free &amp; Privacy First
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.875rem", mt: 0.3 }}>
-                      We refuse intrusive spam ads and paywalls. We believe in providing a clean, respectful, privacy-focused experience for all lottery enthusiasts.
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#64748B", fontSize: "0.875rem", mt: 0.3 }}
+                    >
+                      We refuse intrusive spam ads and paywalls. We believe in
+                      providing a clean, respectful, privacy-focused experience
+                      for all lottery enthusiasts.
                     </Typography>
                   </Box>
                 </Box>
@@ -464,11 +543,21 @@ export default function SupportClient() {
                     <DevicesIcon />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.975rem" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        color: "#0F172A",
+                        fontSize: "0.975rem",
+                      }}
+                    >
                       Mobile &amp; Web Synchronization
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.875rem", mt: 0.3 }}>
-                      Maintaining continuous updates across our Android App, iOS PWA, Windows App, and web application seamlessly.
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#64748B", fontSize: "0.875rem", mt: 0.3 }}
+                    >
+                      Maintaining continuous updates across our Android App, iOS
+                      PWA, Windows App, and web application seamlessly.
                     </Typography>
                   </Box>
                 </Box>
@@ -508,12 +597,73 @@ export default function SupportClient() {
                 }}
               />
 
-              <Typography variant="h5" sx={{ fontWeight: 900, color: "#FFFFFF", mb: 1, fontSize: "1.35rem" }}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 900,
+                  color: "#FFFFFF",
+                  mb: 0.5,
+                  fontSize: "1.35rem",
+                }}
+              >
                 Scan to Pay via UPI / GPay
               </Typography>
-              <Typography variant="body2" sx={{ color: "#94A3B8", fontSize: "0.875rem", mb: 2.5, maxWidth: 320 }}>
-                Scan with Google Pay, PhonePe, Paytm, BHIM or any UPI scanner to support development directly.
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#94A3B8",
+                  fontSize: "0.85rem",
+                  mb: 2,
+                  maxWidth: 320,
+                }}
+              >
+                Scan with Google Pay, PhonePe, Paytm, Super.money or BHIM to
+                support directly.
               </Typography>
+
+              {/* Amount Selection Chips */}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  mb: 2,
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                }}
+              >
+                {PRESET_AMOUNTS.map((amt) => {
+                  const isSelected = selectedAmount === amt;
+                  return (
+                    <Button
+                      key={amt}
+                      size="small"
+                      onClick={() => setSelectedAmount(amt)}
+                      sx={{
+                        minWidth: 46,
+                        px: 1.2,
+                        py: 0.5,
+                        borderRadius: "10px",
+                        bgcolor: isSelected
+                          ? "#10B981"
+                          : "rgba(255, 255, 255, 0.08)",
+                        color: isSelected ? "#FFFFFF" : "#E2E8F0",
+                        fontWeight: 800,
+                        fontSize: "0.82rem",
+                        border: isSelected
+                          ? "1px solid #10B981"
+                          : "1px solid rgba(255, 255, 255, 0.15)",
+                        "&:hover": {
+                          bgcolor: isSelected
+                            ? "#059669"
+                            : "rgba(255, 255, 255, 0.16)",
+                        },
+                      }}
+                    >
+                      ₹{amt}
+                    </Button>
+                  );
+                })}
+              </Box>
 
               {/* QR Code Container */}
               <Box
@@ -558,7 +708,10 @@ export default function SupportClient() {
                       justifyContent: "center",
                     }}
                   >
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#64748B", fontWeight: 700 }}
+                    >
                       Generating UPI QR Code...
                     </Typography>
                   </Box>
@@ -583,7 +736,14 @@ export default function SupportClient() {
                 }}
               >
                 <Box sx={{ textAlign: "left", overflow: "hidden" }}>
-                  <Typography variant="caption" sx={{ color: "#94A3B8", fontSize: "0.7rem", display: "block" }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "#94A3B8",
+                      fontSize: "0.7rem",
+                      display: "block",
+                    }}
+                  >
                     UPI ID (Google Pay / GPay)
                   </Typography>
                   <Typography
@@ -606,7 +766,9 @@ export default function SupportClient() {
                     onClick={handleCopyUpi}
                     size="small"
                     variant="contained"
-                    startIcon={<ContentCopyIcon sx={{ fontSize: "14px !important" }} />}
+                    startIcon={
+                      <ContentCopyIcon sx={{ fontSize: "14px !important" }} />
+                    }
                     sx={{
                       minWidth: "auto",
                       bgcolor: "#FFDD00",
@@ -626,7 +788,10 @@ export default function SupportClient() {
                 </Tooltip>
               </Box>
 
-              <Typography variant="caption" sx={{ color: "#94A3B8", fontSize: "0.75rem" }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "#94A3B8", fontSize: "0.75rem" }}
+              >
                 Google Pay (GPay) • PhonePe • Paytm • BHIM • All Banks
               </Typography>
             </Paper>
@@ -656,11 +821,19 @@ export default function SupportClient() {
                 mb: 1,
               }}
             />
-            <Typography variant="h4" sx={{ fontWeight: 900, color: "#0F172A", fontSize: { xs: "1.45rem", sm: "1.85rem" } }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 900,
+                color: "#0F172A",
+                fontSize: { xs: "1.45rem", sm: "1.85rem" },
+              }}
+            >
               What Your Coffee Funds &amp; Builds
             </Typography>
             <Typography variant="body2" sx={{ color: "#64748B", mt: 0.5 }}>
-              Track what features are actively in development thanks to our generous supporters.
+              Track what features are actively in development thanks to our
+              generous supporters.
             </Typography>
           </Box>
 
@@ -676,8 +849,23 @@ export default function SupportClient() {
                     height: "100%",
                   }}
                 >
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
-                    <Typography sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.98rem", flex: 1, pr: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontWeight: 800,
+                        color: "#0F172A",
+                        fontSize: "0.98rem",
+                        flex: 1,
+                        pr: 1,
+                      }}
+                    >
                       {item.title}
                     </Typography>
                     <Chip
@@ -692,7 +880,14 @@ export default function SupportClient() {
                       }}
                     />
                   </Box>
-                  <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.5 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#64748B",
+                      fontSize: "0.85rem",
+                      lineHeight: 1.5,
+                    }}
+                  >
                     {item.desc}
                   </Typography>
                 </Box>
@@ -713,11 +908,19 @@ export default function SupportClient() {
           }}
         >
           <Box sx={{ mb: 3, textAlign: "center" }}>
-            <Typography variant="h4" sx={{ fontWeight: 900, color: "#0F172A", fontSize: { xs: "1.4rem", sm: "1.75rem" } }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 900,
+                color: "#0F172A",
+                fontSize: { xs: "1.4rem", sm: "1.75rem" },
+              }}
+            >
               Frequently Asked Questions
             </Typography>
             <Typography variant="body2" sx={{ color: "#64748B", mt: 0.5 }}>
-              Everything you need to know about supporting Kerala Lottery Results development.
+              Everything you need to know about supporting Kerala Lottery
+              Results development.
             </Typography>
           </Box>
 
@@ -734,12 +937,25 @@ export default function SupportClient() {
                 }}
               >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.95rem" }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 800,
+                      color: "#0F172A",
+                      fontSize: "0.95rem",
+                    }}
+                  >
                     {faq.q}
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ pt: 0 }}>
-                  <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.6, fontSize: "0.9rem" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#475569",
+                      lineHeight: 1.6,
+                      fontSize: "0.9rem",
+                    }}
+                  >
                     {faq.a}
                   </Typography>
                 </AccordionDetails>
@@ -761,11 +977,19 @@ export default function SupportClient() {
           }}
         >
           <FavoriteIcon sx={{ color: "#DC2626", fontSize: 32, mb: 1 }} />
-          <Typography variant="h6" sx={{ fontWeight: 900, color: "#991B1B", mb: 0.5 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 900, color: "#991B1B", mb: 0.5 }}
+          >
             Thank You for Believing in Us!
           </Typography>
-          <Typography variant="body2" sx={{ color: "#7F1D1D", lineHeight: 1.6, fontSize: "0.925rem" }}>
-            Every coffee you buy keeps our servers humming and fuels our mission to build Kerala&apos;s most accurate and delightful lottery companion. We are truly grateful for every supporter!
+          <Typography
+            variant="body2"
+            sx={{ color: "#7F1D1D", lineHeight: 1.6, fontSize: "0.925rem" }}
+          >
+            Every coffee you buy keeps our servers humming and fuels our mission
+            to build Kerala&apos;s most accurate and delightful lottery
+            companion. We are truly grateful for every supporter!
           </Typography>
         </Box>
       </Container>

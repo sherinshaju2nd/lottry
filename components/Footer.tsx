@@ -11,7 +11,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import ShareButtons from "./ShareButtons";
-import { GooglePlayIcon, AppleIcon, WindowsIcon, PLAY_STORE_URL } from "./DownloadAppModal";
+import {
+  GooglePlayIcon,
+  AppleIcon,
+  WindowsIcon,
+  PLAY_STORE_URL,
+} from "./DownloadAppModal";
 
 import {
   WEEKLY_LOTTERIES,
@@ -46,10 +51,12 @@ export default function Footer() {
       }
     } else {
       if (window.matchMedia("(display-mode: standalone)").matches) {
-        alert("Kerala Lottery App is already installed and running on your system!");
+        alert(
+          "Kerala Lottery App is already installed and running on your system!",
+        );
       } else {
         alert(
-          "To install on Windows:\n1. Look for the Install icon (🖥️ ➕) in the Chrome / Edge address bar\n2. Or click Browser Menu (⋮ or ...) > 'Install Kerala Lottery Results'"
+          "To install on Windows:\n1. Look for the Install icon (🖥️ ➕) in the Chrome / Edge address bar\n2. Or click Browser Menu (⋮ or ...) > 'Install Kerala Lottery Results'",
         );
       }
     }
@@ -130,7 +137,8 @@ export default function Footer() {
                 zIndex: 1,
               }}
             >
-              Add the app to your iPhone, Windows PC, or Android phone today for zero-delay live Kerala lottery draw results.
+              Add the app to your iPhone, Windows PC, or Android phone today for
+              zero-delay live Kerala lottery draw results.
             </Typography>
 
             {/* Badges Container (Sleek Glass Pill Buttons) */}
@@ -148,7 +156,9 @@ export default function Footer() {
               {/* iPhone / iOS Button */}
               <Button
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent("open-ios-install-guide"));
+                  window.dispatchEvent(
+                    new CustomEvent("open-ios-install-guide"),
+                  );
                 }}
                 variant="outlined"
                 sx={{
@@ -276,10 +286,11 @@ export default function Footer() {
           }}
         >
           <strong>About Kerala State Lottery:</strong> Established in 1967, the
-          Kerala state lottery scheme was envisioned by the then Finance Minister,
-          P.K. Kunju Sahib. The initiative was designed to support social welfare
-          programs and provide stable employment. It remains India&apos;s
-          pioneer, fully transparent, government-regulated lottery platform.
+          Kerala state lottery scheme was envisioned by the then Finance
+          Minister, P.K. Kunju Sahib. The initiative was designed to support
+          social welfare programs and provide stable employment. It remains
+          India&apos;s pioneer, fully transparent, government-regulated lottery
+          platform.
         </Typography>
 
         {/* 1. Core Page Links */}
@@ -438,7 +449,7 @@ export default function Footer() {
               "&:hover": { color: "#92400E", bgcolor: "#FEF3C7" },
             }}
           >
-            ☕ Support Us
+            Support Us
           </Typography>
           <Typography
             variant="body2"
@@ -597,7 +608,10 @@ export default function Footer() {
             px: 2,
           }}
         >
-          (இன்றைய கேரள லாட்டரி முடிவுகள் • आज के केरल लॉटरी के नतीजे • ഇന്നത്തെ കേരള ലോട്ടറി ഫലങ്ങൾ • ಇಂದಿನ ಕೇರಳ ಲಾಟರಿ ಫಲಿತಾಂಶಗಳು • kerala লটাৰীৰ ফলাফল আজি • केरल लॉटरीचो निकाल आयज • ਕੇਰਲ ਲਾਟਰੀ ਦੇ ਅੱਜ ਦੇ ਨਤੀਜੇ • ఈరోజు కేరళ లాటరీ ఫలితాలు)
+          (இன்றைய கேரள லாட்டரி முடிவுகள் • आज के केरल लॉटरी के नतीजे • ഇന്നത്തെ
+          കേരള ലോട്ടറി ഫലങ്ങൾ • ಇಂದಿನ ಕೇರಳ ಲಾಟರಿ ಫಲಿತಾಂಶಗಳು • kerala লটাৰীৰ
+          ফলাফল আজি • केरल लॉटरीचो निकाल आयज • ਕੇਰਲ ਲਾਟਰੀ ਦੇ ਅੱਜ ਦੇ ਨਤੀਜੇ •
+          ఈరోజు కేరళ లాటరీ ఫలితాలు)
         </Typography>
 
         <Typography

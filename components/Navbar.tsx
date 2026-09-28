@@ -69,7 +69,8 @@ export default function Navbar() {
     } catch {}
 
     const handleUiModeChange = (e: any) => {
-      const mode = e?.detail?.mode || localStorage.getItem("kerala_lottery_ui_mode");
+      const mode =
+        e?.detail?.mode || localStorage.getItem("kerala_lottery_ui_mode");
       if (mode === "normal" || mode === "modern") {
         setUiMode(mode as "normal" | "modern");
       }
@@ -86,7 +87,7 @@ export default function Navbar() {
       localStorage.setItem("kerala_lottery_ui_mode", mode);
       document.documentElement.setAttribute("data-ui-mode", mode);
       window.dispatchEvent(
-        new CustomEvent("kerala_ui_mode_changed", { detail: { mode } })
+        new CustomEvent("kerala_ui_mode_changed", { detail: { mode } }),
       );
     } catch {}
   };
@@ -103,9 +104,9 @@ export default function Navbar() {
     } else {
       window.open(
         `https://api.whatsapp.com/send?text=${encodeURIComponent(
-          "Check official Kerala Lottery Live Results: https://www.keralalotteryresultstoday.in"
+          "Check official Kerala Lottery Live Results: https://www.keralalotteryresultstoday.in",
         )}`,
-        "_blank"
+        "_blank",
       );
     }
   };
@@ -305,7 +306,9 @@ export default function Navbar() {
                       "&:hover": { bgcolor: "#F0F7FF" },
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1.2 }}
+                    >
                       {logo ? (
                         <Box
                           component="img"
@@ -359,7 +362,11 @@ export default function Navbar() {
 
                     <Typography
                       variant="caption"
-                      sx={{ color: "#0B3C5D", fontWeight: 700, fontSize: "0.75rem" }}
+                      sx={{
+                        color: "#0B3C5D",
+                        fontWeight: 700,
+                        fontSize: "0.75rem",
+                      }}
                     >
                       3 PM
                     </Typography>
@@ -421,7 +428,9 @@ export default function Navbar() {
                       "&:hover": { bgcolor: "#F0F7FF" },
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1.2 }}
+                    >
                       {logo ? (
                         <Box
                           component="img"
@@ -540,7 +549,9 @@ export default function Navbar() {
             <Button
               component={Link}
               href="/kerala-lottery-app"
-              startIcon={<SmartphoneIcon sx={{ fontSize: 18, color: "#FFFFFF" }} />}
+              startIcon={
+                <SmartphoneIcon sx={{ fontSize: 18, color: "#FFFFFF" }} />
+              }
               sx={{
                 background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
                 color: "#FFFFFF",
@@ -554,7 +565,8 @@ export default function Navbar() {
                 textTransform: "none",
                 transition: "all 0.2s ease",
                 "&:hover": {
-                  background: "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
+                  background:
+                    "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
                   transform: "translateY(-1px)",
                   boxShadow: "0 4px 14px rgba(11, 60, 93, 0.35)",
                 },
@@ -567,7 +579,14 @@ export default function Navbar() {
             <Button
               component={Link}
               href="/support"
-              startIcon={<LocalCafeIcon sx={{ fontSize: 18, color: pathname === "/support" ? "#92400E" : "#B45309" }} />}
+              startIcon={
+                <LocalCafeIcon
+                  sx={{
+                    fontSize: 18,
+                    color: pathname === "/support" ? "#92400E" : "#B45309",
+                  }}
+                />
+              }
               sx={{
                 bgcolor: pathname === "/support" ? "#FDE68A" : "#FFFBEB",
                 color: "#92400E",
@@ -587,7 +606,7 @@ export default function Navbar() {
                 },
               }}
             >
-              Support Us ☕
+              Support Us
             </Button>
           </Box>
 
@@ -603,7 +622,9 @@ export default function Navbar() {
               component={Link}
               href="/kerala-lottery-app"
               size="small"
-              startIcon={<SmartphoneIcon sx={{ fontSize: 16, color: "#FFFFFF" }} />}
+              startIcon={
+                <SmartphoneIcon sx={{ fontSize: 16, color: "#FFFFFF" }} />
+              }
               sx={{
                 background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
                 color: "#FFFFFF",
@@ -617,7 +638,8 @@ export default function Navbar() {
                 textTransform: "none",
                 whiteSpace: "nowrap",
                 "&:hover": {
-                  background: "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
+                  background:
+                    "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
                 },
               }}
             >
@@ -727,7 +749,17 @@ export default function Navbar() {
         </Box>
 
         {/* Drawer Scrollable Content */}
-        <Box sx={{ p: 1.75, pb: 4, overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: 1.5 }}>
+        <Box
+          sx={{
+            p: 1.75,
+            pb: 4,
+            overflowY: "auto",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.5,
+          }}
+        >
           {/* Section 1: UI Theme & Layout */}
           <Box
             sx={{
@@ -752,7 +784,9 @@ export default function Navbar() {
               APP UI THEME &amp; LAYOUT
             </Typography>
 
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
+            <Box
+              sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}
+            >
               {/* Normal UI */}
               <Box
                 onClick={() => handleSelectUiMode("normal")}
@@ -769,7 +803,14 @@ export default function Navbar() {
                   "&:hover": { bgcolor: "#EFF6FF" },
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.6 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 0.6,
+                  }}
+                >
                   <Box
                     sx={{
                       width: 28,
@@ -812,7 +853,9 @@ export default function Navbar() {
                 >
                   Normal UI
                 </Typography>
-                <Typography sx={{ fontSize: "0.68rem", color: "#64748B", mt: 0.2 }}>
+                <Typography
+                  sx={{ fontSize: "0.68rem", color: "#64748B", mt: 0.2 }}
+                >
                   2-Column Grid
                 </Typography>
               </Box>
@@ -833,7 +876,14 @@ export default function Navbar() {
                   "&:hover": { bgcolor: "#EFF6FF" },
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.6 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 0.6,
+                  }}
+                >
                   <Box
                     sx={{
                       width: 28,
@@ -876,7 +926,9 @@ export default function Navbar() {
                 >
                   Modern UI
                 </Typography>
-                <Typography sx={{ fontSize: "0.68rem", color: "#64748B", mt: 0.2 }}>
+                <Typography
+                  sx={{ fontSize: "0.68rem", color: "#64748B", mt: 0.2 }}
+                >
                   Live Dashboard
                 </Typography>
               </Box>
@@ -942,7 +994,13 @@ export default function Navbar() {
                 <HomeIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/" ? 800 : 700, color: pathname === "/" ? "#0B3C5D" : "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: pathname === "/" ? 800 : 700,
+                    color: pathname === "/" ? "#0B3C5D" : "#0F172A",
+                  }}
+                >
                   Home
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -985,7 +1043,13 @@ export default function Navbar() {
                 <ConfirmationNumberIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/lotteries" ? 800 : 700, color: pathname === "/lotteries" ? "#0B3C5D" : "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: pathname === "/lotteries" ? 800 : 700,
+                    color: pathname === "/lotteries" ? "#0B3C5D" : "#0F172A",
+                  }}
+                >
                   Kerala Lotteries
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1028,7 +1092,13 @@ export default function Navbar() {
                 <SearchIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/search" ? 800 : 700, color: pathname === "/search" ? "#0B3C5D" : "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: pathname === "/search" ? 800 : 700,
+                    color: pathname === "/search" ? "#0B3C5D" : "#0F172A",
+                  }}
+                >
                   Ticket Checker
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1071,7 +1141,13 @@ export default function Navbar() {
                 <InsightsIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/analytics" ? 800 : 700, color: pathname === "/analytics" ? "#0B3C5D" : "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: pathname === "/analytics" ? 800 : 700,
+                    color: pathname === "/analytics" ? "#0B3C5D" : "#0F172A",
+                  }}
+                >
                   Analytics &amp; Trends
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1093,7 +1169,10 @@ export default function Navbar() {
                 p: 1,
                 borderRadius: "10px",
                 textDecoration: "none",
-                bgcolor: pathname === "/kerala-lottery-app" ? "#EFF6FF" : "transparent",
+                bgcolor:
+                  pathname === "/kerala-lottery-app"
+                    ? "#EFF6FF"
+                    : "transparent",
                 transition: "all 0.15s ease",
                 "&:hover": { bgcolor: "#F8FAFC" },
               }}
@@ -1114,7 +1193,16 @@ export default function Navbar() {
                 <SmartphoneIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: pathname === "/kerala-lottery-app" ? 800 : 700, color: pathname === "/kerala-lottery-app" ? "#0B3C5D" : "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: pathname === "/kerala-lottery-app" ? 800 : 700,
+                    color:
+                      pathname === "/kerala-lottery-app"
+                        ? "#0B3C5D"
+                        : "#0F172A",
+                  }}
+                >
                   Download App (iOS &amp; Android)
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1184,7 +1272,13 @@ export default function Navbar() {
                 <EmojiEventsIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
                   Prize Claim Guide
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1227,7 +1321,13 @@ export default function Navbar() {
                 <MenuBookIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
                   Lottery Guide
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1270,7 +1370,13 @@ export default function Navbar() {
                 <HelpOutlineIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
                   FAQ (പതിവ് ചോദ്യങ്ങൾ)
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1342,8 +1448,14 @@ export default function Navbar() {
                 <LocalCafeIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: 800, color: "#92400E" }}>
-                  Support Us (Buy a Coffee ☕)
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 800,
+                    color: "#92400E",
+                  }}
+                >
+                  Support Us (Buy a Coffee)
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#B45309" }}>
                   Support future app &amp; server development
@@ -1385,7 +1497,13 @@ export default function Navbar() {
                 <PhoneIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
                   Contact Us
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1407,7 +1525,8 @@ export default function Navbar() {
                 p: 1,
                 borderRadius: "10px",
                 textDecoration: "none",
-                bgcolor: pathname === "/terms-conditions" ? "#EFF6FF" : "transparent",
+                bgcolor:
+                  pathname === "/terms-conditions" ? "#EFF6FF" : "transparent",
                 transition: "all 0.15s ease",
                 "&:hover": { bgcolor: "#F8FAFC" },
               }}
@@ -1428,7 +1547,13 @@ export default function Navbar() {
                 <DescriptionIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
                   Terms &amp; Conditions
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1450,7 +1575,8 @@ export default function Navbar() {
                 p: 1,
                 borderRadius: "10px",
                 textDecoration: "none",
-                bgcolor: pathname === "/privacy-policy" ? "#EFF6FF" : "transparent",
+                bgcolor:
+                  pathname === "/privacy-policy" ? "#EFF6FF" : "transparent",
                 transition: "all 0.15s ease",
                 "&:hover": { bgcolor: "#F8FAFC" },
               }}
@@ -1471,7 +1597,13 @@ export default function Navbar() {
                 <SecurityIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
                   Privacy Policy
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1514,7 +1646,13 @@ export default function Navbar() {
                 <ShareIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: "0.875rem", fontWeight: 700, color: "#0F172A" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
                   Share App
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
@@ -1527,14 +1665,27 @@ export default function Navbar() {
 
           {/* Drawer Footer */}
           <Box sx={{ px: 1, py: 1.5, textAlign: "center" }}>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.75, mb: 0.5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 0.75,
+                mb: 0.5,
+              }}
+            >
               <SecurityIcon sx={{ fontSize: 14, color: "#64748B" }} />
-              <Typography sx={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B" }}>
+              <Typography
+                sx={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748B" }}
+              >
                 Kerala Lottery Results
               </Typography>
             </Box>
-            <Typography sx={{ fontSize: "0.65rem", color: "#94A3B8", lineHeight: 1.4 }}>
-              Data computed purely from official past draw records. 100% independent.
+            <Typography
+              sx={{ fontSize: "0.65rem", color: "#94A3B8", lineHeight: 1.4 }}
+            >
+              Data computed purely from official past draw records. 100%
+              independent.
             </Typography>
           </Box>
         </Box>
