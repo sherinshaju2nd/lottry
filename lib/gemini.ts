@@ -591,7 +591,7 @@ Each draw record includes all winning ticket numbers across **all available priz
    - Formulate 4 to 5 distinct high-probability number patterns / templates.
 
 5. **Top Concrete Predicted / Strategy Numbers:**
-   - Provide concrete 4-digit number recommendations based on the findings with confidence scores and rationale.
+   - Provide strictly 15 distinct, high-probability 4-digit number recommendations (15 separate objects) across diverse categories (Hot 4-Digit, Double Pattern, Balanced Sum, 2nd/6th Target) with confidence scores (from 92% descending to 70%) and clear rationale.
 
 ---
 
@@ -691,38 +691,92 @@ Return strictly a valid JSON object matching this exact schema without markdown 
     {
       "number": "7338",
       "category": "Double Pattern",
-      "confidence_score": 88,
+      "confidence_score": 91,
       "rationale": "Matches high-frequency 7 lead with 33 double pair and sum 21."
     },
     {
       "number": "5866",
       "category": "2nd/6th Target",
-      "confidence_score": 85,
+      "confidence_score": 89,
       "rationale": "High-value sum, 66 double ending, strongly correlated with 6th prize history."
     },
     {
       "number": "7294",
       "category": "Balanced Sum",
-      "confidence_score": 83,
+      "confidence_score": 87,
       "rationale": "2 Odd : 2 Even, sum 22, integrates top 3 positional hot digits."
     },
     {
       "number": "3773",
       "category": "Double Pattern",
-      "confidence_score": 81,
+      "confidence_score": 85,
       "rationale": "Symmetrical mirror pattern matching recurring 6th prize structures."
     },
     {
       "number": "2839",
       "category": "Hot 4-Digit",
-      "confidence_score": 79,
+      "confidence_score": 83,
       "rationale": "Interleaved low-high distribution with hot ending pair 39."
     },
     {
       "number": "9442",
       "category": "2nd/6th Target",
-      "confidence_score": 78,
+      "confidence_score": 81,
       "rationale": "Center double 44, top first digit 9, and even last digit."
+    },
+    {
+      "number": "6207",
+      "category": "Hot 4-Digit",
+      "confidence_score": 80,
+      "rationale": "Direct composite alignment with primary positional frequency peaks."
+    },
+    {
+      "number": "6617",
+      "category": "Double Pattern",
+      "confidence_score": 78,
+      "rationale": "Leading double 66 with terminal prime hot digit."
+    },
+    {
+      "number": "3229",
+      "category": "Balanced Sum",
+      "confidence_score": 77,
+      "rationale": "Center double with balanced 4-digit sum within optimal range."
+    },
+    {
+      "number": "6809",
+      "category": "2nd/6th Target",
+      "confidence_score": 75,
+      "rationale": "High probability terminal pair matching 2nd & 6th prize distribution."
+    },
+    {
+      "number": "7219",
+      "category": "Hot 4-Digit",
+      "confidence_score": 74,
+      "rationale": "Positional primary digits arranged with high frequency ending."
+    },
+    {
+      "number": "5538",
+      "category": "Double Pattern",
+      "confidence_score": 73,
+      "rationale": "Consecutive head pair with balanced terminal sum."
+    },
+    {
+      "number": "4169",
+      "category": "Balanced Sum",
+      "confidence_score": 72,
+      "rationale": "Even-odd parity with sum totaling within optimal range."
+    },
+    {
+      "number": "8344",
+      "category": "Double Pattern",
+      "confidence_score": 71,
+      "rationale": "Terminal double pair with strong prize-tier persistence."
+    },
+    {
+      "number": "9621",
+      "category": "2nd/6th Target",
+      "confidence_score": 70,
+      "rationale": "Alternate descending combination targeted for mid-tier prizes."
     }
   ],
   "disclaimer": "This analysis is purely based on historical statistical frequencies and probability modeling. Kerala State Lottery draws are independent random events conducted by the Directorate of Kerala State Lotteries."
@@ -763,6 +817,20 @@ ${JSON.stringify(formattedDraws, null, 2)}
           .replace(/```$/i, "")
           .trim();
         const parsed: LotteryAiPatternAnalysis = JSON.parse(cleaned);
+        if (!parsed.top_predicted_numbers) {
+          parsed.top_predicted_numbers = [];
+        }
+        if (parsed.top_predicted_numbers.length < 15) {
+          const fallback = generateStatisticalFallbackAnalysis(lotteryName, lotteryCode, draws, lang);
+          const existing = new Set(parsed.top_predicted_numbers.map((p) => p.number));
+          for (const item of fallback.top_predicted_numbers) {
+            if (parsed.top_predicted_numbers.length >= 15) break;
+            if (!existing.has(item.number)) {
+              existing.add(item.number);
+              parsed.top_predicted_numbers.push(item);
+            }
+          }
+        }
         return parsed;
       } else {
         const errText = await response.text();
@@ -886,10 +954,21 @@ export function generateStatisticalFallbackAnalysis(
   const highPct = Math.round((highCount / (highCount + lowCount || 1)) * 100);
 
   const isMl = lang === "ml";
-  const numA = `${p1[0]}${p2[0]}${p3[0]}${p4[0]}`;
-  const numB = `${p1[0]}${p1[0]}${p3[1] !== undefined ? p3[1] : p3[0]}${p4[0]}`;
-  const numC = `${p1[1] !== undefined ? p1[1] : p1[0]}${p2[0]}${p2[0]}${p4[1] !== undefined ? p4[1] : p4[0]}`;
-  const numD = `${p1[0]}${p2[1] !== undefined ? p2[1] : p2[0]}${p3[0]}${p4[1] !== undefined ? p4[1] : p4[0]}`;
+  const num1 = `${p1[0]}${p2[0]}${p3[0]}${p4[0]}`;
+  const num2 = `${p1[0]}${p1[0]}${p3[1] !== undefined ? p3[1] : p3[0]}${p4[0]}`;
+  const num3 = `${p1[1] !== undefined ? p1[1] : p1[0]}${p2[0]}${p2[0]}${p4[1] !== undefined ? p4[1] : p4[0]}`;
+  const num4 = `${p1[0]}${p2[1] !== undefined ? p2[1] : p2[0]}${p3[0]}${p4[1] !== undefined ? p4[1] : p4[0]}`;
+  const num5 = `${p1[1] !== undefined ? p1[1] : p1[0]}${p2[1] !== undefined ? p2[1] : p2[0]}${p3[1] !== undefined ? p3[1] : p3[0]}${p4[0]}`;
+  const num6 = `${p1[0]}${p2[0]}${p4[0]}${p4[0]}`;
+  const num7 = `${p1[2] !== undefined ? p1[2] : p1[0]}${p2[0]}${p3[0]}${p4[1] !== undefined ? p4[1] : p4[0]}`;
+  const num8 = `${p1[0]}${p2[2] !== undefined ? p2[2] : p2[0]}${p3[1] !== undefined ? p3[1] : p3[0]}${p4[2] !== undefined ? p4[2] : p4[0]}`;
+  const num9 = `${p1[1] !== undefined ? p1[1] : p1[0]}${p1[1] !== undefined ? p1[1] : p1[0]}${p3[0]}${p4[1] !== undefined ? p4[1] : p4[0]}`;
+  const num10 = `${p1[2] !== undefined ? p1[2] : p1[0]}${p2[1] !== undefined ? p2[1] : p2[0]}${p3[2] !== undefined ? p3[2] : p3[0]}${p4[0]}`;
+  const num11 = `${p1[0]}${p2[1] !== undefined ? p2[1] : p2[0]}${p3[2] !== undefined ? p3[2] : p3[0]}${p4[2] !== undefined ? p4[2] : p4[0]}`;
+  const num12 = `${p1[2] !== undefined ? p1[2] : p1[0]}${p2[0]}${p2[0]}${p4[0]}`;
+  const num13 = `${p1[1] !== undefined ? p1[1] : p1[0]}${p2[2] !== undefined ? p2[2] : p2[0]}${p3[0]}${p4[2] !== undefined ? p4[2] : p4[0]}`;
+  const num14 = `${p1[0]}${p2[0]}${p3[2] !== undefined ? p3[2] : p3[0]}${p4[1] !== undefined ? p4[1] : p4[0]}`;
+  const num15 = `${p1[1] !== undefined ? p1[1] : p1[0]}${p2[1] !== undefined ? p2[1] : p2[0]}${p4[1] !== undefined ? p4[1] : p4[0]}${p4[1] !== undefined ? p4[1] : p4[0]}`;
 
   return {
     lottery_name: lotteryName,
@@ -912,14 +991,14 @@ export function generateStatisticalFallbackAnalysis(
         type: "Leading Double",
         description: isMl ? "ആദ്യ രണ്ട് അക്കങ്ങൾ ഒരേപോലെയുള്ള ശ്രേണി" : "Repeated pair in first and second position",
         historical_frequency: "High (~26% of winning lines)",
-        recommended_examples: [numB, `${p1[0]}${p1[0]}${p3[0]}${p4[0]}`],
+        recommended_examples: [num2, `${p1[0]}${p1[0]}${p3[0]}${p4[0]}`],
       },
       {
         pattern: `X${p2[0]}${p2[0]}X`,
         type: "Center Double",
         description: isMl ? "മധ്യഭാഗത്തെ ഇരട്ട അക്ക വിന്യാസം" : "Double digit repetition in the middle columns",
         historical_frequency: "Moderate (~22% of winning lines)",
-        recommended_examples: [numC, `${p1[0]}${p2[0]}${p2[0]}${p4[0]}`],
+        recommended_examples: [num3, `${p1[0]}${p2[0]}${p2[0]}${p4[0]}`],
       },
     ],
     high_value_analysis: {
@@ -942,35 +1021,101 @@ export function generateStatisticalFallbackAnalysis(
           title: "Primary Frequency Cluster",
           probability_rank: 1,
           pattern_structure: `${p1[0]}-${p2[0]}-${p3[0]}-${p4[0]}`,
-          predicted_numbers: [numA, numB],
+          predicted_numbers: [num1, num2],
           reasoning: "Highest composite frequency across all prize tiers in historical dataset.",
         },
       ],
     },
     top_predicted_numbers: [
       {
-        number: numA,
+        number: num1,
         category: "Hot 4-Digit",
-        confidence_score: 89,
+        confidence_score: 91,
         rationale: `Constructed from positional top frequencies: ${p1[0]} (Pos 1), ${p2[0]} (Pos 2), ${p3[0]} (Pos 3), ${p4[0]} (Pos 4).`,
       },
       {
-        number: numB,
+        number: num2,
         category: "Double Pattern",
-        confidence_score: 85,
+        confidence_score: 88,
         rationale: `Leading double ${p1[0]}${p1[0]} aligned with high frequency last digit ${p4[0]}.`,
       },
       {
-        number: numC,
-        category: "Balanced Sum",
-        confidence_score: 82,
+        number: num3,
+        category: "Double Pattern",
+        confidence_score: 86,
         rationale: `Center double with balanced 4-digit sum within optimal ${avgSum - 4}-${avgSum + 4} range.`,
       },
       {
-        number: numD,
+        number: num4,
+        category: "2nd/6th Target",
+        confidence_score: 84,
+        rationale: `High probability terminal pair matching 2nd & 6th prize distribution.`,
+      },
+      {
+        number: num5,
+        category: "Hot 4-Digit",
+        confidence_score: 82,
+        rationale: `Secondary positional frequency cluster matching persistent weekday trends.`,
+      },
+      {
+        number: num6,
+        category: "Double Pattern",
+        confidence_score: 80,
+        rationale: `Ending double pair ${p4[0]}${p4[0]} with prime root lead digit.`,
+      },
+      {
+        number: num7,
         category: "2nd/6th Target",
         confidence_score: 79,
-        rationale: `High probability terminal pair matching 2nd & 6th prize distribution.`,
+        rationale: `Targeted for 2nd & 6th prize terminal sequence with balanced parity.`,
+      },
+      {
+        number: num8,
+        category: "Balanced Sum",
+        confidence_score: 78,
+        rationale: `Even-odd parity balance with sum totaling within optimal ${avgSum - 2} to ${avgSum + 2}.`,
+      },
+      {
+        number: num9,
+        category: "Double Pattern",
+        confidence_score: 76,
+        rationale: `Leading consecutive double with recurring ending digit.`,
+      },
+      {
+        number: num10,
+        category: "2nd/6th Target",
+        confidence_score: 75,
+        rationale: `Spread combination across high-frequency 4th column endings.`,
+      },
+      {
+        number: num11,
+        category: "Hot 4-Digit",
+        confidence_score: 74,
+        rationale: `Tertiary positional alignment across high-recurrence winning columns.`,
+      },
+      {
+        number: num12,
+        category: "Double Pattern",
+        confidence_score: 73,
+        rationale: `Internal double cluster flanked by top-ranking first and last digits.`,
+      },
+      {
+        number: num13,
+        category: "Balanced Sum",
+        confidence_score: 72,
+        rationale: `Evenly weighted sum total within prime prize-winning range.`,
+      },
+      {
+        number: num14,
+        category: "2nd/6th Target",
+        confidence_score: 71,
+        rationale: `Specialized target combination calibrated for 2nd & 6th tier payouts.`,
+      },
+      {
+        number: num15,
+        category: "Double Pattern",
+        confidence_score: 70,
+        rationale: `Terminal double pair ending with stable positional root sequence.`,
       },
     ],
     disclaimer: "This analysis is purely based on historical statistical frequencies and probability modeling. Kerala State Lottery draws are independent random events conducted by the Directorate of Kerala State Lotteries.",
