@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 const SUPPORT_EMAIL = "keralalotteryresultstoday@gmail.com";
 const PHONE_1 = "+91 97785 70477";
 const PHONE_1_CLEAN = "919778570477";
-const PHONE_2 = "+91 82818 07752";
+const PHONE_2 = "+91 9496706727";
 const PHONE_2_DIAL = "+918281807752";
 const CONTACT_PERSON = "Ajo Mon John";
 
@@ -129,7 +129,14 @@ export default function ContactPage() {
               }}
             >
               <Box>
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 2,
+                  }}
+                >
                   <Box
                     sx={{
                       width: 48,
@@ -154,13 +161,19 @@ export default function ContactPage() {
                     }}
                   />
                 </Box>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: "#1F2937", mb: 0.5 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 800, color: "#1F2937", mb: 0.5 }}
+                >
                   WhatsApp Support
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#4B5563", mb: 1 }}>
                   Contact Person: <strong>{CONTACT_PERSON}</strong>
                 </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 900, color: "#16A34A", mb: 2 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 900, color: "#16A34A", mb: 2 }}
+                >
                   {PHONE_1}
                 </Typography>
               </Box>
@@ -169,7 +182,7 @@ export default function ContactPage() {
                 fullWidth
                 component="a"
                 href={`https://wa.me/${PHONE_1_CLEAN}?text=${encodeURIComponent(
-                  "Hello, I am contacting you regarding Kerala Lottery Results Today."
+                  "Hello, I am contacting you regarding Kerala Lottery Results Today.",
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -210,7 +223,14 @@ export default function ContactPage() {
               }}
             >
               <Box>
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 2,
+                  }}
+                >
                   <Box
                     sx={{
                       width: 48,
@@ -235,7 +255,10 @@ export default function ContactPage() {
                     }}
                   />
                 </Box>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: "#1F2937", mb: 0.5 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 800, color: "#1F2937", mb: 0.5 }}
+                >
                   Email Support
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#4B5563", mb: 1 }}>
@@ -258,7 +281,7 @@ export default function ContactPage() {
                 fullWidth
                 component="a"
                 href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
-                  "Kerala Lottery Results Inquiry"
+                  "Kerala Lottery Results Inquiry",
                 )}`}
                 startIcon={<EmailIcon />}
                 sx={{
@@ -309,10 +332,16 @@ export default function ContactPage() {
                 }}
               >
                 <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#111827" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 900, color: "#111827" }}
+                  >
                     {PHONE_1}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#6B7280", fontWeight: 600 }}
+                  >
                     {CONTACT_PERSON} (Primary Helpline)
                   </Typography>
                 </Box>
@@ -348,10 +377,16 @@ export default function ContactPage() {
                 }}
               >
                 <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#111827" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 900, color: "#111827" }}
+                  >
                     {PHONE_2}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "#6B7280", fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#6B7280", fontWeight: 600 }}
+                  >
                     Secondary Phone Support
                   </Typography>
                 </Box>
@@ -389,24 +424,41 @@ export default function ContactPage() {
             mb: 4,
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flex: 1 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 1.5, flex: 1 }}
+          >
             <AccessTimeIcon sx={{ color: "#64748B" }} />
             <Box>
-              <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700, display: "block" }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "#64748B", fontWeight: 700, display: "block" }}
+              >
                 SUPPORT WORKING HOURS
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 800, color: "#1E293B" }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 800, color: "#1E293B" }}
+              >
                 Monday – Saturday: 9:00 AM – 7:00 PM IST
               </Typography>
             </Box>
           </Box>
 
-          <Divider orientation="vertical" flexItem sx={{ display: { xs: "none", sm: "block" } }} />
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{ display: { xs: "none", sm: "block" } }}
+          />
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flex: 1 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 1.5, flex: 1 }}
+          >
             <LanguageIcon sx={{ color: "#0B3C5D" }} />
             <Box>
-              <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700, display: "block" }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "#64748B", fontWeight: 700, display: "block" }}
+              >
                 OFFICIAL WEBSITE
               </Typography>
               <Link
@@ -430,7 +482,10 @@ export default function ContactPage() {
 
         {/* Helpful Resources Box */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1F2937", mb: 1.5 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 800, color: "#1F2937", mb: 1.5 }}
+          >
             Helpful Information & Guides:
           </Typography>
           <Grid container spacing={2}>
@@ -513,11 +568,22 @@ export default function ContactPage() {
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
             <WarningAmberIcon sx={{ color: "#B45309", mt: 0.2 }} />
             <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#92400E", mb: 0.5 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 800, color: "#92400E", mb: 0.5 }}
+              >
                 Disclaimer & Support Notice (ഔദ്യോഗിക അറിയിപ്പ്)
               </Typography>
-              <Typography variant="body2" sx={{ color: "#78350F", fontSize: "0.825rem", lineHeight: 1.6 }}>
-                Kerala Lottery Result Today is an independent informational utility and is NOT affiliated with, endorsed by, or connected to the Kerala State Lottery Department or Government of Kerala. All results are sourced from official government gazettes. We do not sell lottery tickets or process prize payouts. Ticket holders must verify results in the official Government Gazette.
+              <Typography
+                variant="body2"
+                sx={{ color: "#78350F", fontSize: "0.825rem", lineHeight: 1.6 }}
+              >
+                Kerala Lottery Result Today is an independent informational
+                utility and is NOT affiliated with, endorsed by, or connected to
+                the Kerala State Lottery Department or Government of Kerala. All
+                results are sourced from official government gazettes. We do not
+                sell lottery tickets or process prize payouts. Ticket holders
+                must verify results in the official Government Gazette.
               </Typography>
             </Box>
           </Box>

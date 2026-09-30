@@ -1062,8 +1062,17 @@ export default function DedicatedLotteryDateClient({
       }}
     >
       <Container maxWidth={false} sx={{ px: { xs: 1.5, sm: 3, md: 4, lg: 5 } }}>
-        {/* Desktop-only Breadcrumbs */}
-        <Box sx={{ mb: 2, display: { xs: "none", md: "block" } }}>
+        {/* Desktop-only Breadcrumbs & Date Selector */}
+        <Box
+          sx={{
+            mb: 2.5,
+            display: { xs: "none", md: "flex" },
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2,
+          }}
+        >
           <Breadcrumbs
             separator={<NavigateNextIcon fontSize="small" sx={{ color: "#9CA3AF" }} />}
             aria-label="breadcrumb"
@@ -1100,6 +1109,38 @@ export default function DedicatedLotteryDateClient({
               {dateParam} Result
             </Typography>
           </Breadcrumbs>
+
+          {availableDates.length > 0 && (
+            <FormControl
+              size="small"
+              sx={{
+                minWidth: 190,
+                bgcolor: "#FFFFFF",
+                borderRadius: "6px",
+              }}
+            >
+              <InputLabel sx={{ color: "#6B7280", fontSize: "0.85rem" }}>
+                Select Draw Date
+              </InputLabel>
+              <Select
+                value={selectedDate}
+                onChange={handleDateChange}
+                label="Select Draw Date"
+                sx={{
+                  color: "#111827",
+                  borderRadius: "6px",
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                }}
+              >
+                {availableDates.map((d) => (
+                  <MenuItem key={d} value={d}>
+                    {d}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
         </Box>
 
         {/* Mobile & Tablet App-Style Top Header Banner */}
@@ -1208,11 +1249,27 @@ export default function DedicatedLotteryDateClient({
               }}
             />
             <Chip
-              label={drawResult ? "🟢 Official Result" : isAfter3PM ? "🔴 Live Drawing" : "🕒 Scheduled"}
+              label={
+                drawResult
+                  ? "🟢 Official Result"
+                  : selectedDate === todayISTDate && isAfter3PM
+                  ? "🔴 Live Drawing"
+                  : selectedDate >= todayISTDate
+                  ? "🕒 Scheduled"
+                  : "⚪ Past Draw"
+              }
               size="small"
               sx={{
-                bgcolor: drawResult ? "#DCFCE7" : "#FEF3C7",
-                color: drawResult ? "#166534" : "#92400E",
+                bgcolor: drawResult
+                  ? "#DCFCE7"
+                  : selectedDate === todayISTDate && isAfter3PM
+                  ? "#FEE2E2"
+                  : "#FEF3C7",
+                color: drawResult
+                  ? "#166534"
+                  : selectedDate === todayISTDate && isAfter3PM
+                  ? "#991B1B"
+                  : "#92400E",
                 fontWeight: 800,
                 fontSize: "0.75rem",
                 borderRadius: "6px",
@@ -1220,110 +1277,6 @@ export default function DedicatedLotteryDateClient({
             />
           </Box>
         </Paper>
-
-        {/* Desktop-only Navigation Bar & Actions */}
-        <Box
-          sx={{
-            display: { xs: "none", md: "flex" },
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 2,
-            mb: 3,
-          }}
-        >
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            <Button
-              component={Link}
-              href={getLotteryUrl(lotterySlug)}
-              startIcon={<ArrowBackIcon />}
-              sx={{
-                color: "#4B5563",
-                fontWeight: 700,
-                borderRadius: "6px",
-                "&:hover": { color: "#0B3C5D" },
-              }}
-            >
-              Back to {lotteryInfo.name} Results
-            </Button>
-            <Button
-              component={Link}
-              href="/"
-              startIcon={<FormatListNumberedIcon />}
-              sx={{
-                color: "#4B5563",
-                fontWeight: 700,
-                borderRadius: "6px",
-                "&:hover": { color: "#0B3C5D" },
-              }}
-            >
-              Live Schedule
-            </Button>
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              flexWrap: "wrap",
-            }}
-          >
-            {availableDates.length > 0 && (
-              <FormControl
-                size="small"
-                sx={{
-                  minWidth: 200,
-                  bgcolor: "#FFFFFF",
-                  borderRadius: "6px",
-                }}
-              >
-                <InputLabel sx={{ color: "#6B7280" }}>
-                  Select Draw Date
-                </InputLabel>
-                <Select
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  label="Select Draw Date"
-                  sx={{
-                    color: "#111827",
-                    borderRadius: "6px",
-                    fontWeight: 700,
-                  }}
-                >
-                  {availableDates.map((d) => (
-                    <MenuItem key={d} value={d}>
-                      {d}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-
-            {/* Direct PDF Download */}
-            {drawResult && (
-              <Button
-                variant="contained"
-                component="a"
-                href={`/api/pdf/${lotteryCode}/${selectedDate}`}
-                download={`kerala-lottery-${lotteryCode}-${selectedDate}.pdf`}
-                startIcon={<FileDownloadIcon />}
-                sx={{
-                  bgcolor: "#0B3C5D",
-                  color: "#FFFFFF",
-                  fontWeight: 700,
-                  borderRadius: "6px",
-                  px: 2.5,
-                  py: 1,
-                  textDecoration: "none",
-                  "&:hover": { bgcolor: "#0F2C59" },
-                }}
-              >
-                Download PDF
-              </Button>
-            )}
-          </Box>
-        </Box>
 
         {/* Desktop Page Title */}
         <Box sx={{ mb: 3, display: { xs: "none", md: "flex" }, alignItems: "center", gap: 2.5 }}>
