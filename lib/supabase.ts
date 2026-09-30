@@ -121,7 +121,7 @@ export const WEEKLY_LOTTERIES: WeeklyLotteryItem[] = [
   },
 ];
 
-export const BUMPER_LOTTERIES = [
+export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
   {
     day: "Bumper (January)",
     name: "Christmas New Year Bumper",
