@@ -10,6 +10,7 @@ import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Chip from "@mui/material/Chip";
 import Grid from "@mui/material/Grid";
+import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -1048,44 +1049,105 @@ export default function LotteryDetailsClient({
 
 
         {/* ============================================================== */}
-        {/* EDITORIAL CONTENT: Intro & H2 Kerala Lottery Result           */}
+        {/* EDITORIAL CONTENT & FAQS: Single Unified Comprehensive Card   */}
         {/* ============================================================== */}
         <Paper
           elevation={0}
           sx={{
-            p: { xs: 2.5, sm: 3.5 },
-            mb: 3.5,
+            p: { xs: 2.5, sm: 4, md: 5 },
+            mb: 4,
             borderRadius: "16px",
             border: "1px solid #E2E8F0",
             bgcolor: "#FFFFFF",
           }}
         >
-          <Typography
-            variant="h2"
-            component="h2"
-            sx={{
-              fontWeight: 800,
-              color: "#0F172A",
-              fontSize: { xs: "1.25rem", sm: "1.55rem" },
-              mb: 2,
-            }}
-          >
-            {editorial.keralaResultHeading}
-          </Typography>
+          {/* Section 1: Kerala Lottery Result Intro */}
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontWeight: 800,
+                color: "#0F172A",
+                fontSize: { xs: "1.3rem", sm: "1.65rem" },
+                mb: 2,
+              }}
+            >
+              {editorial.keralaResultHeading}
+            </Typography>
 
-          <Box sx={{ color: "#334155", fontSize: "0.95rem", lineHeight: 1.75, mb: 2.5 }}>
-            {editorial.keralaResultParagraphs.map((para, idx) => (
+            <Box sx={{ color: "#334155", fontSize: "0.95rem", lineHeight: 1.8, mb: 2 }}>
+              {editorial.keralaResultParagraphs.map((para, idx) => (
+                <Typography
+                  key={idx}
+                  variant="body1"
+                  sx={{
+                    mb:
+                      idx === editorial.keralaResultParagraphs.length - 1
+                        ? 0
+                        : 1.5,
+                    color: "#334155",
+                    fontSize: { xs: "0.925rem", sm: "1rem" },
+                    lineHeight: 1.8,
+                  }}
+                >
+                  {para}
+                </Typography>
+              ))}
+            </Box>
+
+            <Box sx={{ color: "#475569", fontSize: "0.95rem", lineHeight: 1.8 }}>
+              {editorial.introParagraphs.map((para, idx) => (
+                <Typography
+                  key={idx}
+                  variant="body1"
+                  sx={{
+                    mb:
+                      idx === editorial.introParagraphs.length - 1 ? 0 : 1.5,
+                    color: "#475569",
+                    fontSize: { xs: "0.925rem", sm: "1rem" },
+                    lineHeight: 1.8,
+                  }}
+                >
+                  {para}
+                </Typography>
+              ))}
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 4, borderColor: "#E2E8F0" }} />
+
+          {/* Section 2: [Name] Lottery */}
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontWeight: 800,
+                color: "#0F172A",
+                fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <ConfirmationNumberIcon sx={{ color: "#0B3C5D" }} />
+              {editorial.lotterySectionHeading}
+            </Typography>
+
+            {editorial.lotterySectionParagraphs.map((para, idx) => (
               <Typography
                 key={idx}
                 variant="body1"
                 sx={{
                   mb:
-                    idx === editorial.keralaResultParagraphs.length - 1
+                    idx === editorial.lotterySectionParagraphs.length - 1
                       ? 0
                       : 1.5,
                   color: "#334155",
-                  fontSize: { xs: "0.9rem", sm: "0.975rem" },
-                  lineHeight: 1.75,
+                  fontSize: { xs: "0.925rem", sm: "1rem" },
+                  lineHeight: 1.8,
                 }}
               >
                 {para}
@@ -1093,563 +1155,457 @@ export default function LotteryDetailsClient({
             ))}
           </Box>
 
-          <Box sx={{ color: "#334155", fontSize: "0.95rem", lineHeight: 1.75 }}>
-            {editorial.introParagraphs.map((para, idx) => (
+          <Divider sx={{ my: 4, borderColor: "#E2E8F0" }} />
+
+          {/* Section 3: About [Name] Lottery & Venue */}
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontWeight: 800,
+                color: "#0F172A",
+                fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                mb: 2,
+              }}
+            >
+              {editorial.aboutHeading}
+            </Typography>
+
+            {editorial.aboutParagraphs.map((para, idx) => (
               <Typography
                 key={idx}
                 variant="body1"
                 sx={{
-                  mb:
-                    idx === editorial.introParagraphs.length - 1
-                      ? 0
-                      : 1.5,
-                  color: "#475569",
-                  fontSize: { xs: "0.9rem", sm: "0.95rem" },
-                  lineHeight: 1.75,
+                  mb: idx === editorial.aboutParagraphs.length - 1 ? 0 : 1.5,
+                  color: "#334155",
+                  fontSize: { xs: "0.925rem", sm: "1rem" },
+                  lineHeight: 1.8,
                 }}
               >
                 {para}
               </Typography>
             ))}
-          </Box>
-        </Paper>
 
-        {/* ============================================================== */}
-        {/* COMPREHENSIVE SEO CARDS (H2, H3, Prize Table, Series, FAQs)  */}
-        {/* ============================================================== */}
-        <Grid container spacing={3.5} sx={{ mb: 4 }}>
-          {/* Column 1 */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            {/* H2: [Name] Lottery */}
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 2.5, sm: 3.5 },
-                borderRadius: "16px",
-                border: "1px solid #E2E8F0",
-                bgcolor: "#FFFFFF",
-                mb: 3.5,
-              }}
-            >
-              <Typography
-                variant="h2"
-                component="h2"
-                sx={{
-                  fontWeight: 800,
-                  color: "#0F172A",
-                  fontSize: { xs: "1.25rem", sm: "1.45rem" },
-                  mb: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <ConfirmationNumberIcon sx={{ color: "#0B3C5D" }} />
-                {editorial.lotterySectionHeading}
-              </Typography>
-
-              {editorial.lotterySectionParagraphs.map((para, idx) => (
-                <Typography
-                  key={idx}
-                  variant="body1"
-                  sx={{
-                    mb:
-                      idx === editorial.lotterySectionParagraphs.length - 1
-                        ? 0
-                        : 1.5,
-                    color: "#334155",
-                    fontSize: { xs: "0.9rem", sm: "0.95rem" },
-                    lineHeight: 1.7,
-                  }}
-                >
-                  {para}
-                </Typography>
-              ))}
-            </Paper>
-
-            {/* H2: Kerala State Lotteries Results (with Internal Link) */}
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 2.5, sm: 3.5 },
-                borderRadius: "16px",
-                border: "1px solid #E2E8F0",
-                bgcolor: "#FFFFFF",
-                mb: 3.5,
-              }}
-            >
-              <Typography
-                variant="h2"
-                component="h2"
-                sx={{
-                  fontWeight: 800,
-                  color: "#0F172A",
-                  fontSize: { xs: "1.25rem", sm: "1.45rem" },
-                  mb: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <MonetizationOnIcon sx={{ color: "#0B3C5D" }} />
-                {editorial.keralaStateLotteriesResultsHeading}
-              </Typography>
-
-              {editorial.keralaStateLotteriesResultsParagraphs.map(
-                (para, idx) => (
-                  <Typography
-                    key={idx}
-                    variant="body1"
-                    sx={{
-                      mb:
-                        idx ===
-                        editorial.keralaStateLotteriesResultsParagraphs.length -
-                          1
-                          ? 0
-                          : 1.5,
-                      color: "#334155",
-                      fontSize: { xs: "0.9rem", sm: "0.95rem" },
-                      lineHeight: 1.7,
-                    }}
-                  >
-                    {idx === 0 ? (
-                      <>
-                        The{" "}
-                        <Link
-                          href="/"
-                          style={{
-                            color: "#0B3C5D",
-                            fontWeight: 700,
-                            textDecoration: "underline",
-                          }}
-                        >
-                          Kerala State Lotteries Results
-                        </Link>{" "}
-                        are officially announced after each scheduled lottery draw
-                        conducted by the Kerala State Lotteries Department. The
-                        results contain the winning numbers and relevant prize
-                        information for each lottery.
-                      </>
-                    ) : (
-                      para
-                    )}
-                  </Typography>
-                )
-              )}
-            </Paper>
-
-            {/* H2: Kerala State [Name] Weekly Lottery */}
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 2.5, sm: 3.5 },
-                borderRadius: "16px",
-                border: "1px solid #E2E8F0",
-                bgcolor: "#FFFFFF",
-              }}
-            >
-              <Typography
-                variant="h2"
-                component="h2"
-                sx={{
-                  fontWeight: 800,
-                  color: "#0F172A",
-                  fontSize: { xs: "1.25rem", sm: "1.45rem" },
-                  mb: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <AccessTimeIcon sx={{ color: "#0B3C5D" }} />
-                {editorial.weeklyLotteryHeading}
-              </Typography>
-
-              {editorial.weeklyLotteryParagraphs.map((para, idx) => (
-                <Typography
-                  key={idx}
-                  variant="body1"
-                  sx={{
-                    mb:
-                      idx === editorial.weeklyLotteryParagraphs.length - 1
-                        ? 0
-                        : 1.5,
-                    color: "#334155",
-                    fontSize: { xs: "0.9rem", sm: "0.95rem" },
-                    lineHeight: 1.7,
-                  }}
-                >
-                  {para}
-                </Typography>
-              ))}
-            </Paper>
-          </Grid>
-
-          {/* Column 2 */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            {/* H2: About [Name] Lottery */}
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 2.5, sm: 3.5 },
-                borderRadius: "16px",
-                border: "1px solid #E2E8F0",
-                bgcolor: "#FFFFFF",
-                mb: 3.5,
-              }}
-            >
-              <Typography
-                variant="h2"
-                component="h2"
-                sx={{
-                  fontWeight: 800,
-                  color: "#0F172A",
-                  fontSize: { xs: "1.25rem", sm: "1.45rem" },
-                  mb: 2,
-                }}
-              >
-                {editorial.aboutHeading}
-              </Typography>
-
-              {editorial.aboutParagraphs.map((para, idx) => (
-                <Typography
-                  key={idx}
-                  variant="body1"
-                  sx={{
-                    mb:
-                      idx === editorial.aboutParagraphs.length - 1 ? 0 : 1.5,
-                    color: "#334155",
-                    fontSize: { xs: "0.9rem", sm: "0.95rem" },
-                    lineHeight: 1.7,
-                  }}
-                >
-                  {para}
-                </Typography>
-              ))}
-
-              {/* H3: Draw Venue */}
-              <Box
-                sx={{
-                  mt: 3,
-                  pt: 2.5,
-                  borderTop: "1px solid #E2E8F0",
-                }}
-              >
-                <Typography
-                  variant="h3"
-                  component="h3"
-                  sx={{
-                    fontWeight: 800,
-                    color: "#0F172A",
-                    fontSize: "1.1rem",
-                    mb: 1.5,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                  }}
-                >
-                  <LocationOnIcon sx={{ color: "#E11D48" }} />
-                  {editorial.drawVenueHeading}
-                </Typography>
-
-                <Box
-                  sx={{
-                    p: 2,
-                    borderRadius: "10px",
-                    bgcolor: "#FFF1F2",
-                    border: "1px solid #FFE4E6",
-                    mb: 1.5,
-                  }}
-                >
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ fontWeight: 800, color: "#9F1239" }}
-                  >
-                    📍 {editorial.venueDetails.name},{" "}
-                    {editorial.venueDetails.location}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "#BE123C", mt: 0.25 }}
-                  >
-                    {editorial.venueDetails.city},{" "}
-                    {editorial.venueDetails.state} • Draw Time:{" "}
-                    <strong>{editorial.venueDetails.drawTime}</strong> (
-                    {editorial.venueDetails.drawDay})
-                  </Typography>
-                </Box>
-
-                {editorial.drawVenueParagraphs.map((para, idx) => (
-                  <Typography
-                    key={idx}
-                    variant="body2"
-                    sx={{
-                      mb:
-                        idx === editorial.drawVenueParagraphs.length - 1
-                          ? 0
-                          : 1,
-                      color: "#475569",
-                      fontSize: "0.875rem",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {para}
-                  </Typography>
-                ))}
-              </Box>
-            </Paper>
-
-            {/* H3: Ticket Price & Prize Structure Table */}
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 2.5, sm: 3.5 },
-                borderRadius: "16px",
-                border: "1px solid #E2E8F0",
-                bgcolor: "#FFFFFF",
-                mb: 3.5,
-              }}
-            >
+            {/* Venue Callout Sub-block */}
+            <Box sx={{ mt: 3 }}>
               <Typography
                 variant="h3"
                 component="h3"
                 sx={{
                   fontWeight: 800,
                   color: "#0F172A",
-                  fontSize: { xs: "1.15rem", sm: "1.3rem" },
+                  fontSize: "1.15rem",
                   mb: 1.5,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
                 }}
               >
-                {editorial.ticketPriceHeading}
+                <LocationOnIcon sx={{ color: "#E11D48" }} />
+                {editorial.drawVenueHeading}
               </Typography>
 
-              <Box sx={{ mb: 2 }}>
-                {editorial.ticketPriceParagraphs.map((para, idx) => (
-                  <Typography
-                    key={idx}
-                    variant="body2"
-                    sx={{
-                      mb:
-                        idx === editorial.ticketPriceParagraphs.length - 1
-                          ? 0
-                          : 1,
-                      color: "#475569",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {para}
-                  </Typography>
-                ))}
-              </Box>
-
-              {/* Prize Categories Table */}
-              <TableContainer
+              <Box
                 sx={{
-                  borderRadius: "10px",
-                  border: "1px solid #E2E8F0",
-                  overflow: "hidden",
+                  p: 2.25,
+                  borderRadius: "12px",
+                  bgcolor: "#FFF1F2",
+                  border: "1px solid #FFE4E6",
+                  mb: 2,
                 }}
               >
-                <Table size="small">
-                  <TableHead sx={{ bgcolor: "#F8FAFC" }}>
-                    <TableRow>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 800, color: "#9F1239" }}
+                >
+                  📍 {editorial.venueDetails.name},{" "}
+                  {editorial.venueDetails.location}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#BE123C", mt: 0.5, fontWeight: 600 }}
+                >
+                  {editorial.venueDetails.city},{" "}
+                  {editorial.venueDetails.state} • Draw Time:{" "}
+                  <strong>{editorial.venueDetails.drawTime}</strong> (
+                  {editorial.venueDetails.drawDay})
+                </Typography>
+              </Box>
+
+              {editorial.drawVenueParagraphs.map((para, idx) => (
+                <Typography
+                  key={idx}
+                  variant="body2"
+                  sx={{
+                    mb:
+                      idx === editorial.drawVenueParagraphs.length - 1
+                        ? 0
+                        : 1,
+                    color: "#475569",
+                    fontSize: "0.925rem",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {para}
+                </Typography>
+              ))}
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 4, borderColor: "#E2E8F0" }} />
+
+          {/* Section 4: Kerala State Lotteries Results (with Internal Link) */}
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontWeight: 800,
+                color: "#0F172A",
+                fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <MonetizationOnIcon sx={{ color: "#0B3C5D" }} />
+              {editorial.keralaStateLotteriesResultsHeading}
+            </Typography>
+
+            {editorial.keralaStateLotteriesResultsParagraphs.map((para, idx) => (
+              <Typography
+                key={idx}
+                variant="body1"
+                sx={{
+                  mb:
+                    idx ===
+                    editorial.keralaStateLotteriesResultsParagraphs.length - 1
+                      ? 0
+                      : 1.5,
+                  color: "#334155",
+                  fontSize: { xs: "0.925rem", sm: "1rem" },
+                  lineHeight: 1.8,
+                }}
+              >
+                {idx === 0 ? (
+                  <>
+                    The{" "}
+                    <Link
+                      href="/"
+                      style={{
+                        color: "#0B3C5D",
+                        fontWeight: 700,
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Kerala State Lotteries Results
+                    </Link>{" "}
+                    are officially announced after each scheduled lottery draw
+                    conducted by the Kerala State Lotteries Department. The
+                    results contain the winning numbers and relevant prize
+                    information for each lottery.
+                  </>
+                ) : (
+                  para
+                )}
+              </Typography>
+            ))}
+          </Box>
+
+          <Divider sx={{ my: 4, borderColor: "#E2E8F0" }} />
+
+          {/* Section 5: Weekly Lottery Scheme Details */}
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontWeight: 800,
+                color: "#0F172A",
+                fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <AccessTimeIcon sx={{ color: "#0B3C5D" }} />
+              {editorial.weeklyLotteryHeading}
+            </Typography>
+
+            {editorial.weeklyLotteryParagraphs.map((para, idx) => (
+              <Typography
+                key={idx}
+                variant="body1"
+                sx={{
+                  mb:
+                    idx === editorial.weeklyLotteryParagraphs.length - 1
+                      ? 0
+                      : 1.5,
+                  color: "#334155",
+                  fontSize: { xs: "0.925rem", sm: "1rem" },
+                  lineHeight: 1.8,
+                }}
+              >
+                {para}
+              </Typography>
+            ))}
+          </Box>
+
+          <Divider sx={{ my: 4, borderColor: "#E2E8F0" }} />
+
+          {/* Section 6: Ticket Price & Prize Structure Table */}
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h3"
+              component="h3"
+              sx={{
+                fontWeight: 800,
+                color: "#0F172A",
+                fontSize: { xs: "1.2rem", sm: "1.4rem" },
+                mb: 2,
+              }}
+            >
+              {editorial.ticketPriceHeading}
+            </Typography>
+
+            <Box sx={{ mb: 2.5 }}>
+              {editorial.ticketPriceParagraphs.map((para, idx) => (
+                <Typography
+                  key={idx}
+                  variant="body2"
+                  sx={{
+                    mb:
+                      idx === editorial.ticketPriceParagraphs.length - 1
+                        ? 0
+                        : 1.5,
+                    color: "#475569",
+                    fontSize: "0.95rem",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {para}
+                </Typography>
+              ))}
+            </Box>
+
+            {/* Full-width Prize Categories Table */}
+            <TableContainer
+              sx={{
+                borderRadius: "12px",
+                border: "1px solid #E2E8F0",
+                overflow: "hidden",
+                mb: 3,
+              }}
+            >
+              <Table>
+                <TableHead sx={{ bgcolor: "#F8FAFC" }}>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        fontWeight: 800,
+                        color: "#334155",
+                        fontSize: "0.825rem",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Prize Category
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: 800,
+                        color: "#334155",
+                        fontSize: "0.825rem",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Prize Amount
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {editorial.prizes.map((p, idx) => (
+                    <TableRow
+                      key={idx}
+                      sx={{
+                        bgcolor:
+                          idx === 0
+                            ? "#FEF3C7"
+                            : idx % 2 === 1
+                            ? "#F8FAFC"
+                            : "transparent",
+                        "&:last-child td, &:last-child th": { border: 0 },
+                      }}
+                    >
                       <TableCell
                         sx={{
-                          fontWeight: 800,
-                          color: "#334155",
-                          fontSize: "0.75rem",
-                          textTransform: "uppercase",
+                          fontWeight: idx === 0 ? 800 : 600,
+                          color: idx === 0 ? "#78350F" : "#334155",
+                          fontSize: "0.9rem",
                         }}
                       >
-                        Prize Category
+                        {idx === 0 ? `🏆 ${p.category}` : p.category}
                       </TableCell>
                       <TableCell
                         align="right"
                         sx={{
                           fontWeight: 800,
-                          color: "#334155",
-                          fontSize: "0.75rem",
-                          textTransform: "uppercase",
+                          color: idx === 0 ? "#92400E" : "#0B3C5D",
+                          fontSize: "0.95rem",
                         }}
                       >
-                        Prize Amount
+                        {p.amount}
                       </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {editorial.prizes.map((p, idx) => (
-                      <TableRow
-                        key={idx}
-                        sx={{
-                          bgcolor: idx === 0 ? "#FEF3C7" : "transparent",
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell
-                          sx={{
-                            fontWeight: idx === 0 ? 800 : 600,
-                            color: idx === 0 ? "#78350F" : "#334155",
-                          }}
-                        >
-                          {idx === 0 ? `🏆 ${p.category}` : p.category}
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          sx={{
-                            fontWeight: 800,
-                            color: idx === 0 ? "#92400E" : "#0B3C5D",
-                          }}
-                        >
-                          {p.amount}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
 
-            {/* H3: Codes and Series */}
-            <Paper
-              elevation={0}
+          <Divider sx={{ my: 4, borderColor: "#E2E8F0" }} />
+
+          {/* Section 7: Codes and Series */}
+          <Box sx={{ mb: editorial.faqItems?.length ? 4 : 0 }}>
+            <Typography
+              variant="h3"
+              component="h3"
               sx={{
-                p: { xs: 2.5, sm: 3.5 },
-                borderRadius: "16px",
-                border: "1px solid #E2E8F0",
-                bgcolor: "#FFFFFF",
+                fontWeight: 800,
+                color: "#0F172A",
+                fontSize: { xs: "1.2rem", sm: "1.4rem" },
+                mb: 2,
               }}
             >
-              <Typography
-                variant="h3"
-                component="h3"
-                sx={{
-                  fontWeight: 800,
-                  color: "#0F172A",
-                  fontSize: { xs: "1.15rem", sm: "1.3rem" },
-                  mb: 1.5,
-                }}
-              >
-                {editorial.codesAndSeriesHeading}
-              </Typography>
-
-              {editorial.codesAndSeriesParagraphs.map((para, idx) => (
-                <Typography
-                  key={idx}
-                  variant="body2"
-                  sx={{
-                    mb: 1.5,
-                    color: "#475569",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {para}
-                </Typography>
-              ))}
-
-              {/* Series Chips Grid */}
-              {editorial.seriesList && editorial.seriesList.length > 0 && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: 800,
-                      color: "#64748B",
-                      display: "block",
-                      mb: 1,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Active Series Combinations:
-                  </Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
-                    {editorial.seriesList.map((s) => (
-                      <Chip
-                        key={s}
-                        label={s}
-                        size="small"
-                        sx={{
-                          fontWeight: 800,
-                          bgcolor: "#F1F5F9",
-                          color: "#0B3C5D",
-                          border: "1px solid #CBD5E1",
-                          fontFamily: "monospace",
-                          fontSize: "0.8rem",
-                        }}
-                      />
-                    ))}
-                  </Box>
-                </Box>
-              )}
-            </Paper>
-          </Grid>
-        </Grid>
-
-        {/* ============================================================== */}
-        {/* FAQ ACCORDION                                                  */}
-        {/* ============================================================== */}
-        {editorial.faqItems && editorial.faqItems.length > 0 && (
-          <Paper
-            elevation={0}
-            sx={{
-              p: { xs: 2.5, sm: 3.5 },
-              mb: 4,
-              borderRadius: "16px",
-              border: "1px solid #E2E8F0",
-              bgcolor: "#FFFFFF",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <HelpIcon sx={{ color: "#0B3C5D" }} />
-              <Typography
-                variant="h2"
-                component="h2"
-                sx={{
-                  fontWeight: 800,
-                  color: "#0F172A",
-                  fontSize: { xs: "1.25rem", sm: "1.5rem" },
-                }}
-              >
-                Frequently Asked Questions ({lotteryInfo.name} Results)
-              </Typography>
-            </Box>
-            <Typography variant="body2" sx={{ color: "#64748B", mb: 2.5 }}>
-              Common questions answered regarding {lotteryInfo.name} (
-              {lotteryInfo.code}) draws, prize claim policies, and winning
-              number verification:
+              {editorial.codesAndSeriesHeading}
             </Typography>
 
-            {editorial.faqItems.map((item, idx) => (
-              <Accordion
+            {editorial.codesAndSeriesParagraphs.map((para, idx) => (
+              <Typography
                 key={idx}
-                elevation={0}
-                defaultExpanded={idx === 0}
+                variant="body2"
                 sx={{
-                  border: "1px solid #E2E8F0",
-                  borderRadius: "10px !important",
                   mb: 1.5,
-                  "&:before": { display: "none" },
+                  color: "#475569",
+                  fontSize: "0.95rem",
+                  lineHeight: 1.7,
                 }}
               >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon sx={{ color: "#0B3C5D" }} />}
-                  sx={{ fontWeight: 800, color: "#0F172A" }}
-                >
-                  <Typography sx={{ fontWeight: 700, fontSize: "0.95rem" }}>
-                    {item.question}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ pt: 0, color: "#334155" }}>
-                  <Typography
-                    variant="body2"
-                    sx={{ lineHeight: 1.7, fontSize: "0.9rem" }}
-                  >
-                    {item.answer}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
+                {para}
+              </Typography>
             ))}
-          </Paper>
-        )}
+
+            {/* Series Chips Grid */}
+            {editorial.seriesList && editorial.seriesList.length > 0 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    color: "#64748B",
+                    display: "block",
+                    mb: 1.5,
+                    textTransform: "uppercase",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Active Series Combinations:
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {editorial.seriesList.map((s) => (
+                    <Chip
+                      key={s}
+                      label={s}
+                      size="small"
+                      sx={{
+                        fontWeight: 800,
+                        bgcolor: "#F1F5F9",
+                        color: "#0B3C5D",
+                        border: "1px solid #CBD5E1",
+                        fontFamily: "monospace",
+                        fontSize: "0.85rem",
+                        py: 0.5,
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
+          </Box>
+
+          {/* Section 8: Frequently Asked Questions */}
+          {editorial.faqItems && editorial.faqItems.length > 0 && (
+            <>
+              <Divider sx={{ my: 4, borderColor: "#E2E8F0" }} />
+
+              <Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 2,
+                  }}
+                >
+                  <HelpIcon sx={{ color: "#0B3C5D" }} />
+                  <Typography
+                    variant="h2"
+                    component="h2"
+                    sx={{
+                      fontWeight: 800,
+                      color: "#0F172A",
+                      fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                    }}
+                  >
+                    Frequently Asked Questions ({lotteryInfo.name} Results)
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: "#64748B", mb: 2.5 }}>
+                  Common questions answered regarding {lotteryInfo.name} (
+                  {lotteryInfo.code}) draws, prize claim policies, and winning
+                  number verification:
+                </Typography>
+
+                {editorial.faqItems.map((item, idx) => (
+                  <Accordion
+                    key={idx}
+                    elevation={0}
+                    defaultExpanded={idx === 0}
+                    sx={{
+                      border: "1px solid #E2E8F0",
+                      borderRadius: "10px !important",
+                      mb: 1.5,
+                      "&:before": { display: "none" },
+                    }}
+                  >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon sx={{ color: "#0B3C5D" }} />}
+                      sx={{ fontWeight: 800, color: "#0F172A" }}
+                    >
+                      <Typography
+                        sx={{ fontWeight: 700, fontSize: "0.95rem" }}
+                      >
+                        {item.question}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ pt: 0, color: "#334155" }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ lineHeight: 1.7, fontSize: "0.9rem" }}
+                      >
+                        {item.answer}
+                      </Typography>
+                    </AccordionDetails>
+                  </Accordion>
+                ))}
+              </Box>
+            </>
+          )}
+        </Paper>
 
         {/* ============================================================== */}
         {/* CRAWLABLE HISTORICAL RESULTS INDEX & OTHER LOTTERIES           */}
