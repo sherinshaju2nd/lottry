@@ -134,11 +134,66 @@ export default function LotteryDetailsClient({
     ticketPrice,
   ]);
 
+  const isBumper = Boolean(
+    lotteryInfo.is_bumper ||
+    lotteryCode.startsWith("Bumper") ||
+    ["XN", "SB", "VB", "MB", "TH", "PB"].includes(lotteryCode)
+  );
+
+  const todayISTDate = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+      }).format(new Date());
+    } catch {
+      return new Date().toISOString().split("T")[0];
+    }
+  }, []);
+
+  const isUpcomingConfirmedDraw = Boolean(
+    lotteryDbMeta?.draw_date && lotteryDbMeta.draw_date >= todayISTDate
+  );
+
+  const confirmedFormattedDate = useMemo(() => {
+    if (!lotteryDbMeta?.draw_date) return "";
+    try {
+      const parts = lotteryDbMeta.draw_date.split("-");
+      if (parts.length === 3) {
+        const d = new Date(
+          parseInt(parts[0], 10),
+          parseInt(parts[1], 10) - 1,
+          parseInt(parts[2], 10)
+        );
+        return d.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+    } catch {}
+    return lotteryDbMeta.draw_date;
+  }, [lotteryDbMeta?.draw_date]);
+
+  const daysRemaining = useMemo(() => {
+    if (!lotteryDbMeta?.draw_date || !todayISTDate) return null;
+    try {
+      const diffMs =
+        new Date(`${lotteryDbMeta.draw_date}T00:00:00+05:30`).getTime() -
+        new Date(`${todayISTDate}T00:00:00+05:30`).getTime();
+      const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      return days > 0 ? days : 0;
+    } catch {
+      return null;
+    }
+  }, [lotteryDbMeta?.draw_date, todayISTDate]);
+
   const latestDraw = drawHistory?.[0] || null;
 
   const displayDate = useMemo(() => {
     if (propFormattedDate) return propFormattedDate;
-    const rawDate = latestDraw?.draw_date || lotteryDbMeta?.draw_date;
+    const rawDate = isUpcomingConfirmedDraw
+      ? lotteryDbMeta?.draw_date
+      : latestDraw?.draw_date || lotteryDbMeta?.draw_date;
     if (!rawDate) return "";
     try {
       const parts = rawDate.split("-");
@@ -156,7 +211,7 @@ export default function LotteryDetailsClient({
       }
     } catch {}
     return rawDate;
-  }, [propFormattedDate, latestDraw, lotteryDbMeta]);
+  }, [propFormattedDate, isUpcomingConfirmedDraw, latestDraw, lotteryDbMeta]);
 
   // Dynamic H1 heading matching user requirements
   const h1Title = useMemo(() => {
@@ -382,6 +437,19 @@ export default function LotteryDetailsClient({
                       border: "1px solid #E2E8F0",
                     }}
                   />
+                  {isUpcomingConfirmedDraw && (
+                    <Chip
+                      label={`Confirmed Draw: ${confirmedFormattedDate || lotteryDbMeta.draw_date}`}
+                      size="small"
+                      sx={{
+                        bgcolor: "#FEF3C7",
+                        color: "#92400E",
+                        fontWeight: 800,
+                        fontSize: "0.725rem",
+                        border: "1px solid #FCD34D",
+                      }}
+                    />
+                  )}
                 </Box>
 
                 <Typography
@@ -460,6 +528,134 @@ export default function LotteryDetailsClient({
             </ToggleButtonGroup>
           </Box>
         </Box>
+
+        {/* ============================================================== */}
+        {/* UPCOMING ANNOUNCED DRAW BANNER (Confirmed Bumper / Next Draw)  */}
+        {/* ============================================================== */}
+        {isUpcomingConfirmedDraw && lotteryDbMeta?.draw_date && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 2.5, sm: 3 },
+              mb: 3,
+              borderRadius: "16px",
+              border: "2px solid #F59E0B",
+              bgcolor: "#FFFDF0",
+              boxShadow: "0 4px 20px rgba(245, 158, 11, 0.12)",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 2,
+            }}
+          >
+            <Box sx={{ maxWidth: { xs: "100%", md: "75%" } }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexWrap: "wrap",
+                  mb: 1,
+                }}
+              >
+                <Chip
+                  label={
+                    lotteryDbMeta.draw_date === todayISTDate
+                      ? "👑 DRAWS TODAY"
+                      : `👑 DRAW ANNOUNCED: ${confirmedFormattedDate || lotteryDbMeta.draw_date}`
+                  }
+                  size="small"
+                  sx={{
+                    bgcolor: "#FEF3C7",
+                    color: "#92400E",
+                    fontWeight: 900,
+                    fontSize: "0.75rem",
+                    border: "1px solid #F59E0B",
+                  }}
+                />
+                {isBumper && (
+                  <Chip
+                    label="GOVERNMENT BUMPER"
+                    size="small"
+                    sx={{
+                      bgcolor: "#EFF6FF",
+                      color: "#1D4ED8",
+                      fontWeight: 800,
+                      fontSize: "0.72rem",
+                    }}
+                  />
+                )}
+                {daysRemaining !== null && daysRemaining > 0 && (
+                  <Chip
+                    label={`⏳ ${daysRemaining} ${daysRemaining === 1 ? "Day" : "Days"} to Draw`}
+                    size="small"
+                    sx={{
+                      bgcolor: "#FFFFFF",
+                      color: "#B45309",
+                      fontWeight: 800,
+                      fontSize: "0.72rem",
+                      border: "1px solid #FCD34D",
+                    }}
+                  />
+                )}
+              </Box>
+
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 900,
+                  color: "#78350F",
+                  fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Next Scheduled Draw: {confirmedFormattedDate || lotteryDbMeta.draw_date}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#92400E",
+                  fontWeight: 600,
+                  mt: 0.5,
+                  fontSize: { xs: "0.85rem", sm: "0.925rem" },
+                }}
+              >
+                Draw Time:{" "}
+                <strong>
+                  {lotteryDbMeta.draw_time || (isBumper ? "2:00 PM" : "3:00 PM")}
+                </strong>{" "}
+                | 1st Prize:{" "}
+                <strong style={{ color: "#92400E" }}>{jackpotAmount}</strong> |
+                Ticket Price: <strong>{ticketPrice}</strong> | Venue:{" "}
+                <strong>Gorky Bhavan, TVM</strong>
+              </Typography>
+            </Box>
+
+            <Button
+              component={Link}
+              href={`/${lotterySlug}/${lotteryDbMeta.draw_date}`}
+              variant="contained"
+              sx={{
+                bgcolor: "#D97706",
+                color: "#FFFFFF",
+                fontWeight: 800,
+                borderRadius: "8px",
+                px: 3,
+                py: 1.25,
+                textTransform: "none",
+                fontSize: "0.925rem",
+                boxShadow: "0 2px 8px rgba(217, 119, 6, 0.3)",
+                "&:hover": {
+                  bgcolor: "#B45309",
+                },
+              }}
+            >
+              View Draw Details →
+            </Button>
+          </Paper>
+        )}
 
         {/* ============================================================== */}
         {/* LATEST DRAW: Sleek Compact Banner                              */}

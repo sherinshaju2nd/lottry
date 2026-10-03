@@ -58,7 +58,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   ]);
 
   const dbMeta = lotRes.data;
-  const latestDrawDate = drawHistory?.[0]?.draw_date || dbMeta?.draw_date;
+  const todayISTDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+  }).format(new Date());
+
+  const isConfirmedUpcoming = Boolean(
+    dbMeta?.draw_date && dbMeta.draw_date >= todayISTDate
+  );
+
+  const latestDrawDate = isConfirmedUpcoming
+    ? dbMeta?.draw_date
+    : drawHistory?.[0]?.draw_date || dbMeta?.draw_date;
   const formattedDate = formatDisplayDate(latestDrawDate);
 
   const jackpot =
@@ -212,9 +222,19 @@ export default async function LotteryDetailsPage({ params }: PageProps) {
   );
 
   const latestDraw = drawHistory?.[0] || null;
-  const latestFormattedDate = formatDisplayDate(
-    latestDraw?.draw_date || lotteryDbMeta?.draw_date
+  const todayISTDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+  }).format(new Date());
+
+  const isConfirmedUpcoming = Boolean(
+    lotteryDbMeta?.draw_date && lotteryDbMeta.draw_date >= todayISTDate
   );
+
+  const targetDate = isConfirmedUpcoming
+    ? lotteryDbMeta.draw_date
+    : latestDraw?.draw_date || lotteryDbMeta?.draw_date;
+
+  const latestFormattedDate = formatDisplayDate(targetDate);
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
