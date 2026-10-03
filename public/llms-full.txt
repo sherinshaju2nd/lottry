@@ -18,9 +18,9 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 ## 2. Weekly Lottery Schedule & Prize Tables
 
 ### Monday: Bhagyathara (Draw Code: BT)
-- **URL**: https://www.keralalotteryresultstoday.in/lottery/BT
-- **Ticket Price**: ₹40
-- **1st Prize**: ₹80,00,000 (₹80 Lakhs)
+- **URL**: https://www.keralalotteryresultstoday.in/bhagyathara
+- **Ticket Price**: ₹50
+- **1st Prize**: ₹1,00,00,000 (₹1 Crore)
 - **Consolation Prize**: ₹8,000
 - **2nd Prize**: ₹10,00,000 (₹10 Lakhs)
 - **3rd Prize**: ₹1,00,000 (₹1 Lakh)
@@ -31,9 +31,9 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **8th Prize**: ₹100
 
 ### Tuesday: Sthree Sakthi (Draw Code: SS)
-- **URL**: https://www.keralalotteryresultstoday.in/lottery/SS
-- **Ticket Price**: ₹40
-- **1st Prize**: ₹75,00,000 (₹75 Lakhs)
+- **URL**: https://www.keralalotteryresultstoday.in/sthree-sakthi
+- **Ticket Price**: ₹50
+- **1st Prize**: ₹1,00,00,000 (₹1 Crore)
 - **Consolation Prize**: ₹8,000
 - **2nd Prize**: ₹10,00,000 (₹10 Lakhs)
 - **3rd Prize**: ₹5,000
@@ -44,7 +44,7 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **8th Prize**: ₹100
 
 ### Wednesday: Dhanalekshmi / Fifty-Fifty (Draw Code: DL / FF)
-- **URL**: https://www.keralalotteryresultstoday.in/lottery/DL
+- **URL**: https://www.keralalotteryresultstoday.in/dhanalekshmi
 - **Ticket Price**: ₹50
 - **1st Prize**: ₹1,00,00,000 (₹1 Crore)
 - **Consolation Prize**: ₹8,000
@@ -57,9 +57,9 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **8th Prize**: ₹100
 
 ### Thursday: Karunya Plus (Draw Code: KN)
-- **URL**: https://www.keralalotteryresultstoday.in/lottery/KN
-- **Ticket Price**: ₹40
-- **1st Prize**: ₹80,00,000 (₹80 Lakhs)
+- **URL**: https://www.keralalotteryresultstoday.in/karunya-plus
+- **Ticket Price**: ₹50
+- **1st Prize**: ₹1,00,00,000 (₹1 Crore)
 - **Consolation Prize**: ₹8,000
 - **2nd Prize**: ₹10,00,000 (₹10 Lakhs)
 - **3rd Prize**: ₹1,00,000 (₹1 Lakh)
@@ -70,9 +70,9 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **8th Prize**: ₹100
 
 ### Friday: Suvarna Keralam / Nirmal (Draw Code: SK / NR)
-- **URL**: https://www.keralalotteryresultstoday.in/lottery/SK
-- **Ticket Price**: ₹40
-- **1st Prize**: ₹70,00,000 (₹70 Lakhs)
+- **URL**: https://www.keralalotteryresultstoday.in/suvarna-keralam
+- **Ticket Price**: ₹50
+- **1st Prize**: ₹1,00,00,000 (₹1 Crore)
 - **Consolation Prize**: ₹8,000
 - **2nd Prize**: ₹10,00,000 (₹10 Lakhs)
 - **3rd Prize**: ₹1,00,000 (₹1 Lakh)
@@ -83,9 +83,9 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **8th Prize**: ₹100
 
 ### Saturday: Karunya (Draw Code: KR)
-- **URL**: https://www.keralalotteryresultstoday.in/lottery/KR
-- **Ticket Price**: ₹40
-- **1st Prize**: ₹80,00,000 (₹80 Lakhs)
+- **URL**: https://www.keralalotteryresultstoday.in/karunya
+- **Ticket Price**: ₹50
+- **1st Prize**: ₹1,00,00,000 (₹1 Crore)
 - **Consolation Prize**: ₹8,000
 - **2nd Prize**: ₹5,00,000 (₹5 Lakhs)
 - **3rd Prize**: ₹1,00,000 (₹1 Lakh)
@@ -96,9 +96,9 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **8th Prize**: ₹100
 
 ### Sunday: Samrudhi / Akshaya (Draw Code: SM / AK)
-- **URL**: https://www.keralalotteryresultstoday.in/lottery/SM
-- **Ticket Price**: ₹40
-- **1st Prize**: ₹70,00,000 (₹70 Lakhs)
+- **URL**: https://www.keralalotteryresultstoday.in/samrudhi
+- **Ticket Price**: ₹50
+- **1st Prize**: ₹1,00,00,000 (₹1 Crore)
 - **Consolation Prize**: ₹8,000
 - **2nd Prize**: ₹5,00,000 (₹5 Lakhs)
 - **3rd Prize**: ₹1,00,000 (₹1 Lakh)
@@ -112,12 +112,12 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 
 ## 3. Annual Bumper Lotteries
 
-1. **Thiruvonam Bumper (TH)**: Drawn in September (Onam). 1st Prize ₹25 Crore. Ticket Price ₹500.
-2. **Christmas & New Year Bumper (XN)**: Drawn in January. 1st Prize ₹20 Crore. Ticket Price ₹400.
-3. **Vishu Bumper (VB)**: Drawn in May. 1st Prize ₹12 Crore. Ticket Price ₹300.
-4. **Pooja Bumper (BR)**: Drawn in November. 1st Prize ₹12 Crore. Ticket Price ₹300.
-5. **Monsoon Bumper (MB)**: Drawn in July. 1st Prize ₹10 Crore. Ticket Price ₹250.
-6. **Summer Bumper (SB)**: Drawn in March. 1st Prize ₹10 Crore. Ticket Price ₹250.
+1. **Thiruvonam Bumper (TH)**: https://www.keralalotteryresultstoday.in/thiruvonam-bumper (Drawn in September for Onam. 1st Prize ₹25 Crore. Ticket Price ₹500).
+2. **Christmas & New Year Bumper (XN)**: https://www.keralalotteryresultstoday.in/xmas-new-year-bumper (Drawn in January. 1st Prize ₹20 Crore. Ticket Price ₹400).
+3. **Vishu Bumper (VB)**: https://www.keralalotteryresultstoday.in/vishu-bumper (Drawn in May. 1st Prize ₹12 Crore. Ticket Price ₹300).
+4. **Pooja Bumper (PB)**: https://www.keralalotteryresultstoday.in/pooja-bumper (Drawn in November. 1st Prize ₹12 Crore. Ticket Price ₹300).
+5. **Monsoon Bumper (MB)**: https://www.keralalotteryresultstoday.in/monsoon-bumper (Drawn in July. 1st Prize ₹10 Crore. Ticket Price ₹250).
+6. **Summer Bumper (SB)**: https://www.keralalotteryresultstoday.in/summer-bumper (Drawn in March. 1st Prize ₹10 Crore. Ticket Price ₹250).
 
 ---
 
@@ -150,6 +150,8 @@ Under Section 194B of the Indian Income Tax Act:
 ## 5. Useful Site Tools & Features
 
 - **Live Live Result Feed**: https://www.keralalotteryresultstoday.in/
+- **All Lotteries Directory**: https://www.keralalotteryresultstoday.in/lotteries
+- **Analytics & Statistics**: https://www.keralalotteryresultstoday.in/analytics
 - **Ticket Match Checker (Search)**: https://www.keralalotteryresultstoday.in/search
 - **Claim Assistant & Guide**: https://www.keralalotteryresultstoday.in/claim
 - **FAQ Knowledge Base**: https://www.keralalotteryresultstoday.in/faq

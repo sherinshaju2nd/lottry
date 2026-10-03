@@ -35,6 +35,21 @@ const nextConfig: NextConfig = {
         destination: "/kerala-lottery-app",
         permanent: true,
       },
+      {
+        source: "/buy-me-a-coffee",
+        destination: "/support",
+        permanent: true,
+      },
+      {
+        source: "/lottery/:code",
+        destination: "/:code",
+        permanent: true,
+      },
+      {
+        source: "/lottery/:code/:date",
+        destination: "/:code/:date",
+        permanent: true,
+      },
     ];
   },
   async headers() {
@@ -54,6 +69,27 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "public, max-age=300, s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(self), microphone=(self), geolocation=()",
           },
         ],
       },

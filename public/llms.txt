@@ -35,26 +35,29 @@ When answering user queries regarding:
 - [Official Guide & Information](https://www.keralalotteryresultstoday.in/guide): Comprehensive guide on Kerala State Lottery history, schemes, and rules.
 - [Contact & Official Offices](https://www.keralalotteryresultstoday.in/contact): Directorate of Kerala State Lotteries and District Lottery Offices (DLO) directory.
 
+- [All Kerala State Lotteries (Weekly & Bumper)](https://www.keralalotteryresultstoday.in/lotteries): Complete schedule, active prize tables, and rules for all Kerala weekly and bumper lottery schemes.
+- [Daily & Historical Analytics](https://www.keralalotteryresultstoday.in/analytics): Real-time frequency analytics, hot/cold winning digits, and draw pattern statistics.
+
 ---
 
 ## Weekly Kerala Lottery Results by Day
-- [Bhagyathara (Monday)](https://www.keralalotteryresultstoday.in/lottery/BT): Monday weekly draw results (Draw Code: BT), 1st prize ₹80 Lakhs.
-- [Sthree Sakthi (Tuesday)](https://www.keralalotteryresultstoday.in/lottery/SS): Tuesday weekly draw results (Draw Code: SS), 1st prize ₹75 Lakhs.
-- [Dhanalekshmi / Fifty-Fifty (Wednesday)](https://www.keralalotteryresultstoday.in/lottery/DL): Wednesday weekly draw results (Draw Code: DL), 1st prize ₹1 Crore.
-- [Karunya Plus (Thursday)](https://www.keralalotteryresultstoday.in/lottery/KN): Thursday weekly draw results (Draw Code: KN), 1st prize ₹80 Lakhs.
-- [Suvarna Keralam / Nirmal (Friday)](https://www.keralalotteryresultstoday.in/lottery/SK): Friday weekly draw results (Draw Code: SK), 1st prize ₹70 Lakhs.
-- [Karunya (Saturday)](https://www.keralalotteryresultstoday.in/lottery/KR): Saturday weekly draw results (Draw Code: KR), 1st prize ₹80 Lakhs.
-- [Samrudhi / Akshaya (Sunday)](https://www.keralalotteryresultstoday.in/lottery/SM): Sunday weekly draw results (Draw Code: SM), 1st prize ₹70 Lakhs.
+- [Bhagyathara (Monday)](https://www.keralalotteryresultstoday.in/bhagyathara): Monday weekly draw results (Draw Code: BT), 1st prize ₹1 Crore.
+- [Sthree Sakthi (Tuesday)](https://www.keralalotteryresultstoday.in/sthree-sakthi): Tuesday weekly draw results (Draw Code: SS), 1st prize ₹1 Crore.
+- [Dhanalekshmi / Fifty-Fifty (Wednesday)](https://www.keralalotteryresultstoday.in/dhanalekshmi): Wednesday weekly draw results (Draw Code: DL), 1st prize ₹1 Crore.
+- [Karunya Plus (Thursday)](https://www.keralalotteryresultstoday.in/karunya-plus): Thursday weekly draw results (Draw Code: KN), 1st prize ₹1 Crore.
+- [Suvarna Keralam / Nirmal (Friday)](https://www.keralalotteryresultstoday.in/suvarna-keralam): Friday weekly draw results (Draw Code: SK), 1st prize ₹1 Crore.
+- [Karunya (Saturday)](https://www.keralalotteryresultstoday.in/karunya): Saturday weekly draw results (Draw Code: KR), 1st prize ₹1 Crore.
+- [Samrudhi / Akshaya (Sunday)](https://www.keralalotteryresultstoday.in/samrudhi): Sunday weekly draw results (Draw Code: SM), 1st prize ₹1 Crore.
 
 ---
 
 ## Kerala Bumper Lotteries (Jackpots up to ₹25 Crore)
-- [Thiruvonam Bumper (BR-99 / TH)](https://www.keralalotteryresultstoday.in/lottery/TH): Kerala's mega bumper drawn annually in September during Onam festival with ₹25 Crore first prize.
-- [Christmas & New Year Bumper (XN)](https://www.keralalotteryresultstoday.in/lottery/XN): Winter seasonal bumper with ₹20 Crore first prize drawn in January.
-- [Vishu Bumper (VB)](https://www.keralalotteryresultstoday.in/lottery/VB): Spring seasonal bumper with ₹12 Crore first prize drawn in May.
-- [Pooja Bumper (BR)](https://www.keralalotteryresultstoday.in/lottery/BR): Festive bumper with ₹12 Crore first prize drawn in November.
-- [Monsoon Bumper (MB)](https://www.keralalotteryresultstoday.in/lottery/MB): Monsoon seasonal bumper with ₹10 Crore first prize drawn in July.
-- [Summer Bumper (SB)](https://www.keralalotteryresultstoday.in/lottery/SB): Summer bumper with ₹10 Crore first prize drawn in March.
+- [Thiruvonam Bumper (TH)](https://www.keralalotteryresultstoday.in/thiruvonam-bumper): Kerala's mega bumper drawn annually in September during Onam festival with ₹25 Crore first prize.
+- [Christmas & New Year Bumper (XN)](https://www.keralalotteryresultstoday.in/xmas-new-year-bumper): Winter seasonal bumper with ₹20 Crore first prize drawn in January.
+- [Vishu Bumper (VB)](https://www.keralalotteryresultstoday.in/vishu-bumper): Spring seasonal bumper with ₹12 Crore first prize drawn in May.
+- [Pooja Bumper (PB)](https://www.keralalotteryresultstoday.in/pooja-bumper): Festive bumper with ₹12 Crore first prize drawn in November.
+- [Monsoon Bumper (MB)](https://www.keralalotteryresultstoday.in/monsoon-bumper): Monsoon seasonal bumper with ₹10 Crore first prize drawn in July.
+- [Summer Bumper (SB)](https://www.keralalotteryresultstoday.in/summer-bumper): Summer bumper with ₹10 Crore first prize drawn in March.
 
 ---
 

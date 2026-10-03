@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import {
   ALL_LOTTERIES,
   getLotteryCodeFromSlug,
@@ -177,6 +177,11 @@ export default async function LotteryDetailsPage({ params }: PageProps) {
 
   if (!lotteryInfo) {
     notFound();
+  }
+
+  // Enforce canonical slug URL (e.g. /BT or /bt -> /bhagyathara)
+  if (rawCode !== lotterySlug) {
+    permanentRedirect(`/${lotterySlug}`);
   }
 
   const [drawHistory, lotRes] = await Promise.all([

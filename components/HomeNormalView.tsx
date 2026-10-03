@@ -300,8 +300,9 @@ export default function HomeNormalView({
                 </Typography>
               </Box>
 
-              {/* Centered Large Lottery Name */}
+              {/* Centered Large Lottery Name as Primary H1 */}
               <Typography
+                component="h1"
                 sx={{
                   fontSize: { xs: "1.15rem", sm: "1.35rem" },
                   fontWeight: 900,
@@ -313,7 +314,7 @@ export default function HomeNormalView({
                   px: 4,
                 }}
               >
-                {topFeaturedDraw.draw_name || todayLottery.name}
+                {topFeaturedDraw.draw_name || todayLottery.name} Kerala Lottery Result Today
               </Typography>
 
               {/* Status info pill under name */}

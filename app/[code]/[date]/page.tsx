@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import {
   ALL_LOTTERIES,
   getLotteryCodeFromSlug,
@@ -143,6 +143,11 @@ export default async function DedicatedLotteryDateDetailsPage({
 
   if (!lotteryInfo) {
     notFound();
+  }
+
+  // Enforce canonical slug URL (e.g. /BT/2026-10-03 -> /bhagyathara/2026-10-03)
+  if (rawCode !== lotterySlug) {
+    permanentRedirect(`/${lotterySlug}/${encodeURIComponent(dateParam)}`);
   }
 
   const [drawResult, availableDates, postponement, recentOtherDraws, lotRes] =

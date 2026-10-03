@@ -18,11 +18,14 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
     // Generate complete list of URLs across the site
     const staticPages = [
       baseUrl,
+      `${baseUrl}/lotteries`,
+      `${baseUrl}/analytics`,
       `${baseUrl}/search`,
       `${baseUrl}/kerala-lottery-app`,
       `${baseUrl}/claim`,
       `${baseUrl}/guide`,
       `${baseUrl}/faq`,
+      `${baseUrl}/support`,
       `${baseUrl}/privacy-policy`,
       `${baseUrl}/terms-conditions`,
       `${baseUrl}/contact`,
