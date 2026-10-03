@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
@@ -89,7 +95,9 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
   const [loadingStepIndex, setLoadingStepIndex] = useState<number>(0);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
-  const [analysis, setAnalysis] = useState<LotteryAiPatternAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<LotteryAiPatternAnalysis | null>(
+    null,
+  );
   const [isCached, setIsCached] = useState<boolean>(false);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
   const [cacheWarning, setCacheWarning] = useState<string | null>(null);
@@ -132,7 +140,9 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
     return allDraws.filter(
       (d) =>
         d.lottery_code?.toUpperCase() === selectedLotteryCode.toUpperCase() ||
-        d.draw_code?.toUpperCase().startsWith(selectedLotteryCode.toUpperCase())
+        d.draw_code
+          ?.toUpperCase()
+          .startsWith(selectedLotteryCode.toUpperCase()),
     );
   }, [allDraws, selectedLotteryCode]);
 
@@ -146,7 +156,7 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
 
       try {
         const res = await fetch(
-          `/api/ai/pattern-predict?code=${encodeURIComponent(selectedLotteryCode)}&drawsCount=${availableDraws.length}`
+          `/api/ai/pattern-predict?code=${encodeURIComponent(selectedLotteryCode)}&drawsCount=${availableDraws.length}`,
         );
         const data = await res.json();
         if (isMounted && data.success && data.cached && data.analysis) {
@@ -248,13 +258,13 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
           err?.message ||
             (isMl
               ? "വിശകലനം നടത്താൻ സാധിച്ചില്ല. ദയവായി അല്പം കഴിഞ്ഞ് വീണ്ടും ശ്രമിക്കുക."
-              : "Could not generate analysis. Please try again in a moment.")
+              : "Could not generate analysis. Please try again in a moment."),
         );
       } finally {
         setLoading(false);
       }
     },
-    [currentLottery, selectedLotteryCode, availableDraws, lang, isMl]
+    [currentLottery, selectedLotteryCode, availableDraws, lang, isMl],
   );
 
   // Friendly plain-language explanation helper (no academic math jargon)
@@ -288,9 +298,12 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
       if (category === "Balanced Sum") {
         return "Optimal 4-digit total sum with balanced even and odd digits.";
       }
-      return rationale || "High-probability candidate number based on past winning patterns.";
+      return (
+        rationale ||
+        "High-probability candidate number based on past winning patterns."
+      );
     },
-    [isMl]
+    [isMl],
   );
 
   // Ensure we always have 15 high-quality predictions, even if cached DB row only had 4 or 10
@@ -319,25 +332,35 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
 
     // Positional digits if available
     const pos = analysis.hot_digits?.positional;
-    const p1 = pos?.first_pos && pos.first_pos[1] !== undefined ? pos.first_pos[1] : h1;
-    const p2 = pos?.second_pos && pos.second_pos[1] !== undefined ? pos.second_pos[1] : h2;
-    const p3 = pos?.third_pos && pos.third_pos[1] !== undefined ? pos.third_pos[1] : h3;
-    const p4 = pos?.last_pos && pos.last_pos[1] !== undefined ? pos.last_pos[1] : h4;
-    const p1_alt = pos?.first_pos && pos.first_pos[2] !== undefined ? pos.first_pos[2] : h5;
-    const p4_alt = pos?.last_pos && pos.last_pos[2] !== undefined ? pos.last_pos[2] : h6;
+    const p1 =
+      pos?.first_pos && pos.first_pos[1] !== undefined ? pos.first_pos[1] : h1;
+    const p2 =
+      pos?.second_pos && pos.second_pos[1] !== undefined
+        ? pos.second_pos[1]
+        : h2;
+    const p3 =
+      pos?.third_pos && pos.third_pos[1] !== undefined ? pos.third_pos[1] : h3;
+    const p4 =
+      pos?.last_pos && pos.last_pos[1] !== undefined ? pos.last_pos[1] : h4;
+    const p1_alt =
+      pos?.first_pos && pos.first_pos[2] !== undefined ? pos.first_pos[2] : h5;
+    const p4_alt =
+      pos?.last_pos && pos.last_pos[2] !== undefined ? pos.last_pos[2] : h6;
 
     const extraCandidates = [
       {
         number: `${h1}${h0}${h2}${h3}`,
         category: "Hot 4-Digit" as const,
         confidence_score: 87,
-        rationale: "High-frequency hot digits from top winning draws in reverse sequence.",
+        rationale:
+          "High-frequency hot digits from top winning draws in reverse sequence.",
       },
       {
         number: `${d0}${d0}${h3}${h4}`,
         category: "Double Pattern" as const,
         confidence_score: 84,
-        rationale: "Repeating primary double pattern at the start with high-frequency tail digits.",
+        rationale:
+          "Repeating primary double pattern at the start with high-frequency tail digits.",
       },
       {
         number: `${h2}${d1}${d1}${h0}`,
@@ -349,25 +372,29 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
         number: `${h3}${h2}${h0}${h1}`,
         category: "2nd/6th Target" as const,
         confidence_score: 80,
-        rationale: "Targeted 4-digit cluster historically frequent in Kerala 2nd and 6th prizes.",
+        rationale:
+          "Targeted 4-digit cluster historically frequent in Kerala 2nd and 6th prizes.",
       },
       {
         number: `${p1}${p2}${p3}${p4}`,
         category: "Hot 4-Digit" as const,
         confidence_score: 78,
-        rationale: "Positional secondary rank alignment with stable draw distribution.",
+        rationale:
+          "Positional secondary rank alignment with stable draw distribution.",
       },
       {
         number: `${h4}${h1}${h3}${h2}`,
         category: "Balanced Sum" as const,
         confidence_score: 77,
-        rationale: "Balanced mathematical sum within Kerala lottery high-density payout range.",
+        rationale:
+          "Balanced mathematical sum within Kerala lottery high-density payout range.",
       },
       {
         number: `${h0}${d0}${h1}${d0}`,
         category: "2nd/6th Target" as const,
         confidence_score: 75,
-        rationale: "Alternate repeating digit sequence calibrated for mid-tier 4-digit prizes.",
+        rationale:
+          "Alternate repeating digit sequence calibrated for mid-tier 4-digit prizes.",
       },
       {
         number: `${h2}${h4}${h0}${h3}`,
@@ -379,43 +406,50 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
         number: `${p1_alt}${h0}${h3}${p4_alt}`,
         category: "Hot 4-Digit" as const,
         confidence_score: 73,
-        rationale: "Tertiary positional hot distribution with stable edge digits.",
+        rationale:
+          "Tertiary positional hot distribution with stable edge digits.",
       },
       {
         number: `${h0}${h0}${d1}${h4}`,
         category: "Double Pattern" as const,
         confidence_score: 72,
-        rationale: "Leading recurring double with high probability ending digit.",
+        rationale:
+          "Leading recurring double with high probability ending digit.",
       },
       {
         number: `${h1}${h5}${h2}${h6}`,
         category: "Balanced Sum" as const,
         confidence_score: 71,
-        rationale: "Optimally dispersed 4-digit sum with balanced high-low split.",
+        rationale:
+          "Optimally dispersed 4-digit sum with balanced high-low split.",
       },
       {
         number: `${h5}${d0}${d0}${h1}`,
         category: "Double Pattern" as const,
         confidence_score: 70,
-        rationale: "Center double reflection with leading odd-tier frequency digit.",
+        rationale:
+          "Center double reflection with leading odd-tier frequency digit.",
       },
       {
         number: `${p1}${h3}${h4}${p4_alt}`,
         category: "2nd/6th Target" as const,
         confidence_score: 69,
-        rationale: "Cluster alignment calibrated for 2nd & 6th tier prize lines.",
+        rationale:
+          "Cluster alignment calibrated for 2nd & 6th tier prize lines.",
       },
       {
         number: `${h3}${h1}${h6}${h0}`,
         category: "Hot 4-Digit" as const,
         confidence_score: 68,
-        rationale: "Fast-moving digit quartet with high historical payout frequency.",
+        rationale:
+          "Fast-moving digit quartet with high historical payout frequency.",
       },
       {
         number: `${h4}${d1}${h0}${d1}`,
         category: "2nd/6th Target" as const,
         confidence_score: 67,
-        rationale: "Interleaved duplicate digit structure common in Kerala 4-digit prize tiers.",
+        rationale:
+          "Interleaved duplicate digit structure common in Kerala 4-digit prize tiers.",
       },
     ];
 
@@ -442,27 +476,30 @@ export default function AiLotteryPatternPredictor({ allDraws, lang }: Props) {
     });
 
     const hotList = (analysis.hot_digits?.overall || [])
-      .map((h, i) => `#${i + 1} Digit ${h.digit} (${h.frequency_pct}% frequency - ${h.label})`)
+      .map(
+        (h, i) =>
+          `#${i + 1} Digit ${h.digit} (${h.frequency_pct}% frequency - ${h.label})`,
+      )
       .join("\n");
 
     const predictedList = allPredictions
       .map(
         (p, i) =>
-          `[${i + 1}] Number: ${p.number} | Category: ${p.category} | Confidence: ${p.confidence_score}%\n    Reason: ${p.rationale}`
+          `[${i + 1}] Number: ${p.number} | Category: ${p.category} | Confidence: ${p.confidence_score}%\n    Reason: ${p.rationale}`,
       )
       .join("\n\n");
 
     const doublePatternsList = (analysis.double_patterns || [])
       .map(
         (d) =>
-          `• ${d.pattern} (${d.type}): ${d.description}\n  Historical Frequency: ${d.historical_frequency}\n  Picks: ${(d.recommended_examples || []).join(", ")}`
+          `• ${d.pattern} (${d.type}): ${d.description}\n  Historical Frequency: ${d.historical_frequency}\n  Picks: ${(d.recommended_examples || []).join(", ")}`,
       )
       .join("\n\n");
 
     const strategiesList = (analysis.prize_focus_patterns?.key_patterns || [])
       .map(
         (k, i) =>
-          `[Strategy ${i + 1}] ${k.title} (Rank #${k.probability_rank})\n  Structure: ${k.pattern_structure}\n  Recommended: ${(k.predicted_numbers || []).join(", ")}\n  Analysis: ${k.reasoning}`
+          `[Strategy ${i + 1}] ${k.title} (Rank #${k.probability_rank})\n  Structure: ${k.pattern_structure}\n  Recommended: ${(k.predicted_numbers || []).join(", ")}\n  Analysis: ${k.reasoning}`,
       )
       .join("\n\n");
 
@@ -521,7 +558,7 @@ ${strategiesList}
 ================================================================================
 DISCLAIMER:
 --------------------------------------------------------------------------------
-${analysis.disclaimer || "These predictions and frequency patterns are calculated strictly from official Kerala State Lottery gazette records for informational purposes. Lottery draws are independent random events."}
+${analysis.disclaimer || "These predictions and frequency patterns are calculated strictly from Kerala State Lottery gazette records for informational purposes. Lottery draws are independent random events."}
 ================================================================================
 `;
   }, [analysis, allPredictions, currentLottery, selectedLotteryCode]);
@@ -530,7 +567,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
   const handleDownloadDoc = () => {
     if (!analysis) return;
     const docText = generateDocReportContent();
-    const blob = new Blob([docText], { type: "application/msword;charset=utf-8" });
+    const blob = new Blob([docText], {
+      type: "application/msword;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -553,7 +592,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
 
     const predictedList = allPredictions
       .slice(0, 15)
-      .map((p) => `🎯 *${p.number}* (${p.category} - ${p.confidence_score}% Conf)`)
+      .map(
+        (p) => `🎯 *${p.number}* (${p.category} - ${p.confidence_score}% Conf)`,
+      )
       .join("\n");
 
     const shareText = isMl
@@ -562,7 +603,7 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
 
     window.open(
       `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`,
-      "_blank"
+      "_blank",
     );
   };
 
@@ -571,8 +612,10 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
     if (!allPredictions.length) return [];
     if (selectedCategory === "all") return allPredictions;
     return allPredictions.filter((p) => {
-      if (selectedCategory === "doubles") return p.category === "Double Pattern";
-      if (selectedCategory === "2nd_6th") return p.category === "2nd/6th Target";
+      if (selectedCategory === "doubles")
+        return p.category === "Double Pattern";
+      if (selectedCategory === "2nd_6th")
+        return p.category === "2nd/6th Target";
       if (selectedCategory === "hot") return p.category === "Hot 4-Digit";
       if (selectedCategory === "sum") return p.category === "Balanced Sum";
       return true;
@@ -580,7 +623,17 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
   }, [allPredictions, selectedCategory]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, width: "100%", maxWidth: "100%", overflowX: "hidden", boxSizing: "border-box" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
+        width: "100%",
+        maxWidth: "100%",
+        overflowX: "hidden",
+        boxSizing: "border-box",
+      }}
+    >
       {/* 1. Top Setup & Lottery Selector Banner */}
       <Paper
         elevation={0}
@@ -623,7 +676,15 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
             maxWidth: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, minWidth: 0, maxWidth: "100%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.2,
+              minWidth: 0,
+              maxWidth: "100%",
+            }}
+          >
             <Box
               sx={{
                 width: { xs: 40, sm: 46 },
@@ -641,7 +702,14 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
               <PsychologyIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
             </Box>
             <Box sx={{ minWidth: 0 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, flexWrap: "wrap" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.8,
+                  flexWrap: "wrap",
+                }}
+              >
                 <Typography
                   variant="h6"
                   sx={{
@@ -652,10 +720,16 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                     lineHeight: 1.2,
                   }}
                 >
-                  {isMl ? "AI ഭാഗ്യ നമ്പർ പ്രവചനങ്ങൾ" : "AI Lottery Number Predictor"}
+                  {isMl
+                    ? "AI ഭാഗ്യ നമ്പർ പ്രവചനങ്ങൾ"
+                    : "AI Lottery Number Predictor"}
                 </Typography>
                 <Chip
-                  icon={<AutoAwesomeIcon sx={{ color: "#7C3AED !important", fontSize: 13 }} />}
+                  icon={
+                    <AutoAwesomeIcon
+                      sx={{ color: "#7C3AED !important", fontSize: 13 }}
+                    />
+                  }
                   label="Smart AI"
                   size="small"
                   sx={{
@@ -668,7 +742,14 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                   }}
                 />
               </Box>
-              <Typography variant="body2" sx={{ color: "#64748B", fontSize: { xs: "0.78rem", sm: "0.84rem" }, mt: 0.2 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#64748B",
+                  fontSize: { xs: "0.78rem", sm: "0.84rem" },
+                  mt: 0.2,
+                }}
+              >
                 {isMl
                   ? "ഇന്നത്തെ മികച്ച 4-അക്ക ഭാഗ്യ നമ്പറുകൾ കാണാൻ ലോട്ടറി തിരഞ്ഞെടുക്കൂ."
                   : "Select your lottery to find today's best 4-digit lucky numbers."}
@@ -774,7 +855,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                         height: { xs: 26, sm: 30 },
                         borderRadius: "6px",
                         objectFit: "cover",
-                        border: isSelected ? "1px solid rgba(255,255,255,0.4)" : "1px solid #CBD5E1",
+                        border: isSelected
+                          ? "1px solid rgba(255,255,255,0.4)"
+                          : "1px solid #CBD5E1",
                         flexShrink: 0,
                       }}
                     />
@@ -809,7 +892,13 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                     </Typography>
                   </Box>
                   {isSelected && (
-                    <CheckCircleIcon sx={{ fontSize: { xs: 16, sm: 18 }, color: "#4ADE80", flexShrink: 0 }} />
+                    <CheckCircleIcon
+                      sx={{
+                        fontSize: { xs: 16, sm: 18 },
+                        color: "#4ADE80",
+                        flexShrink: 0,
+                      }}
+                    />
                   )}
                 </Button>
               );
@@ -831,7 +920,14 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <FilterListIcon sx={{ color: "#0B3C5D", fontSize: 18 }} />
-            <Typography variant="body2" sx={{ color: "#334155", fontWeight: 700, fontSize: { xs: "0.82rem", sm: "0.875rem" } }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#334155",
+                fontWeight: 700,
+                fontSize: { xs: "0.82rem", sm: "0.875rem" },
+              }}
+            >
               {isMl
                 ? `തിരഞ്ഞെടുത്തത്: ${currentLottery.name} (${availableDraws.length} ഫലങ്ങൾ)`
                 : `Selected: ${currentLottery.name} (${availableDraws.length} draws analyzed)`}
@@ -844,7 +940,10 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
             onClick={() => handleAnalyze(false)}
             startIcon={
               loading ? (
-                <CircularProgress size={18} sx={{ color: "#FFFFFF !important" }} />
+                <CircularProgress
+                  size={18}
+                  sx={{ color: "#FFFFFF !important" }}
+                />
               ) : (
                 <AutoAwesomeIcon sx={{ color: "#FDE047" }} />
               )
@@ -886,8 +985,8 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                   ? "വിശകലനം ചെയ്യുന്നു..."
                   : "Finding Numbers..."
                 : isMl
-                ? "ഭാഗ്യ നമ്പറുകൾ കണ്ടെത്തുക"
-                : "Find Lucky Numbers"}
+                  ? "ഭാഗ്യ നമ്പറുകൾ കണ്ടെത്തുക"
+                  : "Find Lucky Numbers"}
             </Typography>
           </Button>
         </Box>
@@ -899,7 +998,11 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
           severity="error"
           sx={{ borderRadius: "14px" }}
           action={
-            <Button color="inherit" size="small" onClick={() => handleAnalyze(false)}>
+            <Button
+              color="inherit"
+              size="small"
+              onClick={() => handleAnalyze(false)}
+            >
               {isMl ? "വീണ്ടും ശ്രമിക്കുക" : "Retry"}
             </Button>
           }
@@ -921,16 +1024,56 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
               border: "1px solid #334155",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 2,
+              }}
+            >
               <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
-                <Skeleton variant="rounded" width={160} height={26} sx={{ bgcolor: "rgba(255,255,255,0.15)", borderRadius: "8px" }} />
-                <Skeleton variant="rounded" width={120} height={26} sx={{ bgcolor: "rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                <Skeleton
+                  variant="rounded"
+                  width={160}
+                  height={26}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.15)",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Skeleton
+                  variant="rounded"
+                  width={120}
+                  height={26}
+                  sx={{ bgcolor: "rgba(255,255,255,0.1)", borderRadius: "8px" }}
+                />
               </Box>
-              <Skeleton variant="circular" width={32} height={32} sx={{ bgcolor: "rgba(255,255,255,0.15)" }} />
+              <Skeleton
+                variant="circular"
+                width={32}
+                height={32}
+                sx={{ bgcolor: "rgba(255,255,255,0.15)" }}
+              />
             </Box>
-            <Skeleton variant="text" width="96%" height={26} sx={{ bgcolor: "rgba(255,255,255,0.1)", mb: 0.5 }} />
-            <Skeleton variant="text" width="88%" height={26} sx={{ bgcolor: "rgba(255,255,255,0.08)", mb: 0.5 }} />
-            <Skeleton variant="text" width="65%" height={26} sx={{ bgcolor: "rgba(255,255,255,0.08)" }} />
+            <Skeleton
+              variant="text"
+              width="96%"
+              height={26}
+              sx={{ bgcolor: "rgba(255,255,255,0.1)", mb: 0.5 }}
+            />
+            <Skeleton
+              variant="text"
+              width="88%"
+              height={26}
+              sx={{ bgcolor: "rgba(255,255,255,0.08)", mb: 0.5 }}
+            />
+            <Skeleton
+              variant="text"
+              width="65%"
+              height={26}
+              sx={{ bgcolor: "rgba(255,255,255,0.08)" }}
+            />
           </Paper>
 
           {/* Skeleton Candidate Numbers */}
@@ -943,18 +1086,45 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
               border: "1.5px solid #E2E8F0",
             }}
           >
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <Skeleton variant="rounded" width={40} height={40} sx={{ borderRadius: "12px" }} />
+                <Skeleton
+                  variant="rounded"
+                  width={40}
+                  height={40}
+                  sx={{ borderRadius: "12px" }}
+                />
                 <Box>
                   <Skeleton variant="text" width={220} height={28} />
                   <Skeleton variant="text" width={150} height={18} />
                 </Box>
               </Box>
               <Box sx={{ display: "flex", gap: 1 }}>
-                <Skeleton variant="rounded" width={50} height={28} sx={{ borderRadius: "16px" }} />
-                <Skeleton variant="rounded" width={75} height={28} sx={{ borderRadius: "16px" }} />
-                <Skeleton variant="rounded" width={85} height={28} sx={{ borderRadius: "16px" }} />
+                <Skeleton
+                  variant="rounded"
+                  width={50}
+                  height={28}
+                  sx={{ borderRadius: "16px" }}
+                />
+                <Skeleton
+                  variant="rounded"
+                  width={75}
+                  height={28}
+                  sx={{ borderRadius: "16px" }}
+                />
+                <Skeleton
+                  variant="rounded"
+                  width={85}
+                  height={28}
+                  sx={{ borderRadius: "16px" }}
+                />
               </Box>
             </Box>
 
@@ -969,11 +1139,32 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       border: "1.5px solid #E2E8F0",
                     }}
                   >
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1.5 }}>
-                      <Skeleton variant="rounded" width={85} height={22} sx={{ borderRadius: "8px" }} />
-                      <Skeleton variant="rounded" width={60} height={22} sx={{ borderRadius: "8px" }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 1.5,
+                      }}
+                    >
+                      <Skeleton
+                        variant="rounded"
+                        width={85}
+                        height={22}
+                        sx={{ borderRadius: "8px" }}
+                      />
+                      <Skeleton
+                        variant="rounded"
+                        width={60}
+                        height={22}
+                        sx={{ borderRadius: "8px" }}
+                      />
                     </Box>
-                    <Skeleton variant="rounded" width="100%" height={56} sx={{ borderRadius: "12px", mb: 1.5 }} />
+                    <Skeleton
+                      variant="rounded"
+                      width="100%"
+                      height={56}
+                      sx={{ borderRadius: "12px", mb: 1.5 }}
+                    />
                     <Skeleton variant="text" width="92%" height={18} />
                     <Skeleton variant="text" width="70%" height={18} />
                   </Box>
@@ -985,27 +1176,88 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
           {/* Skeleton Hot Digits & Double Patterns */}
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Paper elevation={0} sx={{ p: 3, bgcolor: "#FFFFFF", borderRadius: "20px", border: "1.5px solid #E2E8F0" }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
-                  <Skeleton variant="rounded" width={36} height={36} sx={{ borderRadius: "10px" }} />
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "#FFFFFF",
+                  borderRadius: "20px",
+                  border: "1.5px solid #E2E8F0",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    mb: 2,
+                  }}
+                >
+                  <Skeleton
+                    variant="rounded"
+                    width={36}
+                    height={36}
+                    sx={{ borderRadius: "10px" }}
+                  />
                   <Skeleton variant="text" width={180} height={26} />
                 </Box>
                 <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
                   {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <Skeleton key={i} variant="rounded" width={70} height={42} sx={{ borderRadius: "10px" }} />
+                    <Skeleton
+                      key={i}
+                      variant="rounded"
+                      width={70}
+                      height={42}
+                      sx={{ borderRadius: "10px" }}
+                    />
                   ))}
                 </Box>
-                <Skeleton variant="rounded" width="100%" height={75} sx={{ borderRadius: "10px" }} />
+                <Skeleton
+                  variant="rounded"
+                  width="100%"
+                  height={75}
+                  sx={{ borderRadius: "10px" }}
+                />
               </Paper>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Paper elevation={0} sx={{ p: 3, bgcolor: "#FFFFFF", borderRadius: "20px", border: "1.5px solid #E2E8F0" }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
-                  <Skeleton variant="rounded" width={36} height={36} sx={{ borderRadius: "10px" }} />
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  bgcolor: "#FFFFFF",
+                  borderRadius: "20px",
+                  border: "1.5px solid #E2E8F0",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    mb: 2,
+                  }}
+                >
+                  <Skeleton
+                    variant="rounded"
+                    width={36}
+                    height={36}
+                    sx={{ borderRadius: "10px" }}
+                  />
                   <Skeleton variant="text" width={180} height={26} />
                 </Box>
-                <Skeleton variant="rounded" width="100%" height={60} sx={{ borderRadius: "12px", mb: 1.5 }} />
-                <Skeleton variant="rounded" width="100%" height={60} sx={{ borderRadius: "12px" }} />
+                <Skeleton
+                  variant="rounded"
+                  width="100%"
+                  height={60}
+                  sx={{ borderRadius: "12px", mb: 1.5 }}
+                />
+                <Skeleton
+                  variant="rounded"
+                  width="100%"
+                  height={60}
+                  sx={{ borderRadius: "12px" }}
+                />
               </Paper>
             </Grid>
           </Grid>
@@ -1025,7 +1277,14 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
           }}
         >
           {/* Top Loader Status Header */}
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <Box
                 sx={{
@@ -1042,8 +1301,13 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 <CircularProgress size={20} sx={{ color: "#2563EB" }} />
               </Box>
               <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#0F172A" }}>
-                  {isMl ? "AI പാറ്റേൺ എൻജിൻ പ്രവർത്തിക്കുന്നു..." : "AI Pattern Engine Processing..."}
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 900, color: "#0F172A" }}
+                >
+                  {isMl
+                    ? "AI പാറ്റേൺ എൻജിൻ പ്രവർത്തിക്കുന്നു..."
+                    : "AI Pattern Engine Processing..."}
                 </Typography>
                 <Typography variant="caption" sx={{ color: "#64748B" }}>
                   {isMl
@@ -1076,7 +1340,8 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 borderRadius: 4,
                 bgcolor: "#F1F5F9",
                 "& .MuiLinearProgress-bar": {
-                  background: "linear-gradient(90deg, #0284C7 0%, #4F46E5 100%)",
+                  background:
+                    "linear-gradient(90deg, #0284C7 0%, #4F46E5 100%)",
                   borderRadius: 4,
                 },
               }}
@@ -1094,7 +1359,11 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                     sx={{
                       p: 1.5,
                       borderRadius: "12px",
-                      bgcolor: isCurrent ? "#F8FAFC" : isCompleted ? "#F0FDF4" : "#FAFAFA",
+                      bgcolor: isCurrent
+                        ? "#F8FAFC"
+                        : isCompleted
+                          ? "#F0FDF4"
+                          : "#FAFAFA",
                       border: `1.5px solid ${isCurrent ? "#93C5FD" : isCompleted ? "#BBF7D0" : "#E2E8F0"}`,
                       display: "flex",
                       alignItems: "center",
@@ -1103,7 +1372,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                     }}
                   >
                     {isCompleted ? (
-                      <CheckCircleIcon sx={{ color: "#16A34A", fontSize: 20 }} />
+                      <CheckCircleIcon
+                        sx={{ color: "#16A34A", fontSize: 20 }}
+                      />
                     ) : isCurrent ? (
                       <CircularProgress size={16} sx={{ color: "#2563EB" }} />
                     ) : (
@@ -1120,7 +1391,11 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       variant="caption"
                       sx={{
                         fontWeight: isCurrent ? 800 : 600,
-                        color: isCompleted ? "#166534" : isCurrent ? "#1E40AF" : "#64748B",
+                        color: isCompleted
+                          ? "#166534"
+                          : isCurrent
+                            ? "#1E40AF"
+                            : "#64748B",
                         lineHeight: 1.3,
                       }}
                     >
@@ -1136,7 +1411,16 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
 
       {/* 3. Analysis Results View */}
       {analysis && !loading && !isCheckingCache && (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            width: "100%",
+            maxWidth: "100%",
+            overflowX: "hidden",
+          }}
+        >
           {/* Action Bar: Download Doc / Share Report */}
           <Paper
             elevation={0}
@@ -1154,8 +1438,12 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <DescriptionIcon sx={{ color: "#0B3C5D", fontSize: 22 }} />
-              <Typography sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.9rem" }}>
-                {isMl ? "AI റിപ്പോർട്ട് ഡൗൺലോഡ് & ഷെയറിംഗ്" : "Export & Share Prediction Report"}
+              <Typography
+                sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.9rem" }}
+              >
+                {isMl
+                  ? "AI റിപ്പോർട്ട് ഡൗൺലോഡ് & ഷെയറിംഗ്"
+                  : "Export & Share Prediction Report"}
               </Typography>
             </Box>
 
@@ -1228,9 +1516,20 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 mb: 2,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  flexWrap: "wrap",
+                }}
+              >
                 <Chip
-                  icon={<FlashOnIcon sx={{ color: "#FACC15 !important", fontSize: 16 }} />}
+                  icon={
+                    <FlashOnIcon
+                      sx={{ color: "#FACC15 !important", fontSize: 16 }}
+                    />
+                  }
                   label={isMl ? "AI സംഗ്രഹം & വിശകലനം" : "AI EXECUTIVE SUMMARY"}
                   size="small"
                   sx={{
@@ -1243,8 +1542,14 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 />
                 {isCached ? (
                   <Chip
-                    icon={<CheckCircleIcon sx={{ color: "#4ADE80 !important", fontSize: 14 }} />}
-                    label={isMl ? "ഡാറ്റാബേസ് കാഷെ (Instant)" : "DB Cached Analysis"}
+                    icon={
+                      <CheckCircleIcon
+                        sx={{ color: "#4ADE80 !important", fontSize: 14 }}
+                      />
+                    }
+                    label={
+                      isMl ? "ഡാറ്റാബേസ് കാഷെ (Instant)" : "DB Cached Analysis"
+                    }
                     size="small"
                     sx={{
                       bgcolor: "rgba(74, 222, 128, 0.15)",
@@ -1256,7 +1561,11 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                   />
                 ) : (
                   <Chip
-                    icon={<AutoAwesomeIcon sx={{ color: "#A78BFA !important", fontSize: 14 }} />}
+                    icon={
+                      <AutoAwesomeIcon
+                        sx={{ color: "#A78BFA !important", fontSize: 14 }}
+                      />
+                    }
                     label={isMl ? "പുതിയ AI വിശകലനം" : "Fresh AI Analysis"}
                     size="small"
                     sx={{
@@ -1268,13 +1577,23 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                     }}
                   />
                 )}
-                <Typography variant="caption" sx={{ color: "#94A3B8", fontWeight: 600 }}>
-                  {analysis.sample_draws_count} {isMl ? "നറുക്കെടുപ്പുകൾ പഠിച്ചു" : "Draws Evaluated"}
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#94A3B8", fontWeight: 600 }}
+                >
+                  {analysis.sample_draws_count}{" "}
+                  {isMl ? "നറുക്കെടുപ്പുകൾ പഠിച്ചു" : "Draws Evaluated"}
                 </Typography>
               </Box>
 
               <Box sx={{ display: "flex", gap: 1 }}>
-                <Tooltip title={isMl ? "പുതിയ വിശകലനം നിർബന്ധമാക്കുക" : "Force Refresh AI Analysis"}>
+                <Tooltip
+                  title={
+                    isMl
+                      ? "പുതിയ വിശകലനം നിർബന്ധമാക്കുക"
+                      : "Force Refresh AI Analysis"
+                  }
+                >
                   <IconButton
                     size="small"
                     onClick={() => handleAnalyze(true)}
@@ -1319,7 +1638,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 fontWeight: 500,
               }}
             >
-              {isMl && analysis.summary_ml ? analysis.summary_ml : analysis.summary}
+              {isMl && analysis.summary_ml
+                ? analysis.summary_ml
+                : analysis.summary}
             </Typography>
           </Paper>
 
@@ -1361,10 +1682,23 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                   <AutoAwesomeIcon sx={{ fontSize: 26 }} />
                 </Box>
                 <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.2rem", lineHeight: 1.2 }}>
-                    {isMl ? "AI കണ്ടെത്തിയ 15 മുൻനിര ഭാഗ്യ നമ്പറുകൾ" : "Top 15 AI Lucky Numbers (Last 4 Digits)"}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 900,
+                      color: "#0F172A",
+                      fontSize: "1.2rem",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {isMl
+                      ? "AI കണ്ടെത്തിയ 15 മുൻനിര ഭാഗ്യ നമ്പറുകൾ"
+                      : "Top 15 AI Lucky Numbers (Last 4 Digits)"}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", mt: 0.3 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#64748B", fontSize: "0.85rem", mt: 0.3 }}
+                  >
                     {isMl
                       ? "മുൻകാലങ്ങളിൽ കൂടുതൽ സമ്മാനം നേടിയ നമ്പറുകളിൽ നിന്നുള്ള 15 മുൻനിര 4 അക്ക ഭാഗ്യ നമ്പറുകൾ"
                       : "Top 15 high-chance 4-digit endings for today's tickets based on past winning draws."}
@@ -1375,11 +1709,26 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
               {/* Category Filter Chips */}
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8 }}>
                 {[
-                  { key: "all", label: isMl ? "എല്ലാ നമ്പറുകളും" : "All Picks" },
-                  { key: "hot", label: isMl ? "🔥 ഹോട്ട് നമ്പറുകൾ" : "🔥 Hot 4-Digit" },
-                  { key: "doubles", label: isMl ? "⚡ ഇരട്ട അക്കങ്ങൾ" : "⚡ Double Pairs" },
-                  { key: "2nd_6th", label: isMl ? "🎯 2 & 6 സമ്മാനം" : "🎯 2nd/6th Target" },
-                  { key: "sum", label: isMl ? "⚖️ ബാലൻസ്ഡ്" : "⚖️ Balanced Sum" },
+                  {
+                    key: "all",
+                    label: isMl ? "എല്ലാ നമ്പറുകളും" : "All Picks",
+                  },
+                  {
+                    key: "hot",
+                    label: isMl ? "🔥 ഹോട്ട് നമ്പറുകൾ" : "🔥 Hot 4-Digit",
+                  },
+                  {
+                    key: "doubles",
+                    label: isMl ? "⚡ ഇരട്ട അക്കങ്ങൾ" : "⚡ Double Pairs",
+                  },
+                  {
+                    key: "2nd_6th",
+                    label: isMl ? "🎯 2 & 6 സമ്മാനം" : "🎯 2nd/6th Target",
+                  },
+                  {
+                    key: "sum",
+                    label: isMl ? "⚖️ ബാലൻസ്ഡ്" : "⚖️ Balanced Sum",
+                  },
                 ].map((c) => (
                   <Chip
                     key={c.key}
@@ -1387,7 +1736,8 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                     size="small"
                     onClick={() => setSelectedCategory(c.key)}
                     sx={{
-                      bgcolor: selectedCategory === c.key ? "#0B3C5D" : "#F1F5F9",
+                      bgcolor:
+                        selectedCategory === c.key ? "#0B3C5D" : "#F1F5F9",
                       color: selectedCategory === c.key ? "#FFFFFF" : "#475569",
                       fontWeight: 800,
                       fontSize: "0.78rem",
@@ -1396,7 +1746,10 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       py: 1.8,
                       borderRadius: "10px",
                       transition: "all 0.15s ease",
-                      "&:hover": { bgcolor: selectedCategory === c.key ? "#0B3C5D" : "#E2E8F0" },
+                      "&:hover": {
+                        bgcolor:
+                          selectedCategory === c.key ? "#0B3C5D" : "#E2E8F0",
+                      },
                     }}
                   />
                 ))}
@@ -1431,28 +1784,62 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       }}
                     >
                       {/* Top Badges */}
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.8 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 1.8,
+                        }}
+                      >
                         <Chip
                           label={
                             isHot
-                              ? isMl ? "🔥 ഹോട്ട് നമ്പർ" : "🔥 Hot Number"
+                              ? isMl
+                                ? "🔥 ഹോട്ട് നമ്പർ"
+                                : "🔥 Hot Number"
                               : isDouble
-                              ? isMl ? "⚡ ഇരട്ട അക്കം" : "⚡ Double Pair"
-                              : is2nd6th
-                              ? isMl ? "🎯 2 & 6 സമ്മാനം" : "🎯 2nd/6th Target"
-                              : isMl ? "⚖️ ബാലൻസ്ഡ്" : "⚖️ Balanced Sum"
+                                ? isMl
+                                  ? "⚡ ഇരട്ട അക്കം"
+                                  : "⚡ Double Pair"
+                                : is2nd6th
+                                  ? isMl
+                                    ? "🎯 2 & 6 സമ്മാനം"
+                                    : "🎯 2nd/6th Target"
+                                  : isMl
+                                    ? "⚖️ ബാലൻസ്ഡ്"
+                                    : "⚖️ Balanced Sum"
                           }
                           size="small"
                           sx={{
-                            bgcolor: isHot ? "#FEF2F2" : isDouble ? "#EEF2FF" : is2nd6th ? "#FEF3C7" : "#F0FDF4",
-                            color: isHot ? "#DC2626" : isDouble ? "#4F46E5" : is2nd6th ? "#D97706" : "#16A34A",
+                            bgcolor: isHot
+                              ? "#FEF2F2"
+                              : isDouble
+                                ? "#EEF2FF"
+                                : is2nd6th
+                                  ? "#FEF3C7"
+                                  : "#F0FDF4",
+                            color: isHot
+                              ? "#DC2626"
+                              : isDouble
+                                ? "#4F46E5"
+                                : is2nd6th
+                                  ? "#D97706"
+                                  : "#16A34A",
                             fontWeight: 800,
                             fontSize: "0.72rem",
                             border: `1px solid ${isHot ? "#FECACA" : isDouble ? "#C7D2FE" : is2nd6th ? "#FDE68A" : "#BBF7D0"}`,
                           }}
                         />
                         <Chip
-                          icon={<StarIcon sx={{ fontSize: "14px !important", color: "#16A34A !important" }} />}
+                          icon={
+                            <StarIcon
+                              sx={{
+                                fontSize: "14px !important",
+                                color: "#16A34A !important",
+                              }}
+                            />
+                          }
                           label={`${pred.confidence_score || 85}% ${isMl ? "സാധ്യത" : "Chance"}`}
                           size="small"
                           sx={{
@@ -1529,7 +1916,10 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                             fontWeight: 500,
                           }}
                         >
-                          {getFriendlyExplanation(pred.rationale, pred.category)}
+                          {getFriendlyExplanation(
+                            pred.rationale,
+                            pred.category,
+                          )}
                         </Typography>
                       </Box>
                     </Box>
@@ -1557,7 +1947,14 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 }}
               >
                 <Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.2,
+                      mb: 2,
+                    }}
+                  >
                     <Box
                       sx={{
                         width: 38,
@@ -1573,11 +1970,21 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       <WhatshotIcon sx={{ fontSize: 24 }} />
                     </Box>
                     <Box>
-                      <Typography sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.05rem" }}>
-                        {isMl ? "കൂടുതൽ വന്ന ഭാഗ്യ അക്കങ്ങൾ (Hot Digits)" : "Hot Digits & Ticket Position Guide"}
+                      <Typography
+                        sx={{
+                          fontWeight: 900,
+                          color: "#0F172A",
+                          fontSize: "1.05rem",
+                        }}
+                      >
+                        {isMl
+                          ? "കൂടുതൽ വന്ന ഭാഗ്യ അക്കങ്ങൾ (Hot Digits)"
+                          : "Hot Digits & Ticket Position Guide"}
                       </Typography>
                       <Typography variant="caption" sx={{ color: "#64748B" }}>
-                        {isMl ? "വിജയിച്ച ടിക്കറ്റുകളിൽ ഏറ്റവും കൂടുതൽ തവണ വന്ന അക്കങ്ങൾ" : "Top recurring numbers in winning draws and their best positions"}
+                        {isMl
+                          ? "വിജയിച്ച ടിക്കറ്റുകളിൽ ഏറ്റവും കൂടുതൽ തവണ വന്ന അക്കങ്ങൾ"
+                          : "Top recurring numbers in winning draws and their best positions"}
                       </Typography>
                     </Box>
                   </Box>
@@ -1594,7 +2001,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       mb: 1,
                     }}
                   >
-                    {isMl ? "🔥 ഏറ്റവും കൂടുതൽ വന്ന അക്കങ്ങൾ:" : "🔥 Top 4 Most Drawn Digits:"}
+                    {isMl
+                      ? "🔥 ഏറ്റവും കൂടുതൽ വന്ന അക്കങ്ങൾ:"
+                      : "🔥 Top 4 Most Drawn Digits:"}
                   </Typography>
 
                   <Box
@@ -1609,51 +2018,59 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       mb: 2.5,
                     }}
                   >
-                    {(analysis.hot_digits?.overall || []).slice(0, 4).map((h, i) => (
-                      <Box key={i} sx={{ textAlign: "center" }}>
-                        <Box
-                          sx={{
-                            width: { xs: 48, sm: 54 },
-                            height: { xs: 48, sm: 54 },
-                            borderRadius: "50%",
-                            background:
-                              i === 0
-                                ? "linear-gradient(135deg, #DC2626 0%, #EF4444 100%)"
-                                : i === 1
-                                ? "linear-gradient(135deg, #EA580C 0%, #F97316 100%)"
-                                : "linear-gradient(135deg, #D97706 0%, #F59E0B 100%)",
-                            color: "#FFFFFF",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxShadow: "0 4px 10px rgba(220, 38, 38, 0.2)",
-                            mx: "auto",
-                            mb: 0.8,
-                          }}
-                        >
-                          <Typography
+                    {(analysis.hot_digits?.overall || [])
+                      .slice(0, 4)
+                      .map((h, i) => (
+                        <Box key={i} sx={{ textAlign: "center" }}>
+                          <Box
                             sx={{
-                              fontWeight: 900,
-                              fontSize: { xs: "1.5rem", sm: "1.7rem" },
-                              fontFamily: "monospace",
+                              width: { xs: 48, sm: 54 },
+                              height: { xs: 48, sm: 54 },
+                              borderRadius: "50%",
+                              background:
+                                i === 0
+                                  ? "linear-gradient(135deg, #DC2626 0%, #EF4444 100%)"
+                                  : i === 1
+                                    ? "linear-gradient(135deg, #EA580C 0%, #F97316 100%)"
+                                    : "linear-gradient(135deg, #D97706 0%, #F59E0B 100%)",
+                              color: "#FFFFFF",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              boxShadow: "0 4px 10px rgba(220, 38, 38, 0.2)",
+                              mx: "auto",
+                              mb: 0.8,
                             }}
                           >
-                            {h.digit}
-                          </Typography>
+                            <Typography
+                              sx={{
+                                fontWeight: 900,
+                                fontSize: { xs: "1.5rem", sm: "1.7rem" },
+                                fontFamily: "monospace",
+                              }}
+                            >
+                              {h.digit}
+                            </Typography>
+                          </Box>
+                          <Chip
+                            label={
+                              i === 0
+                                ? isMl
+                                  ? "ഏറ്റവും കൂടുതൽ"
+                                  : "Top Pick"
+                                : `#${i + 1}`
+                            }
+                            size="small"
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: "0.68rem",
+                              bgcolor: i === 0 ? "#FEF2F2" : "#FFFFFF",
+                              color: i === 0 ? "#DC2626" : "#B45309",
+                              border: `1px solid ${i === 0 ? "#FECACA" : "#CBD5E1"}`,
+                            }}
+                          />
                         </Box>
-                        <Chip
-                          label={i === 0 ? (isMl ? "ഏറ്റവും കൂടുതൽ" : "Top Pick") : `#${i + 1}`}
-                          size="small"
-                          sx={{
-                            fontWeight: 800,
-                            fontSize: "0.68rem",
-                            bgcolor: i === 0 ? "#FEF2F2" : "#FFFFFF",
-                            color: i === 0 ? "#DC2626" : "#B45309",
-                            border: `1px solid ${i === 0 ? "#FECACA" : "#CBD5E1"}`,
-                          }}
-                        />
-                      </Box>
-                    ))}
+                      ))}
                   </Box>
 
                   {/* Less Frequent (Cold) Digits row */}
@@ -1669,25 +2086,32 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       mb: 2.5,
                     }}
                   >
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
-                      {isMl ? "❄️ കുറഞ്ഞ തവണ വന്നവ:" : "❄️ Less Frequent Digits:"}
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#64748B", fontWeight: 700 }}
+                    >
+                      {isMl
+                        ? "❄️ കുറഞ്ഞ തവണ വന്നവ:"
+                        : "❄️ Less Frequent Digits:"}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 0.8 }}>
-                      {(analysis.hot_digits?.overall || []).slice(-3).map((c, idx) => (
-                        <Chip
-                          key={idx}
-                          label={c.digit}
-                          size="small"
-                          sx={{
-                            bgcolor: "#FFFFFF",
-                            border: "1px solid #CBD5E1",
-                            fontWeight: 800,
-                            fontFamily: "monospace",
-                            fontSize: "0.82rem",
-                            color: "#64748B",
-                          }}
-                        />
-                      ))}
+                      {(analysis.hot_digits?.overall || [])
+                        .slice(-3)
+                        .map((c, idx) => (
+                          <Chip
+                            key={idx}
+                            label={c.digit}
+                            size="small"
+                            sx={{
+                              bgcolor: "#FFFFFF",
+                              border: "1px solid #CBD5E1",
+                              fontWeight: 800,
+                              fontFamily: "monospace",
+                              fontSize: "0.82rem",
+                              color: "#64748B",
+                            }}
+                          />
+                        ))}
                     </Box>
                   </Box>
 
@@ -1704,26 +2128,31 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                           mb: 1.2,
                         }}
                       >
-                        {isMl ? "🎯 ടിക്കറ്റിലെ ഓരോ സ്ഥാനത്തെയും സാധ്യതകൾ:" : "🎯 Ticket Position Guide (1st to 4th Digit):"}
+                        {isMl
+                          ? "🎯 ടിക്കറ്റിലെ ഓരോ സ്ഥാനത്തെയും സാധ്യതകൾ:"
+                          : "🎯 Ticket Position Guide (1st to 4th Digit):"}
                       </Typography>
 
                       <Grid container spacing={1.2}>
                         {[
                           {
                             pos: isMl ? "1-ാം അക്കം" : "1st Digit",
-                            nums: analysis.hot_digits.positional.first_pos || [],
+                            nums:
+                              analysis.hot_digits.positional.first_pos || [],
                             color: "#2563EB",
                             bgcolor: "#EFF6FF",
                           },
                           {
                             pos: isMl ? "2-ാം അക്കം" : "2nd Digit",
-                            nums: analysis.hot_digits.positional.second_pos || [],
+                            nums:
+                              analysis.hot_digits.positional.second_pos || [],
                             color: "#7C3AED",
                             bgcolor: "#F5F3FF",
                           },
                           {
                             pos: isMl ? "3-ാം അക്കം" : "3rd Digit",
-                            nums: analysis.hot_digits.positional.third_pos || [],
+                            nums:
+                              analysis.hot_digits.positional.third_pos || [],
                             color: "#D97706",
                             bgcolor: "#FFFBEB",
                           },
@@ -1802,7 +2231,14 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                   height: "100%",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.2,
+                    mb: 2,
+                  }}
+                >
                   <Box
                     sx={{
                       width: 38,
@@ -1818,16 +2254,28 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                     <RepeatIcon sx={{ fontSize: 24 }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.05rem" }}>
-                      {isMl ? "ഇരട്ട അക്കങ്ങൾ (Double Numbers)" : "Double Numbers Guide"}
+                    <Typography
+                      sx={{
+                        fontWeight: 900,
+                        color: "#0F172A",
+                        fontSize: "1.05rem",
+                      }}
+                    >
+                      {isMl
+                        ? "ഇരട്ട അക്കങ്ങൾ (Double Numbers)"
+                        : "Double Numbers Guide"}
                     </Typography>
                     <Typography variant="caption" sx={{ color: "#64748B" }}>
-                      {isMl ? "വിജയിക്കുന്ന ടിക്കറ്റുകളിൽ പതിവായി വരുന്ന ഇരട്ട അക്കങ്ങൾ" : "Repeating digit pairs frequently seen in winning tickets"}
+                      {isMl
+                        ? "വിജയിക്കുന്ന ടിക്കറ്റുകളിൽ പതിവായി വരുന്ന ഇരട്ട അക്കങ്ങൾ"
+                        : "Repeating digit pairs frequently seen in winning tickets"}
                     </Typography>
                   </Box>
                 </Box>
 
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.8 }}>
+                <Box
+                  sx={{ display: "flex", flexDirection: "column", gap: 1.8 }}
+                >
                   {(analysis.double_patterns || []).map((d, i) => (
                     <Box
                       key={i}
@@ -1838,8 +2286,22 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                         border: "1px solid #E2E8F0",
                       }}
                     >
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
-                        <Typography sx={{ fontWeight: 900, color: "#1E293B", fontSize: "0.95rem", fontFamily: "monospace" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 0.8,
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontWeight: 900,
+                            color: "#1E293B",
+                            fontSize: "0.95rem",
+                            fontFamily: "monospace",
+                          }}
+                        >
                           {d.pattern}
                         </Typography>
                         <Chip
@@ -1853,43 +2315,57 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                           }}
                         />
                       </Box>
-                      <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.82rem", mb: 1.5 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "#64748B", fontSize: "0.82rem", mb: 1.5 }}
+                      >
                         {d.description}
                       </Typography>
 
                       {/* Recommended Sample Numbers - NO COPY BUTTON */}
-                      {d.recommended_examples && d.recommended_examples.length > 0 && (
-                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, alignItems: "center" }}>
-                          <Typography variant="caption" sx={{ color: "#475569", fontWeight: 800 }}>
-                            {isMl ? "ശുപാർശ ചെയ്യുന്നവ:" : "Suggested Picks:"}
-                          </Typography>
-                          {d.recommended_examples.map((num, idx) => (
-                            <Box
-                              key={idx}
-                              sx={{
-                                px: 1.5,
-                                py: 0.6,
-                                bgcolor: "#FFFFFF",
-                                border: "1.5px solid #0B3C5D",
-                                borderRadius: "8px",
-                                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                              }}
+                      {d.recommended_examples &&
+                        d.recommended_examples.length > 0 && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 1,
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ color: "#475569", fontWeight: 800 }}
                             >
-                              <Typography
+                              {isMl ? "ശുപാർശ ചെയ്യുന്നവ:" : "Suggested Picks:"}
+                            </Typography>
+                            {d.recommended_examples.map((num, idx) => (
+                              <Box
+                                key={idx}
                                 sx={{
-                                  fontWeight: 900,
-                                  fontFamily: "monospace",
-                                  fontSize: "0.95rem",
-                                  color: "#0B3C5D",
-                                  letterSpacing: "0.08em",
+                                  px: 1.5,
+                                  py: 0.6,
+                                  bgcolor: "#FFFFFF",
+                                  border: "1.5px solid #0B3C5D",
+                                  borderRadius: "8px",
+                                  boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
                                 }}
                               >
-                                {num}
-                              </Typography>
-                            </Box>
-                          ))}
-                        </Box>
-                      )}
+                                <Typography
+                                  sx={{
+                                    fontWeight: 900,
+                                    fontFamily: "monospace",
+                                    fontSize: "0.95rem",
+                                    color: "#0B3C5D",
+                                    letterSpacing: "0.08em",
+                                  }}
+                                >
+                                  {num}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Box>
+                        )}
                     </Box>
                   ))}
                 </Box>
@@ -1908,7 +2384,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
               boxShadow: "0 4px 16px rgba(15, 23, 42, 0.04)",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2.5 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2.5 }}
+            >
               <Box
                 sx={{
                   width: 44,
@@ -1925,12 +2403,18 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 <EmojiEventsIcon sx={{ fontSize: 26 }} />
               </Box>
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.2rem" }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.2rem" }}
+                >
                   {isMl
                     ? "2-ാം & 6-ാം സമ്മാനങ്ങൾക്കുള്ള നമ്പറുകൾ (അവസാന 4 അക്കങ്ങൾ)"
                     : "2nd & 6th Prize Special Winning Numbers"}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", mt: 0.3 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#64748B", fontSize: "0.85rem", mt: 0.3 }}
+                >
                   {isMl
                     ? "കേരള ലോട്ടറി 2-ാം സമ്മാനവും 6-ാം സമ്മാനവും നിശ്ചയിക്കുന്നത് അവസാന 4 അക്കങ്ങളാണ്. അതിനായി ശുപാർശ ചെയ്യുന്നവ:"
                     : "Kerala Lottery 2nd prize and 6th prize are won on 4-digit numbers. Recommended combinations:"}
@@ -1939,97 +2423,154 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
             </Box>
 
             <Grid container spacing={2}>
-              {(analysis.prize_focus_patterns?.key_patterns || []).map((pattern, idx) => (
-                <Grid size={{ xs: 12, md: 6 }} key={idx}>
-                  <Box
-                    sx={{
-                      p: 2.5,
-                      bgcolor: idx === 0 ? "#FFFDF5" : "#F8FAFC",
-                      borderRadius: "16px",
-                      border: `1.5px solid ${idx === 0 ? "#FDE68A" : "#E2E8F0"}`,
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                        <Typography sx={{ fontWeight: 900, color: "#0F172A", fontSize: "0.98rem" }}>
-                          {pattern.title}
-                        </Typography>
-                        <Chip
-                          icon={<StarIcon sx={{ fontSize: "14px !important", color: "#D97706 !important" }} />}
-                          label={`Rank #${pattern.probability_rank || idx + 1}`}
-                          size="small"
+              {(analysis.prize_focus_patterns?.key_patterns || []).map(
+                (pattern, idx) => (
+                  <Grid size={{ xs: 12, md: 6 }} key={idx}>
+                    <Box
+                      sx={{
+                        p: 2.5,
+                        bgcolor: idx === 0 ? "#FFFDF5" : "#F8FAFC",
+                        borderRadius: "16px",
+                        border: `1.5px solid ${idx === 0 ? "#FDE68A" : "#E2E8F0"}`,
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Box>
+                        <Box
                           sx={{
-                            bgcolor: "#FEF3C7",
-                            color: "#92400E",
-                            fontWeight: 800,
-                            fontSize: "0.72rem",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 1,
                           }}
-                        />
-                      </Box>
-
-                      {/* Formula / Structure */}
-                      <Box
-                        sx={{
-                          p: 1.2,
-                          bgcolor: "#FFFFFF",
-                          borderRadius: "10px",
-                          border: "1px dashed #CBD5E1",
-                          mb: 1.5,
-                        }}
-                      >
-                        <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700, display: "block" }}>
-                          {isMl ? "പാറ്റേൺ ഘടന:" : "Pattern Structure:"}
-                        </Typography>
-                        <Typography sx={{ fontWeight: 800, color: "#2563EB", fontSize: "0.9rem", fontFamily: "monospace" }}>
-                          {pattern.pattern_structure}
-                        </Typography>
-                      </Box>
-
-                      <Typography variant="caption" sx={{ color: "#475569", lineHeight: 1.5, display: "block", mb: 2, fontSize: "0.8rem" }}>
-                        {pattern.reasoning}
-                      </Typography>
-                    </Box>
-
-                    {/* Target Numbers - NO COPY BUTTON */}
-                    <Box>
-                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#64748B", display: "block", mb: 0.8 }}>
-                        {isMl ? "ശുപാർശ ചെയ്യുന്ന നമ്പറുകൾ:" : "Recommended Numbers:"}
-                      </Typography>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {(pattern.predicted_numbers || []).map((num, nIdx) => (
-                          <Box
-                            key={nIdx}
+                        >
+                          <Typography
                             sx={{
-                              px: 1.8,
-                              py: 0.8,
-                              bgcolor: "#FFFFFF",
-                              border: "2px solid #0B3C5D",
-                              borderRadius: "10px",
-                              boxShadow: "0 2px 4px rgba(11, 60, 93, 0.08)",
+                              fontWeight: 900,
+                              color: "#0F172A",
+                              fontSize: "0.98rem",
                             }}
                           >
-                            <Typography
-                              sx={{
-                                fontWeight: 900,
-                                fontFamily: "monospace",
-                                fontSize: "1.05rem",
-                                color: "#0B3C5D",
-                                letterSpacing: "0.08em",
-                              }}
-                            >
-                              {num}
-                            </Typography>
-                          </Box>
-                        ))}
+                            {pattern.title}
+                          </Typography>
+                          <Chip
+                            icon={
+                              <StarIcon
+                                sx={{
+                                  fontSize: "14px !important",
+                                  color: "#D97706 !important",
+                                }}
+                              />
+                            }
+                            label={`Rank #${pattern.probability_rank || idx + 1}`}
+                            size="small"
+                            sx={{
+                              bgcolor: "#FEF3C7",
+                              color: "#92400E",
+                              fontWeight: 800,
+                              fontSize: "0.72rem",
+                            }}
+                          />
+                        </Box>
+
+                        {/* Formula / Structure */}
+                        <Box
+                          sx={{
+                            p: 1.2,
+                            bgcolor: "#FFFFFF",
+                            borderRadius: "10px",
+                            border: "1px dashed #CBD5E1",
+                            mb: 1.5,
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: "#64748B",
+                              fontWeight: 700,
+                              display: "block",
+                            }}
+                          >
+                            {isMl ? "പാറ്റേൺ ഘടന:" : "Pattern Structure:"}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontWeight: 800,
+                              color: "#2563EB",
+                              fontSize: "0.9rem",
+                              fontFamily: "monospace",
+                            }}
+                          >
+                            {pattern.pattern_structure}
+                          </Typography>
+                        </Box>
+
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "#475569",
+                            lineHeight: 1.5,
+                            display: "block",
+                            mb: 2,
+                            fontSize: "0.8rem",
+                          }}
+                        >
+                          {pattern.reasoning}
+                        </Typography>
+                      </Box>
+
+                      {/* Target Numbers - NO COPY BUTTON */}
+                      <Box>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 800,
+                            color: "#64748B",
+                            display: "block",
+                            mb: 0.8,
+                          }}
+                        >
+                          {isMl
+                            ? "ശുപാർശ ചെയ്യുന്ന നമ്പറുകൾ:"
+                            : "Recommended Numbers:"}
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                          {(pattern.predicted_numbers || []).map(
+                            (num, nIdx) => (
+                              <Box
+                                key={nIdx}
+                                sx={{
+                                  px: 1.8,
+                                  py: 0.8,
+                                  bgcolor: "#FFFFFF",
+                                  border: "2px solid #0B3C5D",
+                                  borderRadius: "10px",
+                                  boxShadow: "0 2px 4px rgba(11, 60, 93, 0.08)",
+                                }}
+                              >
+                                <Typography
+                                  sx={{
+                                    fontWeight: 900,
+                                    fontFamily: "monospace",
+                                    fontSize: "1.05rem",
+                                    color: "#0B3C5D",
+                                    letterSpacing: "0.08em",
+                                  }}
+                                >
+                                  {num}
+                                </Typography>
+                              </Box>
+                            ),
+                          )}
+                        </Box>
                       </Box>
                     </Box>
-                  </Box>
-                </Grid>
-              ))}
+                  </Grid>
+                ),
+              )}
             </Grid>
           </Paper>
 
@@ -2044,7 +2585,9 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                 border: "1.5px solid #E2E8F0",
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 2 }}
+              >
                 <Box
                   sx={{
                     width: 38,
@@ -2060,8 +2603,16 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                   <BalanceIcon sx={{ fontSize: 24 }} />
                 </Box>
                 <Box>
-                  <Typography sx={{ fontWeight: 900, color: "#0F172A", fontSize: "1.05rem" }}>
-                    {isMl ? "4-അക്ക ആകെത്തുകയും ഒറ്റ-ഇരട്ട അനുപാതവും" : "4-Digit Total Sum & Even-Odd Guide"}
+                  <Typography
+                    sx={{
+                      fontWeight: 900,
+                      color: "#0F172A",
+                      fontSize: "1.05rem",
+                    }}
+                  >
+                    {isMl
+                      ? "4-അക്ക ആകെത്തുകയും ഒറ്റ-ഇരട്ട അനുപാതവും"
+                      : "4-Digit Total Sum & Even-Odd Guide"}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "#64748B" }}>
                     {isMl
@@ -2073,41 +2624,125 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
 
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <Box sx={{ p: 2, bgcolor: "#FFFFFF", borderRadius: "14px", border: "1px solid #E2E8F0" }}>
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700, display: "block" }}>
-                      {isMl ? "ശുപാർശ ചെയ്യുന്ന ആകെത്തുക:" : "Recommended 4-Digit Total Sum:"}
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: "#FFFFFF",
+                      borderRadius: "14px",
+                      border: "1px solid #E2E8F0",
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#64748B",
+                        fontWeight: 700,
+                        display: "block",
+                      }}
+                    >
+                      {isMl
+                        ? "ശുപാർശ ചെയ്യുന്ന ആകെത്തുക:"
+                        : "Recommended 4-Digit Total Sum:"}
                     </Typography>
-                    <Typography sx={{ fontWeight: 900, color: "#16A34A", fontSize: "1.2rem", mt: 0.5 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 900,
+                        color: "#16A34A",
+                        fontSize: "1.2rem",
+                        mt: 0.5,
+                      }}
+                    >
                       {analysis.high_value_analysis.recommended_sum_range}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "#94A3B8", display: "block", mt: 0.3 }}>
-                      {isMl ? "4 അക്കങ്ങൾ കൂട്ടിയാൽ കിട്ടുന്ന തുക" : "Sum of all 4 ticket ending digits"}
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#94A3B8", display: "block", mt: 0.3 }}
+                    >
+                      {isMl
+                        ? "4 അക്കങ്ങൾ കൂട്ടിയാൽ കിട്ടുന്ന തുക"
+                        : "Sum of all 4 ticket ending digits"}
                     </Typography>
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <Box sx={{ p: 2, bgcolor: "#FFFFFF", borderRadius: "14px", border: "1px solid #E2E8F0" }}>
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700, display: "block" }}>
-                      {isMl ? "ഇരട്ട / ഒറ്റ അക്ക അനുപാതം:" : "Even / Odd Digits Ratio:"}
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: "#FFFFFF",
+                      borderRadius: "14px",
+                      border: "1px solid #E2E8F0",
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#64748B",
+                        fontWeight: 700,
+                        display: "block",
+                      }}
+                    >
+                      {isMl
+                        ? "ഇരട്ട / ഒറ്റ അക്ക അനുപാതം:"
+                        : "Even / Odd Digits Ratio:"}
                     </Typography>
-                    <Typography sx={{ fontWeight: 900, color: "#2563EB", fontSize: "1.2rem", mt: 0.5 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 900,
+                        color: "#2563EB",
+                        fontSize: "1.2rem",
+                        mt: 0.5,
+                      }}
+                    >
                       {analysis.high_value_analysis.even_odd_ratio}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "#94A3B8", display: "block", mt: 0.3 }}>
-                      {isMl ? "തുല്യമായ ഒറ്റ-ഇരട്ട അക്കങ്ങൾ" : "Balanced mix of even & odd digits"}
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#94A3B8", display: "block", mt: 0.3 }}
+                    >
+                      {isMl
+                        ? "തുല്യമായ ഒറ്റ-ഇരട്ട അക്കങ്ങൾ"
+                        : "Balanced mix of even & odd digits"}
                     </Typography>
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <Box sx={{ p: 2, bgcolor: "#FFFFFF", borderRadius: "14px", border: "1px solid #E2E8F0" }}>
-                    <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700, display: "block" }}>
-                      {isMl ? "വലിയ (5-9) vs ചെറിയ (0-4) അക്കങ്ങൾ:" : "High (5-9) vs Low (0-4) Balance:"}
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: "#FFFFFF",
+                      borderRadius: "14px",
+                      border: "1px solid #E2E8F0",
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#64748B",
+                        fontWeight: 700,
+                        display: "block",
+                      }}
+                    >
+                      {isMl
+                        ? "വലിയ (5-9) vs ചെറിയ (0-4) അക്കങ്ങൾ:"
+                        : "High (5-9) vs Low (0-4) Balance:"}
                     </Typography>
-                    <Typography sx={{ fontWeight: 900, color: "#9333EA", fontSize: "1.2rem", mt: 0.5 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 900,
+                        color: "#9333EA",
+                        fontSize: "1.2rem",
+                        mt: 0.5,
+                      }}
+                    >
                       {analysis.high_value_analysis.high_low_ratio}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "#94A3B8", display: "block", mt: 0.3 }}>
-                      {isMl ? "ചെറിയതും വലിയതുമായ അക്കങ്ങളുടെ ബാലൻസ്" : "Balanced split between small & large digits"}
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#94A3B8", display: "block", mt: 0.3 }}
+                    >
+                      {isMl
+                        ? "ചെറിയതും വലിയതുമായ അക്കങ്ങളുടെ ബാലൻസ്"
+                        : "Balanced split between small & large digits"}
                     </Typography>
                   </Box>
                 </Grid>
@@ -2130,7 +2765,13 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <TableChartIcon sx={{ color: "#0B3C5D", fontSize: 20 }} />
-                <Typography sx={{ fontWeight: 800, color: "#0F172A", fontSize: "0.95rem" }}>
+                <Typography
+                  sx={{
+                    fontWeight: 800,
+                    color: "#0F172A",
+                    fontSize: "0.95rem",
+                  }}
+                >
                   {isMl
                     ? `വിശകലനത്തിനായി ഉപയോഗിച്ച മുൻകാല ഫലങ്ങൾ (${availableDraws.length} റെക്കോർഡുകൾ)`
                     : `View Underlying Historical Draws Feed (${availableDraws.length} records analyzed)`}
@@ -2138,21 +2779,42 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography variant="caption" sx={{ color: "#64748B", display: "block", mb: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "#64748B", display: "block", mb: 2 }}
+              >
                 {isMl
                   ? "ഈ ഡാറ്റാസെറ്റ് ഔദ്യോഗിക കേരള ഗസറ്റ് ഫലങ്ങളിൽ നിന്നുള്ള 1 മുതൽ 9 വരെയുള്ള എല്ലാ സമ്മാന നമ്പറുകളും ഉൾക്കൊള്ളുന്നു. ഇത് AI എൻജിൻ ഉപയോഗിച്ച് സമഗ്രമായ പാറ്റേൺ പഠനം നടത്തിയതാണ്."
                   : "Transparent dataset compiled from official Kerala Gazette draws containing 1st through 9th prize tiers evaluated by the AI Pattern Engine."}
               </Typography>
 
-              <TableContainer sx={{ maxHeight: 380, maxWidth: "100%", overflowX: "auto" }}>
+              <TableContainer
+                sx={{ maxHeight: 380, maxWidth: "100%", overflowX: "auto" }}
+              >
                 <Table size="small" stickyHeader>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC", whiteSpace: "nowrap" }}>Draw & Date</TableCell>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC" }}>1st Prize</TableCell>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC" }}>2nd Prize</TableCell>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC" }}>3rd – 5th Prizes</TableCell>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC" }}>6th – 9th Prizes</TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 800,
+                          bgcolor: "#F8FAFC",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        Draw & Date
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC" }}>
+                        1st Prize
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC" }}>
+                        2nd Prize
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC" }}>
+                        3rd – 5th Prizes
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 800, bgcolor: "#F8FAFC" }}>
+                        6th – 9th Prizes
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -2173,24 +2835,71 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
                       return (
                         <TableRow key={i} hover>
                           <TableCell sx={{ fontSize: "0.8rem" }}>
-                            <Typography sx={{ fontWeight: 800, fontSize: "0.82rem", color: "#0F172A" }}>
+                            <Typography
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: "0.82rem",
+                                color: "#0F172A",
+                              }}
+                            >
                               {d.draw_name || d.draw_code}
                             </Typography>
-                            <Typography variant="caption" sx={{ fontFamily: "monospace", color: "#64748B" }}>
+                            <Typography
+                              variant="caption"
+                              sx={{ fontFamily: "monospace", color: "#64748B" }}
+                            >
                               {d.draw_date}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ fontSize: "0.82rem", fontWeight: 900, color: "#16A34A", fontFamily: "monospace" }}>
+                          <TableCell
+                            sx={{
+                              fontSize: "0.82rem",
+                              fontWeight: 900,
+                              color: "#16A34A",
+                              fontFamily: "monospace",
+                            }}
+                          >
                             {d.first?.ticket || "N/A"}
                           </TableCell>
-                          <TableCell sx={{ fontSize: "0.8rem", color: "#2563EB", fontWeight: 700, fontFamily: "monospace" }}>
+                          <TableCell
+                            sx={{
+                              fontSize: "0.8rem",
+                              color: "#2563EB",
+                              fontWeight: 700,
+                              fontFamily: "monospace",
+                            }}
+                          >
                             {(p["2nd"] || []).join(", ") || "N/A"}
                           </TableCell>
-                          <TableCell sx={{ fontSize: "0.78rem", color: "#475569", fontFamily: "monospace", maxWidth: 220 }}>
-                            {p345.length > 0 ? p345.slice(0, 6).join(", ") + (p345.length > 6 ? ` (+${p345.length - 6} more)` : "") : "-"}
+                          <TableCell
+                            sx={{
+                              fontSize: "0.78rem",
+                              color: "#475569",
+                              fontFamily: "monospace",
+                              maxWidth: 220,
+                            }}
+                          >
+                            {p345.length > 0
+                              ? p345.slice(0, 6).join(", ") +
+                                (p345.length > 6
+                                  ? ` (+${p345.length - 6} more)`
+                                  : "")
+                              : "-"}
                           </TableCell>
-                          <TableCell sx={{ fontSize: "0.78rem", color: "#64748B", fontFamily: "monospace", maxWidth: 260 }}>
-                            {p6789.length > 0 ? p6789.slice(0, 8).join(", ") + (p6789.length > 8 ? ` (+${p6789.length - 8} more)` : "") : "-"}
+                          <TableCell
+                            sx={{
+                              fontSize: "0.78rem",
+                              color: "#64748B",
+                              fontFamily: "monospace",
+                              maxWidth: 260,
+                            }}
+                          >
+                            {p6789.length > 0
+                              ? p6789.slice(0, 8).join(", ") +
+                                (p6789.length > 8
+                                  ? ` (+${p6789.length - 8} more)`
+                                  : "")
+                              : "-"}
                           </TableCell>
                         </TableRow>
                       );
@@ -2230,12 +2939,18 @@ ${analysis.disclaimer || "These predictions and frequency patterns are calculate
           >
             <AutoAwesomeIcon sx={{ fontSize: 30 }} />
           </Box>
-          <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", mb: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 900, color: "#0F172A", mb: 1 }}
+          >
             {isMl
               ? `${currentLottery.name} AI പാറ്റേൺ പ്രവചനം തയ്യാറാണ്`
               : `Ready to Generate AI Predictions for ${currentLottery.name}`}
           </Typography>
-          <Typography variant="body2" sx={{ color: "#64748B", maxWidth: 540, mx: "auto", mb: 3 }}>
+          <Typography
+            variant="body2"
+            sx={{ color: "#64748B", maxWidth: 540, mx: "auto", mb: 3 }}
+          >
             {isMl
               ? `ലഭ്യമായ ${availableDraws.length} ഗസറ്റ് ഫലങ്ങളിലെ 1 മുതൽ 9 വരെയുള്ള സമ്മാനങ്ങൾ പരിശോധിച്ച് 2-ാം, 6-ാം സമ്മാന പാറ്റേണുകളും ഹോട്ട് ഡിജിറ്റുകളും കണ്ടെത്തുക.`
               : `Click below to evaluate ${availableDraws.length} historical gazette records for 2nd & 6th prize targets, hot digits, and high-probability 4-digit combinations.`}

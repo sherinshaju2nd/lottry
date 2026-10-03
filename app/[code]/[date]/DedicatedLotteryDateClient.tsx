@@ -121,7 +121,7 @@ function UpcomingBumperCountdownSection({
   const isBumper = Boolean(
     lotteryInfo.is_bumper ||
     lotteryCode.startsWith("Bumper") ||
-    ["XN", "SB", "VB", "MB", "TH", "PB"].includes(lotteryCode)
+    ["XN", "SB", "VB", "MB", "TH", "PB"].includes(lotteryCode),
   );
 
   const rawJackpot =
@@ -135,8 +135,7 @@ function UpcomingBumperCountdownSection({
     (isBumper ? "₹300" : "₹50");
 
   const rawDrawTime =
-    lotteryDbMeta?.draw_time ||
-    (isBumper ? "2:00 PM" : "3:00 PM");
+    lotteryDbMeta?.draw_time || (isBumper ? "2:00 PM" : "3:00 PM");
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -161,16 +160,37 @@ function UpcomingBumperCountdownSection({
         const isToday = selectedDate === todayStr;
 
         if (diff <= 0) {
-          setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true, isToday });
+          setTimeLeft({
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            isPast: true,
+            isToday,
+          });
         } else {
           const days = Math.floor(diff / (1000 * 60 * 60 * 24));
           const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
           const minutes = Math.floor((diff / 1000 / 60) % 60);
           const seconds = Math.floor((diff / 1000) % 60);
-          setTimeLeft({ days, hours, minutes, seconds, isPast: false, isToday });
+          setTimeLeft({
+            days,
+            hours,
+            minutes,
+            seconds,
+            isPast: false,
+            isToday,
+          });
         }
       } catch {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: false, isToday: false });
+        setTimeLeft({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          isPast: false,
+          isToday: false,
+        });
       }
     };
 
@@ -201,35 +221,124 @@ function UpcomingBumperCountdownSection({
     const startTime = isBumper ? "083000Z" : "093000Z";
     const endTime = isBumper ? "103000Z" : "110000Z";
     const cleanDate = selectedDate.replace(/-/g, "");
-    const title = encodeURIComponent(`Kerala Lottery: ${lotteryInfo.name} Live Draw (${rawJackpot})`);
-    const details = encodeURIComponent(
-      `Official Kerala State ${lotteryInfo.name} Draw (${selectedDate}). Check live 1st prize winning numbers & Gazette PDF on https://www.keralalotteryresultstoday.in/${lotterySlug}/${selectedDate}`
+    const title = encodeURIComponent(
+      `Kerala Lottery: ${lotteryInfo.name} Live Draw (${rawJackpot})`,
     );
-    const location = encodeURIComponent("Gorky Bhavan, Thiruvananthapuram, Kerala");
+    const details = encodeURIComponent(
+      `Official Kerala State ${lotteryInfo.name} Draw (${selectedDate}). Check live 1st prize winning numbers & Gazette PDF on https://www.keralalotteryresultstoday.in/${lotterySlug}/${selectedDate}`,
+    );
+    const location = encodeURIComponent(
+      "Gorky Bhavan, Thiruvananthapuram, Kerala",
+    );
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${cleanDate}T${startTime}/${cleanDate}T${endTime}&details=${details}&location=${location}`;
   })();
 
   const prizeStructure = isBumper
     ? [
-        { rank: "1st Prize", amount: rawJackpot, winners: "1 Winner", note: "Guaranteed Grand Jackpot Ticket" },
-        { rank: "Consolation Prize", amount: "₹1,00,000", winners: "Multiple Series", note: "All other active series matching 1st prize number" },
-        { rank: "2nd Prize", amount: "₹1,00,00,000 (₹1 Crore)", winners: "1 or more", note: "Official Kerala Bumper 2nd Tier" },
-        { rank: "3rd Prize", amount: "₹10,00,000 (₹10 Lakhs)", winners: "Multiple", note: "Across all series tickets" },
-        { rank: "4th Prize", amount: "₹5,000 / ₹1,00,000", winners: "Multiple", note: "Drawn from last digits" },
-        { rank: "5th Prize", amount: "₹2,000 / ₹5,000", winners: "Multiple", note: "Last 4 digits match" },
-        { rank: "6th Prize", amount: "₹1,000", winners: "Multiple", note: "Last 4 digits match" },
-        { rank: "7th Prize", amount: "₹500", winners: "Thousands", note: "Last 4 digits match" },
-        { rank: "8th Prize", amount: "₹300", winners: "Tens of thousands", note: "Ticket cost recovery tier" },
+        {
+          rank: "1st Prize",
+          amount: rawJackpot,
+          winners: "1 Winner",
+          note: "Guaranteed Grand Jackpot Ticket",
+        },
+        {
+          rank: "Consolation Prize",
+          amount: "₹1,00,000",
+          winners: "Multiple Series",
+          note: "All other active series matching 1st prize number",
+        },
+        {
+          rank: "2nd Prize",
+          amount: "₹1,00,00,000 (₹1 Crore)",
+          winners: "1 or more",
+          note: "Official Kerala Bumper 2nd Tier",
+        },
+        {
+          rank: "3rd Prize",
+          amount: "₹10,00,000 (₹10 Lakhs)",
+          winners: "Multiple",
+          note: "Across all series tickets",
+        },
+        {
+          rank: "4th Prize",
+          amount: "₹5,000 / ₹1,00,000",
+          winners: "Multiple",
+          note: "Drawn from last digits",
+        },
+        {
+          rank: "5th Prize",
+          amount: "₹2,000 / ₹5,000",
+          winners: "Multiple",
+          note: "Last 4 digits match",
+        },
+        {
+          rank: "6th Prize",
+          amount: "₹1,000",
+          winners: "Multiple",
+          note: "Last 4 digits match",
+        },
+        {
+          rank: "7th Prize",
+          amount: "₹500",
+          winners: "Thousands",
+          note: "Last 4 digits match",
+        },
+        {
+          rank: "8th Prize",
+          amount: "₹300",
+          winners: "Tens of thousands",
+          note: "Ticket cost recovery tier",
+        },
       ]
     : [
-        { rank: "1st Prize", amount: rawJackpot, winners: "1 Winner", note: "Weekly Draw First Prize" },
-        { rank: "Consolation Prize", amount: "₹8,000", winners: "11 Series", note: "Other series matching 1st prize number" },
-        { rank: "2nd Prize", amount: "₹10,00,000 / ₹5,00,000", winners: "1 Winner", note: "Official Weekly 2nd Tier" },
-        { rank: "3rd Prize", amount: "₹1,00,000", winners: "12 Winners", note: "1 per series" },
-        { rank: "4th Prize", amount: "₹5,000", winners: "Multiple", note: "Last 4 digits" },
-        { rank: "5th Prize", amount: "₹1,000", winners: "Multiple", note: "Last 4 digits" },
-        { rank: "6th Prize", amount: "₹500", winners: "Multiple", note: "Last 4 digits" },
-        { rank: "7th Prize", amount: "₹100", winners: "Multiple", note: "Last 4 digits" },
+        {
+          rank: "1st Prize",
+          amount: rawJackpot,
+          winners: "1 Winner",
+          note: "Weekly Draw First Prize",
+        },
+        {
+          rank: "Consolation Prize",
+          amount: "₹8,000",
+          winners: "11 Series",
+          note: "Other series matching 1st prize number",
+        },
+        {
+          rank: "2nd Prize",
+          amount: "₹10,00,000 / ₹5,00,000",
+          winners: "1 Winner",
+          note: "Official Weekly 2nd Tier",
+        },
+        {
+          rank: "3rd Prize",
+          amount: "₹1,00,000",
+          winners: "12 Winners",
+          note: "1 per series",
+        },
+        {
+          rank: "4th Prize",
+          amount: "₹5,000",
+          winners: "Multiple",
+          note: "Last 4 digits",
+        },
+        {
+          rank: "5th Prize",
+          amount: "₹1,000",
+          winners: "Multiple",
+          note: "Last 4 digits",
+        },
+        {
+          rank: "6th Prize",
+          amount: "₹500",
+          winners: "Multiple",
+          note: "Last 4 digits",
+        },
+        {
+          rank: "7th Prize",
+          amount: "₹100",
+          winners: "Multiple",
+          note: "Last 4 digits",
+        },
       ];
 
   const faqs = [
@@ -299,7 +408,11 @@ function UpcomingBumperCountdownSection({
                 }}
               />
               <Chip
-                icon={<StarIcon sx={{ color: "#D97706 !important", fontSize: 16 }} />}
+                icon={
+                  <StarIcon
+                    sx={{ color: "#D97706 !important", fontSize: 16 }}
+                  />
+                }
                 label={isBumper ? "GOVERNMENT BUMPER" : "OFFICIAL DRAW"}
                 size="small"
                 sx={{
@@ -329,7 +442,12 @@ function UpcomingBumperCountdownSection({
               <Chip
                 label={`🗓️ ${formattedDate}`}
                 size="small"
-                sx={{ bgcolor: "#FEF3C7", color: "#92400E", fontWeight: 900, border: "1px solid #FCD34D" }}
+                sx={{
+                  bgcolor: "#FEF3C7",
+                  color: "#92400E",
+                  fontWeight: 900,
+                  border: "1px solid #FCD34D",
+                }}
               />
               <Chip
                 label={`⏰ Live Draw: ${rawDrawTime}`}
@@ -351,7 +469,10 @@ function UpcomingBumperCountdownSection({
             >
               Kerala {lotteryInfo.name}
             </Typography>
-            <Typography variant="h6" sx={{ color: "#D97706", fontWeight: 700, mb: 2.5 }}>
+            <Typography
+              variant="h6"
+              sx={{ color: "#D97706", fontWeight: 700, mb: 2.5 }}
+            >
               {lotteryInfo.nameMl} • Draw Scheduled for {selectedDate}
             </Typography>
 
@@ -369,12 +490,29 @@ function UpcomingBumperCountdownSection({
                 gap: 2,
               }}
             >
-              <EmojiEventsIcon sx={{ fontSize: { xs: 38, sm: 46 }, color: "#D97706" }} />
+              <EmojiEventsIcon
+                sx={{ fontSize: { xs: 38, sm: 46 }, color: "#D97706" }}
+              />
               <Box>
-                <Typography variant="caption" sx={{ color: "#92400E", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#92400E",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
                   Official 1st Prize Guaranteed Jackpot
                 </Typography>
-                <Typography variant="h4" sx={{ color: "#B45309", fontWeight: 900, fontSize: { xs: "1.6rem", sm: "2.1rem" } }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    color: "#B45309",
+                    fontWeight: 900,
+                    fontSize: { xs: "1.6rem", sm: "2.1rem" },
+                  }}
+                >
                   {rawJackpot}
                 </Typography>
               </Box>
@@ -382,7 +520,16 @@ function UpcomingBumperCountdownSection({
 
             {/* Live Countdown Clock */}
             <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" sx={{ color: "#64748B", fontWeight: 800, mb: 1, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: "#64748B",
+                  fontWeight: 800,
+                  mb: 1,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                }}
+              >
                 ⏳ Live Draw Commences In:
               </Typography>
               {timeLeft.isPast && timeLeft.isToday ? (
@@ -395,7 +542,10 @@ function UpcomingBumperCountdownSection({
                     textAlign: "center",
                   }}
                 >
-                  <Typography variant="h6" sx={{ color: "#991B1B", fontWeight: 900 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "#991B1B", fontWeight: 900 }}
+                  >
                     🔴 DRAW IN PROGRESS — RESULTS RELEASING LIVE!
                   </Typography>
                 </Box>
@@ -503,10 +653,30 @@ function UpcomingBumperCountdownSection({
       {/* 2. Key Specifications Grid */}
       <Grid container spacing={2} sx={{ mt: 2 }}>
         {[
-          { label: "TICKET PRICE", value: rawTicketPrice, icon: "🎫", desc: "Official Paper Ticket" },
-          { label: "DRAW DATE", value: selectedDate, icon: "📅", desc: formattedDate },
-          { label: "DRAW VENUE", value: "Gorky Bhavan", icon: "📍", desc: "Near Bakery Jn, Thiruvananthapuram" },
-          { label: "DRAW AUTHORITY", value: "Govt of Kerala", icon: "🏛️", desc: "Lotteries Department" },
+          {
+            label: "TICKET PRICE",
+            value: rawTicketPrice,
+            icon: "🎫",
+            desc: "Official Paper Ticket",
+          },
+          {
+            label: "DRAW DATE",
+            value: selectedDate,
+            icon: "📅",
+            desc: formattedDate,
+          },
+          {
+            label: "DRAW VENUE",
+            value: "Gorky Bhavan",
+            icon: "📍",
+            desc: "Near Bakery Jn, Thiruvananthapuram",
+          },
+          {
+            label: "DRAW AUTHORITY",
+            value: "Govt of Kerala",
+            icon: "🏛️",
+            desc: "Lotteries Department",
+          },
         ].map((item, idx) => (
           <Grid size={{ xs: 6, md: 3 }} key={idx}>
             <Paper
@@ -519,14 +689,34 @@ function UpcomingBumperCountdownSection({
                 height: "100%",
               }}
             >
-              <Typography variant="h5" sx={{ mb: 0.5 }}>{item.icon}</Typography>
-              <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 800, textTransform: "uppercase" }}>
+              <Typography variant="h5" sx={{ mb: 0.5 }}>
+                {item.icon}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "#64748B",
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                }}
+              >
                 {item.label}
               </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A", my: 0.2, fontSize: "1.05rem" }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 900,
+                  color: "#0F172A",
+                  my: 0.2,
+                  fontSize: "1.05rem",
+                }}
+              >
                 {item.value}
               </Typography>
-              <Typography variant="caption" sx={{ color: "#94A3B8", fontWeight: 600, display: "block" }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "#94A3B8", fontWeight: 600, display: "block" }}
+              >
                 {item.desc}
               </Typography>
             </Paper>
@@ -551,33 +741,98 @@ function UpcomingBumperCountdownSection({
             <Typography variant="h5" sx={{ fontWeight: 900, color: "#0F172A" }}>
               Official {lotteryInfo.name} Prize Structure & Winning Amounts
             </Typography>
-            <Typography variant="body2" sx={{ color: "#64748B", fontWeight: 600 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#64748B", fontWeight: 600 }}
+            >
               Complete prize tier breakdown for draw scheduled on {selectedDate}
             </Typography>
           </Box>
         </Box>
 
-        <TableContainer sx={{ borderRadius: "12px", border: "1px solid #E2E8F0" }}>
+        <TableContainer
+          sx={{ borderRadius: "12px", border: "1px solid #E2E8F0" }}
+        >
           <Table>
             <TableHead sx={{ bgcolor: "#F8FAFC" }}>
               <TableRow>
-                <TableCell sx={{ fontWeight: 900, color: "#334155", fontSize: "0.85rem" }}>PRIZE TIER</TableCell>
-                <TableCell sx={{ fontWeight: 900, color: "#334155", fontSize: "0.85rem" }}>PRIZE AMOUNT</TableCell>
-                <TableCell sx={{ fontWeight: 900, color: "#334155", fontSize: "0.85rem" }}>WINNERS COUNT</TableCell>
-                <TableCell sx={{ fontWeight: 900, color: "#334155", fontSize: "0.85rem" }}>CRITERIA / NOTE</TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 900,
+                    color: "#334155",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  PRIZE TIER
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 900,
+                    color: "#334155",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  PRIZE AMOUNT
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 900,
+                    color: "#334155",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  WINNERS COUNT
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: 900,
+                    color: "#334155",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  CRITERIA / NOTE
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {prizeStructure.map((row, idx) => (
-                <TableRow key={idx} sx={{ "&:hover": { bgcolor: "#F1F5F9" }, bgcolor: idx === 0 ? "#FEF9C3" : "inherit" }}>
-                  <TableCell sx={{ fontWeight: 800, color: idx === 0 ? "#854D0E" : "#1E293B" }}>
-                    {idx === 0 ? "🥇 " : idx === 2 ? "🥈 " : idx === 3 ? "🥉 " : ""}{row.rank}
+                <TableRow
+                  key={idx}
+                  sx={{
+                    "&:hover": { bgcolor: "#F1F5F9" },
+                    bgcolor: idx === 0 ? "#FEF9C3" : "inherit",
+                  }}
+                >
+                  <TableCell
+                    sx={{
+                      fontWeight: 800,
+                      color: idx === 0 ? "#854D0E" : "#1E293B",
+                    }}
+                  >
+                    {idx === 0
+                      ? "🥇 "
+                      : idx === 2
+                        ? "🥈 "
+                        : idx === 3
+                          ? "🥉 "
+                          : ""}
+                    {row.rank}
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900, color: idx === 0 ? "#854D0E" : "#0F172A", fontSize: idx === 0 ? "1.05rem" : "0.95rem" }}>
+                  <TableCell
+                    sx={{
+                      fontWeight: 900,
+                      color: idx === 0 ? "#854D0E" : "#0F172A",
+                      fontSize: idx === 0 ? "1.05rem" : "0.95rem",
+                    }}
+                  >
                     {row.amount}
                   </TableCell>
-                  <TableCell sx={{ color: "#475569", fontWeight: 700 }}>{row.winners}</TableCell>
-                  <TableCell sx={{ color: "#64748B", fontSize: "0.85rem" }}>{row.note}</TableCell>
+                  <TableCell sx={{ color: "#475569", fontWeight: 700 }}>
+                    {row.winners}
+                  </TableCell>
+                  <TableCell sx={{ color: "#64748B", fontSize: "0.85rem" }}>
+                    {row.note}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -600,28 +855,61 @@ function UpcomingBumperCountdownSection({
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
               <AccessTimeIcon sx={{ color: "#3B82F6" }} />
-              <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 900, color: "#0F172A" }}
+              >
                 Draw Day Publishing Schedule
               </Typography>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {[
-                { time: `${rawDrawTime}`, title: "Manual Draw Commences", desc: "Draw machines initiated under supervision of judges at Gorky Bhavan." },
-                { time: isBumper ? "2:30 PM" : "3:10 PM", title: "1st Prize Ticket Announced", desc: "The top jackpot winning ticket number is published live on this website." },
-                { time: isBumper ? "3:30 PM" : "3:45 PM", title: "Full Prize Chart Live", desc: "Consolation, 2nd, 3rd, and all lower tier prize numbers are updated." },
-                { time: isBumper ? "4:30 PM" : "4:00 PM", title: "Official Gazette PDF", desc: "Government authorized official PDF Gazette is made available for download." },
+                {
+                  time: `${rawDrawTime}`,
+                  title: "Manual Draw Commences",
+                  desc: "Draw machines initiated under supervision of judges at Gorky Bhavan.",
+                },
+                {
+                  time: isBumper ? "2:30 PM" : "3:10 PM",
+                  title: "1st Prize Ticket Announced",
+                  desc: "The top jackpot winning ticket number is published live on this website.",
+                },
+                {
+                  time: isBumper ? "3:30 PM" : "3:45 PM",
+                  title: "Full Prize Chart Live",
+                  desc: "Consolation, 2nd, 3rd, and all lower tier prize numbers are updated.",
+                },
+                {
+                  time: isBumper ? "4:30 PM" : "4:00 PM",
+                  title: "Official Gazette PDF",
+                  desc: "Government authorized official PDF Gazette is made available for download.",
+                },
               ].map((step, idx) => (
-                <Box key={idx} sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                <Box
+                  key={idx}
+                  sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}
+                >
                   <Chip
                     label={step.time}
                     size="small"
-                    sx={{ bgcolor: "#EFF6FF", color: "#1D4ED8", fontWeight: 900, minWidth: 72 }}
+                    sx={{
+                      bgcolor: "#EFF6FF",
+                      color: "#1D4ED8",
+                      fontWeight: 900,
+                      minWidth: 72,
+                    }}
                   />
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0F172A" }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 800, color: "#0F172A" }}
+                    >
                       {step.title}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "#64748B", display: "block" }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "#64748B", display: "block" }}
+                    >
                       {step.desc}
                     </Typography>
                   </Box>
@@ -644,7 +932,10 @@ function UpcomingBumperCountdownSection({
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
               <SecurityIcon sx={{ color: "#10B981" }} />
-              <Typography variant="h6" sx={{ fontWeight: 900, color: "#0F172A" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 900, color: "#0F172A" }}
+              >
                 Prize Claim & Tax Guidelines
               </Typography>
             </Box>
@@ -656,9 +947,17 @@ function UpcomingBumperCountdownSection({
                 "A mandatory 30% TDS (Tax Deducted at Source) applies to all winnings above ₹10,000 under Section 194B of the Income Tax Act.",
                 "Required documents: Original Ticket with signature on reverse, 2 Passport Photos, PAN Card & Aadhaar Card.",
               ].map((text, idx) => (
-                <Box key={idx} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
-                  <CheckCircleIcon sx={{ color: "#10B981", fontSize: 20, mt: 0.2 }} />
-                  <Typography variant="body2" sx={{ color: "#334155", fontWeight: 600 }}>
+                <Box
+                  key={idx}
+                  sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}
+                >
+                  <CheckCircleIcon
+                    sx={{ color: "#10B981", fontSize: 20, mt: 0.2 }}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#334155", fontWeight: 600 }}
+                  >
                     {text}
                   </Typography>
                 </Box>
@@ -699,12 +998,18 @@ function UpcomingBumperCountdownSection({
             }}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#0F172A" }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 800, color: "#0F172A" }}
+              >
                 {faq.q}
               </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ pt: 0 }}>
-              <Typography variant="body2" sx={{ color: "#475569", lineHeight: 1.7, fontWeight: 500 }}>
+              <Typography
+                variant="body2"
+                sx={{ color: "#475569", lineHeight: 1.7, fontWeight: 500 }}
+              >
                 {faq.a}
               </Typography>
             </AccordionDetails>
@@ -738,20 +1043,26 @@ export default function DedicatedLotteryDateClient({
 
   const [availableDates] = useState<string[]>(initialAvailableDates);
   const [selectedDate, setSelectedDate] = useState<string>(dateParam);
-  const [drawResult, setDrawResult] = useState<StructuredDrawResult | null>(initialDrawResult);
-  const [postponement, setPostponement] = useState<PostponedDraw | null>(initialPostponement);
+  const [drawResult, setDrawResult] = useState<StructuredDrawResult | null>(
+    initialDrawResult,
+  );
+  const [postponement, setPostponement] = useState<PostponedDraw | null>(
+    initialPostponement,
+  );
   const [isAfter3PM, setIsAfter3PM] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   // Ticket Checker State
   const [checkerTicketInput, setCheckerTicketInput] = useState<string>("");
-  const [checkerResult, setCheckerResult] = useState<CheckerWinResult | null>(null);
+  const [checkerResult, setCheckerResult] = useState<CheckerWinResult | null>(
+    null,
+  );
   const checkerSectionRef = useRef<HTMLDivElement>(null);
 
   // Compute Previous and Next Draw Dates for chronological linking
   const sortedDates = [...availableDates].sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
   );
   const currentIndex = sortedDates.indexOf(dateParam);
   const nextDate = currentIndex > 0 ? sortedDates[currentIndex - 1] : null; // Newer date
@@ -790,7 +1101,7 @@ export default function DedicatedLotteryDateClient({
     const fetchLatestDetails = async () => {
       try {
         const res = await fetch(
-          `/api/draws?code=${lotteryCode}&date=${dateParam}&t=${Date.now()}`
+          `/api/draws?code=${lotteryCode}&date=${dateParam}&t=${Date.now()}`,
         );
         const json = await res.json();
         if (json.result) setDrawResult(json.result);
@@ -850,7 +1161,7 @@ export default function DedicatedLotteryDateClient({
             // Full API verification in background
             fetchLatestDetails();
           }
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -861,11 +1172,13 @@ export default function DedicatedLotteryDateClient({
         },
         () => {
           fetchLatestDetails();
-        }
+        },
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
-          console.log(`[Supabase Socket] Subscribed to ${lotteryCode} - ${dateParam}`);
+          console.log(
+            `[Supabase Socket] Subscribed to ${lotteryCode} - ${dateParam}`,
+          );
         }
       });
 
@@ -874,7 +1187,10 @@ export default function DedicatedLotteryDateClient({
       timeZone: "Asia/Kolkata",
     });
     const pollInterval = setInterval(() => {
-      if (dateParam === todayDate && (!drawResult || !hasAnyDrawResult(drawResult))) {
+      if (
+        dateParam === todayDate &&
+        (!drawResult || !hasAnyDrawResult(drawResult))
+      ) {
         fetchLatestDetails();
       }
     }, 15000);
@@ -928,7 +1244,17 @@ export default function DedicatedLotteryDateClient({
       }
     }
 
-    const tiers = ["consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"] as const;
+    const tiers = [
+      "consolation",
+      "2nd",
+      "3rd",
+      "4th",
+      "5th",
+      "6th",
+      "7th",
+      "8th",
+      "9th",
+    ] as const;
     for (const tier of tiers) {
       const nums = drawResult.prizes?.[tier] || [];
       const amount = drawResult.prizes?.amounts?.[tier];
@@ -936,7 +1262,8 @@ export default function DedicatedLotteryDateClient({
         const matchRes = validateTicketMatch(query, num);
         if (matchRes.isMatch) {
           matchesList.push({
-            tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+            tier:
+              tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
             amount,
             matchedNumber: num,
             seriesNote: matchRes.seriesNote,
@@ -957,7 +1284,10 @@ export default function DedicatedLotteryDateClient({
     }
 
     setTimeout(() => {
-      checkerSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      checkerSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }, 400);
   }, [drawResult, searchParams, dateParam]);
 
@@ -1005,7 +1335,17 @@ export default function DedicatedLotteryDateClient({
       }
     }
 
-    const tiers = ["consolation", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"] as const;
+    const tiers = [
+      "consolation",
+      "2nd",
+      "3rd",
+      "4th",
+      "5th",
+      "6th",
+      "7th",
+      "8th",
+      "9th",
+    ] as const;
     for (const tier of tiers) {
       const nums = drawResult.prizes?.[tier] || [];
       const amount = drawResult.prizes?.amounts?.[tier];
@@ -1013,7 +1353,8 @@ export default function DedicatedLotteryDateClient({
         const matchRes = validateTicketMatch(queryInput, num);
         if (matchRes.isMatch) {
           matchesList.push({
-            tier: tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
+            tier:
+              tier === "consolation" ? "Consolation Prize" : `${tier} Prize`,
             amount,
             matchedNumber: num,
             seriesNote: matchRes.seriesNote,
@@ -1047,7 +1388,11 @@ export default function DedicatedLotteryDateClient({
     { key: "7th", label: "7th Prize", dotBg: "#0B3C5D" },
     { key: "8th", label: "8th Prize", dotBg: "#475569" },
     { key: "9th", label: "9th Prize", dotBg: "#64748B" },
-    { key: "guess", label: "Guessing Numbers (ഭാഗ്യ സംഖ്യകൾ)", dotBg: "#8B5CF6" },
+    {
+      key: "guess",
+      label: "Guessing Numbers (ഭാഗ്യ സംഖ്യകൾ)",
+      dotBg: "#8B5CF6",
+    },
     { key: "mc", label: "Machine Center (MC) Numbers", dotBg: "#EC4899" },
   ] as const;
 
@@ -1074,7 +1419,9 @@ export default function DedicatedLotteryDateClient({
           }}
         >
           <Breadcrumbs
-            separator={<NavigateNextIcon fontSize="small" sx={{ color: "#9CA3AF" }} />}
+            separator={
+              <NavigateNextIcon fontSize="small" sx={{ color: "#9CA3AF" }} />
+            }
             aria-label="breadcrumb"
           >
             <Link
@@ -1156,7 +1503,14 @@ export default function DedicatedLotteryDateClient({
             boxShadow: "0 4px 16px rgba(11, 60, 93, 0.15)",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 1.5,
+            }}
+          >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <IconButton
                 component={Link}
@@ -1187,16 +1541,26 @@ export default function DedicatedLotteryDateClient({
                     alt={getLotteryLogoAlt(lotteryInfo.name, lotteryInfo.day)}
                     width={38}
                     height={38}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
                   />
                 </Box>
               )}
               <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: "#FFFFFF", lineHeight: 1.2 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 900, color: "#FFFFFF", lineHeight: 1.2 }}
+                >
                   {drawResult?.draw_name || lotteryInfo.name}
                 </Typography>
                 {lotteryInfo.nameMl && (
-                  <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: 600 }}
+                  >
                     {lotteryInfo.nameMl}
                   </Typography>
                 )}
@@ -1225,7 +1589,14 @@ export default function DedicatedLotteryDateClient({
           </Box>
 
           {/* Badges Row */}
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
             <Chip
               label={drawResult?.draw_code || lotteryInfo.code}
               size="small"
@@ -1253,23 +1624,23 @@ export default function DedicatedLotteryDateClient({
                 drawResult
                   ? "🟢 Official Result"
                   : selectedDate === todayISTDate && isAfter3PM
-                  ? "🔴 Live Drawing"
-                  : selectedDate >= todayISTDate
-                  ? "🕒 Scheduled"
-                  : "⚪ Past Draw"
+                    ? "🔴 Live Drawing"
+                    : selectedDate >= todayISTDate
+                      ? "🕒 Scheduled"
+                      : "⚪ Past Draw"
               }
               size="small"
               sx={{
                 bgcolor: drawResult
                   ? "#DCFCE7"
                   : selectedDate === todayISTDate && isAfter3PM
-                  ? "#FEE2E2"
-                  : "#FEF3C7",
+                    ? "#FEE2E2"
+                    : "#FEF3C7",
                 color: drawResult
                   ? "#166534"
                   : selectedDate === todayISTDate && isAfter3PM
-                  ? "#991B1B"
-                  : "#92400E",
+                    ? "#991B1B"
+                    : "#92400E",
                 fontWeight: 800,
                 fontSize: "0.75rem",
                 borderRadius: "6px",
@@ -1279,7 +1650,14 @@ export default function DedicatedLotteryDateClient({
         </Paper>
 
         {/* Desktop Page Title */}
-        <Box sx={{ mb: 3, display: { xs: "none", md: "flex" }, alignItems: "center", gap: 2.5 }}>
+        <Box
+          sx={{
+            mb: 3,
+            display: { xs: "none", md: "flex" },
+            alignItems: "center",
+            gap: 2.5,
+          }}
+        >
           {getLotteryLogo(lotteryCode) && (
             <Box
               sx={{
@@ -1313,13 +1691,15 @@ export default function DedicatedLotteryDateClient({
                 lineHeight: 1.2,
               }}
             >
-              {drawResult?.draw_name || lotteryInfo.name} ({drawResult?.draw_code || lotteryInfo.code}) Result
+              {drawResult?.draw_name || lotteryInfo.name} (
+              {drawResult?.draw_code || lotteryInfo.code}) Result
             </Typography>
             <Typography
               variant="body1"
               sx={{ color: "#6B7280", mt: 0.5, fontSize: "0.95rem" }}
             >
-              Official Kerala State Lottery Winning Numbers for Draw on <strong>{selectedDate}</strong>
+              Kerala State Lottery Winning Numbers for Draw on{" "}
+              <strong>{selectedDate}</strong>
             </Typography>
           </Box>
         </Box>
@@ -1349,12 +1729,18 @@ export default function DedicatedLotteryDateClient({
                   mb: 2,
                 }}
               />
-              <Typography variant="h5" sx={{ color: "#991B1B", fontWeight: 900, mb: 1 }}>
+              <Typography
+                variant="h5"
+                sx={{ color: "#991B1B", fontWeight: 900, mb: 1 }}
+              >
                 {postponement.status === "holiday"
                   ? "Official Kerala Lottery Holiday"
                   : `Draw Postponed for ${selectedDate}`}
               </Typography>
-              <Typography variant="body1" sx={{ color: "#881337", fontWeight: 600, mb: 2 }}>
+              <Typography
+                variant="body1"
+                sx={{ color: "#881337", fontWeight: 600, mb: 2 }}
+              >
                 📢 Reason: {postponement.reason}
               </Typography>
               {postponement.rescheduled_date && (
@@ -1368,13 +1754,18 @@ export default function DedicatedLotteryDateClient({
                     mb: 2,
                   }}
                 >
-                  <Typography variant="body2" sx={{ color: "#9F1239", fontWeight: 800 }}>
-                    🗓️ Rescheduled Draw Date: <strong>{postponement.rescheduled_date}</strong>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#9F1239", fontWeight: 800 }}
+                  >
+                    🗓️ Rescheduled Draw Date:{" "}
+                    <strong>{postponement.rescheduled_date}</strong>
                   </Typography>
                 </Box>
               )}
             </Paper>
-          ) : selectedDate > todayISTDate || (!drawResult && selectedDate === todayISTDate && !isAfter3PM) ? (
+          ) : selectedDate > todayISTDate ||
+            (!drawResult && selectedDate === todayISTDate && !isAfter3PM) ? (
             <UpcomingBumperCountdownSection
               lotteryInfo={lotteryInfo}
               lotteryCode={lotteryCode}
@@ -1394,7 +1785,10 @@ export default function DedicatedLotteryDateClient({
                 mt: 3,
               }}
             >
-              <Typography variant="h6" sx={{ color: "#374151", mb: 1, fontWeight: 800 }}>
+              <Typography
+                variant="h6"
+                sx={{ color: "#374151", mb: 1, fontWeight: 800 }}
+              >
                 {selectedDate === todayISTDate
                   ? isAfter3PM
                     ? "Draw Results Are Being Published..."
@@ -1412,7 +1806,11 @@ export default function DedicatedLotteryDateClient({
                 component={Link}
                 href={getLotteryUrl(lotterySlug)}
                 variant="contained"
-                sx={{ bgcolor: "#0B3C5D", borderRadius: "8px", fontWeight: 700 }}
+                sx={{
+                  bgcolor: "#0B3C5D",
+                  borderRadius: "8px",
+                  fontWeight: 700,
+                }}
               >
                 View Available {lotteryInfo.name} Draw Dates
               </Button>
@@ -1434,7 +1832,9 @@ export default function DedicatedLotteryDateClient({
             >
               <Grid container spacing={2} sx={{ alignItems: "center" }}>
                 <Grid size={{ xs: 12, md: 7 }}>
-                  <Box sx={{ display: "flex", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
+                  <Box
+                    sx={{ display: "flex", gap: 1, mb: 1.5, flexWrap: "wrap" }}
+                  >
                     <Chip
                       label={drawResult.draw_code}
                       sx={{
@@ -1466,11 +1866,15 @@ export default function DedicatedLotteryDateClient({
                       }}
                     />
                   </Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: "#111827", mb: 0.5 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: 800, color: "#111827", mb: 0.5 }}
+                  >
                     {drawResult.draw_name} ({drawResult.draw_code})
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#6B7280" }}>
-                    Live draw verified and recorded from the official Directorate of Kerala State Lotteries notification.
+                    Live draw verified and recorded from the official
+                    Directorate of Kerala State Lotteries notification.
                   </Typography>
                 </Grid>
 
@@ -1496,10 +1900,25 @@ export default function DedicatedLotteryDateClient({
                 boxShadow: "0 8px 24px rgba(11, 60, 93, 0.2)",
               }}
             >
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  flexWrap: "wrap",
+                  gap: 2,
+                }}
+              >
                 <Box>
                   <Chip
-                    icon={<EmojiEventsIcon sx={{ color: "#FFC107 !important", fontSize: "16px !important" }} />}
+                    icon={
+                      <EmojiEventsIcon
+                        sx={{
+                          color: "#FFC107 !important",
+                          fontSize: "16px !important",
+                        }}
+                      />
+                    }
                     label="1ST PRIZE WINNER"
                     sx={{
                       bgcolor: "rgba(255, 193, 7, 0.2)",
@@ -1524,26 +1943,32 @@ export default function DedicatedLotteryDateClient({
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  {drawResult.first?.ticket && drawResult.first.ticket !== "PENDING" && (
-                    <Tooltip title="Copy Winning Ticket Number">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<ContentCopyIcon fontSize="small" />}
-                        onClick={() => handleCopyTicket(drawResult.first?.ticket || "")}
-                        sx={{
-                          color: "#FFFFFF",
-                          borderColor: "rgba(255,255,255,0.4)",
-                          borderRadius: "8px",
-                          fontWeight: 700,
-                          fontSize: { xs: "0.75rem", sm: "0.85rem" },
-                          "&:hover": { borderColor: "#FFFFFF", bgcolor: "rgba(255,255,255,0.1)" },
-                        }}
-                      >
-                        Copy
-                      </Button>
-                    </Tooltip>
-                  )}
+                  {drawResult.first?.ticket &&
+                    drawResult.first.ticket !== "PENDING" && (
+                      <Tooltip title="Copy Winning Ticket Number">
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<ContentCopyIcon fontSize="small" />}
+                          onClick={() =>
+                            handleCopyTicket(drawResult.first?.ticket || "")
+                          }
+                          sx={{
+                            color: "#FFFFFF",
+                            borderColor: "rgba(255,255,255,0.4)",
+                            borderRadius: "8px",
+                            fontWeight: 700,
+                            fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                            "&:hover": {
+                              borderColor: "#FFFFFF",
+                              bgcolor: "rgba(255,255,255,0.1)",
+                            },
+                          }}
+                        >
+                          Copy
+                        </Button>
+                      </Tooltip>
+                    )}
                 </Box>
               </Box>
 
@@ -1561,12 +1986,21 @@ export default function DedicatedLotteryDateClient({
                 }}
               >
                 <Box>
-                  <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block", fontSize: "0.75rem" }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "rgba(255, 255, 255, 0.7)",
+                      display: "block",
+                      fontSize: "0.75rem",
+                    }}
+                  >
                     Winning Ticket Serial Number:
                   </Typography>
                   <Typography
                     variant="h4"
-                    onClick={() => handleCopyTicket(drawResult.first?.ticket || "")}
+                    onClick={() =>
+                      handleCopyTicket(drawResult.first?.ticket || "")
+                    }
                     sx={{
                       fontFamily: "monospace",
                       fontWeight: 900,
@@ -1580,23 +2014,49 @@ export default function DedicatedLotteryDateClient({
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: "flex", gap: { xs: 1.5, sm: 3 }, flexWrap: "wrap" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: { xs: 1.5, sm: 3 },
+                    flexWrap: "wrap",
+                  }}
+                >
                   {drawResult.first?.location && (
                     <Box>
-                      <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block", fontSize: "0.75rem" }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "rgba(255, 255, 255, 0.7)",
+                          display: "block",
+                          fontSize: "0.75rem",
+                        }}
+                      >
                         Location / District:
                       </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 800, color: "#FFFFFF" }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 800, color: "#FFFFFF" }}
+                      >
                         📍 {drawResult.first.location}
                       </Typography>
                     </Box>
                   )}
                   {drawResult.first?.agent && (
                     <Box>
-                      <Typography variant="caption" sx={{ color: "rgba(255, 255, 255, 0.7)", display: "block", fontSize: "0.75rem" }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "rgba(255, 255, 255, 0.7)",
+                          display: "block",
+                          fontSize: "0.75rem",
+                        }}
+                      >
                         Selling Agent:
                       </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 800, color: "#FFFFFF" }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 800, color: "#FFFFFF" }}
+                      >
                         👤 {drawResult.first.agent}
                       </Typography>
                     </Box>
@@ -1618,17 +2078,32 @@ export default function DedicatedLotteryDateClient({
                 boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                <ConfirmationNumberIcon sx={{ color: "#0B3C5D", fontSize: 22 }} />
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#111827" }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
+                <ConfirmationNumberIcon
+                  sx={{ color: "#0B3C5D", fontSize: 22 }}
+                />
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 800, color: "#111827" }}
+                >
                   Check Your {drawResult.draw_name} Ticket
                 </Typography>
               </Box>
-              <Typography variant="body2" sx={{ color: "#6B7280", mb: 2, fontSize: "0.85rem" }}>
-                Enter ticket number or last 4 digits to instantly check if you won:
+              <Typography
+                variant="body2"
+                sx={{ color: "#6B7280", mb: 2, fontSize: "0.85rem" }}
+              >
+                Enter ticket number or last 4 digits to instantly check if you
+                won:
               </Typography>
 
-              <Box component="form" onSubmit={handleCheckTicketSubmit} sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+              <Box
+                component="form"
+                onSubmit={handleCheckTicketSubmit}
+                sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}
+              >
                 <TextField
                   size="small"
                   placeholder="e.g. 6429 or AB 123456"
@@ -1669,8 +2144,13 @@ export default function DedicatedLotteryDateClient({
                       🎉 CONGRATULATIONS! Matching winning numbers found:
                       <Box sx={{ mt: 1 }}>
                         {checkerResult.matches?.map((m, idx) => (
-                          <Typography key={idx} variant="body2" sx={{ fontWeight: 800, color: "#166534" }}>
-                            • {m.tier} {m.amount ? `(${m.amount})` : ""} - Number: {m.matchedNumber}
+                          <Typography
+                            key={idx}
+                            variant="body2"
+                            sx={{ fontWeight: 800, color: "#166534" }}
+                          >
+                            • {m.tier} {m.amount ? `(${m.amount})` : ""} -
+                            Number: {m.matchedNumber}
                           </Typography>
                         ))}
                       </Box>
@@ -1704,10 +2184,33 @@ export default function DedicatedLotteryDateClient({
                         boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
                       }}
                     >
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: tier.dotBg }} />
-                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#111827", fontSize: { xs: "0.9rem", sm: "1rem" } }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 1.5,
+                        }}
+                      >
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Box
+                            sx={{
+                              width: 10,
+                              height: 10,
+                              borderRadius: "50%",
+                              bgcolor: tier.dotBg,
+                            }}
+                          />
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              fontWeight: 800,
+                              color: "#111827",
+                              fontSize: { xs: "0.9rem", sm: "1rem" },
+                            }}
+                          >
                             {tier.label}
                           </Typography>
                         </Box>
@@ -1792,9 +2295,14 @@ export default function DedicatedLotteryDateClient({
               bgcolor: "#FFFFFF",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}
+            >
               <CalendarMonthIcon sx={{ color: "#0B3C5D" }} />
-              <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 800, color: "#111827" }}
+              >
                 All {lotteryInfo.name} Historical Draw Dates
               </Typography>
             </Box>
@@ -1844,22 +2352,37 @@ export default function DedicatedLotteryDateClient({
               bgcolor: "#FFFFFF",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}
+            >
               <CasinoIcon sx={{ color: "#0B3C5D" }} />
-              <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 800, color: "#111827" }}
+              >
                 Recent Kerala Lottery Results
               </Typography>
             </Box>
             <Typography variant="body2" sx={{ color: "#6B7280", mb: 2 }}>
-              Check latest winning numbers from other weekly and bumper lotteries:
+              Check latest winning numbers from other weekly and bumper
+              lotteries:
             </Typography>
 
             <Grid container spacing={1.5}>
               {recentOtherDraws
-                .filter((d) => !(d.lottery_code === lotteryCode && d.draw_date === dateParam))
+                .filter(
+                  (d) =>
+                    !(
+                      d.lottery_code === lotteryCode &&
+                      d.draw_date === dateParam
+                    ),
+                )
                 .slice(0, 8)
                 .map((d) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={`${d.lottery_code}-${d.draw_date}`}>
+                  <Grid
+                    size={{ xs: 12, sm: 6, md: 3 }}
+                    key={`${d.lottery_code}-${d.draw_date}`}
+                  >
                     <Box
                       component={Link}
                       href={getLotteryUrl(d.lottery_code, d.draw_date)}
@@ -1879,17 +2402,33 @@ export default function DedicatedLotteryDateClient({
                         },
                       }}
                     >
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#0B3C5D" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 700, color: "#0B3C5D" }}
+                        >
                           {d.draw_name}
                         </Typography>
                         <Chip
                           label={d.draw_code}
                           size="small"
-                          sx={{ height: 18, fontSize: "0.65rem", fontWeight: 700 }}
+                          sx={{
+                            height: 18,
+                            fontSize: "0.65rem",
+                            fontWeight: 700,
+                          }}
                         />
                       </Box>
-                      <Typography variant="caption" sx={{ color: "#6B7280", display: "block", mt: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "#6B7280", display: "block", mt: 0.5 }}
+                      >
                         📅 {d.draw_date} • 1st: {d.first?.ticket || "N/A"}
                       </Typography>
                     </Box>
@@ -1912,11 +2451,15 @@ export default function DedicatedLotteryDateClient({
             bgcolor: "#FFFFFF",
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 800, color: "#111827", mb: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 800, color: "#111827", mb: 1 }}
+          >
             Kerala State Lotteries Schedule & Categories
           </Typography>
           <Typography variant="body2" sx={{ color: "#6B7280", mb: 2 }}>
-            Explore all official Kerala state weekly lotteries and bumper seasonal jackpot draws:
+            Explore all official Kerala state weekly lotteries and bumper
+            seasonal jackpot draws:
           </Typography>
 
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
@@ -1946,7 +2489,11 @@ export default function DedicatedLotteryDateClient({
                           alt={getLotteryLogoAlt(item.name, item.day)}
                           width={22}
                           height={22}
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
                         />
                       </Box>
                     ) : null

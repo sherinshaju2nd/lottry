@@ -159,7 +159,7 @@ export async function parseLotteryPdfWithGemini(
 
   const prompt = `
 You are an expert Kerala State Lottery Gazette document parser.
-Extract all lottery draw result data from this official Kerala State Lottery Gazette PDF or result sheet image.
+Extract all lottery draw result data from this Kerala State Lottery Gazette PDF or result sheet image.
 
 Required Fields:
 1. "draw_date": Formatted strictly as YYYY-MM-DD (e.g. 2026-03-28).
@@ -306,7 +306,7 @@ export async function chatWithGeminiAssistant(
   }
 
   const systemInstruction = `
-You are the Official Kerala State Lottery AI Assistant on https://www.keralalotteryresultstoday.in.
+You are the Kerala State Lottery AI Assistant on https://www.keralalotteryresultstoday.in.
 You help users with live lottery results, ticket verification, claim procedures, prize breakdown tables, taxation, and bumper draw dates.
 
 Guidelines:
@@ -821,8 +821,15 @@ ${JSON.stringify(formattedDraws, null, 2)}
           parsed.top_predicted_numbers = [];
         }
         if (parsed.top_predicted_numbers.length < 15) {
-          const fallback = generateStatisticalFallbackAnalysis(lotteryName, lotteryCode, draws, lang);
-          const existing = new Set(parsed.top_predicted_numbers.map((p) => p.number));
+          const fallback = generateStatisticalFallbackAnalysis(
+            lotteryName,
+            lotteryCode,
+            draws,
+            lang,
+          );
+          const existing = new Set(
+            parsed.top_predicted_numbers.map((p) => p.number),
+          );
           for (const item of fallback.top_predicted_numbers) {
             if (parsed.top_predicted_numbers.length >= 15) break;
             if (!existing.has(item.number)) {
@@ -851,9 +858,14 @@ ${JSON.stringify(formattedDraws, null, 2)}
   // Graceful High-Demand Fallback: If Gemini servers are busy (503/429), compute deterministic statistical distribution
   if (draws && draws.length > 0) {
     console.warn(
-      `[AI Resilient Fallback] Gemini API congested (${lastError?.message || "503 High Demand"}). Computing mathematical statistical pattern analysis for ${lotteryCode}.`
+      `[AI Resilient Fallback] Gemini API congested (${lastError?.message || "503 High Demand"}). Computing mathematical statistical pattern analysis for ${lotteryCode}.`,
     );
-    return generateStatisticalFallbackAnalysis(lotteryName, lotteryCode, draws, lang);
+    return generateStatisticalFallbackAnalysis(
+      lotteryName,
+      lotteryCode,
+      draws,
+      lang,
+    );
   }
 
   throw (
@@ -872,12 +884,23 @@ export function generateStatisticalFallbackAnalysis(
   draws: StructuredDrawResult[],
   lang: "en" | "ml" = "en",
 ): LotteryAiPatternAnalysis {
-  const digitCounts: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+  const digitCounts: Record<number, number> = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+    9: 0,
+  };
   const posCounts: [
     Record<number, number>,
     Record<number, number>,
     Record<number, number>,
-    Record<number, number>
+    Record<number, number>,
   ] = [
     { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
     { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
@@ -896,7 +919,16 @@ export function generateStatisticalFallbackAnalysis(
     const p = d.prizes || {};
     const numbersInDraw: string[] = [];
     if (d.first?.ticket) numbersInDraw.push(d.first.ticket);
-    const tiers = ["2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"] as const;
+    const tiers = [
+      "2nd",
+      "3rd",
+      "4th",
+      "5th",
+      "6th",
+      "7th",
+      "8th",
+      "9th",
+    ] as const;
     for (const t of tiers) {
       if (Array.isArray(p[t])) {
         for (const num of p[t] || []) {
@@ -916,8 +948,10 @@ export function generateStatisticalFallbackAnalysis(
           posCounts[i][digit] = (posCounts[i][digit] || 0) + 1;
           totalDigits++;
           numSum += digit;
-          if (digit % 2 === 0) evenCount++; else oddCount++;
-          if (digit >= 5) highCount++; else lowCount++;
+          if (digit % 2 === 0) evenCount++;
+          else oddCount++;
+          if (digit >= 5) highCount++;
+          else lowCount++;
         }
         sumList.push(numSum);
       }
@@ -933,7 +967,10 @@ export function generateStatisticalFallbackAnalysis(
 
   const overall = sortedDigits.map((item, idx) => ({
     digit: item.digit,
-    frequency_pct: totalDigits > 0 ? Math.round((item.count / totalDigits) * 100 * 10) / 10 : 10,
+    frequency_pct:
+      totalDigits > 0
+        ? Math.round((item.count / totalDigits) * 100 * 10) / 10
+        : 10,
     label: idx < 3 ? "🔥 Ultra Hot" : idx < 7 ? "⚡ Active" : "❄️ Cold",
   }));
 
@@ -949,7 +986,10 @@ export function generateStatisticalFallbackAnalysis(
   const p3 = getTopPos(2);
   const p4 = getTopPos(3);
 
-  const avgSum = sumList.length > 0 ? Math.round(sumList.reduce((a, b) => a + b, 0) / sumList.length) : 18;
+  const avgSum =
+    sumList.length > 0
+      ? Math.round(sumList.reduce((a, b) => a + b, 0) / sumList.length)
+      : 18;
   const evenPct = Math.round((evenCount / (evenCount + oddCount || 1)) * 100);
   const highPct = Math.round((highCount / (highCount + lowCount || 1)) * 100);
 
@@ -989,14 +1029,18 @@ export function generateStatisticalFallbackAnalysis(
       {
         pattern: `${p1[0]}${p1[0]}XX`,
         type: "Leading Double",
-        description: isMl ? "ആദ്യ രണ്ട് അക്കങ്ങൾ ഒരേപോലെയുള്ള ശ്രേണി" : "Repeated pair in first and second position",
+        description: isMl
+          ? "ആദ്യ രണ്ട് അക്കങ്ങൾ ഒരേപോലെയുള്ള ശ്രേണി"
+          : "Repeated pair in first and second position",
         historical_frequency: "High (~26% of winning lines)",
         recommended_examples: [num2, `${p1[0]}${p1[0]}${p3[0]}${p4[0]}`],
       },
       {
         pattern: `X${p2[0]}${p2[0]}X`,
         type: "Center Double",
-        description: isMl ? "മധ്യഭാഗത്തെ ഇരട്ട അക്ക വിന്യാസം" : "Double digit repetition in the middle columns",
+        description: isMl
+          ? "മധ്യഭാഗത്തെ ഇരട്ട അക്ക വിന്യാസം"
+          : "Double digit repetition in the middle columns",
         historical_frequency: "Moderate (~22% of winning lines)",
         recommended_examples: [num3, `${p1[0]}${p2[0]}${p2[0]}${p4[0]}`],
       },
@@ -1022,7 +1066,8 @@ export function generateStatisticalFallbackAnalysis(
           probability_rank: 1,
           pattern_structure: `${p1[0]}-${p2[0]}-${p3[0]}-${p4[0]}`,
           predicted_numbers: [num1, num2],
-          reasoning: "Highest composite frequency across all prize tiers in historical dataset.",
+          reasoning:
+            "Highest composite frequency across all prize tiers in historical dataset.",
         },
       ],
     },
@@ -1118,6 +1163,7 @@ export function generateStatisticalFallbackAnalysis(
         rationale: `Terminal double pair ending with stable positional root sequence.`,
       },
     ],
-    disclaimer: "This analysis is purely based on historical statistical frequencies and probability modeling. Kerala State Lottery draws are independent random events conducted by the Directorate of Kerala State Lotteries.",
+    disclaimer:
+      "This analysis is purely based on historical statistical frequencies and probability modeling. Kerala State Lottery draws are independent random events conducted by the Directorate of Kerala State Lotteries.",
   };
 }

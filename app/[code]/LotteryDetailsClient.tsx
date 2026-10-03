@@ -121,7 +121,7 @@ export default function LotteryDetailsClient({
         lotteryInfo.nameMl,
         lotteryInfo.day,
         jackpotAmount,
-        ticketPrice
+        ticketPrice,
       )
     );
   }, [
@@ -137,7 +137,7 @@ export default function LotteryDetailsClient({
   const isBumper = Boolean(
     lotteryInfo.is_bumper ||
     lotteryCode.startsWith("Bumper") ||
-    ["XN", "SB", "VB", "MB", "TH", "PB"].includes(lotteryCode)
+    ["XN", "SB", "VB", "MB", "TH", "PB"].includes(lotteryCode),
   );
 
   const todayISTDate = useMemo(() => {
@@ -151,7 +151,7 @@ export default function LotteryDetailsClient({
   }, []);
 
   const isUpcomingConfirmedDraw = Boolean(
-    lotteryDbMeta?.draw_date && lotteryDbMeta.draw_date >= todayISTDate
+    lotteryDbMeta?.draw_date && lotteryDbMeta.draw_date >= todayISTDate,
   );
 
   const confirmedFormattedDate = useMemo(() => {
@@ -162,7 +162,7 @@ export default function LotteryDetailsClient({
         const d = new Date(
           parseInt(parts[0], 10),
           parseInt(parts[1], 10) - 1,
-          parseInt(parts[2], 10)
+          parseInt(parts[2], 10),
         );
         return d.toLocaleDateString("en-GB", {
           day: "numeric",
@@ -201,7 +201,7 @@ export default function LotteryDetailsClient({
         const d = new Date(
           parseInt(parts[0], 10),
           parseInt(parts[1], 10) - 1,
-          parseInt(parts[2], 10)
+          parseInt(parts[2], 10),
         );
         return d.toLocaleDateString("en-GB", {
           day: "numeric",
@@ -225,7 +225,7 @@ export default function LotteryDetailsClient({
   const refreshHistory = async () => {
     try {
       const res = await fetch(
-        `/api/draws?type=history&code=${lotteryCode}&t=${Date.now()}`
+        `/api/draws?type=history&code=${lotteryCode}&t=${Date.now()}`,
       );
       const json = await res.json();
       if (json.success && Array.isArray(json.results)) {
@@ -254,7 +254,7 @@ export default function LotteryDetailsClient({
           ) {
             refreshHistory();
           }
-        }
+        },
       )
       .subscribe();
 
@@ -280,7 +280,9 @@ export default function LotteryDetailsClient({
         const dateMatch = draw.draw_date.toLowerCase().includes(q);
         const nameMatch = draw.draw_name.toLowerCase().includes(q);
         const codeMatch = draw.draw_code.toLowerCase().includes(q);
-        const ticketMatch = (draw.first?.ticket || "").toLowerCase().includes(q);
+        const ticketMatch = (draw.first?.ticket || "")
+          .toLowerCase()
+          .includes(q);
         return dateMatch || nameMatch || codeMatch || ticketMatch;
       });
       setFilteredDraws(filtered);
@@ -290,7 +292,7 @@ export default function LotteryDetailsClient({
 
   const handleViewModeChange = (
     _event: React.MouseEvent<HTMLElement>,
-    newMode: "table" | "grid" | null
+    newMode: "table" | "grid" | null,
   ) => {
     if (newMode !== null) {
       setViewMode(newMode);
@@ -302,7 +304,7 @@ export default function LotteryDetailsClient({
   };
 
   const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -310,7 +312,7 @@ export default function LotteryDetailsClient({
 
   const paginatedDraws = filteredDraws.slice(
     page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+    page * rowsPerPage + rowsPerPage,
   );
 
   const otherWeekly = WEEKLY_LOTTERIES.filter((l) => l.code !== lotteryCode);
@@ -397,15 +399,21 @@ export default function LotteryDetailsClient({
                     alt={getLotteryLogoAlt(lotteryInfo.name, lotteryInfo.day)}
                     width={84}
                     height={84}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
                   />
                 </Box>
               )}
 
               <Box>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 0.75 }}>
+                <Box
+                  sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 0.75 }}
+                >
                   <Chip
-                    label="Official Kerala State Lottery"
+                    label="Kerala State Lottery"
                     size="small"
                     icon={<VerifiedIcon sx={{ fontSize: "14px !important" }} />}
                     sx={{
@@ -476,11 +484,13 @@ export default function LotteryDetailsClient({
                 >
                   Draw Day: <strong>{lotteryInfo.day}</strong> | Draw Time:{" "}
                   <strong>
-                    {lotteryInfo.code.startsWith("Bumper") ? "2:00 PM" : "3:00 PM"}
+                    {lotteryInfo.code.startsWith("Bumper")
+                      ? "2:00 PM"
+                      : "3:00 PM"}
                   </strong>{" "}
                   | 1st Prize:{" "}
-                  <strong style={{ color: "#0B3C5D" }}>{jackpotAmount}</strong> |
-                  Ticket: <strong>{ticketPrice}</strong> | Venue:{" "}
+                  <strong style={{ color: "#0B3C5D" }}>{jackpotAmount}</strong>{" "}
+                  | Ticket: <strong>{ticketPrice}</strong> | Venue:{" "}
                   <strong>Gorky Bhavan, TVM</strong>
                 </Typography>
               </Box>
@@ -610,7 +620,8 @@ export default function LotteryDetailsClient({
                   letterSpacing: "-0.01em",
                 }}
               >
-                Next Scheduled Draw: {confirmedFormattedDate || lotteryDbMeta.draw_date}
+                Next Scheduled Draw:{" "}
+                {confirmedFormattedDate || lotteryDbMeta.draw_date}
               </Typography>
 
               <Typography
@@ -624,7 +635,8 @@ export default function LotteryDetailsClient({
               >
                 Draw Time:{" "}
                 <strong>
-                  {lotteryDbMeta.draw_time || (isBumper ? "2:00 PM" : "3:00 PM")}
+                  {lotteryDbMeta.draw_time ||
+                    (isBumper ? "2:00 PM" : "3:00 PM")}
                 </strong>{" "}
                 | 1st Prize:{" "}
                 <strong style={{ color: "#92400E" }}>{jackpotAmount}</strong> |
@@ -763,7 +775,9 @@ export default function LotteryDetailsClient({
                         gap: 0.5,
                       }}
                     >
-                      <EmojiEventsIcon sx={{ fontSize: 15, color: "#FBBF24" }} />
+                      <EmojiEventsIcon
+                        sx={{ fontSize: 15, color: "#FBBF24" }}
+                      />
                       1st Prize ({jackpotAmount})
                     </Typography>
                     <Typography
@@ -986,7 +1000,9 @@ export default function LotteryDetailsClient({
                         key={draw.draw_date}
                         hover
                         onClick={() =>
-                          router.push(getLotteryUrl(lotterySlug, draw.draw_date))
+                          router.push(
+                            getLotteryUrl(lotterySlug, draw.draw_date),
+                          )
                         }
                         sx={{
                           cursor: "pointer",
@@ -1242,8 +1258,6 @@ export default function LotteryDetailsClient({
           )}
         </Box>
 
-
-
         {/* ============================================================== */}
         {/* EDITORIAL CONTENT & FAQS: Single Unified Comprehensive Card   */}
         {/* ============================================================== */}
@@ -1272,7 +1286,14 @@ export default function LotteryDetailsClient({
               {editorial.keralaResultHeading}
             </Typography>
 
-            <Box sx={{ color: "#334155", fontSize: "0.95rem", lineHeight: 1.8, mb: 2 }}>
+            <Box
+              sx={{
+                color: "#334155",
+                fontSize: "0.95rem",
+                lineHeight: 1.8,
+                mb: 2,
+              }}
+            >
               {editorial.keralaResultParagraphs.map((para, idx) => (
                 <Typography
                   key={idx}
@@ -1292,14 +1313,15 @@ export default function LotteryDetailsClient({
               ))}
             </Box>
 
-            <Box sx={{ color: "#475569", fontSize: "0.95rem", lineHeight: 1.8 }}>
+            <Box
+              sx={{ color: "#475569", fontSize: "0.95rem", lineHeight: 1.8 }}
+            >
               {editorial.introParagraphs.map((para, idx) => (
                 <Typography
                   key={idx}
                   variant="body1"
                   sx={{
-                    mb:
-                      idx === editorial.introParagraphs.length - 1 ? 0 : 1.5,
+                    mb: idx === editorial.introParagraphs.length - 1 ? 0 : 1.5,
                     color: "#475569",
                     fontSize: { xs: "0.925rem", sm: "1rem" },
                     lineHeight: 1.8,
@@ -1422,8 +1444,8 @@ export default function LotteryDetailsClient({
                   variant="body2"
                   sx={{ color: "#BE123C", mt: 0.5, fontWeight: 600 }}
                 >
-                  {editorial.venueDetails.city},{" "}
-                  {editorial.venueDetails.state} • Draw Time:{" "}
+                  {editorial.venueDetails.city}, {editorial.venueDetails.state}{" "}
+                  • Draw Time:{" "}
                   <strong>{editorial.venueDetails.drawTime}</strong> (
                   {editorial.venueDetails.drawDay})
                 </Typography>
@@ -1435,9 +1457,7 @@ export default function LotteryDetailsClient({
                   variant="body2"
                   sx={{
                     mb:
-                      idx === editorial.drawVenueParagraphs.length - 1
-                        ? 0
-                        : 1,
+                      idx === editorial.drawVenueParagraphs.length - 1 ? 0 : 1,
                     color: "#475569",
                     fontSize: "0.925rem",
                     lineHeight: 1.7,
@@ -1470,44 +1490,46 @@ export default function LotteryDetailsClient({
               {editorial.keralaStateLotteriesResultsHeading}
             </Typography>
 
-            {editorial.keralaStateLotteriesResultsParagraphs.map((para, idx) => (
-              <Typography
-                key={idx}
-                variant="body1"
-                sx={{
-                  mb:
-                    idx ===
-                    editorial.keralaStateLotteriesResultsParagraphs.length - 1
-                      ? 0
-                      : 1.5,
-                  color: "#334155",
-                  fontSize: { xs: "0.925rem", sm: "1rem" },
-                  lineHeight: 1.8,
-                }}
-              >
-                {idx === 0 ? (
-                  <>
-                    The{" "}
-                    <Link
-                      href="/"
-                      style={{
-                        color: "#0B3C5D",
-                        fontWeight: 700,
-                        textDecoration: "underline",
-                      }}
-                    >
-                      Kerala State Lotteries Results
-                    </Link>{" "}
-                    are officially announced after each scheduled lottery draw
-                    conducted by the Kerala State Lotteries Department. The
-                    results contain the winning numbers and relevant prize
-                    information for each lottery.
-                  </>
-                ) : (
-                  para
-                )}
-              </Typography>
-            ))}
+            {editorial.keralaStateLotteriesResultsParagraphs.map(
+              (para, idx) => (
+                <Typography
+                  key={idx}
+                  variant="body1"
+                  sx={{
+                    mb:
+                      idx ===
+                      editorial.keralaStateLotteriesResultsParagraphs.length - 1
+                        ? 0
+                        : 1.5,
+                    color: "#334155",
+                    fontSize: { xs: "0.925rem", sm: "1rem" },
+                    lineHeight: 1.8,
+                  }}
+                >
+                  {idx === 0 ? (
+                    <>
+                      The{" "}
+                      <Link
+                        href="/"
+                        style={{
+                          color: "#0B3C5D",
+                          fontWeight: 700,
+                          textDecoration: "underline",
+                        }}
+                      >
+                        Kerala State Lotteries Results
+                      </Link>{" "}
+                      are officially announced after each scheduled lottery draw
+                      conducted by the Kerala State Lotteries Department. The
+                      results contain the winning numbers and relevant prize
+                      information for each lottery.
+                    </>
+                  ) : (
+                    para
+                  )}
+                </Typography>
+              ),
+            )}
           </Box>
 
           <Divider sx={{ my: 4, borderColor: "#E2E8F0" }} />
@@ -1631,8 +1653,8 @@ export default function LotteryDetailsClient({
                           idx === 0
                             ? "#FEF3C7"
                             : idx % 2 === 1
-                            ? "#F8FAFC"
-                            : "transparent",
+                              ? "#F8FAFC"
+                              : "transparent",
                         "&:last-child td, &:last-child th": { border: 0 },
                       }}
                     >
@@ -1782,9 +1804,7 @@ export default function LotteryDetailsClient({
                       expandIcon={<ExpandMoreIcon sx={{ color: "#0B3C5D" }} />}
                       sx={{ fontWeight: 800, color: "#0F172A" }}
                     >
-                      <Typography
-                        sx={{ fontWeight: 700, fontSize: "0.95rem" }}
-                      >
+                      <Typography sx={{ fontWeight: 700, fontSize: "0.95rem" }}>
                         {item.question}
                       </Typography>
                     </AccordionSummary>
@@ -1835,10 +1855,7 @@ export default function LotteryDetailsClient({
 
             <Grid container spacing={1.5}>
               {drawHistory.map((d) => (
-                <Grid
-                  size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                  key={d.draw_date}
-                >
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={d.draw_date}>
                   <Box
                     component={Link}
                     href={getLotteryUrl(lotterySlug, d.draw_date)}
