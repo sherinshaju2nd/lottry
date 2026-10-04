@@ -1,0 +1,29 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.keralalotteryresultstoday.app",
+        "paths": [
+          "/",
+          "/search",
+          "/claim",
+          "/lotteries/*",
+          "/bhagyathara",
+          "/sthree-sakthi",
+          "/dhanalekshmi",
+          "/karunya-plus",
+          "/suvarna-keralam",
+          "/karunya",
+          "/samrudhi",
+          "/*-bumper"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "TEAMID.com.keralalotteryresultstoday.app"
+    ]
+  }
+}

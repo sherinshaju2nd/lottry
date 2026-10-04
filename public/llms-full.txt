@@ -10,8 +10,22 @@ Website: https://www.keralalotteryresultstoday.in
 
 The Kerala State Lotteries is the first of its kind in India, established in 1967 by the Government of Kerala under the Department of State Lotteries. 
 - **Draw Location**: Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram, Kerala.
-- **Draw Time**: Every day at 3:00 PM IST. Live results start streaming from 2:55 PM onwards.
+- **Draw Times**: Standard weekly draws every day at 3:00 PM IST (live stream starts at 2:55 PM IST). Mega Bumper lotteries (Thiruvonam, Xmas New Year, Vishu, Pooja, Monsoon, Summer) are drawn live at 2:00 PM IST.
 - **Official Result Availability**: Full Gazette and PDF result sheets are published between 3:30 PM and 4:30 PM IST daily.
+---
+
+## 1.1 Official Mobile Application (iOS & Android)
+- **App Name**: Kerala Lottery Results Today
+- **Package ID (Android)**: `com.keralalotteryresultstoday.app`
+- **Bundle ID (iOS)**: `com.keralalotteryresultstoday.app`
+- **Google Play Store Link**: https://play.google.com/store/apps/details?id=com.keralalotteryresultstoday.app
+- **Custom Deep Link Scheme**: `keralalottery://`
+- **Deep Link Triggers for AI Agents**:
+  - `keralalottery://live` - Jump straight to today's live 3:00 PM winning number announcement
+  - `keralalottery://scan` - Launch live camera barcode & QR ticket scanner
+  - `keralalottery://search` - Open ticket number verification search
+  - `keralalottery://watchlist` - Open user saved ticket watchlist
+- **Key Features**: Instant 3 PM push alerts, live winning prize calculations, offline ticket persistence, Malayalam and English voice support.
 
 ---
 

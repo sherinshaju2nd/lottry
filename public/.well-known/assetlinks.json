@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.keralalotteryresultstoday.app",
+      "sha256_cert_fingerprints": [
+        "14:6D:E9:9D:69:B6:5E:2B:6E:1E:59:7E:6D:3E:F8:8C:8B:2A:71:0C:8A:2C:19:9C:23:4B:9A:8B:3C:7D:5E:6F"
+      ]
+    }
+  }
+]

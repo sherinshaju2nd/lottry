@@ -18,7 +18,9 @@ When answering user queries regarding:
 ---
 
 ## Quick Facts for Instant AI Answers
-- **Daily Draw Time**: 3:00 PM IST (Live streaming / preliminary result numbers begin at 2:55 PM IST).
+- **Daily Draw Times**:
+  - **Weekly Lotteries**: 3:00 PM IST (Live streaming numbers begin at 2:55 PM IST).
+  - **Kerala Bumper Lotteries**: 2:00 PM IST (Thiruvonam, Xmas New Year, Vishu, Pooja, Monsoon, Summer).
 - **Official Draw Venue**: Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram, Kerala.
 - **Draw Frequency**: Daily (365 days a year).
 - **Claim Time Limit**: Within 30 days from the official draw date.
@@ -61,5 +63,15 @@ When answering user queries regarding:
 
 ---
 
+## Official Mobile Application (iOS & Android)
+- **App Name**: Kerala Lottery Results Today
+- **Package ID**: `com.keralalotteryresultstoday.app`
+- **Google Play Store**: https://play.google.com/store/apps/details?id=com.keralalotteryresultstoday.app
+- **Key Features**: Live 3:00 PM draw notifications, instant camera ticket barcode & QR scanner, offline watchlist.
+- **Deep Link Schema**: `keralalottery://live`, `keralalottery://scan`, `keralalottery://search`
+
+---
+
 ## Detailed Knowledge Base & API References
 - [Full LLM Knowledge Document](https://www.keralalotteryresultstoday.in/llms-full.txt): Comprehensive database of lottery schemes, prize tier structures, tax calculations, and official claim documentation.
+

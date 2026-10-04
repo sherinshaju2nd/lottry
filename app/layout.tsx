@@ -325,6 +325,14 @@ export async function generateMetadata(): Promise<Metadata> {
     verification: {
       google: "1XeVOR9aNk4f21LP_pNIRfrJHxYaPUuOzeV7HyPAAgw",
     },
+    itunes: {
+      appId: "com.keralalotteryresultstoday.app",
+      appArgument: "https://www.keralalotteryresultstoday.in",
+    },
+    other: {
+      "google-play-app": "app-id=com.keralalotteryresultstoday.app",
+      "apple-itunes-app": "app-id=6470000000, app-argument=https://www.keralalotteryresultstoday.in",
+    },
   };
 }
 
@@ -336,6 +344,37 @@ export default async function RootLayout({
   const seoData = await getTodaySEOPackage();
 
   const structuredSchemas: any[] = [
+    {
+      "@context": "https://schema.org",
+      "@type": "MobileApplication",
+      name: "Kerala Lottery Results Today",
+      operatingSystem: "Android, iOS",
+      applicationCategory: "UtilitiesApplication",
+      url: "https://www.keralalotteryresultstoday.in",
+      image: "https://www.keralalotteryresultstoday.in/logo-master-1024.png",
+      description:
+        "Official real-time Kerala Lottery mobile app for live 3:00 PM draw updates, instant camera barcode scanner, and winning ticket watchlists.",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "INR",
+      },
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.8",
+        ratingCount: "1250",
+      },
+      installUrl: [
+        "https://play.google.com/store/apps/details?id=com.keralalotteryresultstoday.app",
+      ],
+      featureList: [
+        "Instant 3:00 PM Live Draw Publishing",
+        "Camera Ticket Barcode & QR Code Scanner",
+        "Live Push Notifications on 1st Prize Announcement",
+        "Historical Result Search Archive from 2015 to Present",
+        "Offline Ticket Watchlist with Win Detection",
+      ],
+    },
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -390,7 +429,9 @@ export default async function RootLayout({
       "@context": "https://schema.org",
       "@type": "BroadcastEvent",
       name: `LIVE: Kerala Lottery ${seoData.lotteryName} (${seoData.lotteryCode}) Result Today ${seoData.formattedDate}`,
-      startDate: `${seoData.isoDate}T15:00:00+05:30`,
+      startDate: seoData.isBumper
+        ? `${seoData.isoDate}T14:00:00+05:30`
+        : `${seoData.isoDate}T15:00:00+05:30`,
       endDate: `${seoData.isoDate}T16:30:00+05:30`,
       eventStatus: "https://schema.org/EventScheduled",
       eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
@@ -401,7 +442,9 @@ export default async function RootLayout({
       broadcastOfEvent: {
         "@type": "Event",
         name: `Kerala State Lottery ${seoData.lotteryName} Live Draw`,
-        startDate: `${seoData.isoDate}T15:00:00+05:30`,
+        startDate: seoData.isBumper
+          ? `${seoData.isoDate}T14:00:00+05:30`
+          : `${seoData.isoDate}T15:00:00+05:30`,
         location: {
           "@type": "Place",
           name: "Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram, Kerala",
@@ -417,7 +460,9 @@ export default async function RootLayout({
           name: `What time is the Kerala Lottery ${seoData.lotteryName} result announced today?`,
           acceptedAnswer: {
             "@type": "Answer",
-            text: `Kerala Lottery ${seoData.lotteryName} live draw starts today (${seoData.formattedDate}) at 2:55 PM IST from Gorky Bhavan, Thiruvananthapuram. The official Gazette PDF becomes available by 4:00 PM IST on https://www.keralalotteryresultstoday.in.`,
+            text: seoData.isBumper
+              ? `Kerala Bumper Lottery ${seoData.lotteryName} live draw starts today (${seoData.formattedDate}) at 2:00 PM IST from Gorky Bhavan, Thiruvananthapuram. The official Gazette PDF becomes available by 4:00 PM IST on https://www.keralalotteryresultstoday.in.`
+              : `Kerala Lottery ${seoData.lotteryName} live draw starts today (${seoData.formattedDate}) at 2:55 PM - 3:00 PM IST from Gorky Bhavan, Thiruvananthapuram. The official Gazette PDF becomes available by 4:00 PM IST on https://www.keralalotteryresultstoday.in.`,
           },
         },
         {
