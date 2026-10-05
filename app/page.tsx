@@ -1544,7 +1544,7 @@ export default function HomePage() {
             >
               <InfoOutlinedIcon sx={{ color: "#64748B", fontSize: 20 }} />
               <Typography variant="caption" sx={{ color: "#475569", lineHeight: 1.5, fontSize: "0.8rem" }}>
-                <strong>2026 Active Roster Note:</strong> Previous lotteries from earlier cycles (Fifty-Fifty, Win-Win, Nirmal, Akshaya) have transitioned into the 2026 series (Samrudhi, Suvarna Keralam, Dhanalekshmi, Bhagyathara).
+                <strong>2026 Active Roster Note:</strong> The active weekly schedule features Monday: Bhagyathara, Tuesday: Sthree Sakthi, Wednesday: Dhanalekshmi, Thursday: Karunya Plus, Friday: Suvarna Keralam, Saturday: Karunya, and Sunday: Samrudhi.
               </Typography>
             </Box>
           </Box>

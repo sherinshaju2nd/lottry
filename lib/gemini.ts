@@ -56,7 +56,7 @@ export async function scanTicketWithGemini(
 You are an expert Kerala State Lottery ticket scanner and OCR parser.
 Analyze this image of a Kerala State Lottery ticket. Extract the following details with precision:
 
-1. "lottery_name": The exact name of the Kerala lottery (e.g. "Karunya", "Karunya Plus", "Sthree Sakthi", "Bhagyathara", "Dhanalekshmi", "Suvarna Keralam", "Samrudhi", "Fifty Fifty", "Nirmal", "Win-Win", "Thiruvonam Bumper", "Christmas New Year Bumper", "Vishu Bumper", "Pooja Bumper", "Monsoon Bumper", "Summer Bumper").
+1. "lottery_name": The exact name of the Kerala lottery (e.g. "Karunya", "Karunya Plus", "Sthree Sakthi", "Bhagyathara", "Dhanalekshmi", "Suvarna Keralam", "Samrudhi", "Thiruvonam Bumper", "Christmas New Year Bumper", "Vishu Bumper", "Pooja Bumper", "Monsoon Bumper", "Summer Bumper").
 2. "lottery_code": 2-letter standard code if recognizable (e.g. "KR", "KN", "SS", "BT", "DL", "SK", "SM", "TH", "XN", "VB", "BR", "MB", "SB").
 3. "draw_date": The draw date formatted strictly as YYYY-MM-DD (e.g. 2026-03-15).
 4. "series": The 2-letter ticket alphabetical series prefix (e.g. "WA", "WB", "KN", "PA").
@@ -163,16 +163,16 @@ Extract all lottery draw result data from this Kerala State Lottery Gazette PDF 
 
 Required Fields:
 1. "draw_date": Formatted strictly as YYYY-MM-DD (e.g. 2026-03-28).
-2. "draw_name": Official lottery name (e.g. "Karunya", "Karunya Plus", "Sthree Sakthi", "Bhagyathara", "Dhanalekshmi", "Suvarna Keralam", "Samrudhi", "Fifty Fifty", "Nirmal", "Win-Win", "Thiruvonam Bumper", etc.).
+2. "draw_name": Official lottery name (e.g. "Karunya", "Karunya Plus", "Sthree Sakthi", "Bhagyathara", "Dhanalekshmi", "Suvarna Keralam", "Samrudhi", "Thiruvonam Bumper", etc.).
 3. "draw_code": Exact draw code number (e.g. "KR-682", "KN-541", "SS-412", "TH-99").
 4. "lottery_code": 2-letter standard code:
-   - Bhagyathara / Win-Win -> "BT"
+   - Bhagyathara -> "BT"
    - Sthree Sakthi -> "SS"
-   - Dhanalekshmi / Fifty-Fifty -> "DL"
+   - Dhanalekshmi -> "DL"
    - Karunya Plus -> "KN"
-   - Suvarna Keralam / Nirmal -> "SK"
+   - Suvarna Keralam -> "SK"
    - Karunya -> "KR"
-   - Samrudhi / Akshaya -> "SM"
+   - Samrudhi -> "SM"
    - Thiruvonam Bumper -> "TH"
    - Christmas Bumper -> "XN"
    - Vishu Bumper -> "VB"

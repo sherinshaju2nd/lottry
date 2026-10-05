@@ -57,7 +57,7 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **7th Prize**: ₹200
 - **8th Prize**: ₹100
 
-### Wednesday: Dhanalekshmi / Fifty-Fifty (Draw Code: DL / FF)
+### Wednesday: Dhanalekshmi (Draw Code: DL)
 - **URL**: https://www.keralalotteryresultstoday.in/dhanalekshmi
 - **Ticket Price**: ₹50
 - **1st Prize**: ₹1,00,00,000 (₹1 Crore)
@@ -83,7 +83,7 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **7th Prize**: ₹200
 - **8th Prize**: ₹100
 
-### Friday: Suvarna Keralam / Nirmal (Draw Code: SK / NR)
+### Friday: Suvarna Keralam (Draw Code: SK)
 - **URL**: https://www.keralalotteryresultstoday.in/suvarna-keralam
 - **Ticket Price**: ₹50
 - **1st Prize**: ₹1,00,00,000 (₹1 Crore)
@@ -109,7 +109,7 @@ The Kerala State Lotteries is the first of its kind in India, established in 196
 - **7th Prize**: ₹200
 - **8th Prize**: ₹100
 
-### Sunday: Samrudhi / Akshaya (Draw Code: SM / AK)
+### Sunday: Samrudhi (Draw Code: SM)
 - **URL**: https://www.keralalotteryresultstoday.in/samrudhi
 - **Ticket Price**: ₹50
 - **1st Prize**: ₹1,00,00,000 (₹1 Crore)
