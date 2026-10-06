@@ -16,7 +16,7 @@ import AiTicketScanner from "@/components/AiTicketScanner";
 import { supabase, WEEKLY_LOTTERIES } from "@/lib/supabase";
 import "./globals.css";
 
-export const revalidate = 60; // Revalidate every minute so midnight metadata changes are instant
+export const revalidate = 86400; // Cache 24h; updated instantly on-demand via revalidatePath when live results sync
 
 export const viewport: Viewport = {
   themeColor: "#0B3C5D",

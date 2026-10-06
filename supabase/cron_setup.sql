@@ -126,10 +126,11 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
--- 5. Schedule continuous 1-minute cron job (08:00 to 13:00 UTC = 1:30 PM to 6:30 PM IST daily)
+-- 5. Schedule 2-minute cron job (08:00 to 12:59 UTC = 1:30 PM to 6:29 PM IST daily)
+-- Runs every 2 minutes across both Bumper (2:00 PM) and Weekly (3:00 PM) live draw windows
 SELECT cron.schedule(
     'lottery_sync_master_daily',
-    '* 8-13 * * *',
+    '*/2 8-11 * * *',
     $$SELECT public.trigger_lottery_sync();$$
 );
 

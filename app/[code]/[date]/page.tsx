@@ -14,7 +14,7 @@ import {
 } from "@/lib/supabase";
 import DedicatedLotteryDateClient from "./DedicatedLotteryDateClient";
 
-export const revalidate = 60; // Revalidate every minute
+export const revalidate = 86400; // Past draw results are static; today's draw revalidated on-demand via revalidatePath
 
 interface PageProps {
   params: Promise<{ code: string; date: string }>;

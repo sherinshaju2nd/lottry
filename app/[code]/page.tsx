@@ -12,7 +12,7 @@ import {
 import { getLotteryEditorialContent } from "@/lib/lotteryEditorialData";
 import LotteryDetailsClient from "./LotteryDetailsClient";
 
-export const revalidate = 60; // Revalidate every minute
+export const revalidate = 3600; // Cache for 1 hour; updated instantly on-demand via revalidatePath when live results sync
 
 interface PageProps {
   params: Promise<{ code: string }>;
