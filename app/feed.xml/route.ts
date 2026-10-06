@@ -4,9 +4,7 @@ import {
   WEEKLY_LOTTERIES,
   getLotterySlug,
 } from "@/lib/supabase";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 900; // 15 minutes
+export const revalidate = 3600; // 1 hour (revalidated on-demand when draws sync)
 
 function getTodayISTInfo() {
   const now = new Date();
@@ -114,7 +112,7 @@ ${todayItemXml}${itemsXml}
     return new NextResponse(rssXml, {
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "s-maxage=900, stale-while-revalidate=3600",
+        "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
       },
     });
   } catch (err: any) {

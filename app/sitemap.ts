@@ -5,9 +5,7 @@ import {
   fetchDrawResultsForSitemap,
   getLotteryUrl,
 } from "@/lib/supabase";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 300; // Fresh sitemap every 5 minutes
+export const revalidate = 3600; // Fresh sitemap cached for 1 hour (revalidated on-demand when draws sync)
 
 function getTodayISTInfo() {
   const now = new Date();
