@@ -18,9 +18,14 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ShareIcon from "@mui/icons-material/Share";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
+import YouTubeIcon from "@mui/icons-material/YouTube";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckIcon from "@mui/icons-material/Check";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import {
   generateLotteryResultVideo,
   LotteryVideoFormat,
+  getLotteryMalayalamName,
 } from "@/lib/lotteryVideoGenerator";
 import SocialPostMetadataBox from "@/components/SocialPostMetadataBox";
 
@@ -47,6 +52,8 @@ export default function LotteryVideoPostModal({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoExt, setVideoExt] = useState<string>("mp4");
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [ytModalOpen, setYtModalOpen] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -151,6 +158,81 @@ export default function LotteryVideoPostModal({
   const drawTitle =
     drawResult?.draw_name || lotteryInfo?.name || "Kerala Lottery";
   const drawDate = drawResult?.draw_date || "Today";
+
+  const codeParam =
+    drawResult?.lottery_code || lotteryInfo?.code || "kerala-lottery";
+  const nameMl = getLotteryMalayalamName(
+    codeParam,
+    drawTitle,
+    lotteryInfo?.nameMl || drawResult?.name_ml || drawResult?.nameMl,
+  );
+  const jackpotAmt =
+    drawResult?.prizes?.amounts?.["1st"] || lotteryInfo?.jackpot || "₹1 CRORE";
+  const firstTicket =
+    drawResult?.first?.ticket?.trim() || "Announced at 3:00 PM";
+  const location = drawResult?.first?.location;
+  const agent = drawResult?.first?.agent;
+  const resultUrl = `${siteUrl}/${codeParam.toLowerCase()}/${drawDate}`;
+
+  const ytTitle = `Kerala Lottery ${drawTitle} (${drawResult?.draw_code || ""}) Result Today ${drawDate} | ${nameMl} ലോട്ടറി ഫലം #Shorts`;
+  const nameHashtag = drawTitle.replace(/[^a-zA-Z0-9]/g, "");
+  const codeHashtag = (drawResult?.draw_code || "").replace(/[^a-zA-Z0-9]/g, "");
+
+  const ytHashtags = `#KeralaLottery #KeralaLotteryResult #${nameHashtag} #${codeHashtag} #LotteryResultToday #കേരളലോട്ടറി #ലോട്ടറിറിസൾട്ട് #Shorts #Reels #YouTubeShorts #Trending`;
+
+  const ytDescription = [
+    `🎉 Official Kerala State Lottery Result Today!`,
+    `കേരള ഭാഗ്യക്കുറി ഇന്നത്തെ ഔദ്യോഗിക ഫലം.`,
+    ``,
+    `📌 Lottery: ${drawTitle} (${drawResult?.draw_code || ""}) • ${nameMl}`,
+    `🗓️ Draw Date: ${drawDate} (3:00 PM Draw)`,
+    `🏆 1st Prize Grand Jackpot (${jackpotAmt}): ${firstTicket}`,
+    ...(location ? [`📍 Drawn District: ${location}`] : []),
+    ...(agent ? [`👤 Selling Agent: ${agent}`] : []),
+    ``,
+    `🛡️ 100% Verified Kerala Government Gazette Result.`,
+    `സമ്മാനാർഹമായ ടിക്കറ്റുകൾ ഔദ്യോഗിക കേരള സർക്കാർ ഗസറ്റുമായി ഒത്തുനോക്കി 30 ദിവസത്തിനകം സമ്മാനം മാറേണ്ടതാണ്.`,
+    ``,
+    `🌐 Check Live Results & Ticket Checker:`,
+    `${resultUrl}`,
+    ``,
+    ytHashtags,
+  ].join("\n");
+
+  const handleDirectYouTubeUpload = () => {
+    if (!videoBlob || !videoUrl) {
+      setToastMsg("Please wait for video generation to complete.");
+      return;
+    }
+
+    // 1. Download video file automatically
+    handleDownload();
+
+    // 2. Automatically copy Title + Description to clipboard
+    const fullPost = `${ytTitle}\n\n${ytDescription}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(fullPost).catch(() => {});
+    }
+
+    // 3. Open YouTube Upload Studio in new tab
+    window.open(
+      "https://studio.youtube.com/channel/UC/videos/upload?d=ud",
+      "_blank",
+      "noopener,noreferrer",
+    );
+
+    // 4. Open Helper Dialog
+    setYtModalOpen(true);
+    setToastMsg("Video downloaded & Title/Description copied! YouTube Studio opening...");
+  };
+
+  const copyFieldToClipboard = (text: string, fieldKey: string) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldKey);
+      setTimeout(() => setCopiedField(null), 2000);
+    }
+  };
 
   return (
     <>
@@ -347,7 +429,28 @@ export default function LotteryVideoPostModal({
             Regenerate
           </Button>
 
-          <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
+            <Button
+              onClick={handleDirectYouTubeUpload}
+              disabled={!videoBlob || isGenerating}
+              variant="contained"
+              startIcon={<YouTubeIcon />}
+              sx={{
+                bgcolor: "#FF0000",
+                color: "#FFFFFF",
+                borderRadius: "10px",
+                px: 2.8,
+                py: 1,
+                fontWeight: 900,
+                fontSize: "0.95rem",
+                textTransform: "none",
+                boxShadow: "0 4px 16px rgba(255, 0, 0, 0.4)",
+                "&:hover": { bgcolor: "#CC0000" },
+              }}
+            >
+              Upload to YouTube
+            </Button>
+
             <Button
               onClick={handleShare}
               disabled={!videoBlob || isGenerating}
@@ -390,6 +493,225 @@ export default function LotteryVideoPostModal({
               Download HD Video
             </Button>
           </Box>
+        </DialogActions>
+      </Dialog>
+
+      {/* YouTube Upload Helper Dialog */}
+      <Dialog
+        open={ytModalOpen}
+        onClose={() => setYtModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: "18px",
+              bgcolor: "#0A182F",
+              color: "#FFFFFF",
+              border: "1px solid rgba(255, 0, 0, 0.4)",
+              boxShadow: "0 25px 50px rgba(0, 0, 0, 0.8)",
+            },
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            background: "linear-gradient(90deg, #1A0505 0%, #2D0A0A 100%)",
+            p: 2,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+            <Box
+              sx={{
+                width: 38,
+                height: 38,
+                borderRadius: "10px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "#FF0000",
+                color: "#FFFFFF",
+              }}
+            >
+              <YouTubeIcon sx={{ fontSize: 24 }} />
+            </Box>
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#FFFFFF" }}>
+                Ready for YouTube Upload
+              </Typography>
+              <Typography variant="caption" sx={{ color: "#86EFAC" }}>
+                ✓ Video file downloaded & Title/Description copied!
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton onClick={() => setYtModalOpen(false)} sx={{ color: "#94A3B8" }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 2.5 }}>
+          <Box
+            sx={{
+              p: 1.5,
+              mb: 2,
+              borderRadius: "10px",
+              bgcolor: "rgba(16, 185, 129, 0.12)",
+              border: "1px solid rgba(16, 185, 129, 0.3)",
+              display: "flex",
+              alignItems: "center",
+              gap: 1.2,
+            }}
+          >
+            <CheckIcon sx={{ color: "#10B981", fontSize: 20 }} />
+            <Typography variant="body2" sx={{ color: "#D1FAE5", fontWeight: 600 }}>
+              The HD video is saved in your <strong>Downloads</strong> folder. Drag it into YouTube Studio!
+            </Typography>
+          </Box>
+
+          {/* Title Box */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
+              <Typography variant="caption" sx={{ color: "#38BDF8", fontWeight: 700 }}>
+                1️⃣ Video Title (YouTube Title)
+              </Typography>
+              <Button
+                size="small"
+                onClick={() => copyFieldToClipboard(ytTitle, "title")}
+                startIcon={copiedField === "title" ? <CheckIcon sx={{ fontSize: 14 }} /> : <ContentCopyIcon sx={{ fontSize: 14 }} />}
+                sx={{
+                  color: copiedField === "title" ? "#4ADE80" : "#38BDF8",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  textTransform: "none",
+                }}
+              >
+                {copiedField === "title" ? "Copied!" : "Copy Title"}
+              </Button>
+            </Box>
+            <Box
+              sx={{
+                p: 1.2,
+                bgcolor: "#030A14",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#FFFFFF",
+                fontSize: "0.85rem",
+              }}
+            >
+              {ytTitle}
+            </Box>
+          </Box>
+
+          {/* Description Box */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
+              <Typography variant="caption" sx={{ color: "#38BDF8", fontWeight: 700 }}>
+                2️⃣ Video Description (With Malayalam & Details)
+              </Typography>
+              <Button
+                size="small"
+                onClick={() => copyFieldToClipboard(ytDescription, "desc")}
+                startIcon={copiedField === "desc" ? <CheckIcon sx={{ fontSize: 14 }} /> : <ContentCopyIcon sx={{ fontSize: 14 }} />}
+                sx={{
+                  color: copiedField === "desc" ? "#4ADE80" : "#38BDF8",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  textTransform: "none",
+                }}
+              >
+                {copiedField === "desc" ? "Copied!" : "Copy Description"}
+              </Button>
+            </Box>
+            <Box
+              sx={{
+                p: 1.2,
+                bgcolor: "#030A14",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#CBD5E1",
+                fontFamily: "monospace",
+                fontSize: "0.78rem",
+                whiteSpace: "pre-wrap",
+                maxHeight: 140,
+                overflowY: "auto",
+              }}
+            >
+              {ytDescription}
+            </Box>
+          </Box>
+
+          {/* Tags Box */}
+          <Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
+              <Typography variant="caption" sx={{ color: "#38BDF8", fontWeight: 700 }}>
+                3️⃣ Tags / Hashtags
+              </Typography>
+              <Button
+                size="small"
+                onClick={() => copyFieldToClipboard(ytHashtags, "tags")}
+                startIcon={copiedField === "tags" ? <CheckIcon sx={{ fontSize: 14 }} /> : <ContentCopyIcon sx={{ fontSize: 14 }} />}
+                sx={{
+                  color: copiedField === "tags" ? "#4ADE80" : "#38BDF8",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  textTransform: "none",
+                }}
+              >
+                {copiedField === "tags" ? "Copied!" : "Copy Tags"}
+              </Button>
+            </Box>
+            <Box
+              sx={{
+                p: 1.2,
+                bgcolor: "#030A14",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#67E8F9",
+                fontSize: "0.8rem",
+              }}
+            >
+              {ytHashtags}
+            </Box>
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, borderTop: "1px solid rgba(255, 255, 255, 0.1)", justifyContent: "space-between" }}>
+          <Button
+            component="a"
+            href="https://studio.youtube.com/channel/UC/videos/upload?d=ud"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="contained"
+            startIcon={<OpenInNewIcon />}
+            sx={{
+              bgcolor: "#FF0000",
+              color: "#FFFFFF",
+              fontWeight: 800,
+              textTransform: "none",
+              borderRadius: "8px",
+              "&:hover": { bgcolor: "#CC0000" },
+            }}
+          >
+            Open YouTube Studio
+          </Button>
+
+          <Button
+            onClick={() => setYtModalOpen(false)}
+            variant="outlined"
+            sx={{
+              color: "#E2E8F0",
+              borderColor: "rgba(255, 255, 255, 0.2)",
+              fontWeight: 700,
+              textTransform: "none",
+              borderRadius: "8px",
+            }}
+          >
+            Done
+          </Button>
         </DialogActions>
       </Dialog>
 
