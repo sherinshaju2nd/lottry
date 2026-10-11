@@ -15,11 +15,13 @@ import XIcon from "@mui/icons-material/X";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ShareIcon from "@mui/icons-material/Share";
 import CheckIcon from "@mui/icons-material/Check";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 interface ShareButtonsProps {
   title?: string;
   text?: string;
   url?: string;
+  pdfUrl?: string;
   variant?: "compact" | "full" | "inline";
 }
 
@@ -27,6 +29,7 @@ export default function ShareButtons({
   title = "Kerala Lottery Result Today - Live Results & Ticket Checker",
   text = "Check Kerala State Lottery live 3:10 PM results & search winning tickets instantly!",
   url,
+  pdfUrl,
   variant = "full",
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
@@ -100,7 +103,14 @@ export default function ShareButtons({
 
   if (variant === "compact") {
     return (
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          gap: 1,
+        }}
+      >
         <Tooltip title="Share on WhatsApp">
           <IconButton
             component="a"
@@ -139,33 +149,27 @@ export default function ShareButtons({
           </IconButton>
         </Tooltip>
 
-        <Tooltip title={copied ? "Copied!" : "Copy Link"}>
-          <IconButton
-            onClick={handleCopyLink}
-            sx={{
-              bgcolor: copied ? "#0B3C5D" : "#F3F4F6",
-              color: copied ? "#FFFFFF" : "#374151",
-              border: "1px solid #E5E7EB",
-              "&:hover": { bgcolor: copied ? "#0F2C59" : "#E5E7EB" },
-              width: 36,
-              height: 36,
-            }}
-            size="small"
-          >
-            {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-
-        <Snackbar
-          open={toastOpen}
-          autoHideDuration={2500}
-          onClose={() => setToastOpen(false)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert severity="success" sx={{ width: "100%", fontWeight: 700 }}>
-            Link copied to clipboard!
-          </Alert>
-        </Snackbar>
+        {pdfUrl && (
+          <Tooltip title="Download PDF Result">
+            <IconButton
+              component="a"
+              href={pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              sx={{
+                bgcolor: "#DC2626",
+                color: "#FFFFFF",
+                "&:hover": { bgcolor: "#B91C1C" },
+                width: 36,
+                height: 36,
+              }}
+              size="small"
+            >
+              <PictureAsPdfIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
     );
   }

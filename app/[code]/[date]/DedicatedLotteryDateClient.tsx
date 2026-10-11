@@ -1818,13 +1818,13 @@ export default function DedicatedLotteryDateClient({
           )
         ) : (
           <>
-            {/* Draw Overview Header Card (Desktop View) */}
+            {/* Draw Overview Header Card */}
             <Paper
               elevation={0}
               sx={{
-                display: { xs: "none", md: "block" },
-                p: 3.5,
-                mb: 4,
+                display: "block",
+                p: { xs: 2.5, md: 3.5 },
+                mb: { xs: 2.5, md: 4 },
                 borderRadius: "12px",
                 border: "1px solid #E5E7EB",
                 bgcolor: "#FFFFFF",
@@ -1878,10 +1878,19 @@ export default function DedicatedLotteryDateClient({
                   </Typography>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 5 }} sx={{ textAlign: "right" }}>
+                <Grid
+                  size={{ xs: 12, md: 5 }}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    mt: { xs: 1.5, md: 0 },
+                  }}
+                >
                   <ShareButtons
                     title={`${drawResult.draw_name} (${drawResult.draw_code}) Result - ${drawResult.draw_date}`}
                     text={`Kerala Lottery ${drawResult.draw_name} (${drawResult.draw_code}) results for ${drawResult.draw_date}. 1st Prize (${drawResult.prizes?.amounts?.["1st"] || "₹1 Crore"}): ${drawResult.first?.ticket || "Pending"}`}
+                    pdfUrl={`/api/pdf/${lotteryCode}/${drawResult.draw_date || selectedDate}`}
                     variant="compact"
                   />
                 </Grid>
