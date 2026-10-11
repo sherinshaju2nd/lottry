@@ -32,6 +32,10 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CasinoIcon from "@mui/icons-material/Casino";
 import confetti from "canvas-confetti";
 import ShareButtons from "@/components/ShareButtons";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
+import LotteryImagePostModal from "@/components/LotteryImagePostModal";
+import LotteryVideoPostModal from "@/components/LotteryVideoPostModal";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -1052,6 +1056,8 @@ export default function DedicatedLotteryDateClient({
   const [isAfter3PM, setIsAfter3PM] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [postImageModalOpen, setPostImageModalOpen] = useState(false);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
 
   // Ticket Checker State
   const [checkerTicketInput, setCheckerTicketInput] = useState<string>("");
@@ -1570,20 +1576,54 @@ export default function DedicatedLotteryDateClient({
             {/* Mobile Top Action Buttons */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
               {drawResult && (
-                <IconButton
-                  component="a"
-                  href={`/api/pdf/${lotteryCode}/${selectedDate}`}
-                  download={`kerala-lottery-${lotteryCode}-${selectedDate}.pdf`}
-                  size="small"
-                  title="Download Official PDF"
-                  sx={{
-                    color: "#FFFFFF",
-                    bgcolor: "rgba(255, 255, 255, 0.15)",
-                    "&:hover": { bgcolor: "rgba(255, 255, 255, 0.25)" },
-                  }}
-                >
-                  <FileDownloadIcon fontSize="small" />
-                </IconButton>
+                <>
+                  <IconButton
+                    onClick={() => setPostImageModalOpen(true)}
+                    size="small"
+                    title="Download Insta & FB Post Image (JPG)"
+                    sx={{
+                      color: "#FFFFFF",
+                      background: "linear-gradient(45deg, #F58529, #DD2A7B, #8134AF)",
+                      "&:hover": {
+                        background: "linear-gradient(45deg, #E0731E, #C8206C, #6E2A96)",
+                      },
+                      width: 32,
+                      height: 32,
+                    }}
+                  >
+                    <InstagramIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => setVideoModalOpen(true)}
+                    size="small"
+                    title="Generate Reels & Shorts Video (HD)"
+                    sx={{
+                      color: "#FFFFFF",
+                      background: "linear-gradient(45deg, #EF4444, #F59E0B)",
+                      "&:hover": {
+                        background: "linear-gradient(45deg, #DC2626, #D97706)",
+                      },
+                      width: 32,
+                      height: 32,
+                    }}
+                  >
+                    <VideoLibraryIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    component="a"
+                    href={`/api/pdf/${lotteryCode}/${selectedDate}`}
+                    download={`kerala-lottery-${lotteryCode}-${selectedDate}.pdf`}
+                    size="small"
+                    title="Download Official PDF"
+                    sx={{
+                      color: "#FFFFFF",
+                      bgcolor: "rgba(255, 255, 255, 0.15)",
+                      "&:hover": { bgcolor: "rgba(255, 255, 255, 0.25)" },
+                    }}
+                  >
+                    <FileDownloadIcon fontSize="small" />
+                  </IconButton>
+                </>
               )}
             </Box>
           </Box>
@@ -1885,12 +1925,62 @@ export default function DedicatedLotteryDateClient({
                     justifyContent: "flex-end",
                     alignItems: "center",
                     mt: { xs: 1.5, md: 0 },
+                    gap: 1.25,
+                    flexWrap: "wrap",
                   }}
                 >
+                  <Button
+                    onClick={() => setPostImageModalOpen(true)}
+                    variant="contained"
+                    size="small"
+                    startIcon={<InstagramIcon />}
+                    sx={{
+                      background: "linear-gradient(45deg, #F58529, #DD2A7B, #8134AF)",
+                      color: "#FFFFFF",
+                      fontWeight: 800,
+                      fontSize: "0.825rem",
+                      textTransform: "none",
+                      borderRadius: "8px",
+                      py: 0.65,
+                      px: 1.6,
+                      boxShadow: "0 2px 8px rgba(221,42,123,0.35)",
+                      "&:hover": {
+                        background: "linear-gradient(45deg, #E0731E, #C8206C, #6E2A96)",
+                        transform: "translateY(-1px)",
+                      },
+                    }}
+                  >
+                    Insta & FB JPG
+                  </Button>
+                  <Button
+                    onClick={() => setVideoModalOpen(true)}
+                    variant="contained"
+                    size="small"
+                    startIcon={<VideoLibraryIcon />}
+                    sx={{
+                      background: "linear-gradient(45deg, #EF4444, #F59E0B)",
+                      color: "#FFFFFF",
+                      fontWeight: 800,
+                      fontSize: "0.825rem",
+                      textTransform: "none",
+                      borderRadius: "8px",
+                      py: 0.65,
+                      px: 1.6,
+                      boxShadow: "0 2px 8px rgba(239, 68, 68, 0.35)",
+                      "&:hover": {
+                        background: "linear-gradient(45deg, #DC2626, #D97706)",
+                        transform: "translateY(-1px)",
+                      },
+                    }}
+                  >
+                    Reels & Shorts Video
+                  </Button>
                   <ShareButtons
                     title={`${drawResult.draw_name} (${drawResult.draw_code}) Result - ${drawResult.draw_date}`}
                     text={`Kerala Lottery ${drawResult.draw_name} (${drawResult.draw_code}) results for ${drawResult.draw_date}. 1st Prize (${drawResult.prizes?.amounts?.["1st"] || "₹1 Crore"}): ${drawResult.first?.ticket || "Pending"}`}
                     pdfUrl={`/api/pdf/${lotteryCode}/${drawResult.draw_date || selectedDate}`}
+                    drawResult={drawResult}
+                    lotteryInfo={lotteryInfo}
                     variant="compact"
                   />
                 </Grid>
@@ -2287,6 +2377,7 @@ export default function DedicatedLotteryDateClient({
                 );
               })}
             </Grid>
+
           </>
         )}
 
@@ -2558,6 +2649,20 @@ export default function DedicatedLotteryDateClient({
           autoHideDuration={3000}
           onClose={() => setSnackbarOpen(false)}
           message={snackbarMessage}
+        />
+
+        <LotteryImagePostModal
+          open={postImageModalOpen}
+          onClose={() => setPostImageModalOpen(false)}
+          drawResult={drawResult}
+          lotteryInfo={lotteryInfo}
+        />
+
+        <LotteryVideoPostModal
+          open={videoModalOpen}
+          onClose={() => setVideoModalOpen(false)}
+          drawResult={drawResult}
+          lotteryInfo={lotteryInfo}
         />
       </Container>
     </Box>
