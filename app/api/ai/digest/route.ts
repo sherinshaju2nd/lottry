@@ -45,3 +45,34 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json().catch(() => ({}));
+    let draw = body.draw;
+
+    if (!draw) {
+      const all = await fetchAllDrawResultsFromSupabase();
+      if (all && all.length > 0) draw = all[0];
+    }
+
+    if (!draw) {
+      return NextResponse.json(
+        { success: false, error: "No draw results found to generate digest for." },
+        { status: 404 }
+      );
+    }
+
+    const digest = await generateSocialMediaDigests(draw);
+    return NextResponse.json({ success: true, digest });
+  } catch (error: any) {
+    console.error("AI Digest POST Error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error?.message || "Failed to generate social media digest.",
+      },
+      { status: 500 }
+    );
+  }
+}

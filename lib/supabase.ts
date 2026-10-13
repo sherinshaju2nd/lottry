@@ -10,6 +10,12 @@ const supabaseKey =
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Server-side admin client using service_role key when available, fallback to publishable key
+const supabaseServerKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey;
+
+export const supabaseServer = createClient(supabaseUrl, supabaseServerKey);
+
 export interface FirstPrize {
   ticket?: string;
   location?: string;

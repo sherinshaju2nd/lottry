@@ -400,6 +400,139 @@ ${contextData || "No extra context provided."}
   throw lastError || new Error("Gemini AI Chat Assistant unavailable.");
 }
 
+export interface AudioChatResult {
+  user_transcript: string;
+  reply: string;
+}
+
+/**
+ * Direct Gemini Audio Voice Assistant
+ * Transcribes base64 audio and replies with contextual lottery answers
+ */
+export async function chatWithGeminiAudio(
+  base64Audio: string,
+  mimeType: string = "audio/m4a",
+  history: Array<{ role: "user" | "model"; text: string }> = [],
+  contextData?: string,
+): Promise<AudioChatResult> {
+  if (!GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not configured.");
+  }
+
+  const systemInstruction = `
+You are the Kerala State Lottery AI Voice Assistant.
+The user is speaking to you in Malayalam (മലയാളം) or English.
+1. Transcribe the user's spoken words accurately into "user_transcript".
+2. Provide a clear, helpful, and concise answer in "reply" in the user's language (Malayalam or English).
+
+Return ONLY valid JSON matching this schema:
+{
+  "user_transcript": "Exact transcription of user voice query in Malayalam or English",
+  "reply": "Your helpful lottery answer in Malayalam or English"
+}
+
+Official Rules:
+- Daily draws at 3:00 PM IST from Gorky Bhavan, Thiruvananthapuram.
+- Claim validity: 30 days.
+- 30% TDS on prizes > ₹10,000 + 10% agent commission.
+- Claim offices: Up to ₹5,000 at local agents; ₹5,000-₹1L at DLO; above ₹1L at Directorate.
+
+Grounding Context:
+${contextData || "No extra context."}
+`;
+
+  const validHistory: Array<{
+    role: "user" | "model";
+    parts: Array<{ text: string }>;
+  }> = [];
+  for (const h of history) {
+    if (!h.text || !h.text.trim()) continue;
+    if (validHistory.length === 0 && h.role === "model") continue;
+    validHistory.push({
+      role: h.role,
+      parts: [{ text: h.text }],
+    });
+  }
+
+  const cleanAudio = base64Audio.replace(/^data:[^;]+;base64,/, "");
+
+  const contents = [
+    ...validHistory,
+    {
+      role: "user",
+      parts: [
+        {
+          inline_data: {
+            mime_type: mimeType,
+            data: cleanAudio,
+          },
+        },
+        {
+          text: "Listen to the user's spoken audio query in Malayalam or English. 1. Transcribe their question into 'user_transcript'. 2. Provide a helpful, accurate lottery answer in 'reply'. Return JSON: {\"user_transcript\": \"...\", \"reply\": \"...\"}",
+        },
+      ],
+    },
+  ];
+
+  const models = GEMINI_MODELS;
+  let lastError: any = null;
+
+  for (const model of models) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: systemInstruction }],
+            },
+            contents,
+            generationConfig: {
+              temperature: 0.2,
+              max_output_tokens: 800,
+            },
+          }),
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const raw =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "{}";
+        const cleaned = raw
+          .replace(/^```json\s*/i, "")
+          .replace(/```$/i, "")
+          .trim();
+        try {
+          const parsed = JSON.parse(cleaned);
+          return {
+            user_transcript: parsed.user_transcript || "🎙️ Voice Question",
+            reply: parsed.reply || cleaned,
+          };
+        } catch {
+          return {
+            user_transcript: "🎙️ Voice Question",
+            reply: cleaned || "Here is your lottery information.",
+          };
+        }
+      } else {
+        const errText = await response.text();
+        console.warn(
+          `Gemini audio model ${model} HTTP ${response.status}:`,
+          errText,
+        );
+      }
+    } catch (e: any) {
+      console.warn(`Audio chat model ${model} error:`, e);
+      lastError = e;
+    }
+  }
+
+  throw lastError || new Error("AI Audio processing failed.");
+}
+
 export interface SocialMediaDigest {
   whatsapp_malayalam: string;
   whatsapp_english: string;

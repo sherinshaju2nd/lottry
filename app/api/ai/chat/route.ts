@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { chatWithGeminiAssistant } from "@/lib/gemini";
+import { chatWithGeminiAssistant, chatWithGeminiAudio } from "@/lib/gemini";
 import { fetchAllDrawResultsFromSupabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { message, history = [] } = body;
+    const { message, audio, mimeType = "audio/m4a", history = [] } = body;
 
-    if (!message || !message.trim()) {
-      return NextResponse.json({ success: false, error: "Message is required." }, { status: 400 });
+    if (!message?.trim() && !audio) {
+      return NextResponse.json(
+        { success: false, error: "Either message or audio is required." },
+        { status: 400 }
+      );
     }
 
     // Fetch latest 3 draws to ground the AI with exact real-time winning numbers
@@ -28,6 +31,22 @@ export async function POST(req: NextRequest) {
       console.warn("Could not fetch draw context for chat:", e);
     }
 
+    // Audio-based chat request
+    if (audio) {
+      const audioResult = await chatWithGeminiAudio(
+        audio,
+        mimeType,
+        history,
+        drawContext
+      );
+      return NextResponse.json({
+        success: true,
+        user_transcript: audioResult.user_transcript,
+        reply: audioResult.reply,
+      });
+    }
+
+    // Text-based chat request
     const reply = await chatWithGeminiAssistant(message, history, drawContext);
 
     return NextResponse.json({
