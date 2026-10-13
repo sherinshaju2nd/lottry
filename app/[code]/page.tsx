@@ -94,7 +94,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `${baseUrl}/${lotterySlug}`;
   const logoUrl = getLotteryLogo(lotteryCode) || "/logo-round-512.png";
   const absoluteLogoUrl = `${baseUrl}${logoUrl}`;
-  const ogImageUrl = `${baseUrl}/${lotterySlug}/opengraph-image`;
+  const ogImageUrl = `${baseUrl}/og-image.png`;
 
   // Dynamic Title matching the user's specification:
   // H1: Bhagyathara Lottery Result Today: (Date) ഭാഗ്യധാര (BT)

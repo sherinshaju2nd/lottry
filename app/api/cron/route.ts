@@ -7,8 +7,6 @@ import {
   logCronExecutionInSupabase,
   getLotterySlug,
 } from "@/lib/supabase";
-import { submitUrlsToIndexNow } from "@/app/api/indexnow/route";
-import { submitUrlsToGoogle } from "@/lib/google-indexing";
 
 export const dynamic = "force-dynamic";
 
@@ -315,16 +313,8 @@ async function handleCronExecution(req: NextRequest) {
     } catch (cacheErr) {
       console.warn("[Cache Revalidate Note]:", cacheErr);
     }
-
-    // Only ping IndexNow & Google when the 1st prize result is confirmed published
-    if (draw?.first?.ticket) {
-      await Promise.allSettled([
-        submitUrlsToIndexNow(updatedUrls),
-        submitUrlsToGoogle(updatedUrls),
-      ]);
-    }
-  } catch (indexErr) {
-    console.warn("[Crawler Auto-Ping Note]:", indexErr);
+  } catch (syncPostErr) {
+    console.warn("[Post-Sync Note]:", syncPostErr);
   }
 
   return NextResponse.json(

@@ -75,12 +75,26 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  const secretKey = process.env.CRON_SECRET || "kerala_lottery_cron_secret_2026";
+
+  if (authHeader !== `Bearer ${secretKey}`) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   const result = await submitUrlsToIndexNow();
   return NextResponse.json(result);
 }
 
 export async function POST(request: Request) {
+  const authHeader = request.headers.get("authorization");
+  const secretKey = process.env.CRON_SECRET || "kerala_lottery_cron_secret_2026";
+
+  if (authHeader !== `Bearer ${secretKey}`) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json().catch(() => ({}));
     const { urlList } = body;

@@ -3,7 +3,14 @@ import { submitUrlsToGoogle } from "@/lib/google-indexing";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get("authorization");
+  const secretKey = process.env.CRON_SECRET || "kerala_lottery_cron_secret_2026";
+
+  if (authHeader !== `Bearer ${secretKey}`) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   const defaultUrls = [
     "https://www.keralalotteryresultstoday.in",
     "https://www.keralalotteryresultstoday.in/search",
@@ -22,6 +29,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const authHeader = req.headers.get("authorization");
+  const secretKey = process.env.CRON_SECRET || "kerala_lottery_cron_secret_2026";
+
+  if (authHeader !== `Bearer ${secretKey}`) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
     const urls = Array.isArray(body.urls) && body.urls.length > 0

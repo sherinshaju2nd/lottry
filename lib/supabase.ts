@@ -784,51 +784,33 @@ export async function getRecentDrawsFromSupabase(
  * Uses range-based pagination to bypass Supabase's default 1000-row cap,
  * ensuring ALL draw result pages are included in the sitemap.
  */
-export async function fetchDrawResultsForSitemap(): Promise<
-  { lottery_code: string; draw_date: string; created_at?: string }[]
-> {
-  const PAGE_SIZE = 1000;
-  const allRows: {
-    lottery_code: string;
-    draw_date: string;
-    created_at?: string;
-  }[] = [];
-  let from = 0;
-
+export async function fetchDrawResultsForSitemap(
+  limit = 90
+): Promise<{ lottery_code: string; draw_date: string; created_at?: string }[]> {
   try {
-    while (true) {
-      const { data, error } = await supabase
-        .from("draw_results")
-        .select("lottery_code, draw_date, created_at")
-        .order("draw_date", { ascending: false })
-        .range(from, from + PAGE_SIZE - 1);
+    const { data, error } = await supabase
+      .from("draw_results")
+      .select("lottery_code, draw_date, created_at")
+      .order("draw_date", { ascending: false })
+      .limit(limit);
 
-      if (error) {
-        console.error("Sitemap fetch error:", error.message);
-        break;
-      }
-
-      if (!data || data.length === 0) break;
-
-      allRows.push(...data);
-
-      // If fewer rows than PAGE_SIZE were returned, we've reached the end
-      if (data.length < PAGE_SIZE) break;
-
-      from += PAGE_SIZE;
+    if (error || !data) {
+      console.warn("Sitemap fetch note:", error?.message);
+      return [];
     }
-  } catch (e) {
-    console.error("Sitemap pagination error:", e);
-  }
 
-  // Deduplicate by lottery_code + draw_date (in case of duplicates in DB)
-  const seen = new Set<string>();
-  return allRows.filter((row) => {
-    const key = `${row.lottery_code}::${row.draw_date}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+    // Deduplicate by lottery_code + draw_date
+    const seen = new Set<string>();
+    return data.filter((row) => {
+      const key = `${row.lottery_code}::${row.draw_date}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  } catch (e) {
+    console.error("Sitemap fetch error:", e);
+    return [];
+  }
 }
 
 export interface PrizeMatchResult {

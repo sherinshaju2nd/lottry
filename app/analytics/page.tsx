@@ -39,7 +39,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 
 import {
-  fetchAllDrawResultsFromSupabase,
+  getRecentDrawsFromSupabase,
   StructuredDrawResult,
   ALL_LOTTERIES,
 } from "@/lib/supabase";
@@ -108,7 +108,7 @@ export default function AnalyticsPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const results = await fetchAllDrawResultsFromSupabase(true);
+      const results = await getRecentDrawsFromSupabase(100);
       setDraws(results || []);
     } catch (e) {
       console.warn("Analytics fetch error:", e);
