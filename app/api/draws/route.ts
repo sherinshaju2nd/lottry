@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
   response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   response.headers.set(
     "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate"
+    "public, max-age=15, s-maxage=30, stale-while-revalidate=60"
   );
   return response;
 }

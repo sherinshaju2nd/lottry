@@ -437,7 +437,7 @@ export default function HomePage() {
     async function checkTodayPostponement() {
       try {
         const res = await fetch(
-          `/api/draws?type=postponed&date=${todayISTDate}&t=${Date.now()}`,
+          `/api/draws?type=postponed&date=${todayISTDate}`,
         );
         const json = await res.json();
         if (json.success && json.list && json.list.length > 0) {
@@ -463,7 +463,7 @@ export default function HomePage() {
         const targetCode = codeToFetch || todayCodeRef.current;
         if (!targetCode) return;
         const res = await fetch(
-          `/api/draws?code=${targetCode}&date=${todayISTDate}&t=${Date.now()}`,
+          `/api/draws?code=${targetCode}&date=${todayISTDate}`,
         );
         const json = await res.json();
         if (
@@ -488,7 +488,7 @@ export default function HomePage() {
 
     async function loadRecentDrawsMap() {
       try {
-        const res = await fetch(`/api/draws?type=all&t=${Date.now()}`);
+        const res = await fetch(`/api/draws?type=all`);
         const json = await res.json();
         if (
           json.success &&

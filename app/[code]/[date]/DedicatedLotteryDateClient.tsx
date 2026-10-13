@@ -1107,7 +1107,7 @@ export default function DedicatedLotteryDateClient({
     const fetchLatestDetails = async () => {
       try {
         const res = await fetch(
-          `/api/draws?code=${lotteryCode}&date=${dateParam}&t=${Date.now()}`,
+          `/api/draws?code=${lotteryCode}&date=${dateParam}`,
         );
         const json = await res.json();
         if (json.result) setDrawResult(json.result);

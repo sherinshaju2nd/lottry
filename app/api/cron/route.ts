@@ -316,10 +316,13 @@ async function handleCronExecution(req: NextRequest) {
       console.warn("[Cache Revalidate Note]:", cacheErr);
     }
 
-    await Promise.allSettled([
-      submitUrlsToIndexNow(updatedUrls),
-      submitUrlsToGoogle(updatedUrls),
-    ]);
+    // Only ping IndexNow & Google when the 1st prize result is confirmed published
+    if (draw?.first?.ticket) {
+      await Promise.allSettled([
+        submitUrlsToIndexNow(updatedUrls),
+        submitUrlsToGoogle(updatedUrls),
+      ]);
+    }
   } catch (indexErr) {
     console.warn("[Crawler Auto-Ping Note]:", indexErr);
   }

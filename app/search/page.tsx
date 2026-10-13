@@ -182,7 +182,7 @@ export default function AdvancedSearchPage() {
   useEffect(() => {
     async function loadDraws() {
       try {
-        const res = await fetch(`/api/draws?type=all&t=${Date.now()}`);
+        const res = await fetch(`/api/draws?type=all`);
         const json = await res.json();
         if (json.success && Array.isArray(json.results)) {
           setAvailableDraws(json.results);

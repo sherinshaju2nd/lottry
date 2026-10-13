@@ -225,7 +225,7 @@ export default function LotteryDetailsClient({
   const refreshHistory = async () => {
     try {
       const res = await fetch(
-        `/api/draws?type=history&code=${lotteryCode}&t=${Date.now()}`,
+        `/api/draws?type=history&code=${lotteryCode}`,
       );
       const json = await res.json();
       if (json.success && Array.isArray(json.results)) {
