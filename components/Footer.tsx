@@ -320,6 +320,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/#schedule"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -333,6 +334,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/analytics"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -346,6 +348,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/search"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -359,6 +362,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/claim"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -372,6 +376,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/guide"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -385,6 +390,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/faq"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -398,6 +404,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/terms-conditions"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -411,6 +418,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/privacy-policy"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -424,6 +432,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/kerala-lottery-app"
+            prefetch={false}
             sx={{
               color: "#0B3C5D",
               textDecoration: "none",
@@ -437,6 +446,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/support"
+            prefetch={false}
             sx={{
               color: "#B45309",
               textDecoration: "none",
@@ -455,6 +465,7 @@ export default function Footer() {
             variant="body2"
             component={Link}
             href="/contact"
+            prefetch={false}
             sx={{
               color: "#4B5563",
               textDecoration: "none",
@@ -496,6 +507,7 @@ export default function Footer() {
                 key={lottery.code}
                 component={Link}
                 href={getLotteryUrl(lottery.code)}
+                prefetch={false}
                 sx={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -560,6 +572,7 @@ export default function Footer() {
                 key={bumper.code}
                 component={Link}
                 href={getLotteryUrl(bumper.code)}
+                prefetch={false}
                 sx={{
                   display: "inline-flex",
                   alignItems: "center",

@@ -150,6 +150,7 @@ export default function ConsentModal() {
           By clicking &quot;Accept &amp; Agree&quot; below, you explicitly acknowledge that you have read and agree to our{" "}
           <Link
             href="/terms-conditions"
+            prefetch={false}
             onClick={handleAccept}
             style={{ color: "#0B3C5D", fontWeight: 700, textDecoration: "underline" }}
           >
@@ -158,6 +159,7 @@ export default function ConsentModal() {
           and{" "}
           <Link
             href="/privacy-policy"
+            prefetch={false}
             onClick={handleAccept}
             style={{ color: "#0B3C5D", fontWeight: 700, textDecoration: "underline" }}
           >

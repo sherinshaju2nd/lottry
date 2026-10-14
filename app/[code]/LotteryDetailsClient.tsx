@@ -252,15 +252,54 @@ export default function LotteryDetailsClient({
             (!newRow.lottery_code ||
               newRow.lottery_code.toUpperCase() === lotteryCode.toUpperCase())
           ) {
-            refreshHistory();
+            try {
+              const firstObj =
+                typeof newRow.first_prize === "string"
+                  ? JSON.parse(newRow.first_prize)
+                  : newRow.first_prize || {};
+              const prizesObj =
+                typeof newRow.prizes === "string"
+                  ? JSON.parse(newRow.prizes)
+                  : newRow.prizes || {};
+
+              const item: StructuredDrawResult = {
+                id: newRow.id,
+                draw_date: newRow.draw_date,
+                draw_name: newRow.draw_name,
+                draw_code: newRow.draw_code,
+                lottery_code: newRow.lottery_code,
+                first: firstObj,
+                prizes: prizesObj,
+                created_at: newRow.created_at,
+              };
+
+              setDrawHistory((prev) => {
+                const filtered = prev.filter(
+                  (d) => d.id !== item.id && d.draw_date !== item.draw_date,
+                );
+                const updated = [item, ...filtered];
+                return updated.sort(
+                  (a, b) =>
+                    new Date(b.draw_date).getTime() -
+                    new Date(a.draw_date).getTime(),
+                );
+              });
+            } catch {
+              refreshHistory();
+            }
           }
         },
       )
       .subscribe();
 
+    let lastVisTime = 0;
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        refreshHistory();
+        const now = Date.now();
+        if (now - lastVisTime > 60000) {
+          lastVisTime = now;
+          refreshHistory();
+        }
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);

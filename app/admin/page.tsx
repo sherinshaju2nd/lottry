@@ -40,7 +40,6 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import SettingsIcon from "@mui/icons-material/Settings";
-import TableChartIcon from "@mui/icons-material/TableChart";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -895,7 +894,6 @@ export default function AdminDashboardPage() {
             },
           }}
         >
-          <Tab icon={<TableChartIcon />} iconPosition="start" label={`Draw Results (${draws.length})`} />
           <Tab icon={<EventBusyIcon />} iconPosition="start" label={`Postponed & No-Draw Spotter (${postponedList.length})`} />
           <Tab icon={<EmojiEventsIcon />} iconPosition="start" label={`Bumper Lotteries Hub (${bumperLotteries.length})`} />
           <Tab icon={<SettingsIcon />} iconPosition="start" label="Cron & Automation Settings" />
@@ -904,119 +902,9 @@ export default function AdminDashboardPage() {
       </Paper>
 
       {/* ========================================================================= */}
-      {/* TAB 0: DRAW RESULTS DATABASE & MANUAL ENTRY                               */}
+      {/* TAB 0: POSTPONED & NO-DRAW SPOTTER                                       */}
       {/* ========================================================================= */}
       {currentTab === 0 && (
-        <Paper elevation={0} sx={{ borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", overflow: "hidden" }}>
-          <Box sx={{ p: 3, borderBottom: "1px solid #E2E8F0", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B" }}>
-                Stored Draw Results Database
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#64748B" }}>
-                View, manually enter, update, or remove weekly and bumper lottery results.
-              </Typography>
-            </Box>
-
-            <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
-              <TextField
-                size="small"
-                placeholder="Search date, code, ticket..."
-                value={searchDrawTerm}
-                onChange={(e) => setSearchDrawTerm(e.target.value)}
-                sx={{ width: 220, bgcolor: "#F8FAFC" }}
-              />
-              <Button
-                onClick={() => setAiPdfModalOpen(true)}
-                variant="contained"
-                startIcon={<AutoAwesomeIcon sx={{ color: "#FFD700" }} />}
-                sx={{
-                  background: "linear-gradient(135deg, #0B3C5D 0%, #1D2731 100%)",
-                  color: "#FFFFFF",
-                  fontWeight: 800,
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 12px rgba(11, 60, 93, 0.2)",
-                  "&:hover": {
-                    background: "linear-gradient(135deg, #07263b 0%, #0F172A 100%)",
-                  },
-                }}
-              >
-                ✨ AI Upload Gazette PDF
-              </Button>
-              <Button
-                onClick={openNewDrawModal}
-                variant="contained"
-                startIcon={<AddCircleIcon />}
-                sx={{ bgcolor: "#2E7D32", color: "#FFFFFF", fontWeight: 700, textTransform: "none", borderRadius: "8px", "&:hover": { bgcolor: "#1B5E20" } }}
-              >
-                + Enter Draw Result
-              </Button>
-            </Box>
-          </Box>
-
-          {isLoadingDraws ? (
-            <Box sx={{ p: 3 }}>
-              <TableSkeleton rows={6} />
-            </Box>
-          ) : filteredDraws.length > 0 ? (
-            <TableContainer sx={{ width: "100%", overflowX: "auto" }}>
-              <Table>
-                <TableHead sx={{ bgcolor: "#F1F5F9" }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Draw Date</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Lottery Name</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Draw Code</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>1st Prize Ticket</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>Location / Agent</TableCell>
-                    <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredDraws.map((row) => (
-                    <TableRow key={row.id || `${row.draw_date}-${row.draw_code}`} hover>
-                      <TableCell sx={{ fontWeight: 700, color: "#1E293B" }}>{row.draw_date}</TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: "#0B3C5D" }}>{row.draw_name}</TableCell>
-                      <TableCell>
-                        <Chip label={row.draw_code} size="small" sx={{ fontWeight: 700, bgcolor: "#E0F2FE", color: "#0369A1", borderRadius: "6px" }} />
-                      </TableCell>
-                      <TableCell sx={{ fontFamily: "monospace", fontWeight: 800, color: "#D97706", fontSize: "1rem" }}>
-                        {row.first?.ticket || "N/A"}
-                      </TableCell>
-                      <TableCell sx={{ color: "#475569", fontSize: "0.85rem" }}>
-                        {row.first?.location || "N/A"} {row.first?.agent ? `• ${row.first.agent}` : ""}
-                      </TableCell>
-                      <TableCell sx={{ textAlign: "right" }}>
-                        <Tooltip title="Edit Draw Result">
-                          <IconButton size="small" onClick={() => openEditDrawModal(row)} color="primary">
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete Draw Result">
-                          <IconButton size="small" onClick={() => handleDeleteDraw(row.id)} color="error">
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Box sx={{ p: 6, textAlign: "center" }}>
-              <Typography variant="body1" sx={{ color: "#64748B" }}>
-                No draw results found matching your query.
-              </Typography>
-            </Box>
-          )}
-        </Paper>
-      )}
-
-      {/* ========================================================================= */}
-      {/* TAB 1: POSTPONED & NO-DRAW SPOTTER                                       */}
-      {/* ========================================================================= */}
-      {currentTab === 1 && (
         <Box>
           <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
@@ -1112,9 +1000,9 @@ export default function AdminDashboardPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: BUMPER LOTTERIES HUB                                              */}
+      {/* TAB 1: BUMPER LOTTERIES HUB                                              */}
       {/* ========================================================================= */}
-      {currentTab === 2 && (
+      {currentTab === 1 && (
         <Box>
           <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
@@ -1235,9 +1123,9 @@ export default function AdminDashboardPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 3: CRON & AUTOMATION SETTINGS                                        */}
+      {/* TAB 2: CRON & AUTOMATION SETTINGS                                        */}
       {/* ========================================================================= */}
-      {currentTab === 3 && (
+      {currentTab === 2 && (
         <Box>
           <Grid container spacing={3}>
             {/* Left Column: Cron Master Control & Config */}
@@ -1602,9 +1490,9 @@ export default function AdminDashboardPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 4: 1ST PRIZE BROADCAST TO TELEGRAM & WHATSAPP                         */}
+      {/* TAB 3: 1ST PRIZE BROADCAST TO TELEGRAM & WHATSAPP                         */}
       {/* ========================================================================= */}
-      {currentTab === 4 && (
+      {currentTab === 3 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Header Banner */}
           <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>

@@ -67,9 +67,11 @@ export async function GET(req: NextRequest) {
   response.headers.set("Access-Control-Allow-Origin", "*");
   response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  response.headers.set(
-    "Cache-Control",
-    "public, max-age=15, s-maxage=30, stale-while-revalidate=60"
-  );
+  const isAllOrHistory = type === "all" || type === "history" || type === "dates";
+  const cacheControlValue = isAllOrHistory
+    ? "public, max-age=60, s-maxage=60, stale-while-revalidate=120"
+    : "public, max-age=10, s-maxage=15, stale-while-revalidate=30";
+
+  response.headers.set("Cache-Control", cacheControlValue);
   return response;
 }

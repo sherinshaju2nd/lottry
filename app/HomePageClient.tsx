@@ -613,13 +613,25 @@ export default function HomePageClient({
                 if (hasAnyDrawResult(liveStructuredDraw)) {
                   setTodayDrawResult(liveStructuredDraw);
                   todayDrawResultRef.current = liveStructuredDraw;
+
+                  // Update in-memory allDraws & recentDrawsMap directly (zero network API calls!)
+                  setAllDraws((prev) => {
+                    const withoutToday = prev.filter(
+                      (d) => d.draw_date !== liveStructuredDraw.draw_date,
+                    );
+                    return [liveStructuredDraw, ...withoutToday];
+                  });
+                  setRecentDrawsMap((prev) => ({
+                    ...prev,
+                    [(liveStructuredDraw.lottery_code || "").toUpperCase()]:
+                      liveStructuredDraw,
+                  }));
                 }
               } catch (e) {
                 console.warn("Failed to parse live socket row payload:", e);
               }
             }
           }
-          refreshAllLiveData();
         },
       )
       .on(
@@ -627,7 +639,6 @@ export default function HomePageClient({
         { event: "*", schema: "public", table: "postponed_draws" },
         () => {
           checkTodayPostponement();
-          checkTodayData();
         },
       )
       .on(
@@ -635,7 +646,6 @@ export default function HomePageClient({
         { event: "*", schema: "public", table: "lotteries" },
         () => {
           loadLotteriesFromDb();
-          checkTodayData();
         },
       )
       .subscribe((status) => {
@@ -649,25 +659,25 @@ export default function HomePageClient({
         }
       });
 
-    // Intelligent Polling Timer: Poll every 15s during draw window or while result is pending/live
-    const pollInterval = setInterval(() => {
-      try {
-        if (getIsPollingWindow(isTodayBumperRef.current) || !todayDrawResult) {
-          refreshAllLiveData();
-        }
-      } catch {}
-    }, 15000);
-
-    // Browser Visibility / Window Focus listeners for instant live updates
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        updateCountdown();
+    // Browser Visibility / Window Focus listener: Re-sync once if user was away for >60s
+    let lastFocusRefreshTime = 0;
+    const handleActiveRevisit = () => {
+      updateCountdown();
+      const now = Date.now();
+      // Only re-sync if at least 60s passed since last fetch/revisit
+      if (now - lastFocusRefreshTime > 60000) {
+        lastFocusRefreshTime = now;
         refreshAllLiveData();
       }
     };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        handleActiveRevisit();
+      }
+    };
     const handleWindowFocus = () => {
-      updateCountdown();
-      refreshAllLiveData();
+      handleActiveRevisit();
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -677,7 +687,6 @@ export default function HomePageClient({
       supabase.removeChannel(channel);
       clearInterval(countdownInterval);
       clearInterval(timeInterval);
-      clearInterval(pollInterval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("focus", handleWindowFocus);
     };

@@ -233,10 +233,15 @@ export default function AdvancedSearchPage() {
       )
       .subscribe();
 
+    let lastSearchVisTime = 0;
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        loadDraws();
         checkClipboard();
+        const now = Date.now();
+        if (now - lastSearchVisTime > 60000) {
+          lastSearchVisTime = now;
+          loadDraws();
+        }
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);

@@ -70,6 +70,7 @@ import {
   getLotteryLogoAlt,
   hasAnyDrawResult,
   getIsAfterDrawTime,
+  getIsPollingWindow,
 } from "@/lib/supabase";
 
 interface SingleCheckerMatch {
@@ -1163,9 +1164,6 @@ export default function DedicatedLotteryDateClient({
                 setDrawResult(liveDraw);
               }
             } catch {}
-
-            // Full API verification in background
-            fetchLatestDetails();
           }
         },
       )
@@ -1188,29 +1186,24 @@ export default function DedicatedLotteryDateClient({
         }
       });
 
-    // Smart polling backup for live draw date
-    const todayDate = new Date().toLocaleDateString("en-CA", {
-      timeZone: "Asia/Kolkata",
-    });
-    const pollInterval = setInterval(() => {
-      if (
-        dateParam === todayDate &&
-        (!drawResult || !hasAnyDrawResult(drawResult))
-      ) {
-        fetchLatestDetails();
-      }
-    }, 15000);
-
-    // Browser visibility / Window focus listeners
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        checkTime();
+    // Browser visibility / Window focus listeners: re-sync only once if user was away for >60s
+    let lastFocusTime = 0;
+    const handleActiveRevisit = () => {
+      checkTime();
+      const now = Date.now();
+      if (now - lastFocusTime > 60000) {
+        lastFocusTime = now;
         fetchLatestDetails();
       }
     };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        handleActiveRevisit();
+      }
+    };
     const handleFocus = () => {
-      checkTime();
-      fetchLatestDetails();
+      handleActiveRevisit();
     };
 
     document.addEventListener("visibilitychange", handleVisibility);
@@ -1219,7 +1212,6 @@ export default function DedicatedLotteryDateClient({
     return () => {
       supabase.removeChannel(channel);
       clearInterval(timeInterval);
-      clearInterval(pollInterval);
       document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("focus", handleFocus);
     };

@@ -59,6 +59,7 @@ export default function MobileBottomNav() {
       <Box
         component={Link}
         href="/"
+        prefetch={false}
         sx={{
           flex: 1,
           display: "flex",
@@ -102,6 +103,7 @@ export default function MobileBottomNav() {
       <Box
         component={Link}
         href="/search"
+        prefetch={false}
         sx={{
           flex: 1,
           display: "flex",
@@ -195,6 +197,7 @@ export default function MobileBottomNav() {
       <Box
         component={Link}
         href="/lotteries"
+        prefetch={false}
         sx={{
           flex: 1,
           display: "flex",
@@ -240,6 +243,7 @@ export default function MobileBottomNav() {
       <Box
         component={Link}
         href="/analytics"
+        prefetch={false}
         sx={{
           flex: 1,
           display: "flex",

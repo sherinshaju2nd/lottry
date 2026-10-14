@@ -292,6 +292,7 @@ export default function Navbar() {
                     key={lottery.code}
                     component={Link}
                     href={targetUrl}
+                    prefetch={false}
                     onClick={handleMenuClose}
                     sx={{
                       borderRadius: "8px",
@@ -414,6 +415,7 @@ export default function Navbar() {
                     key={bumper.code}
                     component={Link}
                     href={targetUrl}
+                    prefetch={false}
                     onClick={handleMenuClose}
                     sx={{
                       borderRadius: "8px",
@@ -488,6 +490,7 @@ export default function Navbar() {
             <Button
               component={Link}
               href="/contact"
+              prefetch={false}
               startIcon={<PhoneIcon />}
               sx={{
                 color: pathname === "/contact" ? "#0B3C5D" : "#374151",
@@ -500,24 +503,10 @@ export default function Navbar() {
               Contact
             </Button>
 
-            {/* <Button
-              onClick={() => setDigestOpen(true)}
-              startIcon={<WhatsAppIcon sx={{ color: "#25D366" }} />}
-              sx={{
-                color: "#0B3C5D",
-                fontWeight: 700,
-                borderRadius: "8px",
-                px: 1.8,
-                bgcolor: digestOpen ? "#EBF5FF" : "transparent",
-                "&:hover": { bgcolor: "#EBF5FF" },
-              }}
-            >
-              AI Daily Status
-            </Button> */}
-
             <Button
               component={Link}
               href="/analytics"
+              prefetch={false}
               startIcon={<InsightsIcon />}
               sx={{
                 color: pathname === "/analytics" ? "#0B3C5D" : "#374151",
@@ -533,6 +522,7 @@ export default function Navbar() {
             <Button
               component={Link}
               href="/search"
+              prefetch={false}
               startIcon={<SearchIcon />}
               sx={{
                 color: "#0B3C5D",
@@ -549,6 +539,7 @@ export default function Navbar() {
             <Button
               component={Link}
               href="/kerala-lottery-app"
+              prefetch={false}
               startIcon={
                 <SmartphoneIcon sx={{ fontSize: 18, color: "#FFFFFF" }} />
               }
@@ -579,6 +570,7 @@ export default function Navbar() {
             <Button
               component={Link}
               href="/support"
+              prefetch={false}
               startIcon={
                 <LocalCafeIcon
                   sx={{
@@ -670,7 +662,7 @@ export default function Navbar() {
         anchor="left"
         open={mobileOpen}
         onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
+        ModalProps={{ keepMounted: false }}
         sx={{
           display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
