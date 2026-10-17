@@ -1,4 +1,5 @@
 import QRCode from "qrcode";
+import { getLotterySlug } from "@/lib/supabase";
 
 export type LotteryVideoFormat = "vertical" | "horizontal"; // vertical: 1080x1920 (Reels/Shorts), horizontal: 1920x1080 (YouTube)
 
@@ -503,13 +504,19 @@ export async function generateLotteryResultVideo(
   // Build complete slides containing 100% of results
   const slides = buildAllVideoSlides(drawResult, isVertical);
 
-  // Pre-generate QR Code
+  // Pre-generate QR Code with canonical clean URL
   const drawDate =
     drawResult?.draw_date ||
     new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(
       new Date(),
     );
-  const targetResultUrl = `${siteUrl}/${drawResult?.lottery_code || lotteryInfo?.code || "kerala-lottery"}/${drawDate}`;
+  const rawLotteryCodeOrSlug =
+    drawResult?.lottery_code ||
+    lotteryInfo?.code ||
+    lotteryInfo?.slug ||
+    "bhagyathara";
+  const canonicalSlug = getLotterySlug(rawLotteryCodeOrSlug);
+  const targetResultUrl = `https://www.keralalotteryresultstoday.in/${canonicalSlug}/${drawDate}`;
   let qrImage: HTMLImageElement | null = null;
   try {
     const qrDataUrl = await QRCode.toDataURL(targetResultUrl, {

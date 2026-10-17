@@ -1,4 +1,5 @@
 import QRCode from "qrcode";
+import { getLotterySlug } from "@/lib/supabase";
 
 export type LotteryImageFormat = "story" | "portrait";
 
@@ -418,7 +419,13 @@ export async function generateLotteryPostPages(
       new Date(),
     );
 
-  const targetResultUrl = `${siteUrl}/${drawResult?.lottery_code || lotteryInfo?.code || "kerala-lottery"}/${drawDate}`;
+  const rawLotteryCodeOrSlug =
+    drawResult?.lottery_code ||
+    lotteryInfo?.code ||
+    (lotteryInfo as any)?.slug ||
+    "bhagyathara";
+  const canonicalSlug = getLotterySlug(rawLotteryCodeOrSlug);
+  const targetResultUrl = `https://www.keralalotteryresultstoday.in/${canonicalSlug}/${drawDate}`;
   const qrImage = await loadQrCodeImage(targetResultUrl);
 
   const pagePlans = buildInstagramPagesPlan(drawResult, format);

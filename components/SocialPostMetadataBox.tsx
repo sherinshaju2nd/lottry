@@ -21,6 +21,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import TitleIcon from "@mui/icons-material/Title";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { getLotteryMalayalamName } from "@/lib/lotteryVideoGenerator";
+import { getLotterySlug } from "@/lib/supabase";
 
 export interface SocialPostMetadataBoxProps {
   drawResult?: any;
@@ -48,11 +49,15 @@ export default function SocialPostMetadataBox({
     new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(
       new Date(),
     );
-  const codeParam =
-    drawResult?.lottery_code || lotteryInfo?.code || "kerala-lottery";
+  const rawCodeOrSlug =
+    drawResult?.lottery_code ||
+    lotteryInfo?.code ||
+    (lotteryInfo as any)?.slug ||
+    "bhagyathara";
+  const canonicalSlug = getLotterySlug(rawCodeOrSlug);
 
   const nameMl = getLotteryMalayalamName(
-    codeParam,
+    canonicalSlug,
     drawName,
     lotteryInfo?.nameMl || drawResult?.name_ml || drawResult?.nameMl,
   );
@@ -64,7 +69,7 @@ export default function SocialPostMetadataBox({
   const location = drawResult?.first?.location;
   const agent = drawResult?.first?.agent;
 
-  const resultUrl = `${siteUrl}/${codeParam.toLowerCase()}/${drawDate}`;
+  const resultUrl = `https://www.keralalotteryresultstoday.in/${canonicalSlug}/${drawDate}`;
 
   // Clean hashtag-safe words
   const nameHashtag = drawName.replace(/[^a-zA-Z0-9]/g, "");
