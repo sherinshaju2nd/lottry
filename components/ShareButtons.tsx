@@ -250,11 +250,12 @@ export default function ShareButtons({
             gap: 1.25,
           }}
         >
-          {/* Instagram & FB Post JPG Generator */}
+          {/* Instagram & FB Post JPG Generator - Desktop only */}
           <Button
             onClick={() => setImageModalOpen(true)}
             startIcon={<InstagramIcon />}
             sx={{
+              display: { xs: "none", md: "inline-flex" },
               background: "linear-gradient(45deg, #F58529, #DD2A7B, #8134AF)",
               color: "#FFFFFF",
               fontWeight: 800,

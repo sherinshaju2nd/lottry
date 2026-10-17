@@ -18,11 +18,15 @@ import ShareIcon from "@mui/icons-material/Share";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import CollectionsIcon from "@mui/icons-material/Collections";
 import {
-  generateLotteryPostDataUrl,
-  generateLotteryPostJpegBlob,
-  downloadLotteryPostImage,
+  generateLotteryPostPages,
+  downloadLotteryPostSlide,
+  downloadAllLotteryPostSlides,
   shareLotteryPostImage,
+  InstagramPostPage,
   LotteryPostImageOptions,
   LotteryImageFormat,
 } from "@/lib/lotteryImageGenerator";
@@ -44,12 +48,13 @@ export default function LotteryImagePostModal({
   siteUrl,
 }: LotteryImagePostModalProps) {
   const [format, setFormat] = useState<LotteryImageFormat>("story");
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [pages, setPages] = useState<InstagramPostPage[]>([]);
+  const [activePageIndex, setActivePageIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  // Generate image whenever modal opens or format changes
+  // Generate Instagram Post pages whenever modal opens or format changes
   useEffect(() => {
     if (!open) return;
 
@@ -63,15 +68,16 @@ export default function LotteryImagePostModal({
       siteUrl: siteUrl || (typeof window !== "undefined" ? window.location.origin : undefined),
     };
 
-    generateLotteryPostDataUrl(options)
-      .then((url) => {
+    generateLotteryPostPages(options)
+      .then((generatedPages) => {
         if (isMounted) {
-          setPreviewUrl(url);
+          setPages(generatedPages);
+          setActivePageIndex(0);
           setIsLoading(false);
         }
       })
       .catch((err) => {
-        console.error("Failed to render lottery post image:", err);
+        console.error("Failed to render Instagram post pages:", err);
         if (isMounted) {
           setIsLoading(false);
         }
@@ -82,63 +88,99 @@ export default function LotteryImagePostModal({
     };
   }, [open, format, drawResult, lotteryInfo, siteUrl]);
 
-  const handleDownload = async () => {
+  const activePage = pages[activePageIndex] || pages[0];
+
+  const handleNextPage = () => {
+    if (activePageIndex < pages.length - 1) {
+      setActivePageIndex((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (activePageIndex > 0) {
+      setActivePageIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleDownloadCurrentSlide = async () => {
+    if (!activePage) return;
     try {
-      await downloadLotteryPostImage({
+      await downloadLotteryPostSlide(activePage, {
         drawResult,
         lotteryInfo,
         format,
         siteUrl,
       });
-      setToastMsg("JPG image downloaded successfully!");
+      setToastMsg(`Slide ${activePage.pageNumber} downloaded successfully!`);
     } catch (err) {
       console.error("Download error:", err);
       setToastMsg("Failed to download image.");
     }
   };
 
-  const handleShare = async () => {
+  const handleDownloadAllSlides = async () => {
+    if (pages.length === 0) return;
     try {
-      const shared = await shareLotteryPostImage({
+      setToastMsg(`Downloading all ${pages.length} Instagram carousel slides...`);
+      await downloadAllLotteryPostSlides(pages, {
         drawResult,
         lotteryInfo,
         format,
         siteUrl,
       });
-      if (shared) {
-        setToastMsg("Result image shared successfully!");
-      } else {
-        setToastMsg("Image downloaded! You can now upload it to Instagram or Facebook.");
-      }
+      setToastMsg(`All ${pages.length} slides downloaded successfully!`);
     } catch (err) {
-      console.error("Share error:", err);
-      setToastMsg("Could not trigger native share; downloading image.");
-      await handleDownload();
+      console.error("Download all error:", err);
+      setToastMsg("Failed to download all slides.");
     }
   };
 
-  const handleCopyImage = async () => {
+  const handleShare = async () => {
     try {
-      if (typeof window !== "undefined" && navigator.clipboard && (window as any).ClipboardItem) {
-        const blob = await generateLotteryPostJpegBlob({
+      const shared = await shareLotteryPostImage(
+        {
           drawResult,
           lotteryInfo,
           format,
           siteUrl,
+        },
+        activePageIndex,
+      );
+      if (shared) {
+        setToastMsg("Result image shared successfully!");
+      } else {
+        setToastMsg("Slide downloaded! You can now upload it to Instagram or Facebook.");
+      }
+    } catch (err) {
+      console.error("Share error:", err);
+      setToastMsg("Could not trigger native share; downloading image.");
+      await handleDownloadCurrentSlide();
+    }
+  };
+
+  const handleCopyImage = async () => {
+    if (!activePage) return;
+    try {
+      if (typeof window !== "undefined" && navigator.clipboard && (window as any).ClipboardItem) {
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          activePage.canvas.toBlob(
+            (b) => (b ? resolve(b) : reject(new Error("Blob error"))),
+            "image/jpeg",
+            0.96,
+          );
         });
-        // Modern browsers usually support copying PNG/JPEG to clipboard
         await navigator.clipboard.write([
           new (window as any).ClipboardItem({ [blob.type]: blob }),
         ]);
         setCopied(true);
-        setToastMsg("Image copied to clipboard! (Ctrl+V / Paste anywhere)");
+        setToastMsg(`Slide ${activePage.pageNumber} copied to clipboard! (Ctrl+V anywhere)`);
         setTimeout(() => setCopied(false), 3000);
       } else {
-        await handleDownload();
+        await handleDownloadCurrentSlide();
       }
     } catch (err) {
       console.warn("Clipboard write failed, downloading instead:", err);
-      await handleDownload();
+      await handleDownloadCurrentSlide();
     }
   };
 
@@ -198,10 +240,10 @@ export default function LotteryImagePostModal({
                 variant="subtitle1"
                 sx={{ fontWeight: 800, color: "#FFFFFF", fontSize: "1.1rem" }}
               >
-                Instagram & Facebook Post Image (JPG)
+                Post Image (900 × 900 Pixels)
               </Typography>
               <Typography variant="caption" sx={{ color: "#94A3B8", display: "block" }}>
-                {drawTitle} ({drawResult?.draw_code || ""}) • {drawDate}
+                {drawTitle} ({drawResult?.draw_code || ""}) • {drawDate} • {pages.length} Slide{pages.length > 1 ? "s" : ""}
               </Typography>
             </Box>
           </Box>
@@ -219,6 +261,63 @@ export default function LotteryImagePostModal({
 
         {/* Modal Content */}
         <DialogContent sx={{ p: { xs: 1.5, sm: 2.5 } }}>
+          {/* Slide Navigation Bar (if multiple slides) */}
+          {pages.length > 1 && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                bgcolor: "#0A182F",
+                border: "1px solid rgba(56, 189, 248, 0.2)",
+                borderRadius: "12px",
+                p: 1.2,
+                mb: 2,
+              }}
+            >
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={activePageIndex === 0}
+                onClick={handlePrevPage}
+                startIcon={<ArrowBackIosNewIcon sx={{ fontSize: "13px !important" }} />}
+                sx={{
+                  color: "#38BDF8",
+                  borderColor: "rgba(56, 189, 248, 0.4)",
+                  fontWeight: 700,
+                  textTransform: "none",
+                  "&.Mui-disabled": { color: "#475569", borderColor: "rgba(255,255,255,0.08)" },
+                }}
+              >
+                Prev Slide
+              </Button>
+
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <CollectionsIcon sx={{ color: "#F59E0B", fontSize: 20 }} />
+                <Typography sx={{ fontWeight: 800, color: "#FEF08A", fontSize: "0.95rem" }}>
+                  Slide {activePageIndex + 1} of {pages.length}
+                </Typography>
+              </Box>
+
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={activePageIndex === pages.length - 1}
+                onClick={handleNextPage}
+                endIcon={<ArrowForwardIosIcon sx={{ fontSize: "13px !important" }} />}
+                sx={{
+                  color: "#38BDF8",
+                  borderColor: "rgba(56, 189, 248, 0.4)",
+                  fontWeight: 700,
+                  textTransform: "none",
+                  "&.Mui-disabled": { color: "#475569", borderColor: "rgba(255,255,255,0.08)" },
+                }}
+              >
+                Next Slide
+              </Button>
+            </Box>
+          )}
+
           {/* Image Preview Area */}
           <Box
             sx={{
@@ -238,17 +337,17 @@ export default function LotteryImagePostModal({
               <Box sx={{ textAlign: "center", py: 8 }}>
                 <CircularProgress sx={{ color: "#F59E0B", mb: 2 }} />
                 <Typography variant="body2" sx={{ color: "#94A3B8", fontWeight: 600 }}>
-                  Generating official social post image...
+                  Generating official 1080x1350 Instagram slides...
                 </Typography>
               </Box>
-            ) : previewUrl ? (
+            ) : activePage ? (
               <Box
                 component="img"
-                src={previewUrl}
-                alt="Kerala Lottery Result Social Post Preview"
+                src={activePage.dataUrl}
+                alt={`Kerala Lottery Result Instagram Post Slide ${activePage.pageNumber}`}
                 sx={{
                   maxWidth: "100%",
-                  maxHeight: { xs: 480, sm: 620 },
+                  maxHeight: { xs: 480, sm: 600 },
                   height: "auto",
                   borderRadius: "12px",
                   boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
@@ -262,6 +361,43 @@ export default function LotteryImagePostModal({
               </Typography>
             )}
           </Box>
+
+          {/* Thumbnail Strip for Carousel Slides */}
+          {pages.length > 1 && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1.5,
+                justifyContent: "center",
+                mt: 2,
+                overflowX: "auto",
+                py: 0.5,
+              }}
+            >
+              {pages.map((p, idx) => (
+                <Box
+                  key={idx}
+                  onClick={() => setActivePageIndex(idx)}
+                  sx={{
+                    cursor: "pointer",
+                    border: idx === activePageIndex ? "2px solid #F59E0B" : "1px solid rgba(255,255,255,0.2)",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    opacity: idx === activePageIndex ? 1 : 0.6,
+                    transition: "all 0.2s ease",
+                    "&:hover": { opacity: 0.9, borderColor: "#38BDF8" },
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={p.dataUrl}
+                    alt={`Slide ${idx + 1}`}
+                    sx={{ width: 60, height: 75, objectFit: "cover", display: "block" }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          )}
 
           {/* Social Media Upload Metadata Box (Title, Description, Tags) */}
           <SocialPostMetadataBox
@@ -297,7 +433,7 @@ export default function LotteryImagePostModal({
               "&:hover": { bgcolor: "rgba(255, 255, 255, 0.15)" },
             }}
           >
-            {copied ? "Copied!" : "Copy Image"}
+            {copied ? "Copied!" : "Copy Slide"}
           </Button>
 
           <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
@@ -309,7 +445,7 @@ export default function LotteryImagePostModal({
                 color: "#38BDF8",
                 borderColor: "#38BDF8",
                 borderRadius: "10px",
-                px: 2.5,
+                px: 2,
                 py: 1,
                 fontWeight: 800,
                 textTransform: "none",
@@ -319,18 +455,41 @@ export default function LotteryImagePostModal({
                 },
               }}
             >
-              Share Image
+              Share Slide
             </Button>
 
+            {pages.length > 1 && (
+              <Button
+                onClick={handleDownloadAllSlides}
+                variant="outlined"
+                startIcon={<CollectionsIcon />}
+                sx={{
+                  color: "#FDE047",
+                  borderColor: "rgba(253, 224, 71, 0.6)",
+                  borderRadius: "10px",
+                  px: 2,
+                  py: 1,
+                  fontWeight: 800,
+                  textTransform: "none",
+                  "&:hover": {
+                    bgcolor: "rgba(253, 224, 71, 0.1)",
+                    borderColor: "#FDE047",
+                  },
+                }}
+              >
+                Download All ({pages.length} Slides)
+              </Button>
+            )}
+
             <Button
-              onClick={handleDownload}
+              onClick={handleDownloadCurrentSlide}
               variant="contained"
               startIcon={<DownloadIcon />}
               sx={{
                 bgcolor: "#10B981",
                 color: "#FFFFFF",
                 borderRadius: "10px",
-                px: 3,
+                px: 2.5,
                 py: 1,
                 fontWeight: 900,
                 textTransform: "none",
@@ -338,7 +497,7 @@ export default function LotteryImagePostModal({
                 "&:hover": { bgcolor: "#059669" },
               }}
             >
-              Download JPG
+              Download Slide {activePage ? activePage.pageNumber : ""}
             </Button>
           </Box>
         </DialogActions>

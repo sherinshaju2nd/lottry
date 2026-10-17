@@ -248,51 +248,36 @@ function extractTierAmount(prizes: any, key: string, defaultAmt: string): string
 }
 
 /**
- * Dynamically balances slide durations so total video duration hits exactly 29 seconds,
- * prioritizing dense result slides (8th & 9th prizes) with ample viewing time.
+ * Ensures each prize slide gets exactly 5.0 seconds of viewing time,
+ * with intro (2.0s) and outro (2.0s), keeping the total video duration under 1 minute.
  */
-function balanceSlideDurations(slides: VideoSlide[], targetTotalSec = 29.0): void {
-  if (slides.length === 0) return;
-
-  // Base priority weights:
-  // 8th and 9th prizes get the highest priority (5.2s base weight) because they have the most winners and numbers!
-  const weights = slides.map((s) => {
-    if (s.type === "intro") return 1.5;
-    if (s.type === "first") return 3.5;
-    if (s.type === "combined") return 4.5;
-    if (s.type === "outro") return 2.0;
-    if (s.type === "tier") {
-      if (s.tierKey === "8th" || s.tierKey === "9th") {
-        return 5.2; // Generous viewing time so all 4-digit tickets are clearly readable
-      }
-      if (s.tierKey === "7th") return 2.6;
-      if (s.tierKey === "6th") return 2.5;
-      if (s.tierKey === "consolation") return 2.4;
-      return 3.0;
-    }
-    return 2.5;
-  });
-
-  const totalWeight = weights.reduce((acc, w) => acc + w, 0);
-  const factor = targetTotalSec / totalWeight;
-
-  let runningSum = 0;
-  for (let i = 0; i < slides.length; i++) {
-    if (i === slides.length - 1) {
-      // Last slide ensures total runtime hits targetTotalSec exactly
-      const remainder = Math.round((targetTotalSec - runningSum) * 10) / 10;
-      slides[i].durationSec = Math.max(1.8, remainder);
+function applyStandardSlideDurations(slides: VideoSlide[]): void {
+  for (const s of slides) {
+    if (s.type === "intro" || s.type === "outro") {
+      s.durationSec = 2.0;
     } else {
-      const d = Math.round(weights[i] * factor * 10) / 10;
-      slides[i].durationSec = Math.max(1.5, d);
-      runningSum += slides[i].durationSec;
+      // Every prize slide/tab (1st prize, consolation, 2nd-5th, 6th, 7th, 8th, 9th) gets exactly 5.0 seconds
+      s.durationSec = 5.0;
+    }
+  }
+
+  // Safety cap: Ensure total video duration never exceeds 60.0 seconds (1 minute max)
+  let total = slides.reduce((acc, curr) => acc + curr.durationSec, 0);
+  if (total > 60.0) {
+    const prizeSlides = slides.filter((s) => s.type !== "intro" && s.type !== "outro");
+    if (prizeSlides.length > 0) {
+      const availableForPrizes = 60.0 - 4.0; // 56.0s for prizes (after 2s intro + 2s outro)
+      const perPrize = Math.max(3.0, Math.min(5.0, +(availableForPrizes / prizeSlides.length).toFixed(2)));
+      for (const ps of prizeSlides) {
+        ps.durationSec = perPrize;
+      }
     }
   }
 }
 
 /**
- * Builds all video slides with combined 2nd-5th prizes on one tab,
- * balanced 8th & 9th prize viewing times, and exact 29-second video runtime.
+ * Builds all video slides with exactly 8 seconds for every prize tab,
+ * giving users ample time to read and verify all winning tickets.
  */
 function buildAllVideoSlides(
   drawResult: any,
@@ -300,19 +285,19 @@ function buildAllVideoSlides(
 ): VideoSlide[] {
   const slides: VideoSlide[] = [];
 
-  // 1. Intro Slide (1.5s base)
+  // 1. Intro Slide (2.0s)
   slides.push({
     type: "intro",
-    durationSec: 1.5,
+    durationSec: 2.0,
   });
 
-  // 2. 1st Prize Hero Slide (3.5s base)
+  // 2. 1st Prize Hero Slide (5.0s)
   slides.push({
     type: "first",
-    durationSec: 3.5,
+    durationSec: 5.0,
   });
 
-  // 3. Consolation Prize (if present)
+  // 3. Consolation Prize (if present) (5.0s per page)
   const consoNums = extractTierNumbers(drawResult?.prizes, "consolation");
   const consoAmt = extractTierAmount(drawResult?.prizes, "consolation", "₹8,000/-");
   if (consoNums.length > 0 || drawResult?.prizes?.amounts?.["consolation"]) {
@@ -330,12 +315,12 @@ function buildAllVideoSlides(
         numbers: consoNums.slice(p * perPage, (p + 1) * perPage),
         pageIndex: p + 1,
         totalPages,
-        durationSec: 2.4,
+        durationSec: 5.0,
       });
     }
   }
 
-  // 4. Combined 2nd, 3rd, 4th & 5th Prizes on the SAME TAB / SLIDE to optimize video length!
+  // 4. Combined 2nd, 3rd, 4th & 5th Prizes on one slide (5.0s)
   const combinedConfigs = [
     {
       key: "2nd",
@@ -386,12 +371,12 @@ function buildAllVideoSlides(
   if (combinedSections.length > 0) {
     slides.push({
       type: "combined",
-      durationSec: 4.5,
+      durationSec: 5.0,
       sections: combinedSections,
     });
   }
 
-  // 5. Remaining Tiers: 6th, 7th, 8th, and 9th (if present)
+  // 5. Remaining Tiers: 6th, 7th, 8th, and 9th (if present) (5.0s each)
   const remainingTiers = [
     {
       key: "6th",
@@ -447,7 +432,7 @@ function buildAllVideoSlides(
         numbers: [],
         pageIndex: 1,
         totalPages: 1,
-        durationSec: 2.0,
+        durationSec: 5.0,
       });
       continue;
     }
@@ -472,19 +457,19 @@ function buildAllVideoSlides(
         numbers: pageNumbers,
         pageIndex: p + 1,
         totalPages,
-        durationSec: 5.2, // Generous baseline, dynamically balanced to hit 29.0s
+        durationSec: 5.0,
       });
     }
   }
 
-  // 6. Verification Outro Slide (2.0s base)
+  // 6. Verification Outro Slide (2.0s)
   slides.push({
     type: "outro",
     durationSec: 2.0,
   });
 
-  // Balance all slides dynamically to achieve an exact 29-second video runtime
-  balanceSlideDurations(slides, 29.0);
+  // Apply fixed standard timing (8.0s per prize slide)
+  applyStandardSlideDurations(slides);
 
   return slides;
 }

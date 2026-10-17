@@ -1565,57 +1565,23 @@ export default function DedicatedLotteryDateClient({
               </Box>
             </Box>
 
-            {/* Mobile Top Action Buttons */}
+            {/* Mobile Top Action Buttons (Official PDF only; Video & Image post generator kept for Desktop view) */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
               {drawResult && (
-                <>
-                  <IconButton
-                    onClick={() => setPostImageModalOpen(true)}
-                    size="small"
-                    title="Download Insta & FB Post Image (JPG)"
-                    sx={{
-                      color: "#FFFFFF",
-                      background: "linear-gradient(45deg, #F58529, #DD2A7B, #8134AF)",
-                      "&:hover": {
-                        background: "linear-gradient(45deg, #E0731E, #C8206C, #6E2A96)",
-                      },
-                      width: 32,
-                      height: 32,
-                    }}
-                  >
-                    <InstagramIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => setVideoModalOpen(true)}
-                    size="small"
-                    title="Generate Reels & Shorts Video (HD)"
-                    sx={{
-                      color: "#FFFFFF",
-                      background: "linear-gradient(45deg, #EF4444, #F59E0B)",
-                      "&:hover": {
-                        background: "linear-gradient(45deg, #DC2626, #D97706)",
-                      },
-                      width: 32,
-                      height: 32,
-                    }}
-                  >
-                    <VideoLibraryIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    component="a"
-                    href={`/api/pdf/${lotteryCode}/${selectedDate}`}
-                    download={`kerala-lottery-${lotteryCode}-${selectedDate}.pdf`}
-                    size="small"
-                    title="Download Official PDF"
-                    sx={{
-                      color: "#FFFFFF",
-                      bgcolor: "rgba(255, 255, 255, 0.15)",
-                      "&:hover": { bgcolor: "rgba(255, 255, 255, 0.25)" },
-                    }}
-                  >
-                    <FileDownloadIcon fontSize="small" />
-                  </IconButton>
-                </>
+                <IconButton
+                  component="a"
+                  href={`/api/pdf/${lotteryCode}/${selectedDate}`}
+                  download={`kerala-lottery-${lotteryCode}-${selectedDate}.pdf`}
+                  size="small"
+                  title="Download Official PDF"
+                  sx={{
+                    color: "#FFFFFF",
+                    bgcolor: "rgba(255, 255, 255, 0.15)",
+                    "&:hover": { bgcolor: "rgba(255, 255, 255, 0.25)" },
+                  }}
+                >
+                  <FileDownloadIcon fontSize="small" />
+                </IconButton>
               )}
             </Box>
           </Box>
@@ -1927,6 +1893,7 @@ export default function DedicatedLotteryDateClient({
                     size="small"
                     startIcon={<InstagramIcon />}
                     sx={{
+                      display: { xs: "none", md: "inline-flex" },
                       background: "linear-gradient(45deg, #F58529, #DD2A7B, #8134AF)",
                       color: "#FFFFFF",
                       fontWeight: 800,
@@ -1950,6 +1917,7 @@ export default function DedicatedLotteryDateClient({
                     size="small"
                     startIcon={<VideoLibraryIcon />}
                     sx={{
+                      display: { xs: "none", md: "inline-flex" },
                       background: "linear-gradient(45deg, #EF4444, #F59E0B)",
                       color: "#FFFFFF",
                       fontWeight: 800,
