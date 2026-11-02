@@ -526,6 +526,7 @@ export default async function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5188009819701998"
           crossOrigin="anonymous"
         ></script>
+        <meta name="google-adsense-account" content="ca-pub-5188009819701998" />
 
         {/* Google Search Console Verification */}
         <meta
