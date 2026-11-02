@@ -520,6 +520,13 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5188009819701998"
+          crossOrigin="anonymous"
+        ></script>
+
         {/* Google Search Console Verification */}
         <meta
           name="google-site-verification"
