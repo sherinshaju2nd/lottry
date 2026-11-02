@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getAllBlogs } from "@/data/blogs";
 import {
   ALL_LOTTERIES,
   WEEKLY_LOTTERIES,
@@ -145,5 +146,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Error generating dynamic draw sitemap links:", error);
   }
 
-  return [...staticPages, ...lotteryPages, ...drawPages];
+  const blogPages: MetadataRoute.Sitemap = getAllBlogs().map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.updatedDate),
+    changeFrequency: "weekly" as const,
+    priority: 0.85,
+  }));
+
+  return [...staticPages, ...blogPages, ...lotteryPages, ...drawPages];
 }

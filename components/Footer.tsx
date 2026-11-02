@@ -389,6 +389,20 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
+            href="/blog"
+            prefetch={false}
+            sx={{
+              color: "#0B3C5D",
+              textDecoration: "none",
+              fontWeight: 700,
+              "&:hover": { color: "#2563EB" },
+            }}
+          >
+            Blog &amp; Guides
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
             href="/faq"
             prefetch={false}
             sx={{
