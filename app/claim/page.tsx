@@ -141,7 +141,7 @@ export default function ClaimPage() {
                 <GavelIcon sx={{ color: "#0B3C5D" }} /> How to Claim Your Prize Money
               </Typography>
               <Typography variant="body2" sx={{ color: "#4B5563", lineHeight: 1.65 }}>
-                Winnings must be officially claimed within <strong>90 days</strong> from the draw date. Sign the reverse of your winning physical ticket immediately upon checking results.
+                Winnings must be officially claimed within <strong>30 days</strong> from the draw date. Late claims (up to 90 days) are accepted only with a valid reason, at the Director&apos;s discretion. Sign the reverse of your winning physical ticket immediately upon checking results.
               </Typography>
             </Box>
 
@@ -323,7 +323,7 @@ export default function ClaimPage() {
                 {[
                   "Cross-verify your numbers against the official Kerala Government Gazette publication before presenting your claim.",
                   "Keep your original winning ticket safe, dry, and undamaged. Torn or altered tickets are disqualified.",
-                  "Claims must be presented within 90 days from the official draw announcement date.",
+                  "Claims must be presented within 30 days from the draw date. Late claims (up to 90 days) are accepted only with a valid reason, at the Director's discretion.",
                 ].map((item, index) => (
                   <ListItem key={index} disableGutters sx={{ alignItems: "flex-start", py: 0.5 }}>
                     <ListItemIcon sx={{ minWidth: 28, mt: 0.25 }}>

@@ -1301,3 +1301,78 @@ export function generateStatisticalFallbackAnalysis(
       "This analysis is purely based on historical statistical frequencies and probability modeling. Kerala State Lottery draws are independent random events conducted by the Directorate of Kerala State Lotteries.",
   };
 }
+
+export interface VoiceTicketResult {
+  /** Series letters, e.g. "KR" (empty when the speaker gave only digits). */
+  series: string;
+  /** 6 digits (or 4 for lower-tier checks). */
+  number: string;
+  transcript: string;
+}
+
+/** Normalises what the model heard into a Kerala ticket: 1–2 letters + 4 or 6 digits. */
+export const normalizeSpokenTicket = (series: unknown, number: unknown): { series: string; number: string } | null => {
+  const cleanSeries = String(series ?? "").toUpperCase().replace(/[^A-Z]/g, "");
+  const cleanNumber = String(number ?? "").replace(/\D/g, "");
+  if (cleanSeries.length > 2) return null;
+  if (cleanNumber.length !== 6 && cleanNumber.length !== 4) return null;
+  return { series: cleanSeries, number: cleanNumber };
+};
+
+/**
+ * Hears a spoken Kerala lottery ticket number (Malayalam or English, e.g.
+ * "കെ ആർ ഒന്ന് രണ്ട് മൂന്ന് നാല് അഞ്ച് ആറ്") and returns only the ticket.
+ */
+export async function transcribeTicketFromAudio(base64Audio: string, mimeType: string): Promise<VoiceTicketResult | null> {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured.");
+
+  const instruction = `The audio is a person reading out ONE Kerala State Lottery ticket number, in Malayalam or English.
+A ticket is 2 series letters followed by 6 digits (e.g. "KR 123456"); people may say only the digits, or only the last 4 digits.
+Malayalam digits: പൂജ്യം=0 ഒന്ന്=1 രണ്ട്=2 മൂന്ന്=3 നാല്=4 അഞ്ച്=5 ആറ്=6 ഏഴ്=7 എട്ട്=8 ഒമ്പത്/ഒൻപത്=9.
+Letters may be spoken in Malayalam (കെ=K, ആർ=R, എസ്=S, ഡി=D, എൻ=N, ബി=B, ടി=T, എം=M, പി=P …).
+Return ONLY JSON: {"series":"KR","number":"123456","heard":true}.
+If no ticket number is clearly spoken, return {"series":"","number":"","heard":false}. Never guess digits.`;
+
+  let lastError: unknown = null;
+  for (const model of GEMINI_MODELS) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ inline_data: { mime_type: mimeType, data: base64Audio } }, { text: instruction }],
+              },
+            ],
+            // Thinking models count reasoning tokens against this cap; keep it generous so the
+            // short JSON answer is never cut off.
+            generationConfig: { temperature: 0, max_output_tokens: 1024, response_mime_type: "application/json" },
+          }),
+        },
+      );
+      if (!response.ok) {
+        console.warn(`Gemini voice-ticket model ${model} HTTP ${response.status}:`, await response.text());
+        continue;
+      }
+      const data = await response.json();
+      const candidate = data?.candidates?.[0];
+      const raw: string | undefined = candidate?.content?.parts?.find((p: { text?: string }) => typeof p?.text === "string")?.text;
+      if (!raw || candidate?.finishReason === "MAX_TOKENS") {
+        // Truncated / empty answer is a model problem, not "nothing was said": try the next model.
+        console.warn(`Voice-ticket model ${model} returned no usable text (${candidate?.finishReason ?? "no candidate"})`);
+        continue;
+      }
+      const parsed = JSON.parse(raw.replace(/^```json\s*/i, "").replace(/```$/i, "").trim()) as Record<string, unknown>;
+      const ticket = normalizeSpokenTicket(parsed.series, parsed.number);
+      return ticket ? { ...ticket, transcript: ticket.series ? `${ticket.series} ${ticket.number}` : ticket.number } : null;
+    } catch (err: unknown) {
+      console.warn(`Voice-ticket model ${model} error:`, err instanceof Error ? err.message : String(err));
+      lastError = err;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Voice ticket recognition failed.");
+}

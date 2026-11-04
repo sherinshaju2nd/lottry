@@ -1867,7 +1867,7 @@ export default function HomePage() {
               How to Claim Your Prize Money
             </Typography>
             <Typography variant="body1" sx={{ color: "#475569", mb: 3, lineHeight: 1.7 }}>
-              Prize claims must be officially filed within <strong>90 days</strong> from the draw date. Sign the back of your ticket immediately upon winning.
+              Prize claims must be officially filed within <strong>30 days</strong> from the draw date. Sign the back of your ticket immediately upon winning.
             </Typography>
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
