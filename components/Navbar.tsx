@@ -505,6 +505,22 @@ export default function Navbar() {
 
             <Button
               component={Link}
+              href="/blog"
+              prefetch={false}
+              startIcon={<MenuBookIcon />}
+              sx={{
+                color: pathname.startsWith("/blog") ? "#0B3C5D" : "#374151",
+                fontWeight: pathname.startsWith("/blog") ? 800 : 700,
+                borderRadius: "8px",
+                px: 2,
+                bgcolor: pathname.startsWith("/blog") ? "#EBF5FF" : "transparent",
+              }}
+            >
+              Blog
+            </Button>
+
+            <Button
+              component={Link}
               href="/analytics"
               prefetch={false}
               startIcon={<InsightsIcon />}
@@ -1144,6 +1160,55 @@ export default function Navbar() {
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
                   District leaderboard &amp; statistics
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* Blog & Guides */}
+            <Box
+              component={Link}
+              href="/blog"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname.startsWith("/blog") ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
+                  color: "#0B3C5D",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <MenuBookIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: pathname.startsWith("/blog") ? 800 : 700,
+                    color: pathname.startsWith("/blog") ? "#0B3C5D" : "#0F172A",
+                  }}
+                >
+                  Blog &amp; Guides
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  How to claim, rules &amp; insights
                 </Typography>
               </Box>
               <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
