@@ -5,6 +5,16 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit"],
   async redirects() {
     return [
+      // Canonical host: keralalotteryresultstoday.in → www. Done here (not as a Vercel domain
+      // redirect) so /.well-known/* (assetlinks.json, apple-app-site-association) is served
+      // directly on the bare domain: Android App Link / iOS Universal Link verification does
+      // not follow redirects. Requires the bare domain in Vercel to be "Connect to Production".
+      {
+        source: "/:path((?!\\.well-known/).*)",
+        has: [{ type: "host", value: "keralalotteryresultstoday.in" }],
+        destination: "https://www.keralalotteryresultstoday.in/:path",
+        permanent: true,
+      },
       {
         source: "/pages",
         destination: "/",
@@ -54,6 +64,11 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        // iOS Universal Links require the extension-less AASA file to be served as JSON.
+        source: "/.well-known/apple-app-site-association",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
       {
         source: "/api/:path*",
         headers: [

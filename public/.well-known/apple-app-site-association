@@ -8,15 +8,23 @@
           "/",
           "/search",
           "/claim",
-          "/lotteries/*",
+          "/lotteries",
           "/bhagyathara",
-          "/sthree-sakthi",
+          "/bhagyathara/*",
+          "/sthreesakthi",
+          "/sthreesakthi/*",
           "/dhanalekshmi",
-          "/karunya-plus",
-          "/suvarna-keralam",
+          "/dhanalekshmi/*",
+          "/karunyaplus",
+          "/karunyaplus/*",
+          "/suvarnakeralam",
+          "/suvarnakeralam/*",
           "/karunya",
+          "/karunya/*",
           "/samrudhi",
-          "/*-bumper"
+          "/samrudhi/*",
+          "/*-bumper",
+          "/*-bumper/*"
         ]
       }
     ]
