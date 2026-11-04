@@ -66,10 +66,11 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
       count: urlList.length,
       urls: urlList,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
     return {
       success: false,
-      error: error.message,
+      error: msg,
       count: urlList.length,
     };
   }
@@ -77,9 +78,9 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
-  const secretKey = process.env.CRON_SECRET || "kerala_lottery_cron_secret_2026";
+  const secretKey = process.env.CRON_SECRET;
 
-  if (authHeader !== `Bearer ${secretKey}`) {
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -89,9 +90,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization");
-  const secretKey = process.env.CRON_SECRET || "kerala_lottery_cron_secret_2026";
+  const secretKey = process.env.CRON_SECRET;
 
-  if (authHeader !== `Bearer ${secretKey}`) {
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -100,9 +101,10 @@ export async function POST(request: Request) {
     const { urlList } = body;
     const result = await submitUrlsToIndexNow(Array.isArray(urlList) ? urlList : undefined);
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: msg },
       { status: 500 }
     );
   }

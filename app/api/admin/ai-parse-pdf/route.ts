@@ -30,12 +30,13 @@ export async function POST(req: NextRequest) {
       message: "Gazette result sheet successfully parsed by Gemini AI",
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to extract lottery results from document.";
     console.error("AI PDF Parse Error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to extract lottery results from document.",
+        error: msg,
       },
       { status: 500 }
     );

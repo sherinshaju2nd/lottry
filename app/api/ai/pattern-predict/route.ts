@@ -5,6 +5,7 @@ import {
   StructuredDrawResult,
   getCachedAiPatternPrediction,
   saveAiPatternPrediction,
+  CachedAiPatternRecord,
 } from "@/lib/supabase";
 
 /**
@@ -41,10 +42,11 @@ export async function GET(req: NextRequest) {
       cached: false,
       message: "No cached AI pattern prediction found.",
     });
-  } catch (error: any) {
-    console.warn("GET pattern-predict cache check note:", error);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to check cache.";
+    console.warn("GET pattern-predict cache check note:", msg);
     return NextResponse.json(
-      { success: false, error: error?.message || "Failed to check cache." },
+      { success: false, error: msg },
       { status: 500 }
     );
   }
@@ -98,10 +100,10 @@ export async function POST(req: NextRequest) {
     const currentDrawCount = targetDraws.length;
     const latestDrawDate = targetDraws[0]?.draw_date;
 
-    let cachedRecord: any = null;
+    let cachedRecord: CachedAiPatternRecord | null = null;
     try {
       cachedRecord = await getCachedAiPatternPrediction(lotteryCode);
-    } catch (e) {
+    } catch (e: unknown) {
       console.warn("Cached record check note:", e);
     }
 
@@ -127,7 +129,7 @@ export async function POST(req: NextRequest) {
       `[AI Cache MISS/REFRESH] Calling Gemini API for ${lotteryCode} with ${currentDrawCount} draws (Previous DB count: ${cachedRecord?.draws_count || 0}, forceRefresh: ${forceRefresh}).`
     );
 
-    let freshAnalysis: any = null;
+    let freshAnalysis: unknown = null;
     try {
       freshAnalysis = await analyzeLotteryPatternsWithGemini(
         lotteryName,
@@ -135,7 +137,7 @@ export async function POST(req: NextRequest) {
         targetDraws,
         lang
       );
-    } catch (geminiError: any) {
+    } catch (geminiError: unknown) {
       console.error("Gemini API call failed:", geminiError);
 
       // Graceful fallback: If Gemini fails during a refresh but we have older cached data, serve the older cache
@@ -180,12 +182,13 @@ export async function POST(req: NextRequest) {
       drawsCount: currentDrawCount,
       updatedCache: true,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to analyze lottery patterns.";
     console.error("Pattern Predict AI API Error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to analyze lottery patterns.",
+        error: msg,
       },
       { status: 500 }
     );

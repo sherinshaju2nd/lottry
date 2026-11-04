@@ -40,9 +40,9 @@ export async function GET(req: NextRequest) {
         enabled: process.env.WHATSAPP_BROADCAST_ENABLED !== "false",
       },
       last_broadcast: {
-        key: (config as any).last_broadcast_key || null,
-        draw: (config as any).last_broadcast_draw || null,
-        time: (config as any).last_broadcast_time || null,
+        key: config.last_broadcast_key ?? null,
+        draw: config.last_broadcast_draw ?? null,
+        time: config.last_broadcast_time ?? null,
       },
       env_guide: {
         telegram: ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TELEGRAM_BROADCAST_ENABLED"],
@@ -51,8 +51,9 @@ export async function GET(req: NextRequest) {
     };
 
     return NextResponse.json({ success: true, status });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }
 
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
     // 3. Preview 1st Prize Message for any draw
     if (action === "preview_message") {
       const { draw_date, lottery_code } = body;
-      const draw = await getDrawResultFromSupabase(draw_date, lottery_code);
+      const draw = await getDrawResultFromSupabase(lottery_code, draw_date);
       if (!draw) {
         return NextResponse.json({ success: false, error: "Draw result not found" }, { status: 404 });
       }
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
     // 4. Manually broadcast a draw result now
     if (action === "broadcast_draw") {
       const { draw_date, lottery_code, force } = body;
-      const draw = await getDrawResultFromSupabase(draw_date, lottery_code);
+      const draw = await getDrawResultFromSupabase(lottery_code, draw_date);
       if (!draw) {
         return NextResponse.json({ success: false, error: "Draw result not found" }, { status: 404 });
       }
@@ -104,7 +105,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

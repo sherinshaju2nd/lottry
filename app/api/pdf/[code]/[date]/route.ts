@@ -153,9 +153,10 @@ export async function GET(
       "mc",
     ] as const;
     const amounts = (result.prizes?.amounts || {}) as Record<string, string>;
+    const prizesRecord = (result.prizes || {}) as unknown as Record<string, unknown>;
 
     for (const tier of tierOrder) {
-      const numbers = (result.prizes as any)?.[tier] as string[] | undefined;
+      const numbers = prizesRecord[tier] as string[] | undefined;
       if (Array.isArray(numbers) && numbers.length > 0) {
         // Prevent drawing text off-page
         if (doc.y > 660) {

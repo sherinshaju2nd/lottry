@@ -14,18 +14,20 @@ async function handleCronExecution(req: NextRequest) {
   const startTime = Date.now();
   const authHeader = req.headers.get("authorization");
   const cronHeader = req.headers.get("x-cron-secret");
+  // Informational only (log labels). Never trust this header for auth: any client can send it.
+  // Vercel Cron authenticates with "Authorization: Bearer $CRON_SECRET" like pg_cron does.
   const isVercelCron = req.headers.get("x-vercel-cron") === "1";
 
   // 1. Fetch live cron configurations from Supabase
   const cronConfig = await getCronConfigFromSupabase();
   const secretKey = process.env.CRON_SECRET || cronConfig.cron_secret;
 
-  // Verify CRON_SECRET if configured
-  if (secretKey) {
-    const isBearerValid = authHeader === `Bearer ${secretKey}`;
-    const isCustomHeaderValid = cronHeader === secretKey;
+  // Fail closed: without a configured secret nobody may trigger the cron.
+  {
+    const isBearerValid = Boolean(secretKey) && authHeader === `Bearer ${secretKey}`;
+    const isCustomHeaderValid = Boolean(secretKey) && cronHeader === secretKey;
 
-    if (!isVercelCron && !isBearerValid && !isCustomHeaderValid) {
+    if (!isBearerValid && !isCustomHeaderValid) {
       await logCronExecutionInSupabase({
         trigger_source: isVercelCron ? "vercel_cron" : "pg_cron",
         status: "failed",
@@ -221,7 +223,7 @@ async function handleCronExecution(req: NextRequest) {
   // 5. Execute lottery sync
   let attempts = 0;
   const maxAttempts = 2; // 1 initial attempt + 1 retry on error
-  let lastResult: { success: boolean; data?: any; error?: string } = {
+  let lastResult: Awaited<ReturnType<typeof fetchAndSyncLatestLottery>> = {
     success: false,
     error: "Not executed",
   };
@@ -297,6 +299,15 @@ async function handleCronExecution(req: NextRequest) {
       ...(lotterySlug ? [`https://www.keralalotteryresultstoday.in/${lotterySlug}`] : []),
       ...(lotterySlug && draw?.draw_date ? [`https://www.keralalotteryresultstoday.in/${lotterySlug}/${draw.draw_date}`] : []),
     ];
+
+    try {
+      const indexingMod = await import("@/lib/google-indexing").catch(() => null) as unknown as Record<string, unknown> | null;
+      if (indexingMod && typeof indexingMod.submitUrlsToIndexNow === "function") {
+        await (indexingMod.submitUrlsToIndexNow as (urls: string[]) => Promise<unknown>)(updatedUrls);
+      }
+    } catch {
+      // Indexing notice optional
+    }
 
     try {
       const { revalidatePath } = await import("next/cache");

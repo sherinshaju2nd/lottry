@@ -34,12 +34,13 @@ export async function GET(req: NextRequest) {
       },
       digest,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to generate social media digest.";
     console.error("AI Digest Error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to generate social media digest.",
+        error: msg,
       },
       { status: 500 }
     );
@@ -65,12 +66,13 @@ export async function POST(req: NextRequest) {
 
     const digest = await generateSocialMediaDigests(draw);
     return NextResponse.json({ success: true, digest });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to generate social media digest.";
     console.error("AI Digest POST Error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to generate social media digest.",
+        error: msg,
       },
       { status: 500 }
     );

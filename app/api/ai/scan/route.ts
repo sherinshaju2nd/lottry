@@ -18,13 +18,13 @@ export async function POST(req: NextRequest) {
     const scanned = await scanTicketWithGemini(image, mimeType);
 
     // 2. Perform database prize check if ticket number was detected
-    let matches: any[] = [];
+    let matches: Awaited<ReturnType<typeof searchTicketsInSupabase>> = [];
     const query = scanned.ticket_number || scanned.last_digits || "";
     
     if (query) {
       try {
         matches = await searchTicketsInSupabase(query);
-      } catch (dbErr) {
+      } catch (dbErr: unknown) {
         console.warn("Could not query supabase for ticket match:", dbErr);
       }
     }
@@ -35,12 +35,13 @@ export async function POST(req: NextRequest) {
       isWinner: matches.length > 0,
       matches,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to analyze ticket with AI.";
     console.error("AI Ticket Scan Error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to analyze ticket with AI.",
+        error: msg,
       },
       { status: 500 }
     );

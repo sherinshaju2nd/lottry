@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   const date = searchParams.get("date");
   const type = searchParams.get("type"); // "dates" | "single" | "all" | "history" | "postponed" | "lotteries"
 
-  let responseData: any = {};
+  let responseData: Record<string, unknown> = {};
 
   if (type === "postponed") {
     const list = await getPostponedDraws(date || undefined);

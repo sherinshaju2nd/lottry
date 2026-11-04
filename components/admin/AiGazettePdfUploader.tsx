@@ -83,8 +83,9 @@ export default function AiGazettePdfUploader({
       };
 
       reader.readAsDataURL(selectedFile);
-    } catch (err: any) {
-      setErrorMsg(err.message || "Error reading file.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error reading file.";
+      setErrorMsg(msg);
     } finally {
       setIsParsing(false);
     }

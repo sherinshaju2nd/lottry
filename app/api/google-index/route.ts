@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
-  const secretKey = process.env.CRON_SECRET || "kerala_lottery_cron_secret_2026";
+  const secretKey = process.env.CRON_SECRET;
 
-  if (authHeader !== `Bearer ${secretKey}`) {
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -30,9 +30,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
-  const secretKey = process.env.CRON_SECRET || "kerala_lottery_cron_secret_2026";
+  const secretKey = process.env.CRON_SECRET;
 
-  if (authHeader !== `Bearer ${secretKey}`) {
+  if (!secretKey || authHeader !== `Bearer ${secretKey}`) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
       urls,
       results,
     });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

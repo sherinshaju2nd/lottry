@@ -4,25 +4,25 @@ export interface GoogleIndexResult {
   url: string;
   success: boolean;
   status?: number;
-  data?: any;
+  data?: unknown;
   error?: string;
 }
 
 /**
  * Creates a base64url encoded string
  */
-function base64UrlEncode(str: string | Buffer): string {
+const base64UrlEncode = (str: string | Buffer): string => {
   const base64 = Buffer.isBuffer(str) ? str.toString("base64") : Buffer.from(str).toString("base64");
   return base64.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-}
+};
 
 /**
  * Retrieves a Google OAuth2 Access Token using RS256 Service Account JWT
  */
-async function getGoogleAccessToken(
+const getGoogleAccessToken = async (
   clientEmail: string,
   privateKey: string
-): Promise<string> {
+): Promise<string> => {
   const now = Math.floor(Date.now() / 1000);
   const header = {
     alg: "RS256",
@@ -70,15 +70,15 @@ async function getGoogleAccessToken(
 
   const tokenData = await tokenResponse.json();
   return tokenData.access_token;
-}
+};
 
 /**
  * Sends a URL directly to Google Indexing API (URL_UPDATED)
  */
-export async function submitUrlToGoogleIndexingAPI(
+export const submitUrlToGoogleIndexingAPI = async (
   url: string,
   accessToken: string
-): Promise<GoogleIndexResult> {
+): Promise<GoogleIndexResult> => {
   try {
     const response = await fetch("https://indexing.googleapis.com/v3/urlNotifications:publish", {
       method: "POST",
@@ -100,22 +100,23 @@ export async function submitUrlToGoogleIndexingAPI(
       status: response.status,
       data,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     return {
       url,
       success: false,
-      error: err.message,
+      error: msg,
     };
   }
-}
+};
 
 /**
  * PubSubHubbub / WebSub Push to Google's real-time RSS Feed Hub
  * Googlebot uses this hub to subscribe to feed changes instantly!
  */
-export async function pingGoogleWebSub(
+export const pingGoogleWebSub = async (
   feedUrl: string = "https://www.keralalotteryresultstoday.in/feed.xml"
-): Promise<{ success: boolean; status?: number; error?: string }> {
+): Promise<{ success: boolean; status?: number; error?: string }> => {
   try {
     const params = new URLSearchParams();
     params.append("hub.mode", "publish");
@@ -133,38 +134,40 @@ export async function pingGoogleWebSub(
       success: res.status >= 200 && res.status < 300,
       status: res.status,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     return {
       success: false,
-      error: err.message,
+      error: msg,
     };
   }
-}
+};
 
 /**
  * Ping Google's Sitemap Ping Endpoint
  */
-export async function pingGoogleSitemap(
+export const pingGoogleSitemap = async (
   sitemapUrl: string = "https://www.keralalotteryresultstoday.in/sitemap.xml"
-): Promise<{ success: boolean; status?: number; error?: string }> {
+): Promise<{ success: boolean; status?: number; error?: string }> => {
   try {
     const res = await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`);
     return {
       success: res.ok,
       status: res.status,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     return {
       success: false,
-      error: err.message,
+      error: msg,
     };
   }
-}
+};
 
 /**
  * High-Level Multi-Channel Google Indexing Runner
  */
-export async function submitUrlsToGoogle(urls: string[]): Promise<{
+export const submitUrlsToGoogle = async (urls: string[]): Promise<{
   webSub: { success: boolean; status?: number; error?: string };
   sitemapPing: { success: boolean; status?: number; error?: string };
   indexingApi: {
@@ -172,7 +175,7 @@ export async function submitUrlsToGoogle(urls: string[]): Promise<{
     results: GoogleIndexResult[];
     error?: string;
   };
-}> {
+}> => {
   // 1. Trigger Google WebSub RSS Hub Push
   const webSub = await pingGoogleWebSub();
 
@@ -180,18 +183,19 @@ export async function submitUrlsToGoogle(urls: string[]): Promise<{
   const sitemapPing = await pingGoogleSitemap();
 
   // 3. Trigger Google Indexing API if Service Account keys are set in ENV
-  let clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || "";
-  let privateKey = process.env.GOOGLE_PRIVATE_KEY || "";
+  let clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "";
+  let privateKey = process.env.GOOGLE_PRIVATE_KEY ?? "";
 
   // Check if raw JSON was provided
   const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   if (serviceAccountJson && (!clientEmail || !privateKey)) {
     try {
       const parsed = JSON.parse(serviceAccountJson);
-      clientEmail = parsed.client_email || "";
-      privateKey = parsed.private_key || "";
-    } catch (e) {
-      console.warn("Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON:", e);
+      clientEmail = parsed.client_email ?? "";
+      privateKey = parsed.private_key ?? "";
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn("Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON:", msg);
     }
   }
 
@@ -207,9 +211,10 @@ export async function submitUrlsToGoogle(urls: string[]): Promise<{
         const res = await submitUrlToGoogleIndexingAPI(url, accessToken);
         indexingApiResults.push(res);
       }
-    } catch (err: any) {
-      indexingApiError = err.message;
-      console.warn("[Google Indexing API Error]:", err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      indexingApiError = msg;
+      console.warn("[Google Indexing API Error]:", msg);
     }
   }
 
@@ -222,4 +227,4 @@ export async function submitUrlsToGoogle(urls: string[]): Promise<{
       error: indexingApiError,
     },
   };
-}
+};

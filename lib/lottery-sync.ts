@@ -1,17 +1,19 @@
 import { saveDrawResultToSupabase, StructuredDrawResult, ALL_LOTTERIES } from "./supabase";
-import { broadcastFirstPrizeResult } from "./broadcaster";
+import { broadcastFirstPrizeResult, BroadcastExecutionReport } from "./broadcaster";
 
-export async function fetchAndSyncLatestLottery(): Promise<{
+export interface SyncLotteryResult {
   success: boolean;
   data?: StructuredDrawResult;
   error?: string;
-  broadcast?: any;
-}> {
+  broadcast?: BroadcastExecutionReport | null;
+}
+
+export const fetchAndSyncLatestLottery = async (): Promise<SyncLotteryResult> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
 
   try {
-    const apiUrl = process.env.LOTTERY_API_URL || "https://indialotteryapi.com/wp-json/klr/v1/latest";
+    const apiUrl = process.env.LOTTERY_API_URL ?? "https://indialotteryapi.com/wp-json/klr/v1/latest";
     const res = await fetch(apiUrl, {
       cache: "no-store",
       headers: {
@@ -40,7 +42,7 @@ export async function fetchAndSyncLatestLottery(): Promise<{
     const rawDrawCode = String(json.draw_code).trim().toUpperCase();
     const codeMatch = rawDrawCode.match(/^([A-Z]{2,3})/);
     let lottery_code = codeMatch ? codeMatch[1] : rawDrawCode.split("-")[0];
-    let draw_name = json.draw_name || "Kerala Lottery";
+    let draw_name = json.draw_name ?? "Kerala Lottery";
 
     // Try to match by code first, then fallback to name against ALL lotteries (Weekly + Bumper)
     let matched = ALL_LOTTERIES.find((l) => l.code === lottery_code);
@@ -67,19 +69,26 @@ export async function fetchAndSyncLatestLottery(): Promise<{
       draw_name,
       draw_code: json.draw_code,
       lottery_code,
-      first: json.first || {},
-      prizes: json.prizes || {},
+      first: json.first ?? {},
+      prizes: json.prizes ?? {},
     };
 
-    // Save exclusively to Supabase DB
-    await saveDrawResultToSupabase(payload);
+    // Save exclusively to Supabase DB. Never broadcast or report success for an unsaved result.
+    const saved = await saveDrawResultToSupabase(payload);
+    if (!saved) {
+      return {
+        success: false,
+        error: `Failed to save ${lottery_code} ${json.draw_date} to the database (check SUPABASE_SERVICE_ROLE_KEY).`,
+      };
+    }
 
     // Auto-broadcast 1st Prize to Telegram Channels/Groups and WhatsApp (runs with smart deduplication)
-    let broadcastResult: any = null;
+    let broadcastResult: BroadcastExecutionReport | null = null;
     try {
       broadcastResult = await broadcastFirstPrizeResult(payload);
-    } catch (bErr) {
-      console.warn("[Broadcast Error during sync]:", bErr);
+    } catch (bErr: unknown) {
+      const msg = bErr instanceof Error ? bErr.message : String(bErr);
+      console.warn("[Broadcast Error during sync]:", msg);
     }
 
     return {
@@ -94,4 +103,4 @@ export async function fetchAndSyncLatestLottery(): Promise<{
       error: msg,
     };
   }
-}
+};

@@ -53,12 +53,13 @@ export async function POST(req: NextRequest) {
       success: true,
       reply,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to process chat message.";
     console.error("AI Chat Route Error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || "Failed to process chat message.",
+        error: msg,
       },
       { status: 500 }
     );

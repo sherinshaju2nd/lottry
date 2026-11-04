@@ -60,7 +60,6 @@ import {
   LotteryRecord,
   CronLog,
   CronConfig,
-  saveDrawResultToSupabase,
   ALL_LOTTERIES,
 } from "@/lib/supabase";
 
@@ -154,7 +153,7 @@ export default function AdminDashboardPage() {
     cron_bumper_frequency_mins: "1",
     cron_bumper_phase2_frequency_mins: "5",
     app_url: "https://www.keralalotteryresultstoday.in",
-    cron_secret: "kerala_lottery_cron_secret_2026",
+    cron_secret: "",
   });
   const [cronLogs, setCronLogs] = useState<CronLog[]>([]);
   const [isBumperToday, setIsBumperToday] = useState(false);
@@ -335,31 +334,11 @@ export default function AdminDashboardPage() {
         return;
       }
 
-      // Fallback direct indialotteryapi client fetch
-      const apiRes = await fetch("https://indialotteryapi.com/wp-json/klr/v1/latest");
-      const directJson = await apiRes.json();
-
-      if (directJson && directJson.draw_date && directJson.draw_code) {
-        await saveDrawResultToSupabase({
-          draw_date: directJson.draw_date,
-          draw_name: directJson.draw_name || "Kerala Lottery",
-          draw_code: directJson.draw_code,
-          first: directJson.first || {},
-          prizes: directJson.prizes || {},
-        });
-
-        setSyncStatus({
-          type: "success",
-          message: `Direct API sync completed! Synced: ${directJson.draw_name} (${directJson.draw_code}) on ${directJson.draw_date}`,
-        });
-        await loadDraws();
-        await loadCronConfigAndLogs();
-      } else {
-        setSyncStatus({
-          type: "error",
-          message: json.error || "Failed to parse API response structure.",
-        });
-      }
+      // Writes happen only on the server (/api/sync); the browser has read-only DB access.
+      setSyncStatus({
+        type: "error",
+        message: json.error || `Sync failed (HTTP ${res.status}).`,
+      });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Sync connection error";
       setSyncStatus({ type: "error", message: `Sync error: ${msg}` });

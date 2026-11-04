@@ -21,11 +21,11 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import TitleIcon from "@mui/icons-material/Title";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { getLotteryMalayalamName } from "@/lib/lotteryVideoGenerator";
-import { getLotterySlug } from "@/lib/supabase";
+import { getLotterySlug, StructuredDrawResult, LotteryRecord } from "@/lib/supabase";
 
 export interface SocialPostMetadataBoxProps {
-  drawResult?: any;
-  lotteryInfo?: any;
+  drawResult?: StructuredDrawResult | null;
+  lotteryInfo?: LotteryRecord | null;
   siteUrl?: string;
   mediaType?: "video" | "image";
 }
@@ -33,7 +33,7 @@ export interface SocialPostMetadataBoxProps {
 export default function SocialPostMetadataBox({
   drawResult,
   lotteryInfo,
-  siteUrl = "https://www.keralalotteryresultstoday.in",
+  siteUrl: _siteUrl = "https://www.keralalotteryresultstoday.in",
   mediaType = "video",
 }: SocialPostMetadataBoxProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -52,14 +52,14 @@ export default function SocialPostMetadataBox({
   const rawCodeOrSlug =
     drawResult?.lottery_code ||
     lotteryInfo?.code ||
-    (lotteryInfo as any)?.slug ||
+    (lotteryInfo && "slug" in lotteryInfo && typeof lotteryInfo.slug === "string" ? lotteryInfo.slug : "") ||
     "bhagyathara";
   const canonicalSlug = getLotterySlug(rawCodeOrSlug);
 
   const nameMl = getLotteryMalayalamName(
     canonicalSlug,
     drawName,
-    lotteryInfo?.nameMl || drawResult?.name_ml || drawResult?.nameMl,
+    lotteryInfo?.name_ml,
   );
 
   const jackpotAmt =

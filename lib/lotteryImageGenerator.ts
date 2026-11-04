@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import { getLotterySlug } from "@/lib/supabase";
+import { getLotterySlug, StructuredDrawResult } from "@/lib/supabase";
 
 export type LotteryImageFormat = "story" | "portrait";
 
@@ -173,12 +173,15 @@ function drawRoundedRect(
 /**
  * Extracts ticket numbers safely from drawResult
  */
-function extractTierNumbers(prizes: any, key: string): string[] {
-  if (!prizes) return [];
-  if (Array.isArray(prizes[key]) && prizes[key].length > 0) return prizes[key];
+function extractTierNumbers(prizes: unknown, key: string): string[] {
+  if (!prizes || typeof prizes !== "object") return [];
+  const pRecord = prizes as Record<string, unknown>;
+  const directArr = pRecord[key];
+  if (Array.isArray(directArr) && directArr.length > 0) return directArr as string[];
   const digitOnly = key.replace(/\D/g, "");
-  if (digitOnly && Array.isArray(prizes[digitOnly]) && prizes[digitOnly].length > 0) {
-    return prizes[digitOnly];
+  const digitArr = digitOnly ? pRecord[digitOnly] : undefined;
+  if (digitOnly && Array.isArray(digitArr) && digitArr.length > 0) {
+    return digitArr as string[];
   }
   const wordMap: Record<string, string> = {
     "1st": "first",
@@ -193,9 +196,12 @@ function extractTierNumbers(prizes: any, key: string): string[] {
   };
   const word = wordMap[key];
   if (word) {
-    if (Array.isArray(prizes[word]) && prizes[word].length > 0) return prizes[word];
-    if (Array.isArray(prizes[`${word}_prize`]) && prizes[`${word}_prize`].length > 0) return prizes[`${word}_prize`];
-    if (Array.isArray(prizes[`${word}_tickets`]) && prizes[`${word}_tickets`].length > 0) return prizes[`${word}_tickets`];
+    const wArr = pRecord[word];
+    if (Array.isArray(wArr) && wArr.length > 0) return wArr as string[];
+    const pArr = pRecord[`${word}_prize`];
+    if (Array.isArray(pArr) && pArr.length > 0) return pArr as string[];
+    const tArr = pRecord[`${word}_tickets`];
+    if (Array.isArray(tArr) && tArr.length > 0) return tArr as string[];
   }
   return [];
 }
@@ -203,8 +209,9 @@ function extractTierNumbers(prizes: any, key: string): string[] {
 /**
  * Extracts prize amount safely from drawResult
  */
-function extractTierAmount(prizes: any, key: string, defaultAmt: string): string {
-  const amounts = prizes?.amounts;
+function extractTierAmount(prizes: unknown, key: string, defaultAmt: string): string {
+  if (!prizes || typeof prizes !== "object") return defaultAmt;
+  const amounts = (prizes as Record<string, unknown>)?.amounts as Record<string, string> | undefined;
   if (!amounts) return defaultAmt;
   if (amounts[key]) return amounts[key];
   const digitOnly = key.replace(/\D/g, "");
@@ -243,7 +250,8 @@ interface PageLayoutPlan {
  * Slide 1 holds 1st Prize Hero + Consolation (or 2nd) cleanly within 900px height.
  * Subsequent slides distribute remaining prizes without overflow.
  */
-function buildInstagramPagesPlan(drawResult: any, format: LotteryImageFormat = "story"): PageLayoutPlan[] {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function buildInstagramPagesPlan(drawResult?: LotteryPostImageOptions["drawResult"] | StructuredDrawResult | null, _format: LotteryImageFormat = "story"): PageLayoutPlan[] {
   const pages: PageLayoutPlan[] = [];
 
   const activeTiers: { tier: TierConfig; numbers: string[]; amount: string }[] = [];
@@ -399,7 +407,6 @@ export async function generateLotteryPostPages(
     drawResult,
     lotteryInfo,
     format = "story",
-    siteUrl = "https://www.keralalotteryresultstoday.in",
   } = options;
 
   // Exact Requested Dimensions: Width: 900px, Height: 900px
@@ -422,11 +429,11 @@ export async function generateLotteryPostPages(
   const rawLotteryCodeOrSlug =
     drawResult?.lottery_code ||
     lotteryInfo?.code ||
-    (lotteryInfo as any)?.slug ||
+    (lotteryInfo && "slug" in lotteryInfo && typeof lotteryInfo.slug === "string" ? lotteryInfo.slug : "") ||
     "bhagyathara";
   const canonicalSlug = getLotterySlug(rawLotteryCodeOrSlug);
   const targetResultUrl = `https://www.keralalotteryresultstoday.in/${canonicalSlug}/${drawDate}`;
-  const qrImage = await loadQrCodeImage(targetResultUrl);
+  await loadQrCodeImage(targetResultUrl);
 
   const pagePlans = buildInstagramPagesPlan(drawResult, format);
   const totalPages = pagePlans.length;
@@ -663,7 +670,7 @@ export async function generateLotteryPostPages(
 
       // Dynamically compute chip sizes & columns to fill the slide nicely in 900px canvas
       const isNinth = tier.key === "9th";
-      let cols = isLongChip ? 3 : isNinth ? 6 : isDense ? (nums.length > 45 ? 8 : 7) : 5;
+      const cols = isLongChip ? 3 : isNinth ? 6 : isDense ? (nums.length > 45 ? 8 : 7) : 5;
       const availableInnerW = cardW - 32;
       const gap = isNinth ? 8 : 6;
       const chipW = Math.floor((availableInnerW - (cols - 1) * gap) / cols);
@@ -894,8 +901,9 @@ export async function shareLotteryPostImage(
       await downloadLotteryPostSlide(targetPage, options);
       return false;
     }
-  } catch (err: any) {
-    if (err.name !== "AbortError") {
+  } catch (err: unknown) {
+    const isAbort = err instanceof Error && err.name === "AbortError";
+    if (!isAbort) {
       console.error("Error sharing image:", err);
       await downloadLotteryPostImage(options);
     }

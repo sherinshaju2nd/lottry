@@ -1,11 +1,11 @@
 import QRCode from "qrcode";
-import { getLotterySlug } from "@/lib/supabase";
+import { getLotterySlug, StructuredDrawResult, LotteryRecord } from "@/lib/supabase";
 
 export type LotteryVideoFormat = "vertical" | "horizontal"; // vertical: 1080x1920 (Reels/Shorts), horizontal: 1920x1080 (YouTube)
 
 export interface LotteryVideoGeneratorOptions {
-  drawResult?: any;
-  lotteryInfo?: any;
+  drawResult?: StructuredDrawResult | null;
+  lotteryInfo?: LotteryRecord | null;
   format?: LotteryVideoFormat;
   siteUrl?: string;
   onProgress?: (progress: number, statusText: string) => void;
@@ -75,14 +75,14 @@ class LotteryAudioSynthesizer {
 
   constructor() {
     try {
-      const AudioContextClass =
-        window.AudioContext || (window as any).webkitAudioContext;
+      const windowObj = typeof window !== "undefined" ? (window as unknown as Record<string, typeof AudioContext>) : null;
+      const AudioContextClass = windowObj ? (windowObj.AudioContext || windowObj.webkitAudioContext) : null;
       if (AudioContextClass) {
         this.audioCtx = new AudioContextClass();
         this.dest = this.audioCtx.createMediaStreamDestination();
       }
-    } catch (e) {
-      console.warn("AudioContext initialization skipped:", e);
+    } catch (err: unknown) {
+      console.warn("AudioContext initialization skipped:", err);
     }
   }
 
@@ -113,8 +113,8 @@ class LotteryAudioSynthesizer {
 
       osc.start(startTime);
       osc.stop(startTime + duration);
-    } catch (e) {
-      // Ignore audio error
+    } catch (err: unknown) {
+      console.warn("Audio note play warning:", err);
     }
   }
 
@@ -134,7 +134,9 @@ class LotteryAudioSynthesizer {
     if (this.audioCtx && this.audioCtx.state !== "closed") {
       try {
         this.audioCtx.close();
-      } catch (e) {}
+      } catch (err: unknown) {
+        console.warn("AudioContext close warning:", err);
+      }
     }
   }
 }
@@ -196,12 +198,15 @@ interface VideoSlide {
 /**
  * Helper to safely extract winning ticket numbers from diverse schema keys
  */
-function extractTierNumbers(prizes: any, key: string): string[] {
-  if (!prizes) return [];
-  if (Array.isArray(prizes[key]) && prizes[key].length > 0) return prizes[key];
+function extractTierNumbers(prizes: unknown, key: string): string[] {
+  if (!prizes || typeof prizes !== "object") return [];
+  const pRecord = prizes as Record<string, unknown>;
+  const directArr = pRecord[key];
+  if (Array.isArray(directArr) && directArr.length > 0) return directArr as string[];
   const digitOnly = key.replace(/\D/g, "");
-  if (digitOnly && Array.isArray(prizes[digitOnly]) && prizes[digitOnly].length > 0) {
-    return prizes[digitOnly];
+  const digitArr = digitOnly ? pRecord[digitOnly] : undefined;
+  if (digitOnly && Array.isArray(digitArr) && digitArr.length > 0) {
+    return digitArr as string[];
   }
   const wordMap: Record<string, string> = {
     "1st": "first",
@@ -216,9 +221,12 @@ function extractTierNumbers(prizes: any, key: string): string[] {
   };
   const word = wordMap[key];
   if (word) {
-    if (Array.isArray(prizes[word]) && prizes[word].length > 0) return prizes[word];
-    if (Array.isArray(prizes[`${word}_prize`]) && prizes[`${word}_prize`].length > 0) return prizes[`${word}_prize`];
-    if (Array.isArray(prizes[`${word}_tickets`]) && prizes[`${word}_tickets`].length > 0) return prizes[`${word}_tickets`];
+    const wArr = pRecord[word];
+    if (Array.isArray(wArr) && wArr.length > 0) return wArr as string[];
+    const pArr = pRecord[`${word}_prize`];
+    if (Array.isArray(pArr) && pArr.length > 0) return pArr as string[];
+    const tArr = pRecord[`${word}_tickets`];
+    if (Array.isArray(tArr) && tArr.length > 0) return tArr as string[];
   }
   return [];
 }
@@ -226,8 +234,9 @@ function extractTierNumbers(prizes: any, key: string): string[] {
 /**
  * Helper to safely extract tier prize amount from diverse schema keys
  */
-function extractTierAmount(prizes: any, key: string, defaultAmt: string): string {
-  const amounts = prizes?.amounts;
+function extractTierAmount(prizes: unknown, key: string, defaultAmt: string): string {
+  if (!prizes || typeof prizes !== "object") return defaultAmt;
+  const amounts = (prizes as Record<string, unknown>)?.amounts as Record<string, string> | undefined;
   if (!amounts) return defaultAmt;
   if (amounts[key]) return amounts[key];
   const digitOnly = key.replace(/\D/g, "");
@@ -263,7 +272,7 @@ function applyStandardSlideDurations(slides: VideoSlide[]): void {
   }
 
   // Safety cap: Ensure total video duration never exceeds 60.0 seconds (1 minute max)
-  let total = slides.reduce((acc, curr) => acc + curr.durationSec, 0);
+  const total = slides.reduce((acc, curr) => acc + curr.durationSec, 0);
   if (total > 60.0) {
     const prizeSlides = slides.filter((s) => s.type !== "intro" && s.type !== "outro");
     if (prizeSlides.length > 0) {
@@ -281,7 +290,7 @@ function applyStandardSlideDurations(slides: VideoSlide[]): void {
  * giving users ample time to read and verify all winning tickets.
  */
 function buildAllVideoSlides(
-  drawResult: any,
+  drawResult: StructuredDrawResult | null | undefined,
   isVertical: boolean,
 ): VideoSlide[] {
   const slides: VideoSlide[] = [];
@@ -485,7 +494,6 @@ export async function generateLotteryResultVideo(
     drawResult,
     lotteryInfo,
     format = "vertical",
-    siteUrl = "https://www.keralalotteryresultstoday.in",
     onProgress,
   } = options;
 
@@ -513,7 +521,7 @@ export async function generateLotteryResultVideo(
   const rawLotteryCodeOrSlug =
     drawResult?.lottery_code ||
     lotteryInfo?.code ||
-    lotteryInfo?.slug ||
+    (lotteryInfo && "slug" in lotteryInfo && typeof (lotteryInfo as Record<string, unknown>).slug === "string" ? (lotteryInfo as Record<string, unknown>).slug as string : "") ||
     "bhagyathara";
   const canonicalSlug = getLotterySlug(rawLotteryCodeOrSlug);
   const targetResultUrl = `https://www.keralalotteryresultstoday.in/${canonicalSlug}/${drawDate}`;
@@ -597,7 +605,7 @@ export async function generateLotteryResultVideo(
   const totalFrames = Math.round(totalDurationSec * fps);
 
   let frameCount = 0;
-  let playedSlideIndices = new Set<number>();
+  const playedSlideIndices = new Set<number>();
 
   recorder.start();
 

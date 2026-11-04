@@ -1,9 +1,39 @@
-import { StructuredDrawResult, getLotterySlug, getCronConfigFromSupabase, updateCronConfigInSupabase, ALL_LOTTERIES } from "./supabase";
+import {
+  StructuredDrawResult,
+  getLotterySlug,
+  getCronConfigFromSupabase,
+  updateCronConfigInSupabase,
+  ALL_LOTTERIES,
+} from "./supabase";
+
+export interface BroadcastLogItem {
+  chatId?: string;
+  to?: string;
+  ok: boolean;
+  response?: unknown;
+  error?: string;
+}
+
+export interface BroadcastResult<T = unknown> {
+  success: boolean;
+  results?: BroadcastLogItem[];
+  data?: T;
+  error?: string;
+}
+
+export interface BroadcastExecutionReport {
+  success: boolean;
+  broadcastTriggered: boolean;
+  skipped?: boolean;
+  reason?: string;
+  telegram?: BroadcastResult;
+  whatsapp?: BroadcastResult;
+}
 
 /**
  * Get estimated or canonical first prize amount for a lottery
  */
-function getFirstPrizeAmount(draw: StructuredDrawResult): string {
+const getFirstPrizeAmount = (draw: StructuredDrawResult): string => {
   if (draw.prizes?.amounts?.["1st"]) {
     return draw.prizes.amounts["1st"];
   }
@@ -15,25 +45,25 @@ function getFirstPrizeAmount(draw: StructuredDrawResult): string {
   const matched = ALL_LOTTERIES.find(
     (l) => l.code === draw.lottery_code || l.name.toLowerCase() === draw.draw_name.toLowerCase()
   );
-  if (matched && "jackpot" in matched && matched.jackpot) {
-    return (matched as any).jackpot;
+  if (matched && "jackpot" in matched && typeof matched.jackpot === "string") {
+    return matched.jackpot;
   }
 
   return "₹75,00,000 (₹75 Lakhs)";
-}
+};
 
 /**
  * Format the official 1st Prize broadcast announcement message
  */
-export function formatFirstPrizeMessage(
+export const formatFirstPrizeMessage = (
   draw: StructuredDrawResult,
   baseAppUrl?: string
-): { text: string; directUrl: string } {
-  const appUrl = (baseAppUrl || process.env.NEXT_PUBLIC_APP_URL || "https://www.keralalotteryresultstoday.in").replace(/\/$/, "");
+): { text: string; directUrl: string } => {
+  const appUrl = (baseAppUrl ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://www.keralalotteryresultstoday.in").replace(/\/$/, "");
   const slug = getLotterySlug(draw.lottery_code || draw.draw_name);
   const directUrl = `${appUrl}/${slug}/${encodeURIComponent(draw.draw_date)}`;
   const prizeAmount = getFirstPrizeAmount(draw);
-  const winningTicket = (draw.first?.ticket || "").trim().toUpperCase();
+  const winningTicket = (draw.first?.ticket ?? "").trim().toUpperCase();
 
   const text = `🎉 *KERALA LOTTERY 1st PRIZE RESULT* 🎉
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -51,16 +81,16 @@ export function formatFirstPrizeMessage(
 📲 Open on Web or Mobile App to check complete results and search your ticket series!`;
 
   return { text, directUrl };
-}
+};
 
 /**
  * Send 1st prize broadcast to Telegram Channels or Groups
  * Reads TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID strictly from process.env
  */
-export async function sendTelegramBroadcast(
+export const sendTelegramBroadcast = async (
   text: string,
   directUrl?: string
-): Promise<{ success: boolean; results?: any[]; error?: string }> {
+): Promise<BroadcastResult> => {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const rawChatIds = process.env.TELEGRAM_CHAT_ID;
   const isEnabled = process.env.TELEGRAM_BROADCAST_ENABLED !== "false";
@@ -85,12 +115,12 @@ export async function sendTelegramBroadcast(
     return { success: false, error: "No valid Telegram chat/channel IDs found in TELEGRAM_CHAT_ID" };
   }
 
-  const results: any[] = [];
+  const results: BroadcastLogItem[] = [];
   let hasSuccess = false;
 
   for (const chatId of chatIds) {
     try {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         chat_id: chatId,
         text,
         parse_mode: "Markdown",
@@ -117,12 +147,13 @@ export async function sendTelegramBroadcast(
       });
 
       const json = await res.json();
-      results.push({ chatId, ok: json.ok, response: json });
+      results.push({ chatId, ok: Boolean(json.ok), response: json });
       if (json.ok) {
         hasSuccess = true;
       }
-    } catch (err: any) {
-      results.push({ chatId, ok: false, error: err?.message || String(err) });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      results.push({ chatId, ok: false, error: msg });
     }
   }
 
@@ -131,16 +162,16 @@ export async function sendTelegramBroadcast(
     results,
     error: hasSuccess ? undefined : "Failed to broadcast to any Telegram destination",
   };
-}
+};
 
 /**
  * Send 1st prize broadcast to WhatsApp Groups / Channels / Numbers
  * Reads WHATSAPP_API_URL, WHATSAPP_API_TOKEN, WHATSAPP_PHONE_NUMBER_ID from process.env
  */
-export async function sendWhatsAppBroadcast(
+export const sendWhatsAppBroadcast = async (
   text: string,
   directUrl?: string
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<BroadcastResult> => {
   const isEnabled = process.env.WHATSAPP_BROADCAST_ENABLED !== "false";
   if (!isEnabled) {
     return { success: false, error: "WhatsApp broadcast is disabled in .env (WHATSAPP_BROADCAST_ENABLED=false)" };
@@ -155,7 +186,7 @@ export async function sendWhatsAppBroadcast(
   if (phoneNumberId && apiToken && recipient) {
     try {
       const recipients = recipient.split(",").map((r) => r.trim()).filter(Boolean);
-      const results: any[] = [];
+      const results: BroadcastLogItem[] = [];
 
       for (const to of recipients) {
         const payload = {
@@ -182,13 +213,14 @@ export async function sendWhatsAppBroadcast(
         results.push({ to, ok: res.ok, response: json });
       }
 
-      return { success: true, data: results };
-    } catch (err: any) {
-      return { success: false, error: `WhatsApp Meta Cloud API error: ${err.message}` };
+      return { success: true, results };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { success: false, error: `WhatsApp Meta Cloud API error: ${msg}` };
     }
   }
 
-  // 2. WhatsApp Webhook / Gateway (Evolution API, UltraMsg, Green API, Wablas, Custom webhook)
+  // 2. WhatsApp Webhook / Gateway
   if (apiUrl) {
     try {
       const headers: Record<string, string> = {
@@ -219,8 +251,9 @@ export async function sendWhatsAppBroadcast(
 
       const json = await res.json().catch(() => ({ status: res.status, statusText: res.statusText }));
       return { success: res.ok, data: json };
-    } catch (err: any) {
-      return { success: false, error: `WhatsApp Gateway webhook error: ${err.message}` };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { success: false, error: `WhatsApp Gateway webhook error: ${msg}` };
     }
   }
 
@@ -228,26 +261,19 @@ export async function sendWhatsAppBroadcast(
     success: false,
     error: "No WhatsApp configuration found in .env (Set WHATSAPP_API_URL or WHATSAPP_PHONE_NUMBER_ID + WHATSAPP_API_TOKEN)",
   };
-}
+};
 
 /**
  * Main Broadcast Engine
  * Checks 1st Prize validity, handles smart deduplication, and broadcasts to Telegram and WhatsApp
  */
-export async function broadcastFirstPrizeResult(
+export const broadcastFirstPrizeResult = async (
   draw: StructuredDrawResult,
   options?: { force?: boolean }
-): Promise<{
-  success: boolean;
-  broadcastTriggered: boolean;
-  skipped?: boolean;
-  reason?: string;
-  telegram?: any;
-  whatsapp?: any;
-}> {
-  const ticket = (draw.first?.ticket || "").trim().toUpperCase();
+): Promise<BroadcastExecutionReport> => {
+  const ticket = (draw.first?.ticket ?? "").trim().toUpperCase();
 
-  // Validate ticket exists and is not a placeholder (e.g. must have at least 4 alphanumeric chars and not 'XXXXXX')
+  // Validate ticket exists and is not a placeholder
   if (!ticket || ticket.length < 4 || ticket.includes("XXXX") || ticket === "PENDING") {
     return {
       success: true,
@@ -263,8 +289,7 @@ export async function broadcastFirstPrizeResult(
   if (!options?.force) {
     try {
       const config = await getCronConfigFromSupabase();
-      // Check if last broadcast key equals current key
-      if ((config as any).last_broadcast_key === broadcastKey) {
+      if (config.last_broadcast_key === broadcastKey) {
         return {
           success: true,
           broadcastTriggered: false,
@@ -272,12 +297,13 @@ export async function broadcastFirstPrizeResult(
           reason: `1st prize result for ${broadcastKey} has already been broadcasted.`,
         };
       }
-    } catch (e) {
-      console.warn("Deduplication check note:", e);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn("Deduplication check note:", msg);
     }
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.keralalotteryresultstoday.in";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.keralalotteryresultstoday.in";
   const { text, directUrl } = formatFirstPrizeMessage(draw, appUrl);
 
   console.log(`[Broadcaster] Broadcasting 1st Prize for ${draw.draw_name} (${draw.draw_date}) ticket: ${ticket}...`);
@@ -288,8 +314,12 @@ export async function broadcastFirstPrizeResult(
     sendWhatsAppBroadcast(text, directUrl),
   ]);
 
-  const telegram = tgRes.status === "fulfilled" ? tgRes.value : { success: false, error: tgRes.reason };
-  const whatsapp = waRes.status === "fulfilled" ? waRes.value : { success: false, error: waRes.reason };
+  const telegram: BroadcastResult = tgRes.status === "fulfilled" 
+    ? tgRes.value 
+    : { success: false, error: tgRes.reason instanceof Error ? tgRes.reason.message : String(tgRes.reason) };
+  const whatsapp: BroadcastResult = waRes.status === "fulfilled" 
+    ? waRes.value 
+    : { success: false, error: waRes.reason instanceof Error ? waRes.reason.message : String(waRes.reason) };
 
   const isBroadcastSuccess = telegram.success || whatsapp.success;
 
@@ -301,8 +331,9 @@ export async function broadcastFirstPrizeResult(
         last_broadcast_time: new Date().toISOString(),
         last_broadcast_draw: `${draw.draw_name} (${draw.draw_code}) - ${ticket}`,
       });
-    } catch (e) {
-      console.warn("Failed to persist broadcast key in app_config:", e);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn("Failed to persist broadcast key in app_config:", msg);
     }
   }
 
@@ -312,34 +343,34 @@ export async function broadcastFirstPrizeResult(
     telegram,
     whatsapp,
   };
-}
+};
 
 /**
  * Send test broadcast message to Telegram
  */
-export async function testTelegramBroadcast(): Promise<{ success: boolean; result?: any; error?: string }> {
+export const testTelegramBroadcast = async (): Promise<BroadcastResult> => {
   const testMessage = `🔔 *Kerala Lottery Results - Telegram Broadcast Test*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✅ Your Telegram Bot and Channel connection is working perfectly!
 🕒 Time: ${new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata" })} IST
-🌐 Website: ${process.env.NEXT_PUBLIC_APP_URL || "https://www.keralalotteryresultstoday.in"}
+🌐 Website: ${process.env.NEXT_PUBLIC_APP_URL ?? "https://www.keralalotteryresultstoday.in"}
 
 This channel will automatically receive instant 1st Prize alerts when daily lottery results are announced!`;
 
-  return sendTelegramBroadcast(testMessage, process.env.NEXT_PUBLIC_APP_URL || "https://www.keralalotteryresultstoday.in");
-}
+  return sendTelegramBroadcast(testMessage, process.env.NEXT_PUBLIC_APP_URL ?? "https://www.keralalotteryresultstoday.in");
+};
 
 /**
  * Send test broadcast message to WhatsApp
  */
-export async function testWhatsAppBroadcast(): Promise<{ success: boolean; result?: any; error?: string }> {
+export const testWhatsAppBroadcast = async (): Promise<BroadcastResult> => {
   const testMessage = `🔔 *Kerala Lottery Results - WhatsApp Broadcast Test*
 ━━━━━━━━━━━━━━━━━━━━━━
 ✅ Your WhatsApp connection is working properly!
 🕒 Time: ${new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Kolkata" })} IST
-🌐 Website: ${process.env.NEXT_PUBLIC_APP_URL || "https://www.keralalotteryresultstoday.in"}
+🌐 Website: ${process.env.NEXT_PUBLIC_APP_URL ?? "https://www.keralalotteryresultstoday.in"}
 
 This group/channel will automatically receive instant 1st Prize alerts when daily Kerala lottery draws are published!`;
 
-  return sendWhatsAppBroadcast(testMessage, process.env.NEXT_PUBLIC_APP_URL || "https://www.keralalotteryresultstoday.in");
-}
+  return sendWhatsAppBroadcast(testMessage, process.env.NEXT_PUBLIC_APP_URL ?? "https://www.keralalotteryresultstoday.in");
+};

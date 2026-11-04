@@ -12,7 +12,15 @@ import { isAuthorizedAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // Returns cron_secret and logs: admins only.
+  if (!isAuthorizedAdmin(req)) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized: Admin session required" },
+      { status: 401 }
+    );
+  }
+
   try {
     const todayIST = new Date().toLocaleDateString("en-CA", {
       timeZone: "Asia/Kolkata",

@@ -10,11 +10,25 @@ const supabaseKey =
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Server-side admin client using service_role key when available, fallback to publishable key
-const supabaseServerKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey;
+// Server-only client for ALL writes and private config (app_config, cron_logs).
+// SUPABASE_SERVICE_ROLE_KEY has no NEXT_PUBLIC_ prefix, so it is never bundled for the
+// browser; in the browser this resolves to the read-only public client.
+// Once supabase/migrations/20261104000000_lock_down_public_writes.sql is applied, anon
+// writes are rejected, so the service-role key MUST be set on the server (Vercel env).
+const serviceRoleKey =
+  typeof window === "undefined" ? process.env.SUPABASE_SERVICE_ROLE_KEY : undefined;
 
-export const supabaseServer = createClient(supabaseUrl, supabaseServerKey);
+if (typeof window === "undefined" && !serviceRoleKey) {
+  console.warn(
+    "[supabase] SUPABASE_SERVICE_ROLE_KEY is not set: server writes fall back to the public key and will fail once public writes are locked down.",
+  );
+}
+
+export const supabaseServer = serviceRoleKey
+  ? createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    })
+  : supabase;
 
 export interface FirstPrize {
   ticket?: string;
@@ -184,6 +198,22 @@ export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
   },
 ];
 
+// Draw-name keywords → bumper lottery code. Order matters only for overlapping keywords.
+const BUMPER_NAME_ALIASES: ReadonlyArray<{ keywords: string[]; code: string }> = [
+  { keywords: ["thiruvonam", "onam"], code: "TH" },
+  { keywords: ["christmas", "new year"], code: "XN" },
+  { keywords: ["vishu"], code: "VB" },
+  { keywords: ["pooja"], code: "PB" },
+  { keywords: ["monsoon"], code: "MB" },
+  { keywords: ["summer"], code: "SB" },
+];
+
+/** Maps a bumper draw name (e.g. "Thiruvonam Bumper BR-105") to its lottery code. */
+export const getBumperCodeFromDrawName = (drawName: string | null | undefined): string | null => {
+  const name = drawName?.toLowerCase() ?? "";
+  return BUMPER_NAME_ALIASES.find(({ keywords }) => keywords.some((k) => name.includes(k)))?.code ?? null;
+};
+
 export const LOTTERY_SLUGS: Record<string, string> = {
   // Weekly lotteries
   BT: "bhagyathara",
@@ -347,7 +377,7 @@ export function getLotteryJackpot(
   const canonicalCode =
     getLotteryCodeFromSlug(codeOrSlug) || codeOrSlug.toUpperCase();
   const match = ALL_LOTTERIES.find((l) => l.code === canonicalCode);
-  if (match && (match as any).jackpot) return (match as any).jackpot;
+  if (match && typeof match.jackpot === "string") return match.jackpot;
   return "₹1 Crore";
 }
 
@@ -406,13 +436,9 @@ export function getLotteryUrl(codeOrSlug: string, date?: string): string {
 
 export const ALL_LOTTERIES = [...WEEKLY_LOTTERIES, ...BUMPER_LOTTERIES];
 
-let cachedDrawResults: StructuredDrawResult[] | null = null;
-let lastCacheTime = 0;
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-export function hasAnyDrawResult(
+export const hasAnyDrawResult = (
   draw: StructuredDrawResult | null | undefined,
-): boolean {
+): boolean => {
   if (!draw) return false;
   if (
     draw.first?.ticket &&
@@ -434,23 +460,23 @@ export function hasAnyDrawResult(
     "8th",
     "9th",
   ] as const;
+  const prizeObj = draw.prizes as unknown as Record<string, unknown>;
   for (const tier of tiers) {
-    const arr = (draw.prizes as any)[tier];
+    const arr = prizeObj[tier];
     if (Array.isArray(arr) && arr.length > 0) {
       return true;
     }
   }
   for (const key of Object.keys(draw.prizes)) {
     if (["amounts", "guess", "mc"].includes(key)) continue;
-    const val = (draw.prizes as any)[key];
+    const val = prizeObj[key];
     if (Array.isArray(val) && val.length > 0) return true;
   }
   return false;
-}
+};
 
-export const bustDrawResultsCache = () => {
-  cachedDrawResults = null;
-  lastCacheTime = 0;
+export const bustDrawResultsCache = (): void => {
+  // Cache invalidation hook
 };
 
 export async function saveDrawResultToSupabase(data: {
@@ -473,25 +499,11 @@ export async function saveDrawResultToSupabase(data: {
   }
 
   if (!matched) {
-    // Special alias matching for bumper draws (e.g. BR code prefixes)
-    if (
-      data.draw_name.toLowerCase().includes("thiruvonam") ||
-      data.draw_name.toLowerCase().includes("onam")
-    ) {
-      matched = BUMPER_LOTTERIES[0];
-    } else if (
-      data.draw_name.toLowerCase().includes("christmas") ||
-      data.draw_name.toLowerCase().includes("new year")
-    ) {
-      matched = BUMPER_LOTTERIES[1];
-    } else if (data.draw_name.toLowerCase().includes("vishu")) {
-      matched = BUMPER_LOTTERIES[2];
-    } else if (data.draw_name.toLowerCase().includes("pooja")) {
-      matched = BUMPER_LOTTERIES[3];
-    } else if (data.draw_name.toLowerCase().includes("monsoon")) {
-      matched = BUMPER_LOTTERIES[4];
-    } else if (data.draw_name.toLowerCase().includes("summer")) {
-      matched = BUMPER_LOTTERIES[5];
+    // Special alias matching for bumper draws (e.g. BR code prefixes).
+    // Resolve by lottery CODE, never by array index: BUMPER_LOTTERIES order is not stable.
+    const bumperCode = getBumperCodeFromDrawName(data.draw_name);
+    if (bumperCode) {
+      matched = BUMPER_LOTTERIES.find((l) => l.code === bumperCode);
     }
   }
 
@@ -517,14 +529,14 @@ export async function saveDrawResultToSupabase(data: {
 
   try {
     // 1. Check if record already exists for (draw_date, lottery_code) to OVERWRITE / UPDATE
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseServer
       .from("draw_results")
       .select("id")
       .eq("draw_date", data.draw_date)
       .eq("lottery_code", lottery_code);
 
     if (existing && existing.length > 0) {
-      const { data: updated, error: updateErr } = await supabase
+      const { data: updated, error: updateErr } = await supabaseServer
         .from("draw_results")
         .update(rowPayload)
         .eq("id", existing[0].id)
@@ -536,7 +548,7 @@ export async function saveDrawResultToSupabase(data: {
     }
 
     // 2. Upsert if constraint exists
-    const { data: upsertData, error: upsertError } = await supabase
+    const { data: upsertData, error: upsertError } = await supabaseServer
       .from("draw_results")
       .upsert(rowPayload, { onConflict: "draw_date,lottery_code" })
       .select();
@@ -546,14 +558,17 @@ export async function saveDrawResultToSupabase(data: {
     }
 
     // 3. Fallback Insert
-    const { data: inserted } = await supabase
+    const { data: inserted, error: insertError } = await supabaseServer
       .from("draw_results")
       .insert(rowPayload)
       .select();
 
-    return inserted ? inserted[0] : null;
-  } catch (e) {
-    console.warn("Supabase save error:", e);
+    if (insertError) {
+      console.error("[supabase] draw_results save failed:", upsertError?.message ?? "", insertError.message);
+    }
+    return inserted?.[0] ?? null;
+  } catch (err: unknown) {
+    console.error("[supabase] draw_results save error:", err instanceof Error ? err.message : String(err));
     return null;
   }
 }
@@ -636,7 +651,8 @@ export async function getDrawDatesFromSupabase(
 }
 
 export async function fetchAllDrawResultsFromSupabase(
-  forceRefresh = true,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _forceRefresh = true,
 ): Promise<StructuredDrawResult[]> {
   // Bypassing in-memory cache to guarantee live results
   const now = Date.now();
@@ -678,8 +694,6 @@ export async function fetchAllDrawResultsFromSupabase(
         };
       });
 
-      cachedDrawResults = results;
-      lastCacheTime = now;
       return results;
     }
   } catch (e) {
@@ -904,10 +918,10 @@ export interface TopPrizeHint {
  * Checks if a 4- or 5-digit search matches the trailing digits of top 6-digit prizes
  * (1st, 2nd, 3rd, Consolation), so we can guide the user to enter all 6 digits.
  */
-export function findTopPrizePartialHint(
+export const findTopPrizePartialHint = (
   rawQuery: string,
-  draw: { first?: { ticket?: string }; prizes?: any },
-): TopPrizeHint | null {
+  draw: { first?: { ticket?: string }; prizes?: PrizeData },
+): TopPrizeHint | null => {
   const queryDigits = rawQuery.replace(/\D/g, "");
   if (!queryDigits || queryDigits.length < 4 || queryDigits.length >= 6) {
     return null;
@@ -1114,7 +1128,7 @@ export interface CronLog {
   trigger_source: string;
   status: "success" | "skipped" | "failed";
   message: string;
-  details?: any;
+  details?: unknown;
   duration_ms?: number;
   created_at?: string;
 }
@@ -1137,6 +1151,9 @@ export interface CronConfig {
 
   app_url?: string;
   cron_secret?: string;
+  last_broadcast_key?: string;
+  last_broadcast_draw?: string;
+  last_broadcast_time?: string;
 }
 
 /**
@@ -1229,7 +1246,7 @@ export async function savePostponedDraw(
     };
 
     if (item.id) {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseServer
         .from("postponed_draws")
         .update(payload)
         .eq("id", item.id)
@@ -1238,14 +1255,14 @@ export async function savePostponedDraw(
       if (error) return { success: false, error: error.message };
       return { success: true, data: data?.[0] };
     } else {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseServer
         .from("postponed_draws")
         .upsert(payload, { onConflict: "draw_date,lottery_code" })
         .select();
 
       if (error) {
         // Fallback insert
-        const { data: insData, error: insErr } = await supabase
+        const { data: insData, error: insErr } = await supabaseServer
           .from("postponed_draws")
           .insert(payload)
           .select();
@@ -1268,7 +1285,7 @@ export async function savePostponedDraw(
  */
 export async function deletePostponedDraw(id: number): Promise<boolean> {
   try {
-    const { error } = await supabase
+    const { error } = await supabaseServer
       .from("postponed_draws")
       .delete()
       .eq("id", id);
@@ -1304,8 +1321,8 @@ export async function getLotteriesFromSupabase(): Promise<LotteryRecord[]> {
     code: l.code,
     draw_time: "3:00 PM",
     is_bumper: l.is_bumper,
-    jackpot: "jackpot" in l ? (l as any).jackpot : undefined,
-    draw_season: "draw_season" in l ? (l as any).draw_season : undefined,
+    jackpot: "jackpot" in l && typeof l.jackpot === "string" ? l.jackpot : undefined,
+    draw_season: "draw_season" in l && typeof l.draw_season === "string" ? l.draw_season : undefined,
   }));
 }
 
@@ -1335,7 +1352,7 @@ export async function saveLotteryToSupabase(
     };
 
     if (lottery.id) {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseServer
         .from("lotteries")
         .update(payload)
         .eq("id", lottery.id)
@@ -1344,13 +1361,13 @@ export async function saveLotteryToSupabase(
       if (error) return { success: false, error: error.message };
       return { success: true, data: data?.[0] };
     } else {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseServer
         .from("lotteries")
         .upsert(payload, { onConflict: "code" })
         .select();
 
       if (error) {
-        const { data: insData, error: insErr } = await supabase
+        const { data: insData, error: insErr } = await supabaseServer
           .from("lotteries")
           .insert(payload)
           .select();
@@ -1372,7 +1389,7 @@ export async function saveLotteryToSupabase(
  */
 export async function deleteLotteryFromSupabase(id: number): Promise<boolean> {
   try {
-    const { error } = await supabase.from("lotteries").delete().eq("id", id);
+    const { error } = await supabaseServer.from("lotteries").delete().eq("id", id);
     return !error;
   } catch (e) {
     console.warn("deleteLotteryFromSupabase error:", e);
@@ -1388,7 +1405,7 @@ export async function deleteDrawResultFromSupabase(
 ): Promise<boolean> {
   try {
     bustDrawResultsCache();
-    const { error } = await supabase.from("draw_results").delete().eq("id", id);
+    const { error } = await supabaseServer.from("draw_results").delete().eq("id", id);
     return !error;
   } catch (e) {
     console.warn("deleteDrawResultFromSupabase error:", e);
@@ -1415,7 +1432,7 @@ export async function saveManualDrawResultToSupabase(
     };
 
     if (data.id) {
-      const { data: updated, error } = await supabase
+      const { data: updated, error } = await supabaseServer
         .from("draw_results")
         .update(rowPayload)
         .eq("id", data.id)
@@ -1425,13 +1442,13 @@ export async function saveManualDrawResultToSupabase(
       return { success: true, data: updated?.[0] };
     }
 
-    const { data: upserted, error } = await supabase
+    const { data: upserted, error } = await supabaseServer
       .from("draw_results")
       .upsert(rowPayload, { onConflict: "draw_date,lottery_code" })
       .select();
 
     if (error) {
-      const { data: inserted, error: insErr } = await supabase
+      const { data: inserted, error: insErr } = await supabaseServer
         .from("draw_results")
         .insert(rowPayload)
         .select();
@@ -1465,11 +1482,11 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
     cron_bumper_frequency_mins: "1",
     cron_bumper_phase2_frequency_mins: "5",
     app_url: "https://www.keralalotteryresultstoday.in",
-    cron_secret: "kerala_lottery_cron_secret_2026",
+    cron_secret: "",
   };
 
   try {
-    const { data, error } = await supabase.from("app_config").select("*");
+    const { data, error } = await supabaseServer.from("app_config").select("*");
     if (!error && data) {
       const configMap: Record<string, string> = {};
       data.forEach((row: { key: string; value: string }) => {
@@ -1507,6 +1524,10 @@ export async function getCronConfigFromSupabase(): Promise<CronConfig> {
           defaultConfig.cron_bumper_phase2_frequency_mins,
         app_url: configMap["app_url"] || defaultConfig.app_url,
         cron_secret: configMap["cron_secret"] || defaultConfig.cron_secret,
+        // Needed by broadcaster de-duplication; without these every cron tick re-sends.
+        last_broadcast_key: configMap["last_broadcast_key"],
+        last_broadcast_draw: configMap["last_broadcast_draw"],
+        last_broadcast_time: configMap["last_broadcast_time"],
       };
     }
   } catch (e) {
@@ -1529,7 +1550,7 @@ export async function updateCronConfigInSupabase(
       updated_at: new Date().toISOString(),
     }));
 
-    const { error } = await supabase
+    const { error } = await supabaseServer
       .from("app_config")
       .upsert(upsertRows, { onConflict: "key" });
 
@@ -1539,9 +1560,10 @@ export async function updateCronConfigInSupabase(
     }
 
     return { success: true };
-  } catch (e: any) {
-    console.warn("updateCronConfigInSupabase error:", e);
-    return { success: false, error: e?.message || "Unknown update error" };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn("updateCronConfigInSupabase error:", msg);
+    return { success: false, error: msg };
   }
 }
 
@@ -1561,7 +1583,7 @@ export async function logCronExecutionInSupabase(
  */
 export async function getCronLogsFromSupabase(limit = 30): Promise<CronLog[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseServer
       .from("cron_logs")
       .select("*")
       .order("execution_time", { ascending: false })
@@ -1570,8 +1592,8 @@ export async function getCronLogsFromSupabase(limit = 30): Promise<CronLog[]> {
     if (!error && data) {
       return data as CronLog[];
     }
-  } catch (e) {
-    console.warn("getCronLogsFromSupabase note:", e);
+  } catch (err: unknown) {
+    console.warn("getCronLogsFromSupabase note:", err);
   }
   return [];
 }
@@ -1581,7 +1603,7 @@ export interface CachedAiPatternRecord {
   lottery_name: string;
   draws_count: number;
   latest_draw_date?: string;
-  analysis: any;
+  analysis: unknown;
   updated_at?: string;
 }
 
@@ -1645,7 +1667,7 @@ export async function saveAiPatternPrediction(
 
   // 1. Try upserting to ai_pattern_predictions table
   try {
-    const { error } = await supabase.from("ai_pattern_predictions").upsert(
+    const { error } = await supabaseServer.from("ai_pattern_predictions").upsert(
       {
         lottery_code: code,
         lottery_name: record.lottery_name,
@@ -1666,7 +1688,7 @@ export async function saveAiPatternPrediction(
 
   // 2. Always maintain backup copy in app_config
   try {
-    await supabase.from("app_config").upsert(
+    await supabaseServer.from("app_config").upsert(
       {
         key: `ai_pred_${code}`,
         value: JSON.stringify({

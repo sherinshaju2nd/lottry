@@ -80,7 +80,7 @@ Return ONLY a valid JSON object strictly matching this format without markdown c
 `;
 
   const models = GEMINI_MODELS;
-  let lastError: any = null;
+  let lastError: unknown = null;
 
   for (const model of models) {
     try {
@@ -232,7 +232,7 @@ Return ONLY a valid JSON object matching the exact structure below with NO markd
 `;
 
   const models = GEMINI_MODELS;
-  let lastError: any = null;
+  let lastError: unknown = null;
 
   for (const model of models) {
     try {
@@ -355,7 +355,7 @@ ${contextData || "No extra context provided."}
   ];
 
   const models = GEMINI_MODELS;
-  let lastError: any = null;
+  let lastError: unknown = null;
 
   for (const model of models) {
     try {
@@ -475,7 +475,7 @@ ${contextData || "No extra context."}
   ];
 
   const models = GEMINI_MODELS;
-  let lastError: any = null;
+  let lastError: unknown = null;
 
   for (const model of models) {
     try {
@@ -524,7 +524,7 @@ ${contextData || "No extra context."}
           errText,
         );
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.warn(`Audio chat model ${model} error:`, e);
       lastError = e;
     }
@@ -922,7 +922,7 @@ ${JSON.stringify(formattedDraws, null, 2)}
 `;
 
   const models = GEMINI_MODELS;
-  let lastError: any = null;
+  let lastError: unknown = null;
 
   for (const model of models) {
     try {
@@ -990,8 +990,9 @@ ${JSON.stringify(formattedDraws, null, 2)}
 
   // Graceful High-Demand Fallback: If Gemini servers are busy (503/429), compute deterministic statistical distribution
   if (draws && draws.length > 0) {
+    const errorMsg = lastError instanceof Error ? lastError.message : "503 High Demand";
     console.warn(
-      `[AI Resilient Fallback] Gemini API congested (${lastError?.message || "503 High Demand"}). Computing mathematical statistical pattern analysis for ${lotteryCode}.`,
+      `[AI Resilient Fallback] Gemini API congested (${errorMsg}). Computing mathematical statistical pattern analysis for ${lotteryCode}.`,
     );
     return generateStatisticalFallbackAnalysis(
       lotteryName,
