@@ -279,8 +279,8 @@ export default function ClaimPage() {
               </Typography>
               <List>
                 {[
-                  "All prize payouts exceeding ₹10,000 attract a mandatory flat 30% Tax Deduction at Source (TDS) under Indian income tax regulations. A PAN card is required.",
-                  "An authorized 10% agent commission is deducted from the total gross prize pool.",
+                  "For prizes above ₹10,000, the selling agent's 10% commission is deducted first. A PAN card is required.",
+                  "A flat 30% Tax Deduction at Source (TDS, Section 194B) is then taken from the amount left after the commission. Example: ₹25 Crore → ₹22.5 Crore after commission → ₹15.75 Crore after TDS. Surcharge and 4% cess may still apply when filing your return.",
                   "The net prize amount is disbursed directly via electronic bank transfer to the winner's account.",
                 ].map((item, index) => (
                   <ListItem key={index} disableGutters sx={{ alignItems: "flex-start", py: 0.5 }}>

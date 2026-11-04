@@ -30,7 +30,7 @@ export default function FAQPage() {
     },
     {
       q: "What are the tax deductions and commissions on lottery prizes?",
-      a: "A flat 30% income tax deduction applies to any prize amount exceeding ₹10,000. In addition, an agent commission of 10% is deducted from the total winning amount. All prize payouts are made net of these statutory deductions.",
+      a: "For prizes above ₹10,000, a 10% agent commission is deducted first, then a flat 30% income tax (TDS, Section 194B) is deducted from the remaining amount. For example, a ₹1 Crore prize pays ₹63 Lakh: ₹90 Lakh after commission, minus ₹27 Lakh TDS. Prizes up to ₹10,000 are paid in full.",
     },
     {
       q: "How long is the prize claim window?",

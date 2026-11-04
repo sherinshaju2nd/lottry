@@ -15,6 +15,7 @@ import CalculateIcon from "@mui/icons-material/Calculate";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { calculateClaim } from "@/lib/claimCalculator";
 
 const PRESET_AMOUNTS = [
   { label: "₹25 Crore (Onam Bumper)", value: 250000000 },
@@ -38,19 +39,8 @@ export default function AiClaimCalculator() {
     bank: false,
   });
 
-  const grossPrize = Math.max(0, amount || 0);
-
-  // Tax calculation under Section 194B
-  // Winnings <= 10,000 have 0% TDS. Winnings > 10,000 have 30% TDS
-  const isTaxable = grossPrize > 10000;
-  const taxRate = isTaxable ? 0.30 : 0;
-  const tdsAmount = grossPrize * taxRate;
-
-  // Agent commission (10% on prizes)
-  const agentCommission = grossPrize > 10000 ? grossPrize * 0.10 : 0;
-
-  // Net In-Hand
-  const netInHand = Math.max(0, grossPrize - tdsAmount - agentCommission);
+  // 10% agent commission first, then 30% TDS (s.194B) on the remainder; same rules as the mobile app.
+  const { grossPrize, agentCommission, tds: tdsAmount, netAmount: netInHand } = calculateClaim(amount ?? 0);
 
   // Where to claim
   let claimOffice = "Local Authorized Retail Agent / Vendor";
@@ -137,13 +127,13 @@ export default function AiClaimCalculator() {
             </Box>
 
             <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1.5 }}>
-              <Typography variant="body2" sx={{ color: "#DC2626" }}>Income Tax TDS (30% u/s 194B):</Typography>
-              <Typography variant="body2" sx={{ fontWeight: 700, color: "#DC2626" }}>- {formatINR(tdsAmount)}</Typography>
+              <Typography variant="body2" sx={{ color: "#D97706" }}>Agent Commission (10%):</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: "#D97706" }}>- {formatINR(agentCommission)}</Typography>
             </Box>
 
             <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-              <Typography variant="body2" sx={{ color: "#D97706" }}>Agent Commission (10%):</Typography>
-              <Typography variant="body2" sx={{ fontWeight: 700, color: "#D97706" }}>- {formatINR(agentCommission)}</Typography>
+              <Typography variant="body2" sx={{ color: "#DC2626" }}>Income Tax TDS (30% of amount after commission, u/s 194B):</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: "#DC2626" }}>- {formatINR(tdsAmount)}</Typography>
             </Box>
 
             <Box sx={{ pt: 2, borderTop: "2px solid #E2E8F0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

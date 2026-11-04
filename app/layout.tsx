@@ -510,7 +510,7 @@ export default async function RootLayout({
           name: "What are the tax deductions on Kerala Lottery prize money?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "For prize winnings over ₹10,000, a flat 30% TDS (Income Tax under Section 194B) is deducted along with a 10% agent commission before payout.",
+            text: "For prize winnings over ₹10,000, a 10% agent commission is deducted first, then a flat 30% TDS (Income Tax under Section 194B) is deducted from the remaining amount. A ₹1 Crore prize pays ₹63 Lakh.",
           },
         },
       ],

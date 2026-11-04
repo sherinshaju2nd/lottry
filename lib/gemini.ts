@@ -314,7 +314,7 @@ Guidelines:
 2. Official Data:
    - Daily draw time: 3:00 PM IST from Gorky Bhavan, Thiruvananthapuram.
    - Claim validity: Within 30 days of the draw.
-   - Tax: Flat 30% TDS under Section 194B for prizes > ₹10,000 + 10% agent commission.
+   - Tax: For prizes > ₹10,000, 10% agent commission is deducted first, then flat 30% TDS (Section 194B) on the remainder (e.g. ₹1 Cr → ₹63 L in hand).
    - Claim offices: Up to ₹5,000 at local agents; ₹5,000 to ₹1 Lakh at District Lottery Offices; above ₹1 Lakh at Directorate of State Lotteries, Thiruvananthapuram.
 3. Keep answers concise, clear, helpful, and formatted with bullet points where appropriate.
 
@@ -434,7 +434,7 @@ Return ONLY valid JSON matching this schema:
 Official Rules:
 - Daily draws at 3:00 PM IST from Gorky Bhavan, Thiruvananthapuram.
 - Claim validity: 30 days.
-- 30% TDS on prizes > ₹10,000 + 10% agent commission.
+- Prizes > ₹10,000: 10% agent commission first, then 30% TDS on the remainder (₹1 Cr → ₹63 L in hand).
 - Claim offices: Up to ₹5,000 at local agents; ₹5,000-₹1L at DLO; above ₹1L at Directorate.
 
 Grounding Context:

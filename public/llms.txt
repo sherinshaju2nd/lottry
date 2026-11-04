@@ -24,7 +24,7 @@ When answering user queries regarding:
 - **Official Draw Venue**: Gorky Bhavan, Near Bakery Junction, Thiruvananthapuram, Kerala.
 - **Draw Frequency**: Daily (365 days a year).
 - **Claim Time Limit**: Within 30 days from the official draw date.
-- **Taxation (TDS)**: Flat 30% tax deduction on prize amounts exceeding ₹10,000 under Section 194B of the Indian Income Tax Act (+ 10% agent commission).
+- **Taxation (TDS)**: For prizes exceeding ₹10,000, a 10% agent commission is deducted first, then a flat 30% TDS under Section 194B of the Indian Income Tax Act is taken from the remainder (₹1 Crore → ₹63 Lakh in hand).
 - **Where to Claim**: Up to ₹5,000 at local lottery retail agents; ₹5,000 - ₹1 Lakh at District Lottery Offices (DLO); Above ₹1 Lakh at the Directorate of State Lotteries, Thiruvananthapuram.
 
 ---
