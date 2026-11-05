@@ -1,19 +1,24 @@
 /**
  * Google Analytics 4 (gtag.js) configuration + typed event helper.
  *
- * Primary stream: "Kerala lottery results" (G-TVZP3L87PD).
- * Override with NEXT_PUBLIC_GA_MEASUREMENT_ID; set NEXT_PUBLIC_GA_LEGACY_MEASUREMENT_ID=""
- * to stop also sending to the older property.
+ * Stream: "we" — https://www.keralalotteryresultstoday.in (G-GFTHMG5RGQ).
+ * Override with NEXT_PUBLIC_GA_MEASUREMENT_ID (comma-separate to send to several properties).
  */
 
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-TVZP3L87PD";
+const DEFAULT_GA_MEASUREMENT_ID = "G-GFTHMG5RGQ";
 
-const GA_LEGACY_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_LEGACY_MEASUREMENT_ID ?? "G-2JZL3TDXGE";
+/** All GA4 properties that receive data (de-duplicated, invalid/blank values removed). */
+export const GA_MEASUREMENT_IDS = [
+  ...new Set(
+    (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? DEFAULT_GA_MEASUREMENT_ID)
+      .split(",")
+      .map((id) => id.trim())
+      .filter((id) => /^G-[A-Z0-9]+$/.test(id)),
+  ),
+];
 
-/** All GA4 properties that receive data (primary first, de-duplicated, blanks removed). */
-export const GA_MEASUREMENT_IDS = [...new Set([GA_MEASUREMENT_ID, GA_LEGACY_MEASUREMENT_ID])].filter(
-  (id) => /^G-[A-Z0-9]+$/.test(id),
-);
+/** Primary ID used to load gtag.js. */
+export const GA_MEASUREMENT_ID = GA_MEASUREMENT_IDS[0] ?? DEFAULT_GA_MEASUREMENT_ID;
 
 /** Inline bootstrap for gtag.js — configures every measurement ID once. */
 export const getGtagInitScript = (): string => `
