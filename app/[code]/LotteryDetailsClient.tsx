@@ -51,6 +51,7 @@ import {
   getLotteryLogo,
   getLotteryLogoAlt,
   supabase,
+  resolveLotteryDisplayMeta,
 } from "@/lib/supabase";
 import {
   LotteryEditorialContent,
@@ -105,13 +106,11 @@ export default function LotteryDetailsClient({
     (drawHistory?.[0]?.prizes?.amounts?.["1st"]
       ? `₹${drawHistory[0].prizes.amounts["1st"]}`
       : undefined) ||
-    lotteryInfo.jackpot ||
-    (lotteryInfo.is_bumper ? "₹25 Crore" : "₹1 Crore");
+    resolveLotteryDisplayMeta(lotteryCode).jackpot;
 
   const ticketPrice =
     lotteryDbMeta?.ticket_price?.trim() ||
-    lotteryInfo.ticket_price ||
-    (lotteryInfo.is_bumper ? "₹500" : "₹50");
+    resolveLotteryDisplayMeta(lotteryCode).ticketPrice;
 
   const editorial = useMemo(() => {
     return (
@@ -135,11 +134,7 @@ export default function LotteryDetailsClient({
     ticketPrice,
   ]);
 
-  const isBumper = Boolean(
-    lotteryInfo.is_bumper ||
-    lotteryCode.startsWith("Bumper") ||
-    ["XN", "SB", "VB", "MB", "TH", "PB"].includes(lotteryCode),
-  );
+  const isBumper = resolveLotteryDisplayMeta(lotteryCode).isBumper;
 
   const todayISTDate = useMemo(() => {
     try {

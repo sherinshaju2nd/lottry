@@ -37,20 +37,35 @@ export interface BlogPost {
     name: string;
     steps: string[];
   };
-  /** Key entity page this article is about (emitted as schema.org `about`). */
-  aboutUrl?: string;
+  /**
+   * Lottery code whose announced draw (lotteries.draw_date) this post is about.
+   * Text fields may use {{drawDate}}, {{drawDateShort}}, {{drawTime}}, {{drawUrl}} — resolved
+   * server-side from the database, so no draw dates are hardcoded here.
+   */
+  drawLotteryCode?: string;
+}
+
+/** Draw details resolved from the database for a post's `drawLotteryCode`. */
+export interface BlogDrawContext {
+  lotteryCode: string;
+  /** Canonical draw-date page, or the lottery page when no date is announced. */
+  url: string;
+  date: string | null;
+  dateLong: string;
+  dateShort: string;
+  drawTime: string;
+  isUpcoming: boolean;
 }
 
 export const SITE_URL = "https://www.keralalotteryresultstoday.in";
-export const POOJA_BUMPER_2026_DRAW_PATH = "/pooja-bumper/2026-11-28";
 
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "pooja-bumper-lottery-2026",
     title: "Pooja Bumper Lottery 2026 (BR-112): Ticket Price, Prize Structure, Draw Date & Result",
-    metaTitle: "Pooja Bumper 2026 BR-112: ₹12 Crore Prize, ₹300 Ticket, Draw 28 Nov",
+    metaTitle: "Pooja Bumper 2026 BR-112: ₹12 Crore Prize, ₹300 Ticket, Draw {{drawDateShort}}",
     description:
-      "Kerala Pooja Bumper 2026 (BR-112) guide: ₹12 crore first prize, ₹300 ticket price, JA–JE series, full prize chart (₹39.11 crore total), draw date 28 November 2026, how to check the result, tax and how to claim.",
+      "Kerala Pooja Bumper 2026 (BR-112) guide: ₹12 crore first prize, ₹300 ticket price, JA–JE series, full prize chart (₹39.11 crore total), draw date & time, how to check the result, tax and how to claim.",
     category: "Bumper Guide",
     tags: [
       "Pooja Bumper 2026",
@@ -71,17 +86,17 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     featured: true,
     relatedLotteryCodes: ["PB"],
-    aboutUrl: `${SITE_URL}${POOJA_BUMPER_2026_DRAW_PATH}`,
+    drawLotteryCode: "PB",
     primaryCta: {
-      href: POOJA_BUMPER_2026_DRAW_PATH,
-      label: "Pooja Bumper 28 Nov Result",
-      heading: "Next Draw: Pooja Bumper BR-112",
-      description: "Live result on 28 November 2026 at 2:00 PM IST. ₹12 Crore 1st prize.",
+      href: "{{drawUrl}}",
+      label: "Pooja Bumper {{drawDateShort}} Result",
+      heading: "Pooja Bumper BR-112 Draw",
+      description: "Live result on {{drawDate}} at {{drawTime}} IST. ₹12 Crore 1st prize.",
     },
     howTo: {
       name: "How to check the Pooja Bumper 2026 lottery result",
       steps: [
-        "Open the Pooja Bumper BR-112 result page for 28 November 2026 on Kerala Lottery Results Today, or the official Kerala State Lotteries website.",
+        "Open the Pooja Bumper BR-112 result page for {{drawDate}} on Kerala Lottery Results Today, or the official Kerala State Lotteries website.",
         "Select the Pooja Bumper 2026 draw.",
         "Open the official result list or Gazette PDF.",
         "Match your complete ticket number and series (JA, JB, JC, JD or JE).",
@@ -106,7 +121,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         question: "When is the Pooja Bumper 2026 draw?",
         answer:
-          "The Kerala Pooja Bumper 2026 (BR-112) draw is scheduled for 28 November 2026 at 2:00 PM IST in Thiruvananthapuram. The live result is published on the Pooja Bumper 28 November 2026 result page at Kerala Lottery Results Today. Always confirm the schedule with the official Kerala State Lotteries notification.",
+          "The Kerala Pooja Bumper 2026 (BR-112) draw is scheduled for {{drawDate}} at {{drawTime}} IST in Thiruvananthapuram. The live result is published on the Pooja Bumper {{drawDate}} result page at Kerala Lottery Results Today. Always confirm the schedule with the official Kerala State Lotteries notification.",
       },
       {
         question: "What is the Pooja Bumper 2026 first prize and ticket price?",
@@ -136,7 +151,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         question: "Where can I find Pooja Bumper winning numbers?",
         answer:
-          "Official winning numbers are published by the Kerala State Lotteries Department. Kerala Lottery Results Today also publishes the live Pooja Bumper 2026 result, full prize chart and Gazette PDF on its 28 November 2026 result page.",
+          "Official winning numbers are published by the Kerala State Lotteries Department. Kerala Lottery Results Today also publishes the live Pooja Bumper 2026 result, full prize chart and Gazette PDF on its {{drawDate}} result page.",
       },
     ],
   },
@@ -227,6 +242,27 @@ export function getFeaturedBlog(): BlogPost | undefined {
 export function getRecentBlogs(limit: number = 5): BlogPost[] {
   return BLOG_POSTS.slice(0, limit);
 }
+
+const DRAW_TOKEN = /\{\{(drawDate|drawDateShort|drawTime|drawUrl)\}\}/g;
+
+/** Fills {{drawDate}}-style tokens in every string field of a post. */
+export const resolveBlogPost = (post: BlogPost, draw: BlogDrawContext | null): BlogPost => {
+  const values: Record<string, string> = {
+    drawDate: draw?.dateLong ?? "the date announced by the Kerala State Lotteries Department",
+    drawDateShort: draw?.dateShort ?? "TBA",
+    drawTime: draw?.drawTime ?? "2:00 PM",
+    drawUrl: draw?.url ?? "/lotteries",
+  };
+  const fill = (value: unknown): unknown => {
+    if (typeof value === "string") return value.replace(DRAW_TOKEN, (_, key: string) => values[key] ?? "");
+    if (Array.isArray(value)) return value.map(fill);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fill(v)]));
+    }
+    return value;
+  };
+  return fill(post) as BlogPost;
+};
 
 /** Blog guides that should be cross-linked from a lottery's draw pages. */
 export const getBlogsForLottery = (lotteryCode: string): BlogPost[] =>

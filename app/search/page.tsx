@@ -57,6 +57,7 @@ import {
   addToWatchlist,
   SavedTicket,
 } from "@/lib/ticket-storage";
+import { trackEvent } from "@/lib/analytics";
 
 
 function formatDisplayDate(dateStr?: string | null) {
@@ -272,6 +273,10 @@ export default function AdvancedSearchPage() {
       }
 
       setResults(matches);
+      trackEvent({
+        name: "ticket_search",
+        params: { search_term: fullQuery, source: "search_page", results: matches.length },
+      });
 
       // Trigger Confetti on Winning Match!
       if (matches.length > 0) {

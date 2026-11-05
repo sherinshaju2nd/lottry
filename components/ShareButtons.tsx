@@ -18,6 +18,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LotteryImagePostModal from "@/components/LotteryImagePostModal";
+import { trackEvent } from "@/lib/analytics";
 
 interface ShareButtonsProps {
   title?: string;
@@ -82,6 +83,7 @@ export default function ShareButtons({
           text: `${text}\n${title}`,
           url: currentUrl,
         });
+        trackEvent({ name: "share", params: { method: "native", content_type: "page", item_id: currentUrl } });
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           console.error("Error sharing:", err);

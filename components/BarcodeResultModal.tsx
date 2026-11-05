@@ -28,6 +28,7 @@ import {
   StructuredDrawResult,
   getLotteryUrl,
 } from "@/lib/supabase";
+import { trackEvent } from "@/lib/analytics";
 
 export interface SearchMatch {
   lottery_code: string;
@@ -126,6 +127,11 @@ export default function BarcodeResultModal({
       }
 
       setAllMatches(results);
+      trackEvent({ name: "ticket_scan", params: { method: "barcode" } });
+      trackEvent({
+        name: "ticket_search",
+        params: { search_term: scannedBarcode, source: "barcode", results: results.length },
+      });
 
       // Find full draw details
       const foundDraw =

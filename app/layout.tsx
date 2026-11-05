@@ -14,6 +14,7 @@ import WindowsInstallGuideModal from "@/components/WindowsInstallGuideModal";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import AiTicketScanner from "@/components/AiTicketScanner";
 import { supabase, WEEKLY_LOTTERIES } from "@/lib/supabase";
+import { GA_MEASUREMENT_ID, getGtagInitScript } from "@/lib/analytics";
 import "./globals.css";
 
 export const revalidate = 86400; // Cache 24h; updated instantly on-demand via revalidatePath when live results sync
@@ -567,22 +568,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
         {/* End Google Tag Manager */}
 
-        {/* Google tag (gtag.js) */}
+        {/* Google tag (gtag.js) — GA4 stream "Kerala lottery results" (see lib/analytics.ts) */}
         <Script
           strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-2JZL3TDXGE"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
         />
         <Script
           id="gtag-init"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-2JZL3TDXGE');
-            `,
-          }}
+          dangerouslySetInnerHTML={{ __html: getGtagInitScript() }}
         />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />

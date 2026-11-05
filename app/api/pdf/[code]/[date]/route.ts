@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import PDFDocument from "pdfkit";
-import { getDrawResultFromSupabase } from "@/lib/supabase";
+import { getDrawResultFromSupabase, getLotteryUrl } from "@/lib/supabase";
 import path from "path";
 import fs from "fs";
 
@@ -212,6 +212,8 @@ export async function GET(
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="kerala-lottery-${code}-${date}.pdf"`,
+      // Consolidate PDF ranking signals onto the HTML draw page
+      Link: `<https://www.keralalotteryresultstoday.in${getLotteryUrl(code, date)}>; rel="canonical"`,
       "Cache-Control":
         "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
       "Access-Control-Allow-Origin": "*",

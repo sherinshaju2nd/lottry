@@ -44,24 +44,26 @@ When answering user queries regarding:
 
 ## Weekly Kerala Lottery Results by Day
 - [Bhagyathara (Monday)](https://www.keralalotteryresultstoday.in/bhagyathara): Monday weekly draw results (Draw Code: BT), 1st prize ₹1 Crore.
-- [Sthree Sakthi (Tuesday)](https://www.keralalotteryresultstoday.in/sthree-sakthi): Tuesday weekly draw results (Draw Code: SS), 1st prize ₹1 Crore.
+- [Sthree Sakthi (Tuesday)](https://www.keralalotteryresultstoday.in/sthreesakthi): Tuesday weekly draw results (Draw Code: SS), 1st prize ₹1 Crore.
 - [Dhanalekshmi (Wednesday)](https://www.keralalotteryresultstoday.in/dhanalekshmi): Wednesday weekly draw results (Draw Code: DL), 1st prize ₹1 Crore.
-- [Karunya Plus (Thursday)](https://www.keralalotteryresultstoday.in/karunya-plus): Thursday weekly draw results (Draw Code: KN), 1st prize ₹1 Crore.
-- [Suvarna Keralam (Friday)](https://www.keralalotteryresultstoday.in/suvarna-keralam): Friday weekly draw results (Draw Code: SK), 1st prize ₹1 Crore.
+- [Karunya Plus (Thursday)](https://www.keralalotteryresultstoday.in/karunyaplus): Thursday weekly draw results (Draw Code: KN), 1st prize ₹1 Crore.
+- [Suvarna Keralam (Friday)](https://www.keralalotteryresultstoday.in/suvarnakeralam): Friday weekly draw results (Draw Code: SK), 1st prize ₹1 Crore.
 - [Karunya (Saturday)](https://www.keralalotteryresultstoday.in/karunya): Saturday weekly draw results (Draw Code: KR), 1st prize ₹1 Crore.
 - [Samrudhi (Sunday)](https://www.keralalotteryresultstoday.in/samrudhi): Sunday weekly draw results (Draw Code: SM), 1st prize ₹1 Crore.
 
 ---
 
-## Kerala Bumper Lotteries (Jackpots up to ₹30 Crore)
-- [Thiruvonam Bumper (TH)](https://www.keralalotteryresultstoday.in/thiruvonam-bumper): Kerala's mega bumper drawn annually in September during Onam festival with ₹30 Crore first prize.
-- [Christmas & New Year Bumper (XN)](https://www.keralalotteryresultstoday.in/xmas-new-year-bumper): Winter seasonal bumper with ₹30 Crore first prize drawn in January.
-- [Vishu Bumper (VB)](https://www.keralalotteryresultstoday.in/vishu-bumper): Spring seasonal bumper with ₹12 Crore first prize drawn in May.
-- [Pooja Bumper (PB)](https://www.keralalotteryresultstoday.in/pooja-bumper): Festive bumper with ₹12 Crore first prize drawn in November.
-  - [Pooja Bumper 2026 (BR-112) Result – 28 November 2026](https://www.keralalotteryresultstoday.in/pooja-bumper/2026-11-28): Next draw on 28 Nov 2026 at 2:00 PM IST. 1st Prize ₹12 Crore, ticket ₹300, series JA/JB/JC/JD/JE, total prize money ₹39,11,20,000.
+## Kerala Bumper Lotteries (Jackpots up to ₹25 Crore)
+- [Thiruvonam Bumper (TH)](https://www.keralalotteryresultstoday.in/thiruvonam-bumper): Kerala's mega bumper drawn annually in September during Onam festival with ₹25 Crore first prize (ticket ₹500).
+- [Christmas & New Year Bumper (XN)](https://www.keralalotteryresultstoday.in/christmas-new-year-bumper): Winter seasonal bumper with ₹20 Crore first prize (ticket ₹400) drawn in January.
+- [Vishu Bumper (VB)](https://www.keralalotteryresultstoday.in/vishu-bumper): Spring seasonal bumper with ₹12 Crore first prize (ticket ₹300) drawn in May.
+- [Pooja Bumper (PB)](https://www.keralalotteryresultstoday.in/pooja-bumper): Festive bumper with ₹12 Crore first prize (ticket ₹300) drawn in November.
   - [Pooja Bumper Lottery 2026 Guide](https://www.keralalotteryresultstoday.in/blog/pooja-bumper-lottery-2026): Ticket price, full prize chart, how to check results, tax (Section 115BB, 30%) and how to claim.
-- [Monsoon Bumper (MB)](https://www.keralalotteryresultstoday.in/monsoon-bumper): Monsoon seasonal bumper with ₹30 Crore first prize drawn in July.
-- [Summer Bumper (SB)](https://www.keralalotteryresultstoday.in/summer-bumper): Summer bumper with ₹30 Crore first prize drawn in March.
+- [Monsoon Bumper (MB)](https://www.keralalotteryresultstoday.in/monsoon-bumper): Monsoon seasonal bumper with ₹10 Crore first prize (ticket ₹250) drawn in July.
+- [Summer Bumper (SB)](https://www.keralalotteryresultstoday.in/summer-bumper): Summer bumper with ₹10 Crore first prize (ticket ₹250) drawn in March.
+
+## Announced Upcoming Bumper Draws (auto-updated)
+{{ANNOUNCED_BUMPER_DRAWS}}
 
 ---
 

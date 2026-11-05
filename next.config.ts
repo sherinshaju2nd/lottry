@@ -50,16 +50,8 @@ const nextConfig: NextConfig = {
         destination: "/support",
         permanent: true,
       },
-      {
-        source: "/lottery/:code",
-        destination: "/:code",
-        permanent: true,
-      },
-      {
-        source: "/lottery/:code/:date",
-        destination: "/:code/:date",
-        permanent: true,
-      },
+      // /lottery, /lottery/:code and /lottery/:code/:date are canonicalised in proxy.ts
+      // (single 308 hop straight to the canonical slug, real 404 for unknown codes).
     ];
   },
   async headers() {

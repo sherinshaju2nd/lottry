@@ -11,8 +11,15 @@ import {
   getLotteryLogo,
   getLotteryLogoAlt,
   supabase,
+  resolveLotteryDisplayMeta,
 } from "@/lib/supabase";
 import DedicatedLotteryDateClient from "./DedicatedLotteryDateClient";
+import { cache } from "react";
+import { isIndexableDrawPage } from "@/lib/drawIndexing";
+
+// Shared between generateMetadata and the page (one DB query per request)
+const getDrawResultCached = cache(getDrawResultFromSupabase);
+const getPostponementCached = cache(checkIsDatePostponed);
 
 export const revalidate = false; // Past draw results are static; today's draw revalidated on-demand via revalidatePath
 
@@ -34,20 +41,30 @@ export async function generateMetadata({
     return { title: "Lottery Result Not Found - Kerala Lottery Results Today" };
   }
 
-  const { data: dbMeta } = await supabase
-    .from("lotteries")
-    .select("jackpot, ticket_price, draw_time")
-    .eq("code", lotteryCode)
-    .maybeSingle();
+  const [{ data: dbMeta }, drawResult, postponement] = await Promise.all([
+    supabase
+      .from("lotteries")
+      .select("jackpot, ticket_price, draw_time, draw_date")
+      .eq("code", lotteryCode)
+      .maybeSingle(),
+    getDrawResultCached(lotteryCode, dateParam),
+    getPostponementCached(dateParam, lotteryCode),
+  ]);
+
+  const indexable = isIndexableDrawPage({
+    announcedDrawDate: lotteryInfo.is_bumper ? dbMeta?.draw_date : null,
+    date: dateParam,
+    weeklyDay: lotteryInfo.is_bumper ? undefined : lotteryInfo.day,
+    hasResult: drawResult !== null,
+    isPostponed: postponement !== null,
+  });
 
   const jackpot =
     dbMeta?.jackpot?.trim() ||
-    lotteryInfo.jackpot ||
-    (lotteryInfo.is_bumper ? "₹25 Crore" : "₹1 Crore");
+    resolveLotteryDisplayMeta(lotteryCode).jackpot;
   const ticketPrice =
     dbMeta?.ticket_price?.trim() ||
-    lotteryInfo.ticket_price ||
-    (lotteryInfo.is_bumper ? "₹500" : "₹50");
+    resolveLotteryDisplayMeta(lotteryCode).ticketPrice;
   const logoUrl = getLotteryLogo(lotteryCode) || "/logo-round-512.png";
   const title = `${lotteryInfo.name} (${lotteryInfo.code}) Result ${dateParam} - 1st Prize ${jackpot} Kerala ${lotteryInfo.is_bumper ? "Bumper " : ""}Live Draw`;
   const description = `Check Kerala State ${lotteryInfo.name} (${lotteryInfo.nameMl}) lottery result for ${dateParam}. Live 1st prize ${jackpot} winning numbers, ticket price ${ticketPrice}, full prize chart, search ticket tool, and official Gazette PDF download.`;
@@ -103,6 +120,8 @@ export async function generateMetadata({
     title,
     description,
     keywords,
+    // Empty past dates / random future dates: keep links followable but out of the index
+    ...(!indexable && { robots: { index: false, follow: true } }),
     alternates: {
       canonical: `https://www.keralalotteryresultstoday.in/${lotterySlug}/${dateParam}`,
     },
@@ -152,9 +171,9 @@ export default async function DedicatedLotteryDateDetailsPage({
 
   const [drawResult, availableDates, postponement, recentOtherDraws, lotRes] =
     await Promise.all([
-      getDrawResultFromSupabase(lotteryCode, dateParam),
+      getDrawResultCached(lotteryCode, dateParam),
       getDrawDatesFromSupabase(lotteryCode),
-      checkIsDatePostponed(dateParam, lotteryCode),
+      getPostponementCached(dateParam, lotteryCode),
       getRecentDrawsFromSupabase(10),
       supabase
         .from("lotteries")
@@ -181,13 +200,11 @@ export default async function DedicatedLotteryDateDetailsPage({
     (drawResult?.prizes?.amounts?.["1st"]
       ? `₹${drawResult.prizes.amounts["1st"]}`
       : undefined) ||
-    lotteryInfo.jackpot ||
-    (lotteryInfo.is_bumper ? "₹25 Crore" : "₹1 Crore");
+    resolveLotteryDisplayMeta(lotteryCode).jackpot;
 
   const dbTicketPrice =
     lotteryDbMeta?.ticket_price?.trim() ||
-    lotteryInfo.ticket_price ||
-    (lotteryInfo.is_bumper ? "₹500" : "₹50");
+    resolveLotteryDisplayMeta(lotteryCode).ticketPrice;
 
   const numericPrice =
     dbTicketPrice.replace(/[^0-9.]/g, "") ||

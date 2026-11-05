@@ -72,6 +72,7 @@ import {
   hasAnyDrawResult,
   getIsAfterDrawTime,
   getIsPollingWindow,
+  resolveLotteryDisplayMeta,
 } from "@/lib/supabase";
 
 interface SingleCheckerMatch {
@@ -124,21 +125,15 @@ function UpcomingBumperCountdownSection({
   selectedDate: string;
   lotteryDbMeta?: any;
 }) {
-  const isBumper = Boolean(
-    lotteryInfo.is_bumper ||
-    lotteryCode.startsWith("Bumper") ||
-    ["XN", "SB", "VB", "MB", "TH", "PB"].includes(lotteryCode),
-  );
+  const isBumper = resolveLotteryDisplayMeta(lotteryCode).isBumper;
 
   const rawJackpot =
     lotteryDbMeta?.jackpot?.trim() ||
-    lotteryInfo.jackpot ||
-    (isBumper ? "₹12 Crore" : "₹1 Crore");
+    resolveLotteryDisplayMeta(lotteryCode).jackpot;
 
   const rawTicketPrice =
     lotteryDbMeta?.ticket_price?.trim() ||
-    lotteryInfo.ticket_price ||
-    (isBumper ? "₹300" : "₹50");
+    resolveLotteryDisplayMeta(lotteryCode).ticketPrice;
 
   const rawDrawTime =
     lotteryDbMeta?.draw_time || (isBumper ? "2:00 PM" : "3:00 PM");

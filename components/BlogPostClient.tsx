@@ -23,11 +23,13 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import PrintIcon from "@mui/icons-material/Print";
-import type { BlogPost } from "@/data/blogs";
+import type { BlogPost, BlogDrawContext } from "@/data/blogs";
 import { renderBlogContent } from "@/components/blog/blogContentRegistry";
 
 interface Props {
   post: BlogPost;
+  /** Draw details from the database (lotteries.draw_date) for posts with a drawLotteryCode. */
+  draw?: BlogDrawContext | null;
 }
 
 const DEFAULT_CTA: NonNullable<BlogPost["primaryCta"]> = {
@@ -37,9 +39,9 @@ const DEFAULT_CTA: NonNullable<BlogPost["primaryCta"]> = {
   description: "Verify your ticket with the live 3:00 PM Kerala Lottery Results.",
 };
 
-export default function BlogPostClient({ post }: Props) {
+export default function BlogPostClient({ post, draw = null }: Props) {
   const [copied, setCopied] = useState(false);
-  const articleBody = renderBlogContent(post.slug);
+  const articleBody = renderBlogContent(post.slug, draw);
   const cta = post.primaryCta ?? DEFAULT_CTA;
 
   const handleCopyLink = () => {

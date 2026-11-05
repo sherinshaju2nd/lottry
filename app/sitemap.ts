@@ -4,6 +4,7 @@ import {
   ALL_LOTTERIES,
   WEEKLY_LOTTERIES,
   fetchDrawResultsForSitemap,
+  getAnnouncedBumperDraws,
   getLotteryUrl,
 } from "@/lib/supabase";
 export const revalidate = 3600; // Fresh sitemap cached for 1 hour (revalidated on-demand when draws sync)
@@ -142,6 +143,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 1.0,
       });
     }
+
+    // Announced upcoming bumper draws (lotteries.draw_date) — get them crawled before draw day
+    const upcomingBumperPages = (await getAnnouncedBumperDraws(isoDate))
+      .map(({ code, date }) => `${baseUrl}${getLotteryUrl(code, date)}`)
+      .filter((url) => !drawPages.some((p) => p.url === url))
+      .map((url) => ({
+        url,
+        lastModified: new Date(),
+        changeFrequency: "daily" as const,
+        priority: 0.95,
+      }));
+    drawPages.unshift(...upcomingBumperPages);
   } catch (error) {
     console.error("Error generating dynamic draw sitemap links:", error);
   }

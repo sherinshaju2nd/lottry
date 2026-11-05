@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 export * from "./lotteryConfig";
+export * from "./lotterySlugs";
+import { SLUG_TO_LOTTERY_CODE, getLotteryCodeFromSlug } from "./lotterySlugs";
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -149,6 +151,7 @@ export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
     code: "XN",
     is_bumper: true,
     jackpot: "₹20 Crore",
+    ticket_price: "₹400",
     draw_season: "January",
   },
   {
@@ -158,6 +161,7 @@ export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
     code: "SB",
     is_bumper: true,
     jackpot: "₹10 Crore",
+    ticket_price: "₹250",
     draw_season: "March (Summer)",
   },
   {
@@ -167,6 +171,7 @@ export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
     code: "VB",
     is_bumper: true,
     jackpot: "₹12 Crore",
+    ticket_price: "₹300",
     draw_season: "May (Vishu)",
   },
   {
@@ -176,6 +181,7 @@ export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
     code: "MB",
     is_bumper: true,
     jackpot: "₹10 Crore",
+    ticket_price: "₹250",
     draw_season: "July (Monsoon)",
   },
   {
@@ -185,6 +191,7 @@ export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
     code: "TH",
     is_bumper: true,
     jackpot: "₹25 Crore",
+    ticket_price: "₹500",
     draw_season: "September (Onam)",
   },
   {
@@ -194,6 +201,7 @@ export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
     code: "PB",
     is_bumper: true,
     jackpot: "₹12 Crore",
+    ticket_price: "₹300",
     draw_season: "November (Pooja/Diwali)",
   },
 ];
@@ -212,66 +220,6 @@ const BUMPER_NAME_ALIASES: ReadonlyArray<{ keywords: string[]; code: string }> =
 export const getBumperCodeFromDrawName = (drawName: string | null | undefined): string | null => {
   const name = drawName?.toLowerCase() ?? "";
   return BUMPER_NAME_ALIASES.find(({ keywords }) => keywords.some((k) => name.includes(k)))?.code ?? null;
-};
-
-export const LOTTERY_SLUGS: Record<string, string> = {
-  // Weekly lotteries
-  BT: "bhagyathara",
-  SS: "sthreesakthi",
-  DL: "dhanalekshmi",
-  KN: "karunyaplus",
-  SK: "suvarnakeralam",
-  KR: "karunya",
-  SM: "samrudhi",
-  // Bumper lotteries
-  XN: "christmas-new-year-bumper",
-  SB: "summer-bumper",
-  VB: "vishu-bumper",
-  MB: "monsoon-bumper",
-  TH: "thiruvonam-bumper",
-  PB: "pooja-bumper",
-};
-
-export const SLUG_TO_LOTTERY_CODE: Record<string, string> = {
-  // Weekly lotteries (canonical slugs and aliases)
-  bhagyathara: "BT",
-  bt: "BT",
-  sthreesakthi: "SS",
-  "sthree-sakthi": "SS",
-  ss: "SS",
-  dhanalekshmi: "DL",
-  dl: "DL",
-  karunyaplus: "KN",
-  "karunya-plus": "KN",
-  kn: "KN",
-  suvarnakeralam: "SK",
-  "suvarna-keralam": "SK",
-  sk: "SK",
-  karunya: "KR",
-  kr: "KR",
-  samrudhi: "SM",
-  sm: "SM",
-  // Bumper lotteries (canonical slugs and aliases)
-  "christmas-new-year-bumper": "XN",
-  "christmas-new-year": "XN",
-  "xmas-new-year-bumper": "XN",
-  xn: "XN",
-  "summer-bumper": "SB",
-  summer: "SB",
-  sb: "SB",
-  "vishu-bumper": "VB",
-  vishu: "VB",
-  vb: "VB",
-  "monsoon-bumper": "MB",
-  monsoon: "MB",
-  mb: "MB",
-  "thiruvonam-bumper": "TH",
-  thiruvonam: "TH",
-  "onam-bumper": "TH",
-  th: "TH",
-  "pooja-bumper": "PB",
-  pooja: "PB",
-  pb: "PB",
 };
 
 export const LOTTERY_LOGOS: Record<string, string> = {
@@ -390,51 +338,32 @@ export function getLotteryLogoAlt(lotteryName: string, day?: string): string {
   return `${cleanName} Lottery Official Logo${dayStr} - Kerala State Lottery Results Today`;
 }
 
-/**
- * Get canonical URL slug for any lottery code or name
- */
-export function getLotterySlug(codeOrName: string): string {
-  if (!codeOrName) return "bhagyathara";
-  const upper = codeOrName.toUpperCase();
-  if (LOTTERY_SLUGS[upper]) return LOTTERY_SLUGS[upper];
-
-  const lower = codeOrName.toLowerCase().trim();
-  if (SLUG_TO_LOTTERY_CODE[lower]) {
-    const code = SLUG_TO_LOTTERY_CODE[lower];
-    return LOTTERY_SLUGS[code] || lower;
-  }
-
-  return lower.replace(/\s+/g, "").replace(/[^a-z0-9-]/g, "");
-}
-
-/**
- * Resolve lottery code from URL slug
- */
-export function getLotteryCodeFromSlug(slug: string): string {
-  if (!slug) return "BT";
-  const lower = slug.toLowerCase().trim();
-  if (SLUG_TO_LOTTERY_CODE[lower]) {
-    return SLUG_TO_LOTTERY_CODE[lower];
-  }
-  const upper = slug.toUpperCase().trim();
-  if (LOTTERY_SLUGS[upper]) {
-    return upper;
-  }
-  return upper;
-}
-
-/**
- * Build canonical clean URL for a lottery (e.g. /bhagyathara or /bhagyathara/2026-08-15)
- */
-export function getLotteryUrl(codeOrSlug: string, date?: string): string {
-  const slug = getLotterySlug(codeOrSlug);
-  if (date) {
-    return `/${slug}/${encodeURIComponent(date)}`;
-  }
-  return `/${slug}`;
-}
 
 export const ALL_LOTTERIES = [...WEEKLY_LOTTERIES, ...BUMPER_LOTTERIES];
+
+interface LotteryDbMeta {
+  jackpot?: string | null;
+  ticket_price?: string | null;
+  draw_time?: string | null;
+}
+
+/**
+ * Jackpot / ticket price / draw time for a lottery: database value first
+ * (admin-managed `lotteries` row), then the static catalogue, then a generic default.
+ */
+export const resolveLotteryDisplayMeta = (
+  lotteryCode: string,
+  dbMeta?: LotteryDbMeta | null,
+) => {
+  const info = ALL_LOTTERIES.find((l) => l.code === lotteryCode);
+  const isBumper = Boolean(info?.is_bumper);
+  return {
+    isBumper,
+    jackpot: dbMeta?.jackpot?.trim() || info?.jackpot || (isBumper ? "₹10 Crore" : "₹1 Crore"),
+    ticketPrice: dbMeta?.ticket_price?.trim() || info?.ticket_price || (isBumper ? "₹300" : "₹50"),
+    drawTime: dbMeta?.draw_time?.trim() || (isBumper ? "2:00 PM" : "3:00 PM"),
+  };
+};
 
 export const hasAnyDrawResult = (
   draw: StructuredDrawResult | null | undefined,
@@ -804,24 +733,79 @@ export async function getRecentDrawsFromSupabase(
  * Uses range-based pagination to bypass Supabase's default 1000-row cap,
  * ensuring ALL draw result pages are included in the sitemap.
  */
-export async function fetchDrawResultsForSitemap(
-  limit = 90
-): Promise<{ lottery_code: string; draw_date: string; created_at?: string }[]> {
-  try {
-    const { data, error } = await supabase
-      .from("draw_results")
-      .select("lottery_code, draw_date, created_at")
-      .order("draw_date", { ascending: false })
-      .limit(limit);
+export interface AnnouncedBumperDraw {
+  code: string;
+  name: string;
+  date: string;
+  drawTime: string;
+  jackpot: string | null;
+  ticketPrice: string | null;
+}
 
-    if (error || !data) {
-      console.warn("Sitemap fetch note:", error?.message);
+/**
+ * Bumper draw dates announced by the department, as set by admins in the
+ * `lotteries.draw_date` column. Single source of truth for upcoming bumper draws.
+ */
+export async function getAnnouncedBumperDraws(
+  fromDate?: string,
+): Promise<AnnouncedBumperDraw[]> {
+  try {
+    let query = supabase
+      .from("lotteries")
+      .select("code, name, draw_date, draw_time, jackpot, ticket_price")
+      .eq("is_bumper", true)
+      .not("draw_date", "is", null);
+    if (fromDate) query = query.gte("draw_date", fromDate);
+
+    const { data, error } = await query.order("draw_date", { ascending: true });
+    if (error) {
+      console.error("[supabase] announced bumper draws error:", error.message);
       return [];
+    }
+    return (data ?? [])
+      .filter((row) => Boolean(row.code && row.draw_date))
+      .map(({ code, name, draw_date, draw_time, jackpot, ticket_price }) => ({
+        code,
+        name: name ?? ALL_LOTTERIES.find((l) => l.code === code)?.name ?? code,
+        date: draw_date,
+        drawTime: draw_time ?? "2:00 PM",
+        jackpot: jackpot ?? ALL_LOTTERIES.find((l) => l.code === code)?.jackpot ?? null,
+        ticketPrice: ticket_price ?? null,
+      }));
+  } catch (err: unknown) {
+    console.error(
+      "[supabase] announced bumper draws exception:",
+      err instanceof Error ? err.message : String(err),
+    );
+    return [];
+  }
+}
+
+export async function fetchDrawResultsForSitemap(
+  limit = Number.POSITIVE_INFINITY
+): Promise<{ lottery_code: string; draw_date: string; created_at?: string }[]> {
+  const PAGE_SIZE = 1000;
+  const rows: { lottery_code: string; draw_date: string; created_at?: string }[] = [];
+  try {
+    for (let from = 0; rows.length < limit; from += PAGE_SIZE) {
+      const to = from + Math.min(PAGE_SIZE, limit - rows.length) - 1;
+      const { data, error } = await supabase
+        .from("draw_results")
+        .select("lottery_code, draw_date, created_at")
+        .order("draw_date", { ascending: false })
+        .range(from, to);
+
+      if (error || !data) {
+        console.warn("Sitemap fetch note:", error?.message);
+        break;
+      }
+      rows.push(...data);
+      if (data.length < to - from + 1) break;
     }
 
     // Deduplicate by lottery_code + draw_date
     const seen = new Set<string>();
-    return data.filter((row) => {
+    return rows.filter((row) => {
       const key = `${row.lottery_code}::${row.draw_date}`;
       if (seen.has(key)) return false;
       seen.add(key);

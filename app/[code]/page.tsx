@@ -8,6 +8,7 @@ import {
   getLotteryLogo,
   getLotteryLogoAlt,
   supabase,
+  resolveLotteryDisplayMeta,
 } from "@/lib/supabase";
 import { getLotteryEditorialContent } from "@/lib/lotteryEditorialData";
 import LotteryDetailsClient from "./LotteryDetailsClient";
@@ -73,13 +74,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const jackpot =
     dbMeta?.jackpot?.trim() ||
-    lotteryInfo.jackpot ||
-    (lotteryInfo.is_bumper ? "₹25 Crore" : "₹1 Crore");
+    resolveLotteryDisplayMeta(lotteryCode).jackpot;
 
   const ticketPrice =
     dbMeta?.ticket_price?.trim() ||
-    lotteryInfo.ticket_price ||
-    (lotteryInfo.is_bumper ? "₹500" : "₹50");
+    resolveLotteryDisplayMeta(lotteryCode).ticketPrice;
 
   const editorial = getLotteryEditorialContent(
     lotteryCode,
@@ -201,13 +200,11 @@ export default async function LotteryDetailsPage({ params }: PageProps) {
     (drawHistory?.[0]?.prizes?.amounts?.["1st"]
       ? `₹${drawHistory[0].prizes.amounts["1st"]}`
       : undefined) ||
-    lotteryInfo.jackpot ||
-    (lotteryInfo.is_bumper ? "₹25 Crore" : "₹1 Crore");
+    resolveLotteryDisplayMeta(lotteryCode).jackpot;
 
   const dbTicketPrice =
     lotteryDbMeta?.ticket_price?.trim() ||
-    lotteryInfo.ticket_price ||
-    (lotteryInfo.is_bumper ? "₹500" : "₹50");
+    resolveLotteryDisplayMeta(lotteryCode).ticketPrice;
 
   const numericPrice =
     dbTicketPrice.replace(/[^0-9.]/g, "") ||

@@ -89,6 +89,7 @@ import HomeDesktopModernView from "@/components/HomeDesktopModernView";
 import GridViewIcon from "@mui/icons-material/GridView";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import { trackEvent } from "@/lib/analytics";
 
 const searchSchema = yup.object({
   ticketNumber: yup
@@ -125,6 +126,17 @@ export interface LotteryItem {
   draw_season?: string;
   draw_date?: string;
 }
+
+/** Presentation only (emoji/colours) per bumper code — schedule data comes from the DB. */
+const BUMPER_CARD_STYLE: Record<string, { emoji: string; color: string; bg: string }> = {
+  XN: { emoji: "🎄", color: "#DC2626", bg: "#FEF2F2" },
+  SB: { emoji: "☀️", color: "#D97706", bg: "#FFFBEB" },
+  VB: { emoji: "🌸", color: "#7C3AED", bg: "#F5F3FF" },
+  MB: { emoji: "🌧️", color: "#0284C7", bg: "#F0F9FF" },
+  TH: { emoji: "🌼", color: "#059669", bg: "#ECFDF5" },
+  PB: { emoji: "🪔", color: "#EA580C", bg: "#FFF7ED" },
+};
+const DEFAULT_BUMPER_CARD_STYLE = { emoji: "🎟️", color: "#0B3C5D", bg: "#EFF6FF" };
 
 export default function HomePage() {
   const theme = useTheme();
@@ -220,6 +232,30 @@ export default function HomePage() {
     timeZone: "Asia/Kolkata",
   });
 
+  // Seasonal bumper calendar — names, jackpots and announced draw dates come from
+  // the lotteries table (bumperLotteriesList); only presentation is keyed by code.
+  const bumperCalendar = bumperLotteriesList.map((b) => {
+    const style = BUMPER_CARD_STYLE[b.code] ?? DEFAULT_BUMPER_CARD_STYLE;
+    const announcedDate =
+      b.draw_date && b.draw_date >= todayISTDate ? b.draw_date : null;
+    return {
+      ...style,
+      name: b.name,
+      jackpot: b.jackpot ?? "",
+      month: (b.draw_season ?? b.day ?? "").split(/[\s(]/)[0] || "Annual",
+      announcedDate,
+      announcedLabel: announcedDate
+        ? new Date(`${announcedDate}T00:00:00Z`).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            timeZone: "UTC",
+          })
+        : "",
+      href: announcedDate
+        ? getLotteryUrl(b.code, announcedDate)
+        : getLotteryUrl(b.code),
+    };
+  });
   const yesterdayISTDate = (() => {
     try {
       const now = new Date();
@@ -700,6 +736,10 @@ export default function HomePage() {
         });
 
         setSearchResults(filteredMatches);
+        trackEvent({
+          name: "ticket_search",
+          params: { search_term: data.ticketNumber.trim(), source: "home", results: filteredMatches.length },
+        });
         if (filteredMatches.length > 0) {
           triggerCelebration();
         }
@@ -1692,14 +1732,7 @@ export default function HomePage() {
             </Box>
 
             <Grid container spacing={2}>
-              {[
-                { month: "January", emoji: "🎄", name: "Christmas New Year Bumper", slug: "christmas-new-year-bumper", jackpot: "₹20 Crore", color: "#DC2626", bg: "#FEF2F2" },
-                { month: "March", emoji: "☀️", name: "Summer Bumper", slug: "summer-bumper", jackpot: "₹10 Crore", color: "#D97706", bg: "#FFFBEB" },
-                { month: "May", emoji: "🌸", name: "Vishu Bumper", slug: "vishu-bumper", jackpot: "₹12 Crore", color: "#7C3AED", bg: "#F5F3FF" },
-                { month: "July", emoji: "🌧️", name: "Monsoon Bumper", slug: "monsoon-bumper", jackpot: "₹10 Crore", color: "#0284C7", bg: "#F0F9FF" },
-                { month: "September", emoji: "🌼", name: "Thiruvonam Bumper", slug: "thiruvonam-bumper", jackpot: "₹25 Crore", color: "#059669", bg: "#ECFDF5" },
-                { month: "November", emoji: "🪔", name: "Pooja Bumper", slug: "pooja-bumper", jackpot: "₹12 Crore", color: "#EA580C", bg: "#FFF7ED" },
-              ].map((b, idx) => (
+              {bumperCalendar.map((b, idx) => (
                 <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
                   <Paper
                     elevation={0}
@@ -1723,7 +1756,7 @@ export default function HomePage() {
                     <Box>
                       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
                         <Chip
-                          label={`${b.emoji} ${b.month} Draw`}
+                          label={b.announcedDate ? `🗓️ Draw: ${b.announcedLabel}` : `${b.emoji} ${b.month} Draw`}
                           size="small"
                           sx={{
                             fontWeight: 800,
@@ -1738,7 +1771,7 @@ export default function HomePage() {
                         </Typography>
                       </Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#0A2540", mt: 0.5, lineHeight: 1.3 }}>
-                        <Link href={`/${b.slug}`} style={{ color: "#0A2540", textDecoration: "none" }}>
+                        <Link href={b.href} style={{ color: "#0A2540", textDecoration: "none" }}>
                           {b.name}
                         </Link>
                       </Typography>
@@ -1746,7 +1779,7 @@ export default function HomePage() {
 
                     <Button
                       component={Link}
-                      href={`/${b.slug}`}
+                      href={b.href}
                       size="small"
                       endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
                       sx={{
@@ -1759,7 +1792,7 @@ export default function HomePage() {
                         "&:hover": { bgcolor: "transparent", color: "#2563EB" },
                       }}
                     >
-                      View Bumper Details
+                      {b.announcedDate ? `View ${b.announcedLabel} Draw` : "View Bumper Details"}
                     </Button>
                   </Paper>
                 </Grid>

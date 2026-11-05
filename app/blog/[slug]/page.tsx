@@ -1,7 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllBlogs, getBlogBySlug } from "@/data/blogs";
+import { getAllBlogs, getBlogBySlug, resolveBlogPost } from "@/data/blogs";
 import BlogPostClient from "@/components/BlogPostClient";
+import { getBlogDrawContext } from "@/lib/blogDraw";
+
+// Draw dates come from the DB (lotteries.draw_date) — refresh hourly
+export const revalidate = 3600;
+// Unknown slugs get a real 404 instead of a streamed notFound()
+export const dynamicParams = false;
+
+/** Loads a post with its {{drawDate}} tokens filled from the database. */
+const loadPost = async (slug: string) => {
+  const post = getBlogBySlug(slug);
+  if (!post) return null;
+  const draw = post.drawLotteryCode ? await getBlogDrawContext(post.drawLotteryCode) : null;
+  return { post: resolveBlogPost(post, draw), draw };
+};
 
 interface Props {
   params: Promise<{
@@ -18,14 +32,15 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogBySlug(slug);
+  const loaded = await loadPost(slug);
 
-  if (!post) {
+  if (!loaded) {
     return {
       title: "Article Not Found | Kerala Lottery",
     };
   }
 
+  const { post } = loaded;
   const url = `https://www.keralalotteryresultstoday.in/blog/${post.slug}`;
 
   return {
@@ -56,11 +71,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogBySlug(slug);
+  const loaded = await loadPost(slug);
 
-  if (!post) {
+  if (!loaded) {
     notFound();
   }
+  const { post, draw } = loaded;
+  const aboutUrl = draw ? `https://www.keralalotteryresultstoday.in${draw.url}` : undefined;
 
   const pageUrl = `https://www.keralalotteryresultstoday.in/blog/${post.slug}`;
 
@@ -99,9 +116,9 @@ export default async function BlogPostPage({ params }: Props) {
       "@type": "SpeakableSpecification",
       cssSelector: ["h1", "#quick-answer", "#faqs"],
     },
-    ...(post.aboutUrl && {
-      about: { "@type": "WebPage", "@id": post.aboutUrl, url: post.aboutUrl },
-      mentions: [{ "@type": "WebPage", url: post.aboutUrl }],
+    ...(aboutUrl && {
+      about: { "@type": "WebPage", "@id": aboutUrl, url: aboutUrl },
+      mentions: [{ "@type": "WebPage", url: aboutUrl }],
     }),
   };
 
@@ -178,7 +195,7 @@ export default async function BlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
         />
       )}
-      <BlogPostClient post={post} />
+      <BlogPostClient post={post} draw={draw} />
     </>
   );
 }

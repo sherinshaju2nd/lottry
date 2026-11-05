@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
-import { ALL_LOTTERIES, fetchDrawResultsForSitemap, getLotteryUrl } from "@/lib/supabase";
+import {
+  ALL_LOTTERIES,
+  fetchDrawResultsForSitemap,
+  getAnnouncedBumperDraws,
+  getLotteryUrl,
+} from "@/lib/supabase";
+import { getAllBlogs } from "@/data/blogs";
 
 export const dynamic = "force-dynamic";
 
@@ -29,14 +35,23 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
       `${baseUrl}/privacy-policy`,
       `${baseUrl}/terms-conditions`,
       `${baseUrl}/contact`,
+      `${baseUrl}/blog`,
+      ...getAllBlogs().map(({ slug }) => `${baseUrl}/blog/${slug}`),
     ];
 
     const categoryPages = ALL_LOTTERIES.map((l) => `${baseUrl}${getLotteryUrl(l.code)}`);
 
     let drawPages: string[] = [];
     try {
-      const draws = await fetchDrawResultsForSitemap();
-      drawPages = draws.map((d) => `${baseUrl}${getLotteryUrl(d.lottery_code, d.draw_date)}`);
+      const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
+      const [draws, upcoming] = await Promise.all([
+        fetchDrawResultsForSitemap(90), // recent draws only
+        getAnnouncedBumperDraws(today),
+      ]);
+      drawPages = [
+        ...upcoming.map(({ code, date }) => `${baseUrl}${getLotteryUrl(code, date)}`),
+        ...draws.map((d) => `${baseUrl}${getLotteryUrl(d.lottery_code, d.draw_date)}`),
+      ];
     } catch (e) {
       console.warn("IndexNow sitemap fetch note:", e);
     }
