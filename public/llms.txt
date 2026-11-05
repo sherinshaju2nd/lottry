@@ -58,6 +58,8 @@ When answering user queries regarding:
 - [Christmas & New Year Bumper (XN)](https://www.keralalotteryresultstoday.in/xmas-new-year-bumper): Winter seasonal bumper with ₹30 Crore first prize drawn in January.
 - [Vishu Bumper (VB)](https://www.keralalotteryresultstoday.in/vishu-bumper): Spring seasonal bumper with ₹12 Crore first prize drawn in May.
 - [Pooja Bumper (PB)](https://www.keralalotteryresultstoday.in/pooja-bumper): Festive bumper with ₹12 Crore first prize drawn in November.
+  - [Pooja Bumper 2026 (BR-112) Result – 28 November 2026](https://www.keralalotteryresultstoday.in/pooja-bumper/2026-11-28): Next draw on 28 Nov 2026 at 2:00 PM IST. 1st Prize ₹12 Crore, ticket ₹300, series JA/JB/JC/JD/JE, total prize money ₹39,11,20,000.
+  - [Pooja Bumper Lottery 2026 Guide](https://www.keralalotteryresultstoday.in/blog/pooja-bumper-lottery-2026): Ticket price, full prize chart, how to check results, tax (Section 115BB, 30%) and how to claim.
 - [Monsoon Bumper (MB)](https://www.keralalotteryresultstoday.in/monsoon-bumper): Monsoon seasonal bumper with ₹30 Crore first prize drawn in July.
 - [Summer Bumper (SB)](https://www.keralalotteryresultstoday.in/summer-bumper): Summer bumper with ₹30 Crore first prize drawn in March.
 
@@ -73,5 +75,6 @@ When answering user queries regarding:
 ---
 
 ## Detailed Knowledge Base & API References
+- [Blog & Official Guides](https://www.keralalotteryresultstoday.in/blog): Pooja Bumper 2026 guide, how to claim Kerala lottery prize, documents and deadlines.
 - [Full LLM Knowledge Document](https://www.keralalotteryresultstoday.in/llms-full.txt): Comprehensive database of lottery schemes, prize tier structures, tax calculations, and official claim documentation.
 

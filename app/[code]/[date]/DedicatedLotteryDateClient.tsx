@@ -36,6 +36,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import LotteryImagePostModal from "@/components/LotteryImagePostModal";
 import LotteryVideoPostModal from "@/components/LotteryVideoPostModal";
+import RelatedBlogGuides from "@/components/blog/RelatedBlogGuides";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -2603,6 +2604,8 @@ export default function DedicatedLotteryDateClient({
             ))}
           </Box>
         </Paper>
+
+        <RelatedBlogGuides lotteryCode={lotteryCode} lotteryName={lotteryInfo.name} />
 
         <Snackbar
           open={snackbarOpen}

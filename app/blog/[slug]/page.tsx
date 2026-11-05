@@ -92,6 +92,30 @@ export default async function BlogPostPage({ params }: Props) {
       "@id": pageUrl,
     },
     keywords: post.tags.join(", "),
+    inLanguage: "en-IN",
+    image: `https://www.keralalotteryresultstoday.in${post.coverImage ?? "/logo-master-1024.png"}`,
+    // AEO: point voice assistants / answer engines at the summary blocks
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", "#quick-answer", "#faqs"],
+    },
+    ...(post.aboutUrl && {
+      about: { "@type": "WebPage", "@id": post.aboutUrl, url: post.aboutUrl },
+      mentions: [{ "@type": "WebPage", url: post.aboutUrl }],
+    }),
+  };
+
+  // 4. HowTo Schema (optional, per post)
+  const howToSchema = post.howTo && {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: post.howTo.name,
+    step: post.howTo.steps.map((text, idx) => ({
+      "@type": "HowToStep",
+      position: idx + 1,
+      name: text,
+      text,
+    })),
   };
 
   // 2. Breadcrumbs Schema
@@ -148,6 +172,12 @@ export default async function BlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
+      {howToSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+        />
+      )}
       <BlogPostClient post={post} />
     </>
   );

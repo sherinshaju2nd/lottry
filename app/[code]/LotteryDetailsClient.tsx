@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import RelatedBlogGuides from "@/components/blog/RelatedBlogGuides";
 import { useRouter } from "next/navigation";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
@@ -2068,6 +2069,7 @@ export default function LotteryDetailsClient({
             ))}
           </Box>
         </Paper>
+        <RelatedBlogGuides lotteryCode={lotteryCode} lotteryName={lotteryInfo.name} />
       </Container>
     </Box>
   );

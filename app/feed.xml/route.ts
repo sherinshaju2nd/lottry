@@ -4,6 +4,7 @@ import {
   WEEKLY_LOTTERIES,
   getLotterySlug,
 } from "@/lib/supabase";
+import { getAllBlogs } from "@/data/blogs";
 export const revalidate = 3600; // 1 hour (revalidated on-demand when draws sync)
 
 function getTodayISTInfo() {
@@ -94,6 +95,20 @@ export async function GET() {
       })
       .join("\n");
 
+    const blogItemsXml = getAllBlogs()
+      .map(({ slug, title, description, publishedDate, category }) => {
+        const url = `${baseUrl}/blog/${slug}`;
+        return `    <item>
+      <title><![CDATA[${title}]]></title>
+      <link>${url}</link>
+      <guid isPermaLink="true">${url}</guid>
+      <description><![CDATA[${description}]]></description>
+      <pubDate>${new Date(`${publishedDate}T09:00:00+05:30`).toUTCString()}</pubDate>
+      <category>${category}</category>
+    </item>`;
+      })
+      .join("\n");
+
     const latestBuildDate = new Date().toUTCString();
 
     const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -106,6 +121,7 @@ export async function GET() {
     <lastBuildDate>${latestBuildDate}</lastBuildDate>
     <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml" />
 ${todayItemXml}${itemsXml}
+${blogItemsXml}
   </channel>
 </rss>`;
 
