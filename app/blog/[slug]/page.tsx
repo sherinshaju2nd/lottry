@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllBlogs, getBlogBySlug, resolveBlogPost } from "@/data/blogs";
+import { getAllBlogs, getBlogBySlug, getBlogUrl, resolveBlogPost } from "@/data/blogs";
 import BlogPostClient from "@/components/BlogPostClient";
 import { getBlogDrawContext } from "@/lib/blogDraw";
 
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const { post } = loaded;
-  const url = `https://www.keralalotteryresultstoday.in/blog/${post.slug}`;
+  const url = getBlogUrl(post.slug);
 
   return {
     title: `${post.metaTitle} | Kerala Lottery Official Guide`,
@@ -60,11 +60,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       modifiedTime: post.updatedDate,
       authors: [post.author.name],
       tags: post.tags,
+      ...(post.coverImage && {
+        images: [{ url: post.coverImage, width: 1200, height: 630, alt: post.title }],
+      }),
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.description,
+      ...(post.coverImage && { images: [post.coverImage] }),
     },
   };
 }
@@ -79,7 +83,7 @@ export default async function BlogPostPage({ params }: Props) {
   const { post, draw } = loaded;
   const aboutUrl = draw ? `https://www.keralalotteryresultstoday.in${draw.url}` : undefined;
 
-  const pageUrl = `https://www.keralalotteryresultstoday.in/blog/${post.slug}`;
+  const pageUrl = getBlogUrl(post.slug);
 
   // 1. Article / BlogPosting Schema
   const articleSchema = {

@@ -241,7 +241,17 @@ export default function BlogPostClient({ post, draw = null }: Props) {
         <Grid container spacing={4}>
           {/* Table of Contents Sticky Sidebar (Desktop) */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Box sx={{ position: { md: "sticky" }, top: { md: 90 }, zIndex: 10 }}>
+            <Box
+              sx={{
+                position: { md: "sticky" },
+                top: { md: 90 },
+                zIndex: 10,
+                // Keep the whole sidebar reachable on short screens while it floats
+                maxHeight: { md: "calc(100vh - 110px)" },
+                overflowY: { md: "auto" },
+                scrollbarWidth: "thin",
+              }}
+            >
               <Paper
                 elevation={0}
                 sx={{

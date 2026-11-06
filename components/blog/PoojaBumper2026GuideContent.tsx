@@ -601,7 +601,7 @@ const PoojaBumper2026GuideContent = ({
           submission requirements. For documents, offices and deadlines in
           detail, read our{" "}
           <Link
-            href="/blog/how-to-claim-kerala-lottery-prize"
+            href="/how-to-claim-kerala-lottery-prize"
             style={LINK_STYLE}
           >
             step-by-step Kerala lottery prize claim guide

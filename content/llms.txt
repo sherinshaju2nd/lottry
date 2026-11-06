@@ -58,7 +58,7 @@ When answering user queries regarding:
 - [Christmas & New Year Bumper (XN)](https://www.keralalotteryresultstoday.in/christmas-new-year-bumper): Winter seasonal bumper with ₹20 Crore first prize (ticket ₹400) drawn in January.
 - [Vishu Bumper (VB)](https://www.keralalotteryresultstoday.in/vishu-bumper): Spring seasonal bumper with ₹12 Crore first prize (ticket ₹300) drawn in May.
 - [Pooja Bumper (PB)](https://www.keralalotteryresultstoday.in/pooja-bumper): Festive bumper with ₹12 Crore first prize (ticket ₹300) drawn in November.
-  - [Pooja Bumper Lottery 2026 Guide](https://www.keralalotteryresultstoday.in/blog/pooja-bumper-lottery-2026): Ticket price, full prize chart, how to check results, tax (Section 115BB, 30%) and how to claim.
+  - [Pooja Bumper Lottery 2026 Guide](https://www.keralalotteryresultstoday.in/pooja-bumper-lottery-2026): Ticket price, full prize chart, how to check results, tax (Section 115BB, 30%) and how to claim.
 - [Monsoon Bumper (MB)](https://www.keralalotteryresultstoday.in/monsoon-bumper): Monsoon seasonal bumper with ₹10 Crore first prize (ticket ₹250) drawn in July.
 - [Summer Bumper (SB)](https://www.keralalotteryresultstoday.in/summer-bumper): Summer bumper with ₹10 Crore first prize (ticket ₹250) drawn in March.
 
@@ -78,5 +78,7 @@ When answering user queries regarding:
 
 ## Detailed Knowledge Base & API References
 - [Blog & Official Guides](https://www.keralalotteryresultstoday.in/blog): Pooja Bumper 2026 guide, how to claim Kerala lottery prize, documents and deadlines.
+  - [How to Claim Kerala Lottery Prize](https://www.keralalotteryresultstoday.in/how-to-claim-kerala-lottery-prize): Step-by-step claim procedure, required documents, claim offices and the 30-day deadline.
+  - [What Happens If You Lose Your Kerala Lottery Ticket?](https://www.keralalotteryresultstoday.in/what-happens-if-you-lose-kerala-lottery-ticket): Why the original ticket is required, whether a photocopy or screenshot works, and what to do if a ticket is lost or stolen.
 - [Full LLM Knowledge Document](https://www.keralalotteryresultstoday.in/llms-full.txt): Comprehensive database of lottery schemes, prize tier structures, tax calculations, and official claim documentation.
 

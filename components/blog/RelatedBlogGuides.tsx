@@ -4,7 +4,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { getBlogsForLottery } from "@/data/blogs";
+import { getBlogPath, getBlogsForLottery } from "@/data/blogs";
 
 interface Props {
   lotteryCode: string;
@@ -41,7 +41,7 @@ const RelatedBlogGuides = ({ lotteryCode, lotteryName }: Props) => {
           <Box
             key={slug}
             component={Link}
-            href={`/blog/${slug}`}
+            href={getBlogPath(slug)}
             sx={{
               display: "flex",
               alignItems: "center",

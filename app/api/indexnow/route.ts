@@ -5,7 +5,7 @@ import {
   getAnnouncedBumperDraws,
   getLotteryUrl,
 } from "@/lib/supabase";
-import { getAllBlogs } from "@/data/blogs";
+import { getAllBlogs, getBlogPath } from "@/data/blogs";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +36,7 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
       `${baseUrl}/terms-conditions`,
       `${baseUrl}/contact`,
       `${baseUrl}/blog`,
-      ...getAllBlogs().map(({ slug }) => `${baseUrl}/blog/${slug}`),
+      ...getAllBlogs().map(({ slug }) => `${baseUrl}${getBlogPath(slug)}`),
     ];
 
     const categoryPages = ALL_LOTTERIES.map((l) => `${baseUrl}${getLotteryUrl(l.code)}`);

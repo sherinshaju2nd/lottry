@@ -59,9 +59,95 @@ export interface BlogDrawContext {
 
 export const SITE_URL = "https://www.keralalotteryresultstoday.in";
 
+/** Public path of a post. Posts live at the site root (e.g. /pooja-bumper-lottery-2026); proxy.ts rewrites them to app/blog/[slug]. */
+export const getBlogPath = (slug: string): string => `/${slug}`;
+
+/** Absolute canonical URL of a post. */
+export const getBlogUrl = (slug: string): string => `${SITE_URL}${getBlogPath(slug)}`;
+
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "what-happens-if-you-lose-kerala-lottery-ticket",
+    coverImage: "/blog/what-happens-if-you-lose-kerala-lottery-ticket.jpg",
+    title: "What Happens If You Lose Your Kerala Lottery Ticket?",
+    metaTitle: "Lost Kerala Lottery Ticket? Can You Still Claim the Prize",
+    description:
+      "Lost your Kerala lottery ticket? Learn whether you can claim a prize without the original ticket, if a photocopy or screenshot works, what to do right away, and how to protect your ticket.",
+    category: "Claim Guide",
+    tags: [
+      "Lost Kerala Lottery Ticket",
+      "Claim Prize Without Ticket",
+      "Lottery Ticket Photocopy",
+      "Kerala Lottery Prize Claim Rules",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-06",
+    updatedDate: "2026-11-06",
+    readTime: "5 min read",
+    author: {
+      name: "Kerala Lottery Editorial Team",
+      role: "Official Results & Verification Analyst",
+      avatar: "/logo-round-192.png",
+    },
+    featured: false,
+    primaryCta: {
+      href: "/how-to-claim-kerala-lottery-prize",
+      label: "Read the Prize Claim Guide",
+      heading: "Still Have Your Ticket?",
+      description: "Documents, offices and the 30-day deadline for claiming a Kerala lottery prize.",
+    },
+    howTo: {
+      name: "What to do if your Kerala lottery ticket is lost",
+      steps: [
+        "Search your wallet, bag, clothes, vehicle and other usual places carefully.",
+        "Note the lottery name, draw number, series and ticket number from any photo or record you have.",
+        "Visit or contact your nearest District Lottery Office and explain what happened.",
+        "File a police complaint if you believe the ticket was stolen and keep a copy.",
+        "Keep all photographs, messages and records that support your explanation.",
+      ],
+    },
+    tableOfContents: [
+      { id: "what-happens", title: "What Happens If You Lose Your Ticket?" },
+      { id: "can-you-still-claim", title: "Lost Ticket: Can You Still Claim the Prize?" },
+      { id: "what-to-do", title: "What to Do If Your Ticket Is Lost" },
+      { id: "claim-without-ticket", title: "Can I Claim a Prize Without the Ticket?" },
+      { id: "photocopy", title: "Can I Claim With a Photocopy?" },
+      { id: "claim-rules", title: "Prize Claim Rules You Should Know" },
+      { id: "protect-ticket", title: "How to Protect Your Original Ticket" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "Can I get a replacement for a lost Kerala lottery ticket?",
+        answer:
+          "There is no standard replacement process for a lost winning ticket under the published prize claim rules. The original ticket is required for claiming the prize.",
+      },
+      {
+        question: "Can I claim a prize using a screenshot of my lottery ticket?",
+        answer:
+          "No. A screenshot may help you remember the ticket details, but it cannot replace the original physical ticket.",
+      },
+      {
+        question: "What should I do if someone steals my winning ticket?",
+        answer:
+          "Report the theft to the police and contact the nearest District Lottery Office. Keep all available purchase details and evidence. A complaint does not guarantee prize payment.",
+      },
+      {
+        question: "Is a photocopy enough to claim Kerala lottery prize money?",
+        answer:
+          "No. A photocopy is a supporting document. The original winning ticket must also be submitted.",
+      },
+      {
+        question: "Can I claim my prize if the ticket is damaged?",
+        answer:
+          "Damaged, torn or mutilated tickets may face rejection. The applicable rules provide limited scope for certain torn tickets to be examined and accepted if their genuineness is established. Contact the lottery office before making a claim.",
+      },
+    ],
+  },
+  {
     slug: "pooja-bumper-lottery-2026",
+    coverImage: "/blog/pooja-bumper-lottery-2026.jpg",
     title: "Pooja Bumper Lottery 2026 (BR-112): Ticket Price, Prize Structure, Draw Date & Result",
     metaTitle: "Pooja Bumper 2026 BR-112: ₹12 Crore Prize, ₹300 Ticket, Draw {{drawDateShort}}",
     description:
@@ -157,6 +243,7 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: "how-to-claim-kerala-lottery-prize",
+    coverImage: "/blog/how-to-claim-kerala-lottery-prize.jpg",
     title: "How to Claim Kerala Lottery Prize: Complete Step-by-Step Guide",
     metaTitle: "How to Claim Kerala Lottery Prize: Complete Step-by-Step Guide",
     description:

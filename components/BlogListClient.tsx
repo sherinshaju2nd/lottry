@@ -18,7 +18,71 @@ import SearchIcon from "@mui/icons-material/Search";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import SmartphoneIcon from "@mui/icons-material/Smartphone";
 import SecurityIcon from "@mui/icons-material/Security";
-import type { BlogPost } from "@/data/blogs";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import { getBlogPath, type BlogPost } from "@/data/blogs";
+
+interface CardVisual {
+  Icon: typeof EmojiEventsIcon;
+  gradient: string;
+}
+
+/** Cover art per post category (category itself is no longer printed on the card). */
+const CARD_VISUALS: Record<string, CardVisual> = {
+  "Bumper Guide": { Icon: EmojiEventsIcon, gradient: "linear-gradient(135deg, #B45309 0%, #D97706 55%, #F59E0B 100%)" },
+  "Claim Guide": { Icon: ReceiptLongIcon, gradient: "linear-gradient(135deg, #0B3C5D 0%, #1E40AF 60%, #3B82F6 100%)" },
+};
+const DEFAULT_CARD_VISUAL: CardVisual = {
+  Icon: MenuBookIcon,
+  gradient: "linear-gradient(135deg, #0F766E 0%, #0D9488 60%, #14B8A6 100%)",
+};
+
+const getCardVisual = (category: string): CardVisual => CARD_VISUALS[category] ?? DEFAULT_CARD_VISUAL;
+
+const COVER_SX = {
+  position: "relative",
+  aspectRatio: "1200 / 630",
+  overflow: "hidden",
+  bgcolor: "#E2E8F0",
+} as const;
+
+/** Card artwork: the post's illustrated cover (WebP with JPG fallback), or a category gradient. */
+const CardCover = ({ post }: { post: BlogPost }) => {
+  const { coverImage, title, category } = post;
+  if (coverImage) {
+    return (
+      <Box sx={COVER_SX}>
+        <picture>
+          <source srcSet={coverImage.replace(/\.jpg$/, ".webp")} type="image/webp" />
+          <Box
+            component="img"
+            className="card-cover-art"
+            src={coverImage}
+            alt={title}
+            width={1200}
+            height={630}
+            loading="lazy"
+            decoding="async"
+            sx={{ display: "block", width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }}
+          />
+        </picture>
+      </Box>
+    );
+  }
+  const { Icon, gradient } = getCardVisual(category);
+  return (
+    <Box aria-hidden sx={{ ...COVER_SX, background: gradient, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Icon className="card-cover-art" sx={{ color: "#FFFFFF", fontSize: 56, opacity: 0.9, transition: "transform 0.4s ease" }} />
+    </Box>
+  );
+};
+
+/** "2026-11-05" → "5 Nov 2026" (UTC so server and client render the same text). */
+const formatPostDate = (isoDate: string): string => {
+  const parsed = new Date(`${isoDate}T00:00:00Z`);
+  return Number.isNaN(parsed.getTime())
+    ? isoDate
+    : parsed.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+};
 
 interface Props {
   blogs: BlogPost[];
@@ -87,7 +151,7 @@ export default function BlogListClient({ blogs, featured }: Props) {
           <Paper
             elevation={0}
             component={Link}
-            href={`/blog/${featured.slug}`}
+            href={getBlogPath(featured.slug)}
             sx={{
               display: "block",
               textDecoration: "none",
@@ -233,138 +297,143 @@ export default function BlogListClient({ blogs, featured }: Props) {
         )}
 
         {/* Section Heading */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: "#0B3C5D" }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Box sx={{ width: 6, height: 28, borderRadius: 3, background: "linear-gradient(180deg, #D9B310 0%, #F59E0B 100%)" }} />
+            <Typography variant="h5" component="h2" sx={{ fontWeight: 900, color: "#0B3C5D" }}>
               All Articles &amp; Tutorials
             </Typography>
-            <Typography variant="body2" sx={{ color: "#64748B" }}>
-              Guides, official rules, and verification tips for lottery players
-            </Typography>
           </Box>
+          <Typography
+            component="span"
+            sx={{
+              px: 1.5,
+              py: 0.5,
+              borderRadius: "999px",
+              bgcolor: "#E0F2FE",
+              color: "#0B3C5D",
+              fontWeight: 800,
+              fontSize: "0.78rem",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {blogs.length} {blogs.length === 1 ? "guide" : "guides"}
+          </Typography>
         </Box>
 
         {/* Blog Posts Grid */}
-        <Grid container spacing={3.5}>
-          {blogs.map((post) => (
-            <Grid key={post.slug} size={{ xs: 12, md: 6, lg: 4 }}>
-              <Paper
-                elevation={0}
-                component={Link}
-                href={`/blog/${post.slug}`}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                  textDecoration: "none",
-                  color: "inherit",
-                  p: 3,
-                  borderRadius: "16px",
-                  bgcolor: "#FFFFFF",
-                  border: "1.5px solid #E2E8F0",
-                  transition: "all 0.2s ease-in-out",
-                  "&:hover": {
-                    transform: "translateY(-4px)",
-                    borderColor: "#0B3C5D",
-                    boxShadow: "0 12px 28px -6px rgba(11, 60, 93, 0.12)",
-                  },
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
-                  <Chip
-                    label={post.category}
-                    size="small"
-                    sx={{
-                      bgcolor: "#EFF6FF",
-                      color: "#1E40AF",
-                      fontWeight: 800,
-                      fontSize: "0.7rem",
-                    }}
-                  />
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "#94A3B8", fontSize: "0.75rem" }}>
-                    <AccessTimeIcon sx={{ fontSize: 14 }} />
-                    <span>{post.readTime}</span>
-                  </Box>
-                </Box>
-
-                <Typography
-                  variant="h6"
+        <Grid container spacing={3}>
+          {blogs.map((post) => {
+            return (
+              <Grid key={post.slug} size={{ xs: 12, sm: 6, lg: 4 }}>
+                <Paper
+                  elevation={0}
+                  component={Link}
+                  href={getBlogPath(post.slug)}
                   sx={{
-                    fontWeight: 800,
-                    color: "#0F172A",
-                    fontSize: "1.15rem",
-                    lineHeight: 1.4,
-                    mb: 1.5,
-                    flexGrow: 0,
-                  }}
-                >
-                  {post.title}
-                </Typography>
-
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "#64748B",
-                    lineHeight: 1.6,
-                    mb: 2.5,
-                    flexGrow: 1,
-                    display: "-webkit-box",
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
-                  }}
-                >
-                  {post.description}
-                </Typography>
-
-                {/* Tags */}
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8, mb: 2 }}>
-                  {post.tags.slice(0, 3).map((tag) => (
-                    <Chip
-                      key={tag}
-                      label={`#${tag}`}
-                      size="small"
-                      sx={{
-                        bgcolor: "#F8FAFC",
-                        color: "#475569",
-                        fontSize: "0.68rem",
-                        fontWeight: 600,
-                        border: "1px solid #E2E8F0",
-                      }}
-                    />
-                  ))}
-                </Box>
-
-                {/* Footer of card */}
-                <Box
-                  sx={{
-                    pt: 2,
-                    borderTop: "1px solid #F1F5F9",
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
+                    flexDirection: "column",
+                    height: "100%",
+                    textDecoration: "none",
+                    color: "inherit",
+                    borderRadius: "18px",
+                    bgcolor: "#FFFFFF",
+                    border: "1px solid #E2E8F0",
+                    overflow: "hidden",
+                    boxShadow: "0 1px 3px rgba(15, 23, 42, 0.04)",
+                    transition: "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
+                    "&:hover": {
+                      transform: "translateY(-6px)",
+                      borderColor: "#BFDBFE",
+                      boxShadow: "0 18px 36px -12px rgba(11, 60, 93, 0.22)",
+                    },
+                    "&:hover .card-cover-art": { transform: "scale(1.05)" },
+                    "&:hover .card-cta": { bgcolor: "#0B3C5D", color: "#FFFFFF" },
+                    "&:hover .card-cta-arrow": { transform: "translateX(3px)" },
+                    "&:focus-visible": { outline: "3px solid #93C5FD", outlineOffset: 2 },
                   }}
                 >
-                  <Typography variant="caption" sx={{ color: "#94A3B8", fontWeight: 600 }}>
-                    {post.publishedDate}
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.5,
-                      color: "#0B3C5D",
-                      fontWeight: 800,
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    <span>Read Guide</span>
-                    <ArrowForwardIcon sx={{ fontSize: 14 }} />
+                  <CardCover post={post} />
+
+                  {/* Body */}
+                  <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1, p: { xs: 2.5, sm: 3 } }}>
+                    <Typography
+                      component="h3"
+                      sx={{
+                        fontWeight: 800,
+                        color: "#0F172A",
+                        fontSize: { xs: "1.08rem", sm: "1.15rem" },
+                        lineHeight: 1.4,
+                        mb: 1.25,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {post.title}
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#64748B",
+                        lineHeight: 1.65,
+                        mb: 2.5,
+                        flexGrow: 1,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {post.description}
+                    </Typography>
+
+                    {/* Footer */}
+                    <Box
+                      sx={{
+                        pt: 2,
+                        borderTop: "1px solid #F1F5F9",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 1,
+                      }}
+                    >
+                      <Box
+                        component="time"
+                        dateTime={post.publishedDate}
+                        sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "#64748B", fontSize: "0.8rem", fontWeight: 600 }}
+                      >
+                        <CalendarTodayIcon sx={{ fontSize: 14 }} />
+                        {formatPostDate(post.publishedDate)}
+                      </Box>
+                      <Box
+                        className="card-cta"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                          px: 1.5,
+                          py: 0.75,
+                          borderRadius: "999px",
+                          bgcolor: "#EFF6FF",
+                          color: "#0B3C5D",
+                          fontWeight: 800,
+                          fontSize: "0.8rem",
+                          transition: "background-color 0.2s ease, color 0.2s ease",
+                        }}
+                      >
+                        <span>Read Guide</span>
+                        <ArrowForwardIcon className="card-cta-arrow" sx={{ fontSize: 15, transition: "transform 0.2s ease" }} />
+                      </Box>
+                    </Box>
                   </Box>
-                </Box>
-              </Paper>
-            </Grid>
-          ))}
+                </Paper>
+              </Grid>
+            );
+          })}
         </Grid>
 
         {/* Quick Tools & Related Resources */}

@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0E3A5C"/>
+      <stop offset="0.55" stop-color="#14567F"/>
+      <stop offset="1" stop-color="#1B7A8C"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.68" cy="0.42" r="0.55">
+      <stop offset="0" stop-color="#FDE68A" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#FDE68A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ticket" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF7D6"/>
+      <stop offset="1" stop-color="#FCD34D"/>
+    </linearGradient>
+    <linearGradient id="ticket2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFE4E6"/>
+      <stop offset="1" stop-color="#FDA4AF"/>
+    </linearGradient>
+    <linearGradient id="wallet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8B5A2B"/>
+      <stop offset="1" stop-color="#5B3A1A"/>
+    </linearGradient>
+    <linearGradient id="walletFlap" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A86B34"/>
+      <stop offset="1" stop-color="#7A4A22"/>
+    </linearGradient>
+    <linearGradient id="lens" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E0F2FE" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#BAE6FD" stop-opacity="0.18"/>
+    </linearGradient>
+    <linearGradient id="handle" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1F2937"/>
+      <stop offset="0.5" stop-color="#4B5563"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="14"/>
+      <feOffset dx="0" dy="16" result="b"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Coconut palm silhouettes -->
+  <g fill="#0A2C45" opacity="0.55">
+    <path d="M70 630 C90 520 110 420 150 330 L162 334 C128 424 112 522 98 630 Z"/>
+    <path d="M152 332 C110 300 60 300 18 326 C66 296 118 290 156 320 Z"/>
+    <path d="M154 330 C150 280 120 248 80 236 C126 240 162 276 166 326 Z"/>
+    <path d="M158 330 C190 286 236 272 280 284 C236 282 196 300 166 336 Z"/>
+    <path d="M156 334 C196 330 236 352 258 392 C224 360 192 348 158 344 Z"/>
+    <path d="M150 334 C116 344 86 372 72 410 C96 372 122 354 152 346 Z"/>
+    <path d="M1130 630 C1118 540 1100 470 1066 400 L1056 405 C1086 472 1102 542 1108 630 Z"/>
+    <path d="M1060 402 C1094 372 1140 368 1184 388 C1140 376 1100 382 1066 410 Z"/>
+    <path d="M1060 402 C1062 360 1086 332 1120 320 C1084 330 1064 360 1054 400 Z"/>
+    <path d="M1058 404 C1024 372 984 364 946 376 C986 370 1022 382 1052 412 Z"/>
+  </g>
+
+  <!-- Floating dots / stars -->
+  <g fill="#FDE68A">
+    <circle cx="360" cy="90" r="4" opacity="0.8"/>
+    <circle cx="980" cy="110" r="5" opacity="0.7"/>
+    <circle cx="1060" cy="210" r="3" opacity="0.6"/>
+    <circle cx="250" cy="200" r="3" opacity="0.6"/>
+    <circle cx="560" cy="60" r="3" opacity="0.5"/>
+  </g>
+
+  <!-- Wallet -->
+  <g filter="url(#shadow)">
+    <rect x="200" y="330" width="360" height="220" rx="28" fill="url(#wallet)"/>
+    <rect x="200" y="330" width="360" height="220" rx="28" fill="none" stroke="#3B250F" stroke-width="3" stroke-dasharray="10 8" transform="translate(0 0)" opacity="0.5"/>
+    <!-- ticket peeking out of wallet -->
+    <g transform="rotate(-8 380 320)">
+      <rect x="250" y="270" width="250" height="110" rx="12" fill="url(#ticket2)"/>
+      <rect x="268" y="290" width="120" height="14" rx="7" fill="#BE123C" opacity="0.55"/>
+      <rect x="268" y="316" width="180" height="10" rx="5" fill="#BE123C" opacity="0.3"/>
+    </g>
+    <path d="M200 380 Q200 340 240 340 L560 340 L560 440 L240 440 Q200 440 200 400 Z" fill="url(#walletFlap)"/>
+    <rect x="470" y="372" width="110" height="46" rx="23" fill="#5B3A1A"/>
+    <circle cx="500" cy="395" r="11" fill="#FBBF24"/>
+  </g>
+
+  <!-- Dashed path of the ticket drifting away -->
+  <path d="M520 330 C600 230 680 210 760 220" fill="none" stroke="#FDE68A" stroke-width="5" stroke-linecap="round" stroke-dasharray="4 18" opacity="0.85"/>
+
+  <!-- Flying ticket -->
+  <g filter="url(#shadow)" transform="rotate(14 860 230)">
+    <rect x="720" y="150" width="300" height="150" rx="16" fill="url(#ticket)"/>
+    <circle cx="720" cy="225" r="16" fill="#14567F"/>
+    <circle cx="1020" cy="225" r="16" fill="#14567F"/>
+    <line x1="800" y1="166" x2="800" y2="284" stroke="#B45309" stroke-width="3" stroke-dasharray="8 8" opacity="0.6"/>
+    <circle cx="760" cy="225" r="22" fill="#F59E0B"/>
+    <path d="M750 225 l7 8 l14 -16" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="822" y="182" width="170" height="20" rx="10" fill="#92400E" opacity="0.75"/>
+    <rect x="822" y="214" width="130" height="14" rx="7" fill="#92400E" opacity="0.4"/>
+    <g fill="#92400E" opacity="0.8">
+      <rect x="822" y="244" width="6" height="34"/><rect x="834" y="244" width="3" height="34"/>
+      <rect x="842" y="244" width="8" height="34"/><rect x="856" y="244" width="3" height="34"/>
+      <rect x="864" y="244" width="5" height="34"/><rect x="876" y="244" width="9" height="34"/>
+      <rect x="890" y="244" width="3" height="34"/><rect x="898" y="244" width="6" height="34"/>
+      <rect x="910" y="244" width="4" height="34"/><rect x="920" y="244" width="8" height="34"/>
+      <rect x="934" y="244" width="3" height="34"/><rect x="942" y="244" width="6" height="34"/>
+    </g>
+  </g>
+
+  <!-- Magnifying glass -->
+  <g filter="url(#shadow)">
+    <rect x="905" y="420" width="44" height="170" rx="22" fill="url(#handle)" transform="rotate(-40 927 505)"/>
+    <circle cx="830" cy="380" r="118" fill="url(#lens)" stroke="#E5E7EB" stroke-width="22"/>
+    <circle cx="830" cy="380" r="118" fill="none" stroke="#9CA3AF" stroke-width="4"/>
+    <path d="M760 320 A90 90 0 0 1 840 284" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" opacity="0.7"/>
+    <!-- question mark in lens -->
+    <path d="M800 360 Q800 322 834 322 Q870 322 870 354 Q870 376 846 386 Q834 392 834 410" fill="none" stroke="#FDE68A" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="834" cy="444" r="11" fill="#FDE68A"/>
+  </g>
+
+  <!-- Floating question marks -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" opacity="0.35">
+    <path d="M640 470 Q640 450 658 450 Q676 450 676 466 Q676 478 664 484 Q658 487 658 498" stroke-width="8"/>
+    <path d="M1080 110 Q1080 94 1094 94 Q1108 94 1108 106 Q1108 116 1098 120 Q1094 122 1094 130" stroke-width="6"/>
+  </g>
+  <circle cx="658" cy="514" r="5" fill="#FFFFFF" opacity="0.35"/>
+  <circle cx="1094" cy="142" r="4" fill="#FFFFFF" opacity="0.35"/>
+</svg>

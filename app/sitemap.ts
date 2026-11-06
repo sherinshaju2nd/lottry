@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllBlogs } from "@/data/blogs";
+import { getAllBlogs, getBlogPath } from "@/data/blogs";
 import {
   ALL_LOTTERIES,
   WEEKLY_LOTTERIES,
@@ -160,7 +160,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const blogPages: MetadataRoute.Sitemap = getAllBlogs().map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
+    url: `${baseUrl}${getBlogPath(post.slug)}`,
     lastModified: new Date(post.updatedDate),
     changeFrequency: "weekly" as const,
     priority: 0.85,

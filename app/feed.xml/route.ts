@@ -4,7 +4,7 @@ import {
   WEEKLY_LOTTERIES,
   getLotterySlug,
 } from "@/lib/supabase";
-import { getAllBlogs } from "@/data/blogs";
+import { getAllBlogs, getBlogPath } from "@/data/blogs";
 export const revalidate = 3600; // 1 hour (revalidated on-demand when draws sync)
 
 function getTodayISTInfo() {
@@ -97,7 +97,7 @@ export async function GET() {
 
     const blogItemsXml = getAllBlogs()
       .map(({ slug, title, description, publishedDate, category }) => {
-        const url = `${baseUrl}/blog/${slug}`;
+        const url = `${baseUrl}${getBlogPath(slug)}`;
         return `    <item>
       <title><![CDATA[${title}]]></title>
       <link>${url}</link>
