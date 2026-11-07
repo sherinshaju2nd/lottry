@@ -20,6 +20,7 @@ const RESERVED_ROUTES = new Set([
   "guide",
   "kerala-lottery-app",
   "lotteries",
+  "news",
   "privacy-policy",
   "search",
   "support",

@@ -53,6 +53,8 @@ import SendIcon from "@mui/icons-material/Send";
 
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import AiGazettePdfUploader from "@/components/admin/AiGazettePdfUploader";
+import ArticlesManager from "@/components/admin/ArticlesManager";
+import NewspaperIcon from "@mui/icons-material/Newspaper";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import {
   StructuredDrawResult,
@@ -877,6 +879,7 @@ export default function AdminDashboardPage() {
           <Tab icon={<EmojiEventsIcon />} iconPosition="start" label={`Bumper Lotteries Hub (${bumperLotteries.length})`} />
           <Tab icon={<SettingsIcon />} iconPosition="start" label="Cron & Automation Settings" />
           <Tab icon={<CampaignIcon />} iconPosition="start" label="📢 1st Prize Broadcast" />
+          <Tab icon={<NewspaperIcon />} iconPosition="start" label="📰 Articles & Newsletter" />
         </Tabs>
       </Paper>
 
@@ -1766,6 +1769,9 @@ export default function AdminDashboardPage() {
           </Grid>
         </Box>
       )}
+
+      {/* TAB 4: ARTICLES & NEWSLETTER */}
+      {currentTab === 4 && <ArticlesManager />}
 
       {/* ========================================================================= */}
       {/* MODAL: POSTPONE / NO DRAW SPOTTER FORM                                   */}

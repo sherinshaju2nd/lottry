@@ -403,6 +403,20 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
+            href="/news"
+            prefetch={false}
+            sx={{
+              color: "#0B3C5D",
+              textDecoration: "none",
+              fontWeight: 700,
+              "&:hover": { color: "#2563EB" },
+            }}
+          >
+            Lottery News &amp; Newsletter
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
             href="/faq"
             prefetch={false}
             sx={{

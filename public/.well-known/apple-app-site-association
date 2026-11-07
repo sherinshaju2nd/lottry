@@ -9,6 +9,8 @@
           "/search",
           "/claim",
           "/lotteries",
+          "/news",
+          "/news/*",
           "/bhagyathara",
           "/bhagyathara/*",
           "/sthreesakthi",

@@ -34,6 +34,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import CheckIcon from "@mui/icons-material/Check";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import NewspaperIcon from "@mui/icons-material/Newspaper";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
 import SecurityIcon from "@mui/icons-material/Security";
 import ShareIcon from "@mui/icons-material/Share";
@@ -517,6 +518,22 @@ export default function Navbar() {
               }}
             >
               Blog
+            </Button>
+
+            <Button
+              component={Link}
+              href="/news"
+              prefetch={false}
+              startIcon={<NewspaperIcon />}
+              sx={{
+                color: pathname.startsWith("/news") ? "#0B3C5D" : "#374151",
+                fontWeight: pathname.startsWith("/news") ? 800 : 700,
+                borderRadius: "8px",
+                px: 2,
+                bgcolor: pathname.startsWith("/news") ? "#EBF5FF" : "transparent",
+              }}
+            >
+              News
             </Button>
 
             <Button
@@ -1160,6 +1177,55 @@ export default function Navbar() {
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
                   District leaderboard &amp; statistics
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* News & Newsletter */}
+            <Box
+              component={Link}
+              href="/news"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname.startsWith("/news") ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#F5F3FF",
+                  border: "1px solid #DDD6FE",
+                  color: "#7C3AED",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <NewspaperIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: pathname.startsWith("/news") ? 800 : 700,
+                    color: pathname.startsWith("/news") ? "#0B3C5D" : "#0F172A",
+                  }}
+                >
+                  News &amp; Newsletter
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Latest lottery news &amp; updates
                 </Typography>
               </Box>
               <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />

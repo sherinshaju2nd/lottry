@@ -5,6 +5,7 @@ import {
   getLotterySlug,
 } from "@/lib/supabase";
 import { getAllBlogs, getBlogPath } from "@/data/blogs";
+import { fetchArticlesForSitemap, getArticlePath, getCategoryMeta } from "@/lib/articles";
 export const revalidate = 3600; // 1 hour (revalidated on-demand when draws sync)
 
 function getTodayISTInfo() {
@@ -109,6 +110,22 @@ export async function GET() {
       })
       .join("\n");
 
+    const cdata = (value: string) => value.replace(/]]>/g, "]]]]><![CDATA[>");
+    const articleItemsXml = (await fetchArticlesForSitemap())
+      .slice(0, 50)
+      .map(({ slug, title, excerpt, category, published_at }) => {
+        const url = `${baseUrl}${getArticlePath(slug)}`;
+        return `    <item>
+      <title><![CDATA[${cdata(title)}]]></title>
+      <link>${url}</link>
+      <guid isPermaLink="true">${url}</guid>
+      <description><![CDATA[${cdata(excerpt)}]]></description>
+      <pubDate>${new Date(published_at ?? Date.now()).toUTCString()}</pubDate>
+      <category>${getCategoryMeta(category).label}</category>
+    </item>`;
+      })
+      .join("\n");
+
     const latestBuildDate = new Date().toUTCString();
 
     const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -121,6 +138,7 @@ export async function GET() {
     <lastBuildDate>${latestBuildDate}</lastBuildDate>
     <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml" />
 ${todayItemXml}${itemsXml}
+${articleItemsXml}
 ${blogItemsXml}
   </channel>
 </rss>`;

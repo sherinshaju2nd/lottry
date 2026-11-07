@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllBlogs, getBlogPath } from "@/data/blogs";
+import { fetchArticlesForSitemap, getArticlePath } from "@/lib/articles";
 import {
   ALL_LOTTERIES,
   WEEKLY_LOTTERIES,
@@ -166,5 +167,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.85,
   }));
 
-  return [...staticPages, ...blogPages, ...lotteryPages, ...drawPages];
+  const articles = await fetchArticlesForSitemap();
+  const articlePages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/news`,
+      lastModified: articles[0]?.updated_at ? new Date(articles[0].updated_at) : new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.85,
+    },
+    ...articles.map(({ slug, updated_at }) => ({
+      url: `${baseUrl}${getArticlePath(slug)}`,
+      lastModified: new Date(updated_at),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
+  ];
+
+  return [...staticPages, ...blogPages, ...articlePages, ...lotteryPages, ...drawPages];
 }
