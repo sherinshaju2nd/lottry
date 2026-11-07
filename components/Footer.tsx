@@ -412,7 +412,7 @@ export default function Footer() {
               "&:hover": { color: "#2563EB" },
             }}
           >
-            Lottery News &amp; Newsletter
+            Lottery News &amp; Guides
           </Typography>
           <Typography
             variant="body2"

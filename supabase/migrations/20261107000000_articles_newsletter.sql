@@ -1,6 +1,6 @@
 -- Migration: 20261107000000_articles_newsletter.sql
 --
--- Articles / newsletter feed managed from /admin and shown on the website (/news) and the
+-- Articles feed managed from /admin and shown on the website (/news) and the
 -- mobile app (News screen).
 --
 -- Security model (same as 20261104000000_lock_down_public_writes.sql):
@@ -8,7 +8,6 @@
 --     published_at <= now()). Drafts and scheduled posts are invisible to the public key.
 --   * All writes go through the Next.js admin API using SUPABASE_SERVICE_ROLE_KEY
 --     (service_role bypasses RLS). No public write policy exists.
---   * newsletter_subscribers has NO public policy at all (server-only).
 --   * increment_article_view() is the only public "write": a SECURITY DEFINER function that
 --     can do nothing except bump the view counter of a published article.
 --
@@ -27,9 +26,9 @@ CREATE TABLE IF NOT EXISTS public.articles (
   cover_image_url   text,
   cover_image_alt   text,
   category          text NOT NULL DEFAULT 'news'
-                    CHECK (category IN ('news', 'newsletter', 'guide', 'tips', 'announcement', 'bumper')),
+                    CHECK (category IN ('news', 'guide', 'tips', 'announcement', 'bumper')),
   tags              text[] NOT NULL DEFAULT '{}',
-  author_name       text NOT NULL DEFAULT 'Kerala Lottery Desk',
+  author_name       text NOT NULL DEFAULT 'Kerala Lottery Result Today Desk',
   status            text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
   is_featured       boolean NOT NULL DEFAULT false,
   published_at      timestamptz,                          -- future date = scheduled
@@ -102,19 +101,7 @@ $$;
 REVOKE ALL ON FUNCTION public.increment_article_view(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.increment_article_view(text) TO anon, authenticated;
 
--- 3. Newsletter subscribers (server-only) -------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
-  id            bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  email         text NOT NULL UNIQUE CHECK (char_length(email) <= 254),
-  source        text NOT NULL DEFAULT 'web' CHECK (source IN ('web', 'mobile')),
-  is_active     boolean NOT NULL DEFAULT true,
-  created_at    timestamptz NOT NULL DEFAULT now()
-);
-
-ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.newsletter_subscribers FROM anon, authenticated;
-
--- 4. Storage bucket for article images (public read; uploads via service role only) -------
+-- 3. Storage bucket for article images (public read; uploads via service role only) -------
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (
   'article-images', 'article-images', true, 5242880,

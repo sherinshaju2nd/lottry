@@ -86,6 +86,7 @@ import ShareButtons from "@/components/ShareButtons";
 import AiSocialDigestModal from "@/components/AiSocialDigestModal";
 import HomeNormalView from "@/components/HomeNormalView";
 import HomeDesktopModernView from "@/components/HomeDesktopModernView";
+import HomeLatestArticles from "@/components/articles/HomeLatestArticles";
 import GridViewIcon from "@mui/icons-material/GridView";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -2029,6 +2030,9 @@ export default function HomePage() {
               Established over 54 years ago in 1967 under the vision of then Finance Minister <strong>P.K. Kunju Sahib</strong>, the Kerala State Lottery was the very first government-operated lottery system in India. The initiative directly funds state welfare schemes, healthcare subsidies (Karunya Benevolent Fund), government hospitals, and employment for thousands of differently-abled retail agents.
             </Typography>
           </Box>
+
+          {/* 9b. Latest News & Guides */}
+          <HomeLatestArticles />
 
           {/* 10. Frequently Asked Questions (Collapsible Modern Accordions) */}
           <Box sx={{ pt: 3, borderTop: "1px solid #F1F5F9" }}>

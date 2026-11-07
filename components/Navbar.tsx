@@ -35,6 +35,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
+import { glowSx } from "@/lib/glowEffect";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
 import SecurityIcon from "@mui/icons-material/Security";
 import ShareIcon from "@mui/icons-material/Share";
@@ -206,7 +207,19 @@ export default function Navbar() {
             sx={{
               display: { xs: "none", md: "flex" },
               alignItems: "center",
-              gap: 1,
+              gap: { md: 0.25, lg: 0.5, xl: 1 },
+              // Keep every label on one line; tighten spacing and drop link icons until there is room
+              "& > .MuiButton-root": {
+                whiteSpace: "nowrap",
+                minWidth: 0,
+                flexShrink: 0,
+                px: { md: 0.75, lg: 1.25, xl: 2 },
+              },
+              // Small laptops: Contact stays reachable from the footer
+              "& > .MuiButton-root[href='/contact']": { display: { md: "none", lg: "inline-flex" } },
+              "& > .MuiButton-root:not([href='/kerala-lottery-app']):not([href='/support']) .MuiButton-startIcon": {
+                display: { md: "none", xl: "inherit" },
+              },
             }}
           >
             <Button
@@ -585,14 +598,13 @@ export default function Navbar() {
                 px: 2,
                 py: 0.8,
                 border: "1px solid rgba(255, 255, 255, 0.15)",
-                boxShadow: "0 2px 8px rgba(11, 60, 93, 0.25)",
                 textTransform: "none",
-                transition: "all 0.2s ease",
+                transition: "background 0.2s ease, transform 0.2s ease",
+                ...glowSx({ rgb: "37, 99, 235" }),
                 "&:hover": {
                   background:
                     "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
                   transform: "translateY(-1px)",
-                  boxShadow: "0 4px 14px rgba(11, 60, 93, 0.35)",
                 },
               }}
             >
@@ -622,12 +634,11 @@ export default function Navbar() {
                 py: 0.8,
                 border: "1px solid #FDE68A",
                 textTransform: "none",
-                transition: "all 0.2s ease",
-                boxShadow: "0 1px 3px rgba(245, 158, 11, 0.15)",
+                transition: "background-color 0.2s ease, transform 0.2s ease",
+                ...glowSx({ rgb: "245, 158, 11", sheenColor: "rgba(255, 255, 255, 0.85)", delaySeconds: 1.2 }),
                 "&:hover": {
                   bgcolor: "#FEF3C7",
                   transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(245, 158, 11, 0.25)",
                 },
               }}
             >
@@ -659,9 +670,8 @@ export default function Navbar() {
                 px: { xs: 1.2, sm: 1.8 },
                 py: 0.6,
                 border: "1px solid rgba(255, 255, 255, 0.15)",
-                boxShadow: "0 2px 6px rgba(11, 60, 93, 0.2)",
                 textTransform: "none",
-                whiteSpace: "nowrap",
+                ...glowSx({ rgb: "37, 99, 235" }),
                 "&:hover": {
                   background:
                     "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
@@ -1182,7 +1192,7 @@ export default function Navbar() {
               <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
             </Box>
 
-            {/* News & Newsletter */}
+            {/* News */}
             <Box
               component={Link}
               href="/news"
@@ -1222,7 +1232,7 @@ export default function Navbar() {
                     color: pathname.startsWith("/news") ? "#0B3C5D" : "#0F172A",
                   }}
                 >
-                  News &amp; Newsletter
+                  Lottery News
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
                   Latest lottery news &amp; updates

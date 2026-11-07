@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 
 /**
- * Articles / newsletter feed (table `public.articles`, see
+ * Articles feed (table `public.articles`, see
  * supabase/migrations/20261107000000_articles_newsletter.sql).
  * Public reads use the anon client (RLS only exposes published posts);
  * writes go through /api/admin/articles with the service-role client.
@@ -14,7 +14,6 @@ export const NEWS_BASE_PATH = "/news";
 
 export const ARTICLE_CATEGORIES = [
   { value: "news", label: "Lottery News", color: "#0B3C5D", bg: "#EBF5FF" },
-  { value: "newsletter", label: "Newsletter", color: "#7C3AED", bg: "#F5F3FF" },
   { value: "guide", label: "Guides", color: "#047857", bg: "#ECFDF5" },
   { value: "tips", label: "Tips & Safety", color: "#B45309", bg: "#FFFBEB" },
   { value: "announcement", label: "Announcements", color: "#BE123C", bg: "#FFF1F2" },

@@ -16,6 +16,9 @@ import {
 export const revalidate = 300;
 export const dynamicParams = true;
 
+/** "More articles" grid size (2 rows of 3 on desktop). */
+const RELATED_ARTICLE_LIMIT = 6;
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
@@ -70,7 +73,7 @@ export default async function ArticlePage({ params }: Props) {
   const article = await loadArticle(slug);
   if (!article) notFound();
 
-  const related = await fetchRelatedArticles(article);
+  const related = await fetchRelatedArticles(article, RELATED_ARTICLE_LIMIT);
   const url = getArticleUrl(article.slug);
   const image = toAbsoluteUrl(article.og_image_url ?? article.cover_image_url) ?? `${SITE_URL}/logo-master-1024.png`;
 

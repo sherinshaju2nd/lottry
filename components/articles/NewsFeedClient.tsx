@@ -13,9 +13,7 @@ import Skeleton from "@mui/material/Skeleton";
 import CircularProgress from "@mui/material/CircularProgress";
 import SearchIcon from "@mui/icons-material/Search";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
-import RssFeedIcon from "@mui/icons-material/RssFeed";
 import ArticleCard from "./ArticleCard";
-import NewsletterSignup from "./NewsletterSignup";
 import {
   ARTICLE_CATEGORIES,
   ARTICLE_PAGE_SIZE,
@@ -102,15 +100,12 @@ export default function NewsFeedClient({ initialArticles, initialTotal, featured
           <Box sx={{ display: "flex", alignItems: { md: "flex-end" }, justifyContent: "space-between", gap: 2, flexDirection: { xs: "column", md: "row" } }}>
             <Box>
               <Typography component="h1" sx={{ fontWeight: 900, fontSize: { xs: "1.75rem", md: "2.4rem" }, color: "#0F172A", lineHeight: 1.2, display: "flex", alignItems: "center", gap: 1.25 }}>
-                <NewspaperIcon sx={{ fontSize: { xs: 30, md: 40 }, color: "#0B3C5D" }} /> Kerala Lottery News & Newsletter
+                <NewspaperIcon sx={{ fontSize: { xs: 30, md: 40 }, color: "#0B3C5D" }} /> Kerala Lottery News & Guides
               </Typography>
               <Typography sx={{ color: "#475569", mt: 1, maxWidth: 680, lineHeight: 1.65 }}>
                 Latest Kerala lottery news, bumper announcements, prize claim guides and safety tips — written by our results desk.
               </Typography>
             </Box>
-            <Button component="a" href="/feed.xml" startIcon={<RssFeedIcon />} variant="outlined" sx={{ textTransform: "none", fontWeight: 700, borderRadius: "10px", flexShrink: 0 }}>
-              RSS feed
-            </Button>
           </Box>
 
           {/* Filters */}
@@ -202,10 +197,6 @@ export default function NewsFeedClient({ initialArticles, initialTotal, featured
             </Button>
           </Box>
         )}
-
-        <Box sx={{ mt: 6 }}>
-          <NewsletterSignup />
-        </Box>
       </Container>
     </Box>
   );

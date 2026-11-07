@@ -33,7 +33,6 @@ type AnalyticsEvent =
   | { name: "ticket_search"; params: { search_term: string; source: "home" | "search_page" | "barcode"; results: number } }
   | { name: "ticket_scan"; params: { method: "camera" | "barcode" } }
   | { name: "share"; params: { method: string; content_type: string; item_id?: string } }
-  | { name: "newsletter_subscribe"; params: { source: "news_page" | "article" } }
   | { name: "article_view"; params: { slug: string; category: string } };
 
 type Gtag = (command: "event", name: string, params?: Record<string, unknown>) => void;

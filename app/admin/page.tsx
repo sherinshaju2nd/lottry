@@ -879,7 +879,7 @@ export default function AdminDashboardPage() {
           <Tab icon={<EmojiEventsIcon />} iconPosition="start" label={`Bumper Lotteries Hub (${bumperLotteries.length})`} />
           <Tab icon={<SettingsIcon />} iconPosition="start" label="Cron & Automation Settings" />
           <Tab icon={<CampaignIcon />} iconPosition="start" label="📢 1st Prize Broadcast" />
-          <Tab icon={<NewspaperIcon />} iconPosition="start" label="📰 Articles & Newsletter" />
+          <Tab icon={<NewspaperIcon />} iconPosition="start" label="📰 Articles" />
         </Tabs>
       </Paper>
 
@@ -1770,7 +1770,7 @@ export default function AdminDashboardPage() {
         </Box>
       )}
 
-      {/* TAB 4: ARTICLES & NEWSLETTER */}
+      {/* TAB 4: ARTICLES */}
       {currentTab === 4 && <ArticlesManager />}
 
       {/* ========================================================================= */}

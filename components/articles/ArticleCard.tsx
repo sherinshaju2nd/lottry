@@ -56,7 +56,7 @@ export default function ArticleCard({ article, variant = "card", priority }: Art
   const href = getArticlePath(article.slug);
 
   const categoryChip = (
-    <Chip size="small" label={category.label} sx={{ fontWeight: 800, bgcolor: category.bg, color: category.color, height: 24, fontSize: "0.72rem" }} />
+    <Chip size="small" label={category.label} sx={{ alignSelf: "flex-start", fontWeight: 800, bgcolor: category.bg, color: category.color, height: 24, fontSize: "0.72rem" }} />
   );
 
   const linkSx = {
@@ -118,20 +118,65 @@ export default function ArticleCard({ article, variant = "card", priority }: Art
     );
   }
 
+  const clamp = (lines: number) => ({ display: "-webkit-box", WebkitLineClamp: lines, WebkitBoxOrient: "vertical", overflow: "hidden" }) as const;
+
   return (
-    <Box component={Link} href={href} sx={{ ...linkSx, display: "flex", flexDirection: "column" }}>
-      <CoverImage article={article} priority={priority} height="190px" />
-      <Box sx={{ p: 2.25, display: "flex", flexDirection: "column", gap: 1.25, flex: 1 }}>
-        {categoryChip}
-        <Typography component="h3" sx={{ fontWeight: 800, fontSize: "1.05rem", lineHeight: 1.35, color: "#0F172A", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+    <Box
+      component={Link}
+      href={href}
+      sx={{
+        ...linkSx,
+        display: "flex",
+        flexDirection: "column",
+        "&:hover .article-card-title, &:focus-visible .article-card-title": { color: "#0B5CAD" },
+        "&:hover .article-card-arrow, &:focus-visible .article-card-arrow": { transform: "translateX(4px)" },
+      }}
+    >
+      {/* 16:9 cover with overlaid category + reading time */}
+      <Box sx={{ position: "relative", aspectRatio: "16 / 9", overflow: "hidden" }}>
+        <CoverImage article={article} priority={priority} height="100%" />
+        <Box aria-hidden sx={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(15,23,42,0.35) 0%, rgba(15,23,42,0) 38%)", pointerEvents: "none" }} />
+        <Box
+          sx={{ position: "absolute", top: 10, left: 10, display: "inline-flex", alignItems: "center", gap: 0.75, px: 1.1, py: 0.4, borderRadius: "999px", bgcolor: "rgba(255,255,255,0.94)", boxShadow: "0 2px 8px rgba(15,23,42,0.15)" }}
+        >
+          <Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: category.color }} />
+          <Typography component="span" sx={{ fontSize: "0.7rem", fontWeight: 800, color: category.color, letterSpacing: "0.02em" }}>
+            {category.label}
+          </Typography>
+        </Box>
+        <Box
+          sx={{ position: "absolute", top: 10, right: 10, display: "inline-flex", alignItems: "center", gap: 0.5, px: 1, py: 0.4, borderRadius: "999px", bgcolor: "rgba(15,23,42,0.6)", color: "#FFF", backdropFilter: "blur(4px)" }}
+        >
+          <AccessTimeIcon sx={{ fontSize: 13 }} />
+          <Typography component="span" sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
+            {article.reading_minutes} min
+          </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 0.9, flex: 1 }}>
+        {/* min-height reserves 2 lines so cards in a row line up */}
+        <Typography
+          component="h3"
+          className="article-card-title"
+          sx={{ fontWeight: 800, fontSize: "1.02rem", lineHeight: 1.4, minHeight: "2.8em", color: "#0F172A", transition: "color .2s ease", ...clamp(2) }}
+        >
           {article.title}
         </Typography>
         {article.excerpt && (
-          <Typography sx={{ color: "#64748B", fontSize: "0.9rem", lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", flex: 1 }}>
+          <Typography sx={{ color: "#64748B", fontSize: "0.875rem", lineHeight: 1.55, ...clamp(2) }}>
             {article.excerpt}
           </Typography>
         )}
-        <Meta article={article} />
+        <Box sx={{ mt: "auto", pt: 1.25, borderTop: "1px solid #F1F5F9", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+          <Typography component="time" dateTime={article.published_at ?? undefined} sx={{ fontSize: "0.78rem", color: "#64748B", fontWeight: 600 }}>
+            {formatArticleDate(article.published_at)}
+          </Typography>
+          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, color: "#0B3C5D", fontWeight: 800, fontSize: "0.8rem" }}>
+            Read
+            <ArrowForwardIcon className="article-card-arrow" sx={{ fontSize: 16, transition: "transform .2s ease" }} />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

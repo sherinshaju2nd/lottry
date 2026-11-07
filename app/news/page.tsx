@@ -9,22 +9,22 @@ export const revalidate = 300;
 const PAGE_URL = `${SITE_URL}/news`;
 
 export const metadata: Metadata = {
-  title: "Kerala Lottery News, Newsletter & Updates",
+  title: "Kerala Lottery News, Guides & Updates",
   description:
-    "Latest Kerala lottery news, bumper announcements, prize claim guides, safety tips and the weekly Kerala lottery newsletter.",
-  keywords: ["Kerala lottery news", "Kerala lottery newsletter", "Kerala bumper lottery update", "Kerala lottery claim tips"],
+    "Latest Kerala lottery news, bumper announcements, prize claim guides and safety tips from our results desk.",
+  keywords: ["Kerala lottery news", "Kerala bumper lottery update", "Kerala lottery claim tips"],
   alternates: {
     canonical: PAGE_URL,
     types: { "application/rss+xml": `${SITE_URL}/feed.xml` },
   },
   openGraph: {
-    title: "Kerala Lottery News, Newsletter & Updates",
+    title: "Kerala Lottery News, Guides & Updates",
     description: "Bumper announcements, claim guides and weekly Kerala lottery round-ups.",
     url: PAGE_URL,
     siteName: "Kerala Lottery Results Today",
     type: "website",
   },
-  twitter: { card: "summary_large_image", title: "Kerala Lottery News & Newsletter" },
+  twitter: { card: "summary_large_image", title: "Kerala Lottery News & Guides" },
 };
 
 const fetchFeatured = async (): Promise<ArticleSummary | null> => {
@@ -63,7 +63,7 @@ export default async function NewsPage() {
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Kerala Lottery News & Newsletter",
+    name: "Kerala Lottery News & Guides",
     url: PAGE_URL,
     inLanguage: "en-IN",
     isPartOf: { "@type": "WebSite", name: "Kerala Lottery Results Today", url: SITE_URL },
