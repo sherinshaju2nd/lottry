@@ -91,9 +91,11 @@ export const fetchAndSyncLatestLottery = async (): Promise<SyncLotteryResult> =>
       console.warn("[Broadcast Error during sync]:", msg);
     }
 
+    // Report what is actually stored (admin values may have been kept over empty/shorter API data).
+    const storedRow = saved as { first_prize?: StructuredDrawResult["first"]; prizes?: StructuredDrawResult["prizes"] };
     return {
       success: true,
-      data: payload,
+      data: { ...payload, first: storedRow.first_prize ?? payload.first, prizes: storedRow.prizes ?? payload.prizes },
       broadcast: broadcastResult,
     };
   } catch (err: unknown) {

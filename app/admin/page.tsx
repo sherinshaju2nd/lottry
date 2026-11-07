@@ -54,6 +54,7 @@ import SendIcon from "@mui/icons-material/Send";
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import AiGazettePdfUploader from "@/components/admin/AiGazettePdfUploader";
 import ArticlesManager from "@/components/admin/ArticlesManager";
+import TodayResultEditor from "@/components/admin/TodayResultEditor";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import {
@@ -875,6 +876,7 @@ export default function AdminDashboardPage() {
             },
           }}
         >
+          <Tab icon={<EditIcon />} iconPosition="start" label="📝 Today's Result Entry" />
           <Tab icon={<EventBusyIcon />} iconPosition="start" label={`Postponed & No-Draw Spotter (${postponedList.length})`} />
           <Tab icon={<EmojiEventsIcon />} iconPosition="start" label={`Bumper Lotteries Hub (${bumperLotteries.length})`} />
           <Tab icon={<SettingsIcon />} iconPosition="start" label="Cron & Automation Settings" />
@@ -886,7 +888,9 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* TAB 0: POSTPONED & NO-DRAW SPOTTER                                       */}
       {/* ========================================================================= */}
-      {currentTab === 0 && (
+      {currentTab === 0 && <TodayResultEditor />}
+
+      {currentTab === 1 && (
         <Box>
           <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
@@ -984,7 +988,7 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* TAB 1: BUMPER LOTTERIES HUB                                              */}
       {/* ========================================================================= */}
-      {currentTab === 1 && (
+      {currentTab === 2 && (
         <Box>
           <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
@@ -1107,7 +1111,7 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* TAB 2: CRON & AUTOMATION SETTINGS                                        */}
       {/* ========================================================================= */}
-      {currentTab === 2 && (
+      {currentTab === 3 && (
         <Box>
           <Grid container spacing={3}>
             {/* Left Column: Cron Master Control & Config */}
@@ -1474,7 +1478,7 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* TAB 3: 1ST PRIZE BROADCAST TO TELEGRAM & WHATSAPP                         */}
       {/* ========================================================================= */}
-      {currentTab === 3 && (
+      {currentTab === 4 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Header Banner */}
           <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
@@ -1771,7 +1775,7 @@ export default function AdminDashboardPage() {
       )}
 
       {/* TAB 4: ARTICLES */}
-      {currentTab === 4 && <ArticlesManager />}
+      {currentTab === 5 && <ArticlesManager />}
 
       {/* ========================================================================= */}
       {/* MODAL: POSTPONE / NO DRAW SPOTTER FORM                                   */}

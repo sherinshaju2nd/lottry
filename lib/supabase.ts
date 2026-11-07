@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 export * from "./lotteryConfig";
 export * from "./lotterySlugs";
 import { SLUG_TO_LOTTERY_CODE, getLotteryCodeFromSlug } from "./lotterySlugs";
+import { mergeKeepingStored } from "./drawTickets";
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -457,26 +458,52 @@ export async function saveDrawResultToSupabase(data: {
   };
 
   try {
-    // 1. Check if record already exists for (draw_date, lottery_code) to OVERWRITE / UPDATE
-    const { data: existing } = await supabaseServer
+    // 1. Check if record already exists for (draw_date, lottery_code) to UPDATE.
+    //    Empty API values ("" / []) never overwrite stored values (e.g. prizes an admin added).
+    const { data: existing, error: existingErr } = await supabaseServer
       .from("draw_results")
-      .select("id")
+      .select("id, first_prize, prizes")
       .eq("draw_date", data.draw_date)
       .eq("lottery_code", lottery_code);
 
+    // Can't see what's stored → don't write blindly (it could wipe admin data). Next cron run retries.
+    if (existingErr) {
+      console.error("[supabase] draw_results lookup failed, skipping save:", existingErr.message);
+      return null;
+    }
+
     if (existing && existing.length > 0) {
+      const [stored] = existing;
+      const parseStored = (value: unknown): unknown => {
+        if (typeof value !== "string") return value ?? {};
+        try {
+          return JSON.parse(value);
+        } catch (parseErr: unknown) {
+          console.warn("[supabase] stored draw JSON unreadable, using API data:", parseErr instanceof Error ? parseErr.message : String(parseErr));
+          return {};
+        }
+      };
+      const mergedPayload = {
+        ...rowPayload,
+        first_prize: mergeKeepingStored(parseStored(stored.first_prize), rowPayload.first_prize),
+        prizes: mergeKeepingStored(parseStored(stored.prizes), rowPayload.prizes),
+      };
+
       const { data: updated, error: updateErr } = await supabaseServer
         .from("draw_results")
-        .update(rowPayload)
-        .eq("id", existing[0].id)
+        .update(mergedPayload)
+        .eq("id", stored.id)
         .select();
 
       if (!updateErr && updated && updated.length > 0) {
         return updated[0];
       }
+      // Never fall through to the raw upsert below: it would overwrite admin data with empty API values.
+      console.error("[supabase] draw_results update failed:", updateErr?.message ?? "no row returned");
+      return null;
     }
 
-    // 2. Upsert if constraint exists
+    // 2. New draw (no stored row): upsert if constraint exists
     const { data: upsertData, error: upsertError } = await supabaseServer
       .from("draw_results")
       .upsert(rowPayload, { onConflict: "draw_date,lottery_code" })
