@@ -253,7 +253,7 @@ async function handleCronExecution(req: NextRequest) {
       status: "failed",
       message: lastResult.error || "Failed to sync latest lottery draw after retries",
       duration_ms: executionTimeMs,
-      details: { attempts },
+      details: { attempts, sources: lastResult.attempts },
     });
 
     return NextResponse.json(
@@ -276,13 +276,15 @@ async function handleCronExecution(req: NextRequest) {
   await logCronExecutionInSupabase({
     trigger_source: isVercelCron ? "vercel_cron" : "pg_cron",
     status: "success",
-    message: `Successfully synced draw: ${lastResult.data?.draw_name} (${lastResult.data?.draw_code})`,
+    message: `Successfully synced draw: ${lastResult.data?.draw_name} (${lastResult.data?.draw_code}) via ${lastResult.source ?? "API"}`,
     details: {
       draw_name: lastResult.data?.draw_name,
       draw_code: lastResult.data?.draw_code,
       draw_date: lastResult.data?.draw_date,
       first_prize: lastResult.data?.first?.ticket,
       attempts,
+      source: lastResult.source,
+      sources: lastResult.attempts,
     },
     duration_ms: executionTimeMs,
   });

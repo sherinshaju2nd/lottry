@@ -1,43 +1,37 @@
 import { saveDrawResultToSupabase, StructuredDrawResult, ALL_LOTTERIES } from "./supabase";
 import { broadcastFirstPrizeResult, BroadcastExecutionReport } from "./broadcaster";
+import { describeAttempts, fetchFromSources, getApiSources, summarizeAttempts, type SourceAttemptSummary } from "./apiSources";
 
 export interface SyncLotteryResult {
   success: boolean;
   data?: StructuredDrawResult;
   error?: string;
   broadcast?: BroadcastExecutionReport | null;
+  /** Name of the API source whose data was used. */
+  source?: string;
+  /** Result of every source tried this run (for logs / admin). */
+  attempts?: SourceAttemptSummary[];
 }
 
 export const fetchAndSyncLatestLottery = async (): Promise<SyncLotteryResult> => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
-
   try {
-    const apiUrl = process.env.LOTTERY_API_URL ?? "https://indialotteryapi.com/wp-json/klr/v1/latest";
-    const res = await fetch(apiUrl, {
-      cache: "no-store",
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-      },
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+    // All enabled sources (admin "API Sources" tab) are called in parallel; failover picks the
+    // highest-priority one with prize numbers, else the highest-priority valid response.
+    const sources = await getApiSources();
+    const { chosen, attempts } = await fetchFromSources(sources);
+    const attemptSummary = summarizeAttempts(attempts);
 
-    if (!res.ok) {
+    if (!chosen?.json) {
       return {
         success: false,
-        error: `API HTTP status error: ${res.status} ${res.statusText}`,
+        error: `All ${attempts.length} API source(s) failed — ${describeAttempts(attempts)}`,
+        attempts: attemptSummary,
       };
     }
 
-    const json = await res.json();
-
-    if (!json || !json.draw_date || !json.draw_code) {
-      return {
-        success: false,
-        error: "Invalid API response structure received",
-      };
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- upstream JSON, validated fields below
+    const json = chosen.json as any;
+    const sourceName = chosen.source.name;
 
     const rawDrawCode = String(json.draw_code).trim().toUpperCase();
     const codeMatch = rawDrawCode.match(/^([A-Z]{2,3})/);
@@ -97,6 +91,8 @@ export const fetchAndSyncLatestLottery = async (): Promise<SyncLotteryResult> =>
       success: true,
       data: { ...payload, first: storedRow.first_prize ?? payload.first, prizes: storedRow.prizes ?? payload.prizes },
       broadcast: broadcastResult,
+      source: sourceName,
+      attempts: attemptSummary,
     };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Failed to fetch from indialotteryapi";

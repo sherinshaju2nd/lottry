@@ -55,6 +55,7 @@ import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import AiGazettePdfUploader from "@/components/admin/AiGazettePdfUploader";
 import ArticlesManager from "@/components/admin/ArticlesManager";
 import TodayResultEditor from "@/components/admin/TodayResultEditor";
+import ApiSourcesManager from "@/components/admin/ApiSourcesManager";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import {
@@ -880,6 +881,7 @@ export default function AdminDashboardPage() {
           <Tab icon={<EventBusyIcon />} iconPosition="start" label={`Postponed & No-Draw Spotter (${postponedList.length})`} />
           <Tab icon={<EmojiEventsIcon />} iconPosition="start" label={`Bumper Lotteries Hub (${bumperLotteries.length})`} />
           <Tab icon={<SettingsIcon />} iconPosition="start" label="Cron & Automation Settings" />
+          <Tab icon={<CloudDownloadIcon />} iconPosition="start" label="🔌 API Sources" />
           <Tab icon={<CampaignIcon />} iconPosition="start" label="📢 1st Prize Broadcast" />
           <Tab icon={<NewspaperIcon />} iconPosition="start" label="📰 Articles" />
         </Tabs>
@@ -1478,7 +1480,9 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* TAB 3: 1ST PRIZE BROADCAST TO TELEGRAM & WHATSAPP                         */}
       {/* ========================================================================= */}
-      {currentTab === 4 && (
+      {currentTab === 4 && <ApiSourcesManager />}
+
+      {currentTab === 5 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Header Banner */}
           <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
@@ -1775,7 +1779,7 @@ export default function AdminDashboardPage() {
       )}
 
       {/* TAB 4: ARTICLES */}
-      {currentTab === 5 && <ArticlesManager />}
+      {currentTab === 6 && <ArticlesManager />}
 
       {/* ========================================================================= */}
       {/* MODAL: POSTPONE / NO DRAW SPOTTER FORM                                   */}
