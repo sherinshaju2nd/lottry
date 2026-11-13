@@ -21,7 +21,9 @@ import { isIndexableDrawPage } from "@/lib/drawIndexing";
 const getDrawResultCached = cache(getDrawResultFromSupabase);
 const getPostponementCached = cache(checkIsDatePostponed);
 
-export const revalidate = false; // Past draw results are static; today's draw revalidated on-demand via revalidatePath
+// Re-render at most daily so date-based robots rules (60-day noindex, today/upcoming) stay current
+// in cached HTML; today's draw is still revalidated on-demand via revalidatePath.
+export const revalidate = 86400;
 
 interface PageProps {
   params: Promise<{ code: string; date: string }>;
@@ -120,7 +122,7 @@ export async function generateMetadata({
     title,
     description,
     keywords,
-    // Empty past dates / random future dates: keep links followable but out of the index
+    // Results older than 60 days, empty past dates, random future dates → <meta name="robots" content="noindex, follow">
     ...(!indexable && { robots: { index: false, follow: true } }),
     alternates: {
       canonical: `https://www.keralalotteryresultstoday.in/${lotterySlug}/${dateParam}`,

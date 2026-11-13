@@ -4,7 +4,6 @@ import MuiProvider from "@/components/MuiProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import InitialLoader from "@/components/InitialLoader";
-import ConsentModal from "@/components/ConsentModal";
 import ScrollRestorer from "@/components/ScrollRestorer";
 import AiVoiceAssistantModal from "@/components/AiVoiceAssistantModal";
 import PwaRegister from "@/components/PwaRegister";
@@ -546,14 +545,6 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Kerala Lottery" />
         <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
 
-        {/* Google Fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap"
-          rel="stylesheet"
-        />
-
         {/* Google Tag Manager */}
         <Script
           id="gtm-script"
@@ -629,7 +620,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <PwaRegister />
           <ScrollRestorer />
           <InitialLoader />
-          <ConsentModal />
           <IosInstallPrompt />
           <IosInstallGuideModal />
           <WindowsInstallGuideModal />

@@ -6,6 +6,7 @@ import {
   getLotteryUrl,
 } from "@/lib/supabase";
 import { getAllBlogs, getBlogPath } from "@/data/blogs";
+import { getIndexCutoffDate, getTodayIST } from "@/lib/drawIndexing";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,8 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
       `${baseUrl}/support`,
       `${baseUrl}/privacy-policy`,
       `${baseUrl}/terms-conditions`,
+      `${baseUrl}/disclaimer`,
+      `${baseUrl}/about`,
       `${baseUrl}/contact`,
       `${baseUrl}/blog`,
       ...getAllBlogs().map(({ slug }) => `${baseUrl}${getBlogPath(slug)}`),
@@ -43,9 +46,9 @@ export async function submitUrlsToIndexNow(customUrls?: string[]) {
 
     let drawPages: string[] = [];
     try {
-      const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
+      const today = getTodayIST();
       const [draws, upcoming] = await Promise.all([
-        fetchDrawResultsForSitemap(90), // recent draws only
+        fetchDrawResultsForSitemap(90, getIndexCutoffDate(today)), // recent, still-indexable draws only
         getAnnouncedBumperDraws(today),
       ]);
       drawPages = [

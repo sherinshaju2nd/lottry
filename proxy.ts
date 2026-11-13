@@ -9,6 +9,7 @@ import { getBlogBySlug, getBlogPath } from "@/data/blogs";
  * segments is handled by app/[code] and app/[code]/[date].
  */
 const RESERVED_ROUTES = new Set([
+  "about",
   "admin",
   "analytics",
   "api",
@@ -16,6 +17,7 @@ const RESERVED_ROUTES = new Set([
   "buy-me-a-coffee",
   "claim",
   "contact",
+  "disclaimer",
   "faq",
   "guide",
   "kerala-lottery-app",

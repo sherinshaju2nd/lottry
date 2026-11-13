@@ -18,14 +18,6 @@ import {
   PLAY_STORE_URL,
 } from "./DownloadAppModal";
 
-import {
-  WEEKLY_LOTTERIES,
-  BUMPER_LOTTERIES,
-  getLotteryUrl,
-  getLotteryLogo,
-  getLotteryLogoAlt,
-} from "@/lib/supabase";
-
 export default function Footer() {
   const pathname = usePathname();
   const isAppPage = pathname === "/kerala-lottery-app" || pathname === "/app";
@@ -347,76 +339,6 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
-            href="/search"
-            prefetch={false}
-            sx={{
-              color: "#4B5563",
-              textDecoration: "none",
-              fontWeight: 600,
-              "&:hover": { color: "#0B3C5D" },
-            }}
-          >
-            Ticket Price Checker
-          </Typography>
-          <Typography
-            variant="body2"
-            component={Link}
-            href="/claim"
-            prefetch={false}
-            sx={{
-              color: "#4B5563",
-              textDecoration: "none",
-              fontWeight: 600,
-              "&:hover": { color: "#0B3C5D" },
-            }}
-          >
-            How to Claim
-          </Typography>
-          <Typography
-            variant="body2"
-            component={Link}
-            href="/guide"
-            prefetch={false}
-            sx={{
-              color: "#4B5563",
-              textDecoration: "none",
-              fontWeight: 600,
-              "&:hover": { color: "#0B3C5D" },
-            }}
-          >
-            Complete Guide
-          </Typography>
-          <Typography
-            variant="body2"
-            component={Link}
-            href="/blog"
-            prefetch={false}
-            sx={{
-              color: "#0B3C5D",
-              textDecoration: "none",
-              fontWeight: 700,
-              "&:hover": { color: "#2563EB" },
-            }}
-          >
-            Blog &amp; Guides
-          </Typography>
-          <Typography
-            variant="body2"
-            component={Link}
-            href="/news"
-            prefetch={false}
-            sx={{
-              color: "#0B3C5D",
-              textDecoration: "none",
-              fontWeight: 700,
-              "&:hover": { color: "#2563EB" },
-            }}
-          >
-            Lottery News &amp; Guides
-          </Typography>
-          <Typography
-            variant="body2"
-            component={Link}
             href="/faq"
             prefetch={false}
             sx={{
@@ -459,6 +381,20 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
+            href="/disclaimer"
+            prefetch={false}
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            Disclaimer
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
             href="/kerala-lottery-app"
             prefetch={false}
             sx={{
@@ -492,6 +428,20 @@ export default function Footer() {
           <Typography
             variant="body2"
             component={Link}
+            href="/about"
+            prefetch={false}
+            sx={{
+              color: "#4B5563",
+              textDecoration: "none",
+              fontWeight: 600,
+              "&:hover": { color: "#0B3C5D" },
+            }}
+          >
+            About Us
+          </Typography>
+          <Typography
+            variant="body2"
+            component={Link}
             href="/contact"
             prefetch={false}
             sx={{
@@ -503,136 +453,6 @@ export default function Footer() {
           >
             Contact Us
           </Typography>
-        </Box>
-
-        {/* 2. Weekly Lotteries Direct Links */}
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: { xs: 1.5, sm: 2 },
-            mb: 2,
-            px: 2,
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              color: "#0B3C5D",
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Weekly Lotteries:
-          </Typography>
-          {WEEKLY_LOTTERIES.map((lottery) => {
-            const logo = getLotteryLogo(lottery.code);
-            return (
-              <Box
-                key={lottery.code}
-                component={Link}
-                href={getLotteryUrl(lottery.code)}
-                prefetch={false}
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 0.5,
-                  color: "#4B5563",
-                  textDecoration: "none",
-                  fontSize: "0.825rem",
-                  fontWeight: 600,
-                  py: 0.25,
-                  px: 0.5,
-                  borderRadius: "6px",
-                  transition: "all 0.15s ease",
-                  "&:hover": { color: "#0B3C5D", bgcolor: "#EFF6FF" },
-                }}
-              >
-                {logo && (
-                  <Box
-                    component="img"
-                    src={logo}
-                    alt={getLotteryLogoAlt(lottery.name, lottery.day)}
-                    sx={{
-                      width: 18,
-                      height: 18,
-                      borderRadius: "4px",
-                      objectFit: "cover",
-                    }}
-                  />
-                )}
-                <span>{lottery.name}</span>
-              </Box>
-            );
-          })}
-        </Box>
-
-        {/* 3. Bumper Lotteries Direct Links */}
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: { xs: 1.5, sm: 2 },
-            mb: 3.5,
-            px: 2,
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              color: "#0B3C5D",
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Bumper Lotteries:
-          </Typography>
-          {BUMPER_LOTTERIES.map((bumper) => {
-            const logo = getLotteryLogo(bumper.code);
-            return (
-              <Box
-                key={bumper.code}
-                component={Link}
-                href={getLotteryUrl(bumper.code)}
-                prefetch={false}
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 0.5,
-                  color: "#4B5563",
-                  textDecoration: "none",
-                  fontSize: "0.825rem",
-                  fontWeight: 600,
-                  py: 0.25,
-                  px: 0.5,
-                  borderRadius: "6px",
-                  transition: "all 0.15s ease",
-                  "&:hover": { color: "#0B3C5D", bgcolor: "#EFF6FF" },
-                }}
-              >
-                {logo && (
-                  <Box
-                    component="img"
-                    src={logo}
-                    alt={getLotteryLogoAlt(bumper.name, bumper.day)}
-                    sx={{
-                      width: 18,
-                      height: 18,
-                      borderRadius: "4px",
-                      objectFit: "cover",
-                    }}
-                  />
-                )}
-                <span>{bumper.name}</span>
-              </Box>
-            );
-          })}
         </Box>
 
         {/* Multilingual Regional Search Keywords */}

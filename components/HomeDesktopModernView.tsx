@@ -650,45 +650,6 @@ export default function HomeDesktopModernView({
             px: { xs: 2, sm: 3, md: 5, lg: 6, xl: 8 },
           }}
         >
-          {/* Left Script Slogan (Top Left Below Navbar) */}
-          <Box
-            sx={{
-              display: { xs: "none", md: "block" },
-              position: "absolute",
-              top: { md: 20, lg: 24 },
-              left: { md: 24, lg: 40, xl: 56 },
-              transform: "rotate(-3deg)",
-              zIndex: 5,
-              userSelect: "none",
-              bgcolor: "rgba(255, 255, 255, 0.88)",
-              backdropFilter: "blur(12px)",
-              px: 2.2,
-              py: 1.2,
-              borderRadius: "16px",
-              border: "1px solid rgba(255, 255, 255, 0.95)",
-              boxShadow: "0 4px 20px rgba(11, 60, 93, 0.10)",
-            }}
-          >
-            <Typography
-              sx={{
-                fontFamily: "'Caveat', cursive, sans-serif",
-                fontWeight: 700,
-                fontSize: { md: "1.55rem", lg: "1.85rem" },
-                color: "#0B3C5D",
-                lineHeight: 1.15,
-                letterSpacing: "0.01em",
-              }}
-            >
-              A Small
-              <br />
-              Ticket
-              <br />
-              A Brighter
-              <br />
-              Tomorrow
-            </Typography>
-          </Box>
-
           {/* Right Kerala God's Own Land Vector (Top Right Below Navbar) */}
           <Box
             sx={{

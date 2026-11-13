@@ -809,16 +809,17 @@ export async function getAnnouncedBumperDraws(
 }
 
 export async function fetchDrawResultsForSitemap(
-  limit = Number.POSITIVE_INFINITY
+  limit = Number.POSITIVE_INFINITY,
+  /** Only draws on or after this ISO date (e.g. the noindex cutoff). */
+  sinceDate?: string
 ): Promise<{ lottery_code: string; draw_date: string; created_at?: string }[]> {
   const PAGE_SIZE = 1000;
   const rows: { lottery_code: string; draw_date: string; created_at?: string }[] = [];
   try {
     for (let from = 0; rows.length < limit; from += PAGE_SIZE) {
       const to = from + Math.min(PAGE_SIZE, limit - rows.length) - 1;
-      const { data, error } = await supabase
-        .from("draw_results")
-        .select("lottery_code, draw_date, created_at")
+      const baseQuery = supabase.from("draw_results").select("lottery_code, draw_date, created_at");
+      const { data, error } = await (sinceDate ? baseQuery.gte("draw_date", sinceDate) : baseQuery)
         .order("draw_date", { ascending: false })
         .range(from, to);
 

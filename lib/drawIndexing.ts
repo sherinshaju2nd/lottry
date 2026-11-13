@@ -5,6 +5,8 @@
  */
 
 const WEEKLY_LOOKAHEAD_DAYS = 7;
+/** Result pages older than this many days get `noindex, follow` and drop out of the sitemap. */
+export const INDEX_WINDOW_DAYS = 60;
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export const getTodayIST = (): string =>
@@ -12,6 +14,14 @@ export const getTodayIST = (): string =>
 
 const daysBetween = (fromISO: string, toISO: string): number =>
   Math.round((Date.parse(`${toISO}T00:00:00Z`) - Date.parse(`${fromISO}T00:00:00Z`)) / 86_400_000);
+
+/** Oldest draw date (ISO, IST) that is still indexable: today − INDEX_WINDOW_DAYS. */
+export const getIndexCutoffDate = (today: string = getTodayIST()): string =>
+  new Date(Date.parse(`${today}T00:00:00Z`) - INDEX_WINDOW_DAYS * 86_400_000).toISOString().slice(0, 10);
+
+/** True when a draw date is more than INDEX_WINDOW_DAYS days in the past. */
+export const isBeyondIndexWindow = (date: string, today: string = getTodayIST()): boolean =>
+  daysBetween(date, today) > INDEX_WINDOW_DAYS;
 
 interface IndexableDrawInput {
   date: string;
@@ -32,6 +42,8 @@ export const isIndexableDrawPage = ({
   isPostponed,
   today = getTodayIST(),
 }: IndexableDrawInput): boolean => {
+  // Old results: keep links followable but out of the index, even when a result exists
+  if (isBeyondIndexWindow(date, today)) return false;
   if (hasResult || isPostponed || date === today) return true;
   if (date < today) return false; // past date with no published result
 

@@ -40,6 +40,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
 import SecurityIcon from "@mui/icons-material/Security";
 import ShareIcon from "@mui/icons-material/Share";
 import DescriptionIcon from "@mui/icons-material/Description";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LocalCafeIcon from "@mui/icons-material/LocalCafe";
 import AiSocialDigestModal from "@/components/AiSocialDigestModal";
 import {
@@ -215,8 +216,9 @@ export default function Navbar() {
                 flexShrink: 0,
                 px: { md: 0.75, lg: 1.25, xl: 2 },
               },
-              // Small laptops: Contact stays reachable from the footer
+              // Small laptops: About & Contact stay reachable from the footer
               "& > .MuiButton-root[href='/contact']": { display: { md: "none", lg: "inline-flex" } },
+              "& > .MuiButton-root[href='/about']": { display: { md: "none", xl: "inline-flex" } },
               "& > .MuiButton-root:not([href='/kerala-lottery-app']):not([href='/support']) .MuiButton-startIcon": {
                 display: { md: "none", xl: "inherit" },
               },
@@ -500,6 +502,22 @@ export default function Navbar() {
                 );
               })}
             </Menu>
+
+            <Button
+              component={Link}
+              href="/about"
+              prefetch={false}
+              startIcon={<InfoOutlinedIcon />}
+              sx={{
+                color: pathname === "/about" ? "#0B3C5D" : "#374151",
+                fontWeight: pathname === "/about" ? 800 : 600,
+                borderRadius: "8px",
+                px: 2,
+                bgcolor: pathname === "/about" ? "#EBF5FF" : "transparent",
+              }}
+            >
+              About
+            </Button>
 
             <Button
               component={Link}
@@ -1597,6 +1615,55 @@ export default function Navbar() {
               <ChevronRightIcon sx={{ fontSize: 16, color: "#D97706" }} />
             </Box>
 
+            {/* About */}
+            <Box
+              component={Link}
+              href="/about"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/about" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#EFF6FF",
+                  border: "1px solid #BFDBFE",
+                  color: "#0B3C5D",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <InfoOutlinedIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
+                  About Us
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Who we are &amp; our mission
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
             {/* Contact */}
             <Box
               component={Link}
@@ -1741,6 +1808,55 @@ export default function Navbar() {
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
                   Privacy policy &amp; security
+                </Typography>
+              </Box>
+              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
+            </Box>
+
+            {/* Disclaimer */}
+            <Box
+              component={Link}
+              href="/disclaimer"
+              onClick={handleDrawerToggle}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1,
+                borderRadius: "10px",
+                textDecoration: "none",
+                bgcolor: pathname === "/disclaimer" ? "#EFF6FF" : "transparent",
+                transition: "all 0.15s ease",
+                "&:hover": { bgcolor: "#F8FAFC" },
+              }}
+            >
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  bgcolor: "#FFFBEB",
+                  border: "1px solid #FDE68A",
+                  color: "#D97706",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <InfoOutlinedIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "#0F172A",
+                  }}
+                >
+                  Disclaimer
+                </Typography>
+                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
+                  Unofficial site &amp; result verification
                 </Typography>
               </Box>
               <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />

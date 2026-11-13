@@ -48,7 +48,7 @@ export default function TermsConditionsPage() {
           Terms & Conditions
         </Typography>
         <Typography variant="body2" sx={{ color: "#6B7280", mb: 4, fontWeight: 500 }}>
-          Last Updated: August 14, 2026
+          Last Updated: November 14, 2026
         </Typography>
 
         <Typography variant="body1" sx={{ mb: 3, color: "#374151", lineHeight: 1.7 }}>
@@ -91,7 +91,7 @@ export default function TermsConditionsPage() {
               4. User Eligibility (Age Restrictions)
             </Typography>
             <Typography variant="body1" sx={{ color: "#374151", lineHeight: 1.7 }}>
-              You must be at least 18 years of age (or the legal minimum age in your jurisdiction) to use our Service. If you are under 18, you are strictly prohibited from using the Service.
+              You must be at least 18 years of age (or the legal minimum age in your jurisdiction) to use our Service. If you are under 18, you are strictly prohibited from using the Service. By using the Service, including checking tickets with our result checker, you confirm that you meet these age requirements.
             </Typography>
           </Box>
 

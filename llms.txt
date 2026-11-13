@@ -58,9 +58,11 @@ frontend/
 │   ├── claim/                        # Prize claiming guide, tax calculator, and official procedures
 │   ├── guide/                        # Lottery guide and information
 │   ├── faq/                          # Frequently Asked Questions
+│   ├── about/                        # About Us (mission, independence, responsible use)
 │   ├── contact/                      # Contact and support page
 │   ├── privacy-policy/               # Privacy terms and cookies disclaimer
 │   ├── terms-conditions/             # Terms of service
+│   ├── disclaimer/                   # Legal disclaimer (independent, not affiliated with Kerala govt)
 │   ├── admin/                        # Secure administrative panel for manual draw entry/sync
 │   └── api/                          # Next.js Serverless API Route handlers
 │       ├── draws/                    # Fetch latest and historical structured draw data

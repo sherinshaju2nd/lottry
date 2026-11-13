@@ -8,6 +8,7 @@ import {
   getAnnouncedBumperDraws,
   getLotteryUrl,
 } from "@/lib/supabase";
+import { getIndexCutoffDate } from "@/lib/drawIndexing";
 export const revalidate = 3600; // Fresh sitemap cached for 1 hour (revalidated on-demand when draws sync)
 
 function getTodayISTInfo() {
@@ -92,6 +93,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: "yearly" as const,
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/disclaimer`,
+      lastModified: new Date(),
+      changeFrequency: "yearly" as const,
+      priority: 0.5,
+    },
+    {
       url: `${baseUrl}/contact`,
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
@@ -119,10 +132,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  // 3. Dynamic historic draw results pages
+  // 3. Draw result pages inside the 60-day index window (older ones are noindex, follow)
   let drawPages: MetadataRoute.Sitemap = [];
   try {
-    const draws = await fetchDrawResultsForSitemap();
+    const draws = await fetchDrawResultsForSitemap(undefined, getIndexCutoffDate(isoDate));
     drawPages = draws.map((d) => ({
       url: `${baseUrl}${getLotteryUrl(d.lottery_code, d.draw_date)}`,
       lastModified: d.created_at ? new Date(d.created_at) : new Date(d.draw_date),
