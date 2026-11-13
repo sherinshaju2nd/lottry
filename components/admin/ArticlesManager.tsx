@@ -1,5 +1,7 @@
 "use client";
 
+import { FOUNDER } from "@/lib/siteAuthor";
+
 import React, {
   useCallback,
   useEffect,
@@ -129,7 +131,7 @@ const EMPTY_FORM: ArticleForm = {
   content: "",
   category: "news",
   tags: [],
-  author_name: "Kerala Lottery Results Today Desk",
+  author_name: FOUNDER.name,
   status: "draft",
   publish_at_local: "",
   is_featured: false,
@@ -153,7 +155,7 @@ const articleToForm = (a: Article): ArticleForm => ({
   content: a.content ?? "",
   category: a.category,
   tags: a.tags ?? [],
-  author_name: a.author_name ?? "Kerala Lottery Result Today Desk",
+  author_name: a.author_name ?? FOUNDER.name,
   status: a.status,
   publish_at_local: toLocalInput(a.published_at),
   is_featured: a.is_featured,

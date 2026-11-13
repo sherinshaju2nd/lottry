@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getAllBlogs, getBlogBySlug, getBlogUrl, resolveBlogPost } from "@/data/blogs";
 import BlogPostClient from "@/components/BlogPostClient";
 import { getBlogDrawContext } from "@/lib/blogDraw";
+import { founderPersonSchema, isFounderAuthor } from "@/lib/siteAuthor";
 
 // Draw dates come from the DB (lotteries.draw_date) — refresh hourly
 export const revalidate = 3600;
@@ -94,11 +95,10 @@ export default async function BlogPostPage({ params }: Props) {
     url: pageUrl,
     datePublished: `${post.publishedDate}T09:00:00+05:30`,
     dateModified: `${post.updatedDate}T12:00:00+05:30`,
-    author: {
-      "@type": "Organization",
-      name: post.author.name,
-      url: "https://www.keralalotteryresultstoday.in",
-    },
+    author: isFounderAuthor(post.author.name)
+      ? founderPersonSchema
+      : { "@type": "Organization", name: post.author.name, url: "https://www.keralalotteryresultstoday.in" },
+    editor: founderPersonSchema,
     publisher: {
       "@type": "Organization",
       name: "Kerala Lottery Results Today",

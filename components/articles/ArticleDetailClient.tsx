@@ -18,6 +18,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
 import ArticleContent from "./ArticleContent";
+import AuthorBio from "@/components/AuthorBio";
+import { isFounderAuthor } from "@/lib/siteAuthor";
 import ArticleCard from "./ArticleCard";
 import ArticleShareBar from "./ArticleShareBar";
 import SeeAllNewsTile from "./SeeAllNewsTile";
@@ -243,6 +245,12 @@ export default function ArticleDetailClient({ article, related }: ArticleDetailC
                   ))}
                 </Box>
               )}
+
+              {/* Author / editor bio (E-E-A-T): founder's own posts say "Written by", others "Reviewed by" */}
+              <AuthorBio
+                label={isFounderAuthor(article.author_name) ? "Written by" : "Reviewed by"}
+                reviewedDate={article.updated_at}
+              />
 
               <Box sx={{ mt: 4, pt: 3, borderTop: "1px solid #E2E8F0" }}>
                 <ArticleShareBar title={article.title} url={articleUrl} slug={article.slug} label="Share this article" />

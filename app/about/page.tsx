@@ -18,6 +18,7 @@ import BalanceIcon from "@mui/icons-material/Balance";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { CONTACT_EMAIL, FOUNDER, founderPersonSchema } from "@/lib/siteAuthor";
 
 const SITE_URL = "https://www.keralalotteryresultstoday.in";
 const PAGE_URL = `${SITE_URL}/about`;
@@ -113,8 +114,11 @@ const DEVICES = [
 ];
 
 const TOC = [
+  { id: "founder", label: "Who Runs This Site" },
   { id: "mission", label: "Our Mission" },
   { id: "what-we-offer", label: "What We Offer" },
+  { id: "sourcing", label: "How We Source Results" },
+  { id: "corrections", label: "Corrections Policy" },
   { id: "accuracy", label: "Accuracy" },
   { id: "independent", label: "Independence" },
   { id: "responsible-use", label: "Responsible Use" },
@@ -129,7 +133,9 @@ const jsonLd = [
     url: PAGE_URL,
     description: DESCRIPTION,
     isPartOf: { "@type": "WebSite", name: "Kerala Lottery Result Today", url: SITE_URL },
+    mainEntity: { "@id": founderPersonSchema["@id"] },
   },
+  { "@context": "https://schema.org", ...founderPersonSchema },
   {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -309,6 +315,107 @@ export default function AboutPage() {
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 5, md: 7 }, mt: { xs: 5, md: 7 } }}>
+          {/* Founder / who runs this site (E-E-A-T) */}
+          <Box component="section" id="founder" sx={{ ...cardSx, scrollMarginTop: 96 }}>
+            <Typography component="h2" sx={h2Sx}>
+              Who Runs This Site
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2.5, sm: 4 }, alignItems: { sm: "flex-start" } }}>
+              <Box
+                component="img"
+                src={FOUNDER.photo}
+                alt={`${FOUNDER.name}, ${FOUNDER.role} of Kerala Lottery Result Today`}
+                width={240}
+                height={300}
+                sx={{
+                  width: { xs: 160, sm: 200 },
+                  height: "auto",
+                  aspectRatio: "4 / 5",
+                  objectFit: "cover",
+                  borderRadius: "20px",
+                  border: `1px solid ${BORDER}`,
+                  flexShrink: 0,
+                }}
+              />
+              <Box sx={{ minWidth: 0 }}>
+                <Typography component="h3" sx={{ fontWeight: 900, color: INK, fontSize: { xs: "1.3rem", md: "1.5rem" } }}>
+                  {FOUNDER.name}
+                </Typography>
+                <Typography sx={{ fontWeight: 700, color: NAVY, mb: 0.5 }}>
+                  {FOUNDER.role} · {FOUNDER.expertise}
+                </Typography>
+                <Typography sx={{ color: MUTED, fontSize: "0.92rem", mb: 2 }}>{FOUNDER.location}</Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                  {FOUNDER.bio.map((paragraph) => (
+                    <Typography key={paragraph.slice(0, 24)} sx={bodySx}>
+                      {paragraph}
+                    </Typography>
+                  ))}
+                  <Typography sx={bodySx}>
+                    Email:{" "}
+                    <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: NAVY, fontWeight: 700 }}>
+                      {CONTACT_EMAIL}
+                    </a>
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Sourcing & verification process */}
+          <Box component="section" id="sourcing" sx={{ scrollMarginTop: 96 }}>
+            <Typography component="h2" sx={h2Sx}>
+              How We Source and Verify Results
+            </Typography>
+            <Box component="ol" sx={{ ...bodySx, pl: 3, m: 0, display: "flex", flexDirection: "column", gap: 1.5 }}>
+              <li>
+                <strong>Live draw.</strong> Draws are held by the Kerala State Lotteries Department at Gorky Bhavan,
+                Thiruvananthapuram (3:00 PM for weekly lotteries, 2:00 PM for bumpers). We follow the live draw and
+                publish the first prize and early tiers as they are announced, marked as provisional.
+              </li>
+              <li>
+                <strong>Official result.</strong> When the department publishes its official result sheet on{" "}
+                <a href="https://statelottery.kerala.gov.in/" target="_blank" rel="noopener noreferrer" style={{ color: NAVY, fontWeight: 700 }}>
+                  statelottery.kerala.gov.in
+                </a>
+                , every prize tier on our page is compared with it number by number, and any difference is corrected.
+              </li>
+              <li>
+                <strong>Second check.</strong> Ticket numbers are entered in a structured format and checked
+                automatically for impossible values (wrong length, duplicate entries, missing tiers) before the page
+                is updated.
+              </li>
+              <li>
+                <strong>Gazette remains final.</strong> The Kerala Government Gazette is the only legal record of
+                results. Our pages and Result PDFs are reference copies to help you find your number quickly.
+              </li>
+            </Box>
+          </Box>
+
+          {/* Corrections policy */}
+          <Box component="section" id="corrections" sx={{ ...cardSx, scrollMarginTop: 96 }}>
+            <Typography component="h2" sx={h2Sx}>
+              Corrections Policy
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Typography sx={bodySx}>
+                If you find a wrong number, date, prize amount or any other error, email{" "}
+                <a href={`mailto:${CONTACT_EMAIL}?subject=Correction%20request`} style={{ color: NAVY, fontWeight: 700 }}>
+                  {CONTACT_EMAIL}
+                </a>{" "}
+                with the page link and what should change. Please include the official source if you have it.
+              </Typography>
+              <Typography sx={bodySx}>
+                Errors in winning numbers are treated as urgent: they are checked against the official result and
+                fixed as soon as they are confirmed, normally the same day. Other corrections are reviewed within 3
+                working days. Significant corrections to guides are noted on the page with the date of the change.
+              </Typography>
+              <Typography sx={bodySx}>
+                Corrections are handled by {FOUNDER.name}, {FOUNDER.role.toLowerCase()}.
+              </Typography>
+            </Box>
+          </Box>
+
           {/* Mission */}
           <Box component="section" id="mission" sx={{ scrollMarginTop: 96 }}>
             <Typography component="h2" sx={h2Sx}>
@@ -578,7 +685,11 @@ export default function AboutPage() {
               <Typography sx={bodySx}>
                 We value the opinions, feedback, and suggestions of our website visitors. If you have questions
                 about the information published on our website, suggestions for improvement, correction requests,
-                or general enquiries, you can visit our Contact Us page.
+                or general enquiries, email{" "}
+                <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: NAVY, fontWeight: 700 }}>
+                  {CONTACT_EMAIL}
+                </a>{" "}
+                or visit our Contact Us page. Messages are read by {FOUNDER.name} in {FOUNDER.locality}, Kerala.
               </Typography>
               <Typography sx={bodySx}>
                 Feedback from our visitors helps us improve our website content and provide a better browsing

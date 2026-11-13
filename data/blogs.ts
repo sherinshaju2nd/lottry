@@ -1,3 +1,4 @@
+import { FOUNDER } from "@/lib/siteAuthor";
 export interface BlogPost {
   slug: string;
   title: string;
@@ -85,9 +86,9 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedDate: "2026-11-06",
     readTime: "5 min read",
     author: {
-      name: "Kerala Lottery Editorial Team",
-      role: "Official Results & Verification Analyst",
-      avatar: "/logo-round-192.png",
+      name: FOUNDER.name,
+      role: FOUNDER.role,
+      avatar: FOUNDER.avatar,
     },
     featured: false,
     primaryCta: {
@@ -166,9 +167,9 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedDate: "2026-11-05",
     readTime: "7 min read",
     author: {
-      name: "Kerala Lottery Editorial Team",
-      role: "Official Results & Verification Analyst",
-      avatar: "/logo-round-192.png",
+      name: FOUNDER.name,
+      role: FOUNDER.role,
+      avatar: FOUNDER.avatar,
     },
     featured: true,
     relatedLotteryCodes: ["PB"],
@@ -260,9 +261,9 @@ export const BLOG_POSTS: BlogPost[] = [
     updatedDate: "2026-11-02",
     readTime: "6 min read",
     author: {
-      name: "Kerala Lottery Editorial Team",
-      role: "Official Results & Verification Analyst",
-      avatar: "/logo-round-192.png",
+      name: FOUNDER.name,
+      role: FOUNDER.role,
+      avatar: FOUNDER.avatar,
     },
     featured: false,
     tableOfContents: [

@@ -25,6 +25,7 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import PrintIcon from "@mui/icons-material/Print";
 import type { BlogPost, BlogDrawContext } from "@/data/blogs";
 import { renderBlogContent } from "@/components/blog/blogContentRegistry";
+import AuthorBio from "@/components/AuthorBio";
 
 interface Props {
   post: BlogPost;
@@ -389,6 +390,9 @@ export default function BlogPostClient({ post, draw = null }: Props) {
                   ))}
                 </Box>
               </Box>
+
+              {/* Author bio (E-E-A-T) */}
+              <AuthorBio label="Written by" reviewedDate={post.updatedDate} />
 
               {/* Back to Blog Button */}
               <Box sx={{ mt: 6, pt: 3, borderTop: "1px solid #F1F5F9" }}>

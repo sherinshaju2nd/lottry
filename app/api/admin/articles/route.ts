@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { supabaseServer } from "@/lib/supabase";
 import { isAuthorizedAdmin } from "@/lib/admin-auth";
+import { FOUNDER } from "@/lib/siteAuthor";
 import {
   Article,
   ArticleFaq,
@@ -111,7 +112,7 @@ const parseArticleInput = (
       category,
       tags,
       author_name:
-        str(body?.author_name, 80) || "Kerala Lottery Results Today Desk",
+        str(body?.author_name, 80) || FOUNDER.name,
       status,
       is_featured: body?.is_featured === true,
       published_at: publishedAt,

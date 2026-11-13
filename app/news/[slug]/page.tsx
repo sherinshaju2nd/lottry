@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import ArticleDetailClient from "@/components/articles/ArticleDetailClient";
+import { founderPersonSchema, isFounderAuthor } from "@/lib/siteAuthor";
 import {
   SITE_URL,
   fetchArticleBySlug,
@@ -90,7 +91,10 @@ export default async function ArticlePage({ params }: Props) {
     keywords: [article.focus_keyword, ...article.tags].filter(Boolean).join(", "),
     wordCount: article.content.split(/\s+/).filter(Boolean).length,
     inLanguage: "en-IN",
-    author: { "@type": "Organization", name: article.author_name, url: SITE_URL },
+    author: isFounderAuthor(article.author_name)
+      ? founderPersonSchema
+      : { "@type": "Organization", name: article.author_name, url: SITE_URL },
+    editor: founderPersonSchema,
     publisher: {
       "@type": "Organization",
       name: "Kerala Lottery Results Today",
