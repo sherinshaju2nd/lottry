@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -71,6 +73,8 @@ import {
 
 export default function AdminDashboardPage() {
   const [currentTab, setCurrentTab] = useState<number>(0);
+  // Phones: dialogs open full-screen so their action buttons are never off-screen or under the keyboard.
+  const isPhone = useMediaQuery(useTheme().breakpoints.down("sm"));
 
   // Tab 0: Draws state
   const [draws, setDraws] = useState<StructuredDrawResult[]>([]);
@@ -753,12 +757,15 @@ export default function AdminDashboardPage() {
   const todayPostponed = postponedList.find((p) => p.draw_date === todayIST);
 
   return (
-    <Container maxWidth={false} sx={{ py: 5, px: { xs: 2, sm: 3, md: 4, lg: 6 }, bgcolor: "#F8FAFC", minHeight: "100vh" }}>
+    <Container
+      maxWidth={false}
+      sx={{ py: { xs: 2.5, md: 5 }, px: { xs: 1.5, sm: 3, md: 4, lg: 6 }, bgcolor: "#F8FAFC", minHeight: "100vh", overflowX: "hidden" }}
+    >
       {/* Top Banner Header */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 4 }}>
-        <Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
-            <Typography variant="h4" sx={{ fontWeight: 800, color: "#0B3C5D" }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2, mb: { xs: 2.5, md: 4 } }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1.5, mb: 0.5 }}>
+            <Typography component="h1" sx={{ fontWeight: 800, color: "#0B3C5D", fontSize: { xs: "1.5rem", sm: "1.85rem", md: "2.125rem" }, lineHeight: 1.2 }}>
               Admin Control Center
             </Typography>
             <Chip
@@ -773,7 +780,7 @@ export default function AdminDashboardPage() {
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center", justifyContent: { md: "flex-end" } }}>
+        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center", justifyContent: { md: "flex-end" }, width: { xs: "100%", md: "auto" } }}>
           {/* One "Sync {source name}" button per saved API source */}
           <SourceSyncButtons onResult={setSyncStatus} />
         </Box>
@@ -812,20 +819,22 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Navigation Tabs */}
-      <Paper elevation={0} sx={{ borderRadius: "14px", border: "1px solid #E2E8F0", mb: 4, bgcolor: "#FFFFFF", overflow: "hidden" }}>
+      <Paper elevation={0} sx={{ borderRadius: "14px", border: "1px solid #E2E8F0", mb: { xs: 2.5, md: 4 }, bgcolor: "#FFFFFF", overflow: "hidden" }}>
         <Tabs
           value={currentTab}
           onChange={(_, val) => setCurrentTab(val)}
           variant="scrollable"
           scrollButtons="auto"
+          allowScrollButtonsMobile
           sx={{
-            px: 2,
+            px: { xs: 0, sm: 2 },
             borderBottom: "1px solid #E2E8F0",
             "& .MuiTab-root": {
               fontWeight: 700,
-              fontSize: "0.95rem",
+              fontSize: { xs: "0.85rem", sm: "0.95rem" },
               textTransform: "none",
-              minHeight: 56,
+              minHeight: { xs: 48, sm: 56 },
+              px: { xs: 1.25, sm: 2 },
             },
           }}
         >
@@ -846,7 +855,7 @@ export default function AdminDashboardPage() {
 
       {currentTab === 1 && (
         <Box>
-          <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
+          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, mb: 4, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B" }}>
@@ -868,7 +877,7 @@ export default function AdminDashboardPage() {
           </Paper>
 
           <Paper elevation={0} sx={{ borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", overflow: "hidden" }}>
-            <Box sx={{ p: 3, borderBottom: "1px solid #E2E8F0", bgcolor: "#F8FAFC" }}>
+            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: "1px solid #E2E8F0", bgcolor: "#F8FAFC" }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1E293B" }}>
                 Active & Past Postponed Dates List ({postponedList.length})
               </Typography>
@@ -879,8 +888,9 @@ export default function AdminDashboardPage() {
                 <TableSkeleton rows={4} />
               </Box>
             ) : postponedList.length > 0 ? (
-              <TableContainer sx={{ width: "100%", overflowX: "auto" }}>
-                <Table>
+              <TableContainer sx={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                {/* minWidth: swipe sideways on phones instead of squashing columns */}
+                <Table sx={{ minWidth: 640 }}>
                   <TableHead sx={{ bgcolor: "#F1F5F9" }}>
                     <TableRow>
                       <TableCell sx={{ fontWeight: 700 }}>Postponed Date</TableCell>
@@ -944,7 +954,7 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {currentTab === 2 && (
         <Box>
-          <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
+          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, mb: 4, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B" }}>
@@ -975,7 +985,7 @@ export default function AdminDashboardPage() {
                 <Grid size={{ xs: 12, md: 6, lg: 4 }} key={bumper.id || bumper.code}>
                   <Card sx={{ borderRadius: "16px", border: "1px solid #E2E8F0", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
                     <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
                         <Chip label={bumper.code} size="small" sx={{ fontWeight: 800, bgcolor: "#FEF3C7", color: "#B45309" }} />
                         <Box>
                           <IconButton size="small" onClick={() => openEditLotteryModal(bumper)} color="primary">
@@ -1000,7 +1010,7 @@ export default function AdminDashboardPage() {
 
                       <Divider sx={{ my: 1.5 }} />
 
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between", mb: 1 }}>
                         <Typography variant="body2" sx={{ color: "#64748B" }}>
                           First Prize Jackpot:
                         </Typography>
@@ -1009,7 +1019,7 @@ export default function AdminDashboardPage() {
                         </Typography>
                       </Box>
 
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between", mb: 1 }}>
                         <Typography variant="body2" sx={{ color: "#64748B" }}>
                           Ticket Price:
                         </Typography>
@@ -1018,7 +1028,7 @@ export default function AdminDashboardPage() {
                         </Typography>
                       </Box>
 
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between", mb: 2 }}>
                         <Typography variant="body2" sx={{ color: "#64748B" }}>
                           Draw Date / Season:
                         </Typography>
@@ -1051,7 +1061,7 @@ export default function AdminDashboardPage() {
               ))
             ) : (
               <Grid size={{ xs: 12 }}>
-                <Paper sx={{ p: 5, textAlign: "center", borderRadius: "16px" }}>
+                <Paper sx={{ p: { xs: 2.5, sm: 5 }, textAlign: "center", borderRadius: "16px" }}>
                   <Typography variant="body1" sx={{ color: "#64748B" }}>
                     No Bumper lotteries registered yet. Click &quot;Add Bumper Lottery&quot; to create one.
                   </Typography>
@@ -1070,7 +1080,7 @@ export default function AdminDashboardPage() {
           <Grid container spacing={3}>
             {/* Left Column: Cron Master Control & Config */}
             <Grid size={{ xs: 12, md: 5 }}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", mb: 3 }}>
+              <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", mb: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B", mb: 2 }}>
                   Master Automation Control
                 </Typography>
@@ -1150,7 +1160,7 @@ export default function AdminDashboardPage() {
 
                 {/* 1. WEEKLY MULTI-PHASE SCHEDULE */}
                 <Box sx={{ p: 2, mb: 2.5, borderRadius: "12px", bgcolor: "#F0F9FF", border: "1px solid #BAE6FD" }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#0369A1" }}>
                       📅 Regular Weekly Draw (Split Phases)
                     </Typography>
@@ -1226,7 +1236,7 @@ export default function AdminDashboardPage() {
 
                 {/* 2. BUMPER MULTI-PHASE SCHEDULE */}
                 <Box sx={{ p: 2, mb: 2.5, borderRadius: "12px", bgcolor: "#FAF5FF", border: "1px solid #E9D5FF" }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#7E22CE" }}>
                       👑 Kerala Bumper Draw (Split Phases)
                     </Typography>
@@ -1337,8 +1347,8 @@ export default function AdminDashboardPage() {
 
             {/* Right Column: Cron Execution History Logs */}
             <Grid size={{ xs: 12, md: 7 }}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", mb: 3 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", mb: 3 }}>
+                <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                   <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B" }}>
                     Cron Execution & Skip Logs ({cronLogs.length})
                   </Typography>
@@ -1350,8 +1360,8 @@ export default function AdminDashboardPage() {
                 {isLoadingCron ? (
                   <TableSkeleton rows={5} />
                 ) : cronLogs.length > 0 ? (
-                  <TableContainer sx={{ maxHeight: 400, overflowY: "auto" }}>
-                    <Table size="small">
+                  <TableContainer sx={{ maxHeight: 400, overflowY: "auto", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                    <Table size="small" sx={{ minWidth: 560 }}>
                       <TableHead sx={{ bgcolor: "#F1F5F9" }}>
                         <TableRow>
                           <TableCell sx={{ fontWeight: 700 }}>Time (UTC/IST)</TableCell>
@@ -1390,7 +1400,7 @@ export default function AdminDashboardPage() {
                     </Table>
                   </TableContainer>
                 ) : (
-                  <Box sx={{ p: 4, textAlign: "center" }}>
+                  <Box sx={{ p: { xs: 2, sm: 4 }, textAlign: "center" }}>
                     <Typography variant="body2" sx={{ color: "#64748B" }}>
                       No cron execution logs recorded yet. Run a test sync to verify logging.
                     </Typography>
@@ -1399,8 +1409,8 @@ export default function AdminDashboardPage() {
               </Paper>
 
               {/* Supabase pg_cron Quick Setup Snippet */}
-              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+              <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
+                <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#1E293B" }}>
                     Supabase pg_cron Continuous Schedule SQL
                   </Typography>
@@ -1437,7 +1447,7 @@ export default function AdminDashboardPage() {
       {currentTab === 5 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* Header Banner */}
-          <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
+          <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B", display: "flex", alignItems: "center", gap: 1 }}>
@@ -1464,7 +1474,7 @@ export default function AdminDashboardPage() {
           <Grid container spacing={3}>
             {/* Telegram Channel / Group Status */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <Box>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -1492,7 +1502,7 @@ export default function AdminDashboardPage() {
                   <Divider sx={{ my: 1.5 }} />
 
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2.5 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between" }}>
                       <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
                         TELEGRAM_BOT_TOKEN:
                       </Typography>
@@ -1501,7 +1511,7 @@ export default function AdminDashboardPage() {
                       </Typography>
                     </Box>
 
-                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between" }}>
                       <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
                         TELEGRAM_CHAT_ID:
                       </Typography>
@@ -1510,7 +1520,7 @@ export default function AdminDashboardPage() {
                       </Typography>
                     </Box>
 
-                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between" }}>
                       <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
                         Auto-Broadcast Status:
                       </Typography>
@@ -1544,7 +1554,7 @@ export default function AdminDashboardPage() {
 
             {/* WhatsApp Group / Channel Status */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <Box>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -1572,7 +1582,7 @@ export default function AdminDashboardPage() {
                   <Divider sx={{ my: 1.5 }} />
 
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2.5 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between" }}>
                       <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
                         Provider Mode:
                       </Typography>
@@ -1581,7 +1591,7 @@ export default function AdminDashboardPage() {
                       </Typography>
                     </Box>
 
-                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between" }}>
                       <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
                         Recipient (Group/Phone):
                       </Typography>
@@ -1590,7 +1600,7 @@ export default function AdminDashboardPage() {
                       </Typography>
                     </Box>
 
-                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", columnGap: 1, justifyContent: "space-between" }}>
                       <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 700 }}>
                         Auto-Broadcast Status:
                       </Typography>
@@ -1624,7 +1634,7 @@ export default function AdminDashboardPage() {
 
             {/* Manual Broadcast & Last Broadcast Status */}
             <Grid size={{ xs: 12, md: 7 }}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%" }}>
+              <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%" }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#1E293B", mb: 1 }}>
                   🚀 Manual 1st Prize Broadcast Trigger
                 </Typography>
@@ -1689,7 +1699,7 @@ export default function AdminDashboardPage() {
 
             {/* Message Preview Box */}
             <Grid size={{ xs: 12, md: 5 }}>
-              <Paper elevation={0} sx={{ p: 3, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%" }}>
+              <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: "16px", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF", height: "100%" }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#1E293B", mb: 1 }}>
                   📱 Broadcast Message Layout (Preview)
                 </Typography>
@@ -1736,7 +1746,7 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* MODAL: POSTPONE / NO DRAW SPOTTER FORM                                   */}
       {/* ========================================================================= */}
-      <Dialog open={postponeModalOpen} onClose={() => setPostponeModalOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={postponeModalOpen} onClose={() => setPostponeModalOpen(false)} maxWidth="sm" fullWidth fullScreen={isPhone}>
         <DialogTitle sx={{ fontWeight: 800, color: "#1E293B" }}>
           Spot / Declare Postponed or No-Draw Day
         </DialogTitle>
@@ -1829,7 +1839,7 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* MODAL: BUMPER LOTTERY FORM                                               */}
       {/* ========================================================================= */}
-      <Dialog open={lotteryModalOpen} onClose={() => setLotteryModalOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={lotteryModalOpen} onClose={() => setLotteryModalOpen(false)} maxWidth="sm" fullWidth fullScreen={isPhone}>
         <DialogTitle sx={{ fontWeight: 800, color: "#1E293B" }}>
           {lotteryFormData.id ? "Edit Bumper Lottery" : "Add New Bumper Lottery"}
         </DialogTitle>
@@ -1928,7 +1938,7 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* MODAL: MANUAL DRAW RESULT ENTRY & EDIT                                    */}
       {/* ========================================================================= */}
-      <Dialog open={drawModalOpen} onClose={() => setDrawModalOpen(false)} maxWidth="md" fullWidth>
+      <Dialog open={drawModalOpen} onClose={() => setDrawModalOpen(false)} maxWidth="md" fullWidth fullScreen={isPhone}>
         <DialogTitle sx={{ fontWeight: 800, color: "#1E293B" }}>
           {editingDraw ? `Edit Draw Result: ${editingDraw.draw_name} (${editingDraw.draw_code})` : "Enter Manual Lottery Draw Result"}
         </DialogTitle>

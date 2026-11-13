@@ -365,7 +365,7 @@ export default function ApiSourcesManager() {
 
   return (
     <Box>
-      <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: "16px", border: `1px solid ${C.line}` }}>
+      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderRadius: "16px", border: `1px solid ${C.line}` }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 2, alignItems: "flex-start" }}>
           <Box sx={{ maxWidth: 720 }}>
             <Typography variant="h6" sx={{ fontWeight: 800, color: C.ink }}>
@@ -417,7 +417,7 @@ export default function ApiSourcesManager() {
             key={source.id}
             elevation={0}
             sx={{
-              p: 2.5,
+              p: { xs: 1.75, sm: 2.5 },
               borderRadius: "14px",
               border: `1px solid ${source.enabled ? C.line : "#F1F5F9"}`,
               bgcolor: source.enabled ? "#FFFFFF" : C.soft,
@@ -456,7 +456,7 @@ export default function ApiSourcesManager() {
                 onChange={(e) => update(source.id, { url: e.target.value.trim() })}
                 slotProps={{ htmlInput: { style: { fontFamily: "ui-monospace, Menlo, monospace", fontSize: 13 } } }}
               />
-              <Box sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", flexShrink: 0, width: { xs: "100%", md: "auto" }, justifyContent: { xs: "space-between", md: "flex-start" } }}>
                 <Tooltip title={source.enabled ? "Enabled" : "Disabled"}>
                   <Switch checked={source.enabled} onChange={(e) => update(source.id, { enabled: e.target.checked })} />
                 </Tooltip>

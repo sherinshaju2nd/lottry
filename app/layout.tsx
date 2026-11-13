@@ -11,6 +11,7 @@ import IosInstallPrompt from "@/components/IosInstallPrompt";
 import IosInstallGuideModal from "@/components/IosInstallGuideModal";
 import WindowsInstallGuideModal from "@/components/WindowsInstallGuideModal";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import HideOnAdmin from "@/components/HideOnAdmin";
 import AiTicketScanner from "@/components/AiTicketScanner";
 import { supabase, WEEKLY_LOTTERIES } from "@/lib/supabase";
 import { GA_MEASUREMENT_ID, getGtagInitScript } from "@/lib/analytics";
@@ -608,9 +609,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <PwaRegister />
           <ScrollRestorer />
           <InitialLoader />
-          <IosInstallPrompt />
-          <IosInstallGuideModal />
-          <WindowsInstallGuideModal />
+          {/* Public-site prompts & fixed overlays are hidden on /admin (they covered admin save buttons on phones) */}
+          <HideOnAdmin>
+            <IosInstallPrompt />
+            <IosInstallGuideModal />
+            <WindowsInstallGuideModal />
+          </HideOnAdmin>
           <div
             style={{
               display: "flex",
@@ -621,10 +625,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <Navbar />
             <main style={{ flex: 1 }}>{children}</main>
 
-            <Footer />
-            <AiVoiceAssistantModal />
-            <MobileBottomNav />
-            <AiTicketScanner variant="dialog-only" />
+            <HideOnAdmin>
+              <Footer />
+              <AiVoiceAssistantModal />
+              <MobileBottomNav />
+              <AiTicketScanner variant="dialog-only" />
+            </HideOnAdmin>
           </div>
         </MuiProvider>
       </body>

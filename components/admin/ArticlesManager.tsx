@@ -875,8 +875,9 @@ export default function ArticlesManager() {
             </Button>
           </Box>
         ) : (
-          <TableContainer>
-            <Table size="small">
+          <TableContainer sx={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+            {/* minWidth: swipe sideways on phones instead of squashing columns */}
+            <Table size="small" sx={{ minWidth: 640 }}>
               <TableHead>
                 <TableRow
                   sx={{

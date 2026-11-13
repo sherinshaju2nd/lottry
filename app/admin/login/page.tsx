@@ -60,8 +60,8 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <Container maxWidth="xs" sx={{ py: 10 }}>
-      <Paper elevation={0} sx={{ p: 4, borderRadius: "4px", border: "1px solid #E5E7EB", textAlign: "center" }}>
+    <Container maxWidth="xs" sx={{ py: { xs: 4, sm: 10 }, px: { xs: 2, sm: 3 } }}>
+      <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 4 }, borderRadius: "4px", border: "1px solid #E5E7EB", textAlign: "center" }}>
         <Box sx={{ bgcolor: "#0B3C5D", color: "white", width: 44, height: 44, borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 2 }}>
           <LockOutlinedIcon />
         </Box>

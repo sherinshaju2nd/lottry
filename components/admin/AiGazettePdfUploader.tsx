@@ -13,6 +13,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -38,6 +40,8 @@ export default function AiGazettePdfUploader({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Phones: full-screen so the Save/Import buttons are always reachable.
+  const isPhone = useMediaQuery(useTheme().breakpoints.down("sm"));
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -112,10 +116,11 @@ export default function AiGazettePdfUploader({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={isPhone}
       slotProps={{
         paper: {
           sx: {
-            borderRadius: "20px",
+            borderRadius: isPhone ? 0 : "20px",
             p: 1,
           },
         },

@@ -683,7 +683,8 @@ export default function TodayResultEditor() {
   const activeIssues = tierIssues[activeTier];
 
   return (
-    <Box sx={{ pb: 10 }}>
+    // Room for the fixed save bar (taller on phones where its buttons wrap) + the iPhone home indicator.
+    <Box sx={{ pb: { xs: "calc(140px + env(safe-area-inset-bottom))", sm: 12 } }}>
       {/* Header: what you are editing + overall progress */}
       <Paper elevation={0} sx={{ borderRadius: "16px", border: `1px solid ${C.line}`, overflow: "hidden", mb: 3 }}>
         <Box sx={{ p: { xs: 2.5, sm: 3 }, background: "linear-gradient(135deg, #0B3C5D 0%, #134E77 100%)", color: "#FFFFFF" }}>
@@ -802,7 +803,7 @@ export default function TodayResultEditor() {
                   value={form.amounts[activeTier]}
                   onChange={(e) => setAmount(activeTier, e.target.value)}
                   slotProps={{ input: { startAdornment: <InputAdornment position="start">₹</InputAdornment> } }}
-                  sx={{ width: 200 }}
+                  sx={{ width: { xs: "100%", sm: 200 } }}
                 />
               </Box>
 
@@ -854,11 +855,13 @@ export default function TodayResultEditor() {
           bgcolor: "rgba(255,255,255,.96)",
           backdropFilter: "blur(8px)",
           px: { xs: 2, sm: 4 },
-          py: 1.5,
+          pt: 1.5,
+          pb: "calc(12px + env(safe-area-inset-bottom))",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 2,
+          flexWrap: "wrap",
+          gap: { xs: 1, sm: 2 },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
@@ -871,7 +874,7 @@ export default function TodayResultEditor() {
             {isDirty ? "Unsaved changes · Ctrl+S to save" : "All changes saved"}
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box sx={{ display: "flex", gap: 1, ml: "auto", flex: { xs: "1 1 100%", sm: "0 0 auto" } }}>
           <Button onClick={reload} startIcon={<RefreshIcon />} disabled={isSaving || isLoading} sx={{ fontWeight: 700, textTransform: "none", color: C.sub }}>
             Reload
           </Button>
@@ -880,7 +883,16 @@ export default function TodayResultEditor() {
             variant="contained"
             startIcon={isSaving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
             disabled={isSaving || isLoading || (!isDirty && Boolean(existing))}
-            sx={{ bgcolor: C.green, fontWeight: 800, textTransform: "none", borderRadius: "10px", px: 3, "&:hover": { bgcolor: "#15803D" } }}
+            sx={{
+              bgcolor: C.green,
+              fontWeight: 800,
+              textTransform: "none",
+              borderRadius: "10px",
+              px: 3,
+              minHeight: 44,
+              flex: { xs: 1, sm: "0 0 auto" },
+              "&:hover": { bgcolor: "#15803D" },
+            }}
           >
             {existing ? "Save changes" : "Save result"}
           </Button>
