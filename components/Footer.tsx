@@ -455,25 +455,6 @@ export default function Footer() {
           </Typography>
         </Box>
 
-        {/* Multilingual Regional Search Keywords */}
-        <Typography
-          variant="caption"
-          sx={{
-            color: "#9CA3AF",
-            display: "block",
-            maxWidth: 900,
-            mx: "auto",
-            fontSize: "0.75rem",
-            lineHeight: 1.8,
-            mb: 3,
-            px: 2,
-          }}
-        >
-          (இன்றைய கேரள லாட்டரி முடிவுகள் • आज के केरल लॉटरी के नतीजे • ഇന്നത്തെ
-          കേരള ലോട്ടറി ഫലങ്ങൾ • ಇಂದಿನ ಕೇರಳ ಲಾಟರಿ ಫಲಿತಾಂಶಗಳು • kerala লটাৰীৰ
-          ফলাফল আজি • केरल लॉटरीचो निकाल आयज • ਕੇਰਲ ਲਾਟਰੀ ਦੇ ਅੱਜ ਦੇ ਨਤੀਜੇ •
-          ఈరోజు కేరళ లాటరీ ఫలితాలు)
-        </Typography>
 
         <Typography
           variant="body2"

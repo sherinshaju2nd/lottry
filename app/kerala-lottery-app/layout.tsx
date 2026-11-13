@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Download Kerala Lottery Results App - Android, iPhone & Windows PC",
   description:
-    "Download the official Kerala Lottery Results Today app. Get real-time 3 PM live draw results, instant ticket barcode scanner, official Gazette PDF downloads, and winning number alerts.",
+    "Download the Kerala Lottery Results Today app. Get real-time 3 PM live draw results, instant ticket barcode scanner, Result PDF downloads, and winning number alerts.",
   keywords: [
     "kerala lottery app download",
     "kerala lottery results app",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Download Kerala Lottery Results Today App - Android, iPhone & Windows",
     description:
-      "Get real-time 3:00 PM Kerala lottery results, ticket scanner, and official PDF downloads directly on your smartphone & PC.",
+      "Get real-time 3:00 PM Kerala lottery results, ticket scanner, and Result PDF downloads directly on your smartphone & PC.",
     url: "https://www.keralalotteryresultstoday.in/kerala-lottery-app",
     siteName: "Kerala Lottery Result Today",
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1024,
         height: 1024,
-        alt: "Kerala Lottery Results Today Official Mobile App",
+        alt: "Kerala Lottery Results Today Mobile App",
       },
       {
         url: "/website-banner-1600x500.png",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Download Kerala Lottery Results Today App",
     description:
-      "Get instant 3 PM live draw results, ticket barcode checker scanner, and official Gazette PDF on Android, iPhone & Windows.",
+      "Get instant 3 PM live draw results, ticket barcode checker scanner, and Result PDF on Android, iPhone & Windows.",
     images: ["/website-banner-1600x500.png"],
   },
 };
@@ -84,13 +84,6 @@ export default function KeralaLotteryAppLayout({ children }: { children: React.R
       "@type": "Offer",
       price: "0",
       priceCurrency: "INR",
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.8",
-      ratingCount: "1250",
-      bestRating: "5",
-      worstRating: "1",
     },
   };
 

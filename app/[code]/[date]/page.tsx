@@ -14,6 +14,7 @@ import {
   resolveLotteryDisplayMeta,
 } from "@/lib/supabase";
 import DedicatedLotteryDateClient from "./DedicatedLotteryDateClient";
+import DrawInsightsSection from "@/components/DrawInsightsSection";
 import { cache } from "react";
 import { isIndexableDrawPage } from "@/lib/drawIndexing";
 
@@ -69,7 +70,7 @@ export async function generateMetadata({
     resolveLotteryDisplayMeta(lotteryCode).ticketPrice;
   const logoUrl = getLotteryLogo(lotteryCode) || "/logo-round-512.png";
   const title = `${lotteryInfo.name} (${lotteryInfo.code}) Result ${dateParam} - 1st Prize ${jackpot} Kerala ${lotteryInfo.is_bumper ? "Bumper " : ""}Live Draw`;
-  const description = `Check Kerala State ${lotteryInfo.name} (${lotteryInfo.nameMl}) lottery result for ${dateParam}. Live 1st prize ${jackpot} winning numbers, ticket price ${ticketPrice}, full prize chart, search ticket tool, and official Gazette PDF download.`;
+  const description = `Check Kerala State ${lotteryInfo.name} (${lotteryInfo.nameMl}) lottery result for ${dateParam}. Live 1st prize ${jackpot} winning numbers, ticket price ${ticketPrice}, full prize chart, search ticket tool, and Result PDF download.`;
 
   const isBumper = Boolean(lotteryInfo.is_bumper || lotteryCode.startsWith("Bumper"));
   const drawTimeLabel = isBumper ? "2pm" : "3pm";
@@ -90,9 +91,9 @@ export async function generateMetadata({
     `Kerala lottery ticket search ${dateParam}`,
     `Verify kerala lottery ticket online`,
 
-    // 3. Official Gazette & Verification Queries
+    // 3. Result PDF & Verification Queries
     `Kerala government gazette lottery result ${dateParam}`,
-    `${lotteryInfo.name.toLowerCase()} gazette pdf download`,
+    `${lotteryInfo.name.toLowerCase()} result pdf download`,
     `Official kerala lottery result pdf ${dateParam}`,
     `statelottery.kerala.gov.in result`,
 
@@ -185,6 +186,10 @@ export default async function DedicatedLotteryDateDetailsPage({
     ]);
 
   const lotteryDbMeta = lotRes.data || null;
+
+  // Previous draw of the same lottery, for the server-rendered comparison summary
+  const previousDate = drawResult ? availableDates.find((d) => d < dateParam) : undefined;
+  const previousDraw = previousDate ? await getDrawResultCached(lotteryCode, previousDate) : null;
 
   const now = new Date();
   const todayISTDate = new Intl.DateTimeFormat("en-CA", {
@@ -311,7 +316,7 @@ export default async function DedicatedLotteryDateDetailsPage({
         name: `When will Kerala ${lotteryInfo.name} draw result for ${dateParam} be announced?`,
         acceptedAnswer: {
           "@type": "Answer",
-          text: `The official live draw for Kerala ${lotteryInfo.name} on ${dateParam} commences at ${drawTime} at Gorky Bhavan, Thiruvananthapuram. The 1st prize winning ticket is published live around ${lotteryInfo.is_bumper ? "2:30 PM" : "3:10 PM"}, followed by the full prize chart and official Gazette PDF.`,
+          text: `The official live draw for Kerala ${lotteryInfo.name} on ${dateParam} commences at ${drawTime} at Gorky Bhavan, Thiruvananthapuram. The 1st prize winning ticket is published live around ${lotteryInfo.is_bumper ? "2:30 PM" : "3:10 PM"}, followed by the full prize chart and Result PDF.`,
         },
       },
       {
@@ -373,6 +378,14 @@ export default async function DedicatedLotteryDateDetailsPage({
         serverTodayDate={todayISTDate}
         initialLotteryMeta={lotteryDbMeta}
       />
+      {drawResult && (
+        <DrawInsightsSection
+          draw={drawResult}
+          previousDraw={previousDraw}
+          lotteryName={lotteryInfo.name}
+          lotterySlug={lotterySlug}
+        />
+      )}
     </>
   );
 }

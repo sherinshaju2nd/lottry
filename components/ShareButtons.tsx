@@ -167,7 +167,7 @@ export default function ShareButtons({
 
           {/* PDF Download */}
           {pdfUrl && (
-            <Tooltip title="Download Official PDF Gazette">
+            <Tooltip title="Download Result PDF">
               <IconButton
                 component="a"
                 href={pdfUrl}
@@ -182,7 +182,7 @@ export default function ShareButtons({
                   height: 36,
                 }}
                 size="small"
-                aria-label="Download Official PDF Result"
+                aria-label="Download Result PDF"
               >
                 <PictureAsPdfIcon fontSize="small" />
               </IconButton>

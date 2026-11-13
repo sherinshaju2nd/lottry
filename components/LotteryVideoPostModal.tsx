@@ -190,7 +190,7 @@ export default function LotteryVideoPostModal({
     ...(location ? [`📍 Drawn District: ${location}`] : []),
     ...(agent ? [`👤 Selling Agent: ${agent}`] : []),
     ``,
-    `🛡️ 100% Verified Kerala Government Gazette Result.`,
+    `🛡️ Verify your ticket with the official Kerala Government Gazette before claiming.`,
     `സമ്മാനാർഹമായ ടിക്കറ്റുകൾ ഔദ്യോഗിക കേരള സർക്കാർ ഗസറ്റുമായി ഒത്തുനോക്കി 30 ദിവസത്തിനകം സമ്മാനം മാറേണ്ടതാണ്.`,
     ``,
     `🌐 Check Live Results & Ticket Checker:`,

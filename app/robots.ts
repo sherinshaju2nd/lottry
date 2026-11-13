@@ -11,8 +11,7 @@ const ALLOW_PATHS = [
   "/guide",
   "/faq",
   "/blog",
-  "/analytics",
-  // Official Gazette result PDFs are linked from every draw page — let them be crawled & indexed
+  // Result PDFs are linked from every draw page — let them be crawled & indexed
   "/api/pdf/",
   "/.well-known/assetlinks.json",
   "/.well-known/apple-app-site-association",

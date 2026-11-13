@@ -103,7 +103,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const description = `Check official Kerala State ${lotteryInfo.name} (${editorial.nameMl}) lottery results today${
     formattedDate ? ` (${formattedDate})` : ""
-  }. 1st prize ${jackpot}, ticket price ${ticketPrice}, live winning series, previous draw archive, and official Gazette PDF download. Drawn every ${
+  }. 1st prize ${jackpot}, ticket price ${ticketPrice}, live winning series, previous draw archive, and Result PDF download. Drawn every ${
     lotteryInfo.day
   } at ${dbMeta?.draw_time || (lotteryInfo.is_bumper ? "2:00 PM" : "3:00 PM")} at Gorky Bhavan, Thiruvananthapuram.`;
 
@@ -206,9 +206,6 @@ export default async function LotteryDetailsPage({ params }: PageProps) {
     lotteryDbMeta?.ticket_price?.trim() ||
     resolveLotteryDisplayMeta(lotteryCode).ticketPrice;
 
-  const numericPrice =
-    dbTicketPrice.replace(/[^0-9.]/g, "") ||
-    (lotteryInfo.is_bumper ? "500" : "50");
 
   const drawTime =
     lotteryDbMeta?.draw_time ||
@@ -257,45 +254,17 @@ export default async function LotteryDetailsPage({ params }: PageProps) {
     ],
   };
 
+  // No Product/Offer/AggregateRating schema: this site does not sell tickets and has no
+  // first-party reviews — fabricated ratings violate Google's structured-data & AdSense policies.
   const schemeSchema = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    name: `Kerala State ${lotteryInfo.name} Lottery Ticket`,
-    description: `Official Kerala State ${lotteryInfo.name} (${lotteryInfo.nameMl}) ${
+    "@type": "WebPage",
+    name: `${lotteryInfo.name} (${lotteryInfo.code}) Lottery Results Archive`,
+    description: `Independent results archive for the Kerala State ${lotteryInfo.name} (${lotteryInfo.nameMl}) ${
       lotteryInfo.is_bumper ? "bumper" : "weekly"
-    } lottery draw conducted every ${lotteryInfo.day} at ${drawTime} with a first prize of ${jackpotAmount} and ticket price of ${dbTicketPrice}.`,
+    } lottery, drawn ${lotteryInfo.is_bumper ? "on its announced date" : `every ${lotteryInfo.day}`} at ${drawTime}. First prize ${jackpotAmount}; ticket price ${dbTicketPrice}.`,
+    url: `${baseUrl}/${lotterySlug}`,
     image: `${baseUrl}${getLotteryLogo(lotteryCode) || "/logo-round-512.png"}`,
-    brand: {
-      "@type": "Organization",
-      name: "Directorate of Kerala State Lotteries",
-    },
-    offers: {
-      "@type": "Offer",
-      price: numericPrice,
-      priceCurrency: "INR",
-      availability: "https://schema.org/InStoreOnly",
-      url: `${baseUrl}/${lotterySlug}`,
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.8",
-      reviewCount: "1480",
-      bestRating: "5",
-      worstRating: "1",
-    },
-    review: {
-      "@type": "Review",
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: "5",
-        bestRating: "5",
-      },
-      author: {
-        "@type": "Person",
-        name: "Kerala Lottery Results Community",
-      },
-      reviewBody: `Official Kerala State ${lotteryInfo.name} draw held every ${lotteryInfo.day} at ${drawTime} at Gorky Bhavan, Thiruvananthapuram with transparent live results and Gazette publication.`,
-    },
   };
 
   const faqSchema = {

@@ -44,18 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "always" as const,
       priority: 1.0,
     },
-    {
-      url: `${baseUrl}/analytics`,
-      lastModified: new Date(),
-      changeFrequency: "hourly" as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/search`,
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.8,
-    },
+    // /analytics (noindex) and /search (tool page, no standalone content) are intentionally excluded.
     {
       url: `${baseUrl}/kerala-lottery-app`,
       lastModified: new Date(),

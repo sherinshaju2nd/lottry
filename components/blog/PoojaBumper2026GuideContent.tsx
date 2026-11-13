@@ -178,8 +178,8 @@ const DrawPageCta = ({ view }: { view: DrawView }) => (
       </Typography>
       <Typography sx={{ fontSize: "0.88rem", color: "#FFEDD5" }}>
         {view.isUpcoming
-          ? `Live winning numbers from ${view.drawTime} IST, full prize chart and official Gazette PDF.`
-          : "Winning numbers, full prize chart and official Gazette PDF."}
+          ? `Live winning numbers from ${view.drawTime} IST, full prize chart and Result PDF.`
+          : "Winning numbers, full prize chart and Result PDF."}
       </Typography>
     </Box>
     <Button

@@ -1325,7 +1325,7 @@ export async function generateLotteryResultVideo(
           ctx.fillStyle = "#94A3B8";
           ctx.font = `800 ${isVertical ? 26 : 20}px -apple-system, BlinkMacSystemFont, sans-serif`;
           ctx.fillText(
-            "Official Winning Numbers Announced in Gazette",
+            "Verify with the official Kerala Government Gazette",
             width / 2,
             sY + sH / 2,
           );
@@ -1394,7 +1394,7 @@ export async function generateLotteryResultVideo(
         ctx.fillStyle = "#FDE047";
         ctx.font = `800 ${isVertical ? 22 : 18}px -apple-system, BlinkMacSystemFont, sans-serif`;
         ctx.fillText(
-          "Scan QR to Check Full Gazette PDF & Ticket Checker",
+          "Scan QR for Full Result PDF & Ticket Checker",
           width / 2,
           cY + (isVertical ? 195 : 150),
         );

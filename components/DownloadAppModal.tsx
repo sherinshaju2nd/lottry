@@ -310,7 +310,7 @@ export default function DownloadAppModal({ open, onClose, defaultTab }: Download
               mx: "auto",
             }}
           >
-            കേരള ലോട്ടറി ലൈവ് റിസൾട്ട്, ടിക്കറ്റ് സ്കാനർ, ഗസറ്റ് പി.ഡി.എഫ് — മൊബൈലിലും കമ്പ്യൂട്ടറിലും!
+            കേരള ലോട്ടറി ലൈവ് റിസൾട്ട്, ടിക്കറ്റ് സ്കാനർ, റിസൾട്ട് പി.ഡി.എഫ് — മൊബൈലിലും കമ്പ്യൂട്ടറിലും!
           </Typography>
         </Box>
 
@@ -433,7 +433,7 @@ export default function DownloadAppModal({ open, onClose, defaultTab }: Download
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
                 <PictureAsPdfIcon sx={{ color: "#DC2626", fontSize: 18 }} />
                 <Typography variant="body2" sx={{ fontWeight: 700, color: "#334155", fontSize: "0.8rem" }}>
-                  Gazette PDF Download
+                  Result PDF Download
                 </Typography>
               </Box>
             </Grid>
@@ -708,7 +708,7 @@ export default function DownloadAppModal({ open, onClose, defaultTab }: Download
             fontSize: "0.75rem",
           }}
         >
-          ✓ 100% Free &amp; Safe • Live 3 PM Sync • Official Gazette PDF
+          ✓ 100% Free &amp; Safe • Live 3 PM Sync • Result PDF
         </Typography>
       </DialogContent>
     </Dialog>

@@ -226,7 +226,7 @@ function UpcomingBumperCountdownSection({
       `Kerala Lottery: ${lotteryInfo.name} Live Draw (${rawJackpot})`,
     );
     const details = encodeURIComponent(
-      `Official Kerala State ${lotteryInfo.name} Draw (${selectedDate}). Check live 1st prize winning numbers & Gazette PDF on https://www.keralalotteryresultstoday.in/${lotterySlug}/${selectedDate}`,
+      `Kerala State ${lotteryInfo.name} Draw (${selectedDate}). Check live 1st prize winning numbers & Result PDF on https://www.keralalotteryresultstoday.in/${lotterySlug}/${selectedDate}`,
     );
     const location = encodeURIComponent(
       "Gorky Bhavan, Thiruvananthapuram, Kerala",
@@ -345,7 +345,7 @@ function UpcomingBumperCountdownSection({
   const faqs = [
     {
       q: `When will Kerala ${lotteryInfo.name} Result for ${selectedDate} be released?`,
-      a: `The live draw ceremony for Kerala State ${lotteryInfo.name} will begin at ${rawDrawTime} IST on ${formattedDate} at Gorky Bhavan, Thiruvananthapuram. The 1st prize winning ticket will be updated live on this page around ${isBumper ? "2:30 PM" : "3:10 PM"}, followed by the full prize chart and official Kerala Gazette PDF.`,
+      a: `The live draw ceremony for Kerala State ${lotteryInfo.name} will begin at ${rawDrawTime} IST on ${formattedDate} at Gorky Bhavan, Thiruvananthapuram. The 1st prize winning ticket will be updated live on this page around ${isBumper ? "2:30 PM" : "3:10 PM"}, followed by the full prize chart and Result PDF.`,
     },
     {
       q: `What is the 1st prize jackpot for ${lotteryInfo.name} on ${selectedDate}?`,
@@ -882,8 +882,8 @@ function UpcomingBumperCountdownSection({
                 },
                 {
                   time: isBumper ? "4:30 PM" : "4:00 PM",
-                  title: "Official Gazette PDF",
-                  desc: "Government authorized official PDF Gazette is made available for download.",
+                  title: "Result PDF",
+                  desc: "A printable Result PDF of the full prize chart is made available for download.",
                 },
               ].map((step, idx) => (
                 <Box
@@ -1382,11 +1382,6 @@ export default function DedicatedLotteryDateClient({
     { key: "7th", label: "7th Prize", dotBg: "#0B3C5D" },
     { key: "8th", label: "8th Prize", dotBg: "#475569" },
     { key: "9th", label: "9th Prize", dotBg: "#64748B" },
-    {
-      key: "guess",
-      label: "Guessing Numbers (ഭാഗ്യ സംഖ്യകൾ)",
-      dotBg: "#8B5CF6",
-    },
     { key: "mc", label: "Machine Center (MC) Numbers", dotBg: "#EC4899" },
   ] as const;
 
@@ -1569,7 +1564,7 @@ export default function DedicatedLotteryDateClient({
                   href={`/api/pdf/${lotteryCode}/${selectedDate}`}
                   download={`kerala-lottery-${lotteryCode}-${selectedDate}.pdf`}
                   size="small"
-                  title="Download Official PDF"
+                  title="Download Result PDF"
                   sx={{
                     color: "#FFFFFF",
                     bgcolor: "rgba(255, 255, 255, 0.15)",

@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.keralalotteryresultstoday.in/analytics",
   },
+  // Kept out of the index: AI "number picks" imply lottery outcomes can be predicted,
+  // which contradicts /disclaimer and is a misleading-claims risk for AdSense review.
+  robots: { index: false, follow: true },
 };
 
 export default function AnalyticsLayout({

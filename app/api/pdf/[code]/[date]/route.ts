@@ -149,7 +149,6 @@ export async function GET(
       "7th",
       "8th",
       "9th",
-      "guess",
       "mc",
     ] as const;
     const amounts = (result.prizes?.amounts || {}) as Record<string, string>;
@@ -165,9 +164,7 @@ export async function GET(
         const label =
           tier === "consolation"
             ? "Consolation Prize"
-            : tier === "guess"
-              ? "Guessing Numbers"
-              : tier === "mc"
+            : tier === "mc"
                 ? "Machine Center (MC) Numbers"
                 : `${tier} Prize`;
         const amountStr = amounts[tier] ? ` (${amounts[tier]})` : "";

@@ -29,7 +29,6 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import FlashOnIcon from "@mui/icons-material/FlashOn";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -43,7 +42,6 @@ import {
   StructuredDrawResult,
   ALL_LOTTERIES,
 } from "@/lib/supabase";
-import AiLotteryPatternPredictor from "@/components/AiLotteryPatternPredictor";
 
 const KERALA_DISTRICTS = [
   "Thiruvananthapuram",
@@ -94,7 +92,8 @@ export default function AnalyticsPage() {
   const [draws, setDraws] = useState<StructuredDrawResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [horizon, setHorizon] = useState<"30" | "90" | "all">("90");
-  const [activeTab, setActiveTab] = useState<"ai-prediction" | "hot-picks" | "lucky-locations">("ai-prediction");
+  // Historical statistics only — the AI "number prediction" tab was removed (misleading-claims / AdSense risk).
+  const [activeTab, setActiveTab] = useState<"hot-picks" | "lucky-locations">("hot-picks");
   const [lang, setLang] = useState<"en" | "ml">("en");
   const [districtQuery, setDistrictQuery] = useState("");
   const [copied, setCopied] = useState(false);
@@ -653,27 +652,6 @@ export default function AnalyticsPage() {
             }}
           >
             <Button
-              onClick={() => setActiveTab("ai-prediction")}
-              startIcon={<AutoAwesomeIcon sx={{ color: activeTab === "ai-prediction" ? "#7C3AED" : "#64748B" }} />}
-              sx={{
-                flex: { xs: 1, sm: "initial" },
-                bgcolor: activeTab === "ai-prediction" ? "#FFFFFF" : "transparent",
-                color: activeTab === "ai-prediction" ? "#0F172A" : "#64748B",
-                fontWeight: 800,
-                fontSize: { xs: "0.78rem", sm: "0.85rem" },
-                borderRadius: "10px",
-                px: { xs: 1.2, sm: 2.2 },
-                py: 0.9,
-                textTransform: "none",
-                whiteSpace: "nowrap",
-                boxShadow: activeTab === "ai-prediction" ? "0 2px 6px rgba(0,0,0,0.06)" : "none",
-                "&:hover": { bgcolor: activeTab === "ai-prediction" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
-              }}
-            >
-              {isMl ? "AI പ്രവചനങ്ങൾ" : "AI Prediction"}
-            </Button>
-
-            <Button
               onClick={() => setActiveTab("hot-picks")}
               startIcon={<WhatshotIcon sx={{ color: activeTab === "hot-picks" ? "#EA580C" : "#64748B" }} />}
               sx={{
@@ -691,7 +669,7 @@ export default function AnalyticsPage() {
                 "&:hover": { bgcolor: activeTab === "hot-picks" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
               }}
             >
-              {isMl ? "ഹോട്ട് പിക്കുകൾ" : "Hot Pick"}
+              {isMl ? "നമ്പർ ട്രെൻഡുകൾ" : "Number Trends"}
             </Button>
 
             <Button
@@ -712,7 +690,7 @@ export default function AnalyticsPage() {
                 "&:hover": { bgcolor: activeTab === "lucky-locations" ? "#FFFFFF" : "rgba(255,255,255,0.5)" },
               }}
             >
-              {isMl ? "ഭാഗ്യ ജില്ലകൾ" : "Lucky Location"}
+              {isMl ? "ജില്ല തിരിച്ചുള്ള വിജയികൾ" : "District Winners"}
             </Button>
           </Box>
 
@@ -765,11 +743,6 @@ export default function AnalyticsPage() {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Skeleton variant="rectangular" height={220} sx={{ borderRadius: "20px" }} />
             <Skeleton variant="rectangular" height={280} sx={{ borderRadius: "20px" }} />
-          </Box>
-        ) : activeTab === "ai-prediction" ? (
-          /* Tab 1: AI Predictor View */
-          <Box>
-            <AiLotteryPatternPredictor allDraws={draws} lang={lang} />
           </Box>
         ) : activeTab === "hot-picks" ? (
           /* Tab 2: Hot Picks & Number Trends View */

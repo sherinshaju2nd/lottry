@@ -3534,9 +3534,9 @@ export default function HomePageClient({
                       />
                     ),
                     iconBg: "#FEE2E2",
-                    label: "Official Gazette PDF",
+                    label: "Result PDF",
                     value: "Published at 4:00 PM IST",
-                    desc: "Signed Government Gazette document published daily.",
+                    desc: "Printable prize chart for every draw, available after results are published.",
                   },
                   {
                     icon: <PlaceIcon sx={{ color: "#059669", fontSize: 22 }} />,
@@ -3752,7 +3752,7 @@ export default function HomePageClient({
                 The live streaming commences at <strong>2:55 PM IST</strong>,
                 and winning numbers are drawn live starting at 3:00 PM.
                 Following the draw conclusion, the full official Kerala lottery
-                result chart and signed Gazette PDF are uploaded at{" "}
+                result chart and Result PDF are available at{" "}
                 <strong>4:00 PM IST</strong>.
               </Typography>
 
@@ -4959,7 +4959,7 @@ export default function HomePageClient({
                   {
                     num: "05",
                     q: "How to Download Kerala Lottery Result PDF?",
-                    a: "To download the official Kerala lottery result PDF and Government Gazette chart, visit any lottery draw result page on our website and tap 'Download Official PDF'. The PDF format includes all winning ticket numbers from 1st prize down to consolation and 9th prize.",
+                    a: "To download the Result PDF, visit any lottery draw result page on our website and tap 'Download Result PDF'. Always verify winning numbers with the official Kerala Government Gazette before claiming. The PDF format includes all winning ticket numbers from 1st prize down to consolation and 9th prize.",
                   },
                 ].map((faq, idx) => (
                   <Accordion

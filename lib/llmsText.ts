@@ -20,7 +20,7 @@ const renderAnnouncedBumperDraws = async (): Promise<string> => {
         jackpot && `1st Prize ${jackpot}`,
         ticketPrice && `ticket ${ticketPrice}`,
       ].filter(Boolean);
-      return `- [${name} (${code}) Result – ${dateLong}](${SITE_URL}${getLotteryUrl(code, date)}): ${facts.join(", ")}. Live winning numbers, prize chart and Gazette PDF.`;
+      return `- [${name} (${code}) Result – ${dateLong}](${SITE_URL}${getLotteryUrl(code, date)}): ${facts.join(", ")}. Live winning numbers, prize chart and Result PDF.`;
     })
     .join("\n");
 };

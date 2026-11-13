@@ -739,7 +739,7 @@ export async function generateLotteryPostPages(
           "700 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
         ctx.fillStyle = "#94A3B8";
         ctx.fillText(
-          "Official result numbers recorded in the State Gazette",
+          "Verify with the official Kerala Government Gazette",
           width / 2,
           currY + 60,
         );

@@ -324,10 +324,10 @@ export default function KeralaLotteryAppPage() {
     },
     {
       icon: <PictureAsPdfIcon sx={{ fontSize: 26, color: "#F472B6" }} />,
-      title: "Official Gazette PDF",
-      titleMl: "ഗസറ്റ് പി.ഡി.എഫ് ഡൗൺലോഡ്",
-      desc: "Download verified official government press-release PDF sheets for every daily & bumper lottery draw.",
-      badge: "Official Gazette",
+      title: "Result PDF",
+      titleMl: "റിസൾട്ട് പി.ഡി.എഫ് ഡൗൺലോഡ്",
+      desc: "Download a printable Result PDF for every daily & bumper lottery draw.",
+      badge: "PDF",
     },
     {
       icon: <NotificationsActiveIcon sx={{ fontSize: 26, color: "#34D399" }} />,
@@ -551,7 +551,7 @@ export default function KeralaLotteryAppPage() {
               mb: 2,
             }}
           >
-            Live 3:00 PM draw results, instant ticket barcode scanner, official Gazette PDFs, and lucky number alerts on iPhone, Windows PC, and Android.
+            Live 3:00 PM draw results, instant ticket barcode scanner, result PDFs, and saved-ticket win alerts on iPhone, Windows PC, and Android.
           </Typography>
 
           {/* Today's Draw Status Glass Strip */}
@@ -1469,7 +1469,7 @@ export default function KeralaLotteryAppPage() {
                       mb: 3,
                     }}
                   >
-                    Get instant 3:00 PM live draw results, ticket barcode scanner, official Gazette PDFs, and winning push notifications on your Android device.
+                    Get instant 3:00 PM live draw results, ticket barcode scanner, Result PDFs, and winning push notifications on your Android device.
                   </Typography>
 
                   {/* Google Play Store Direct Button */}

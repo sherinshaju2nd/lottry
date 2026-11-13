@@ -77,7 +77,7 @@ const FAQS = [
   },
   {
     q: "Why do you need financial support?",
-    a: "We provide high-speed 3:00 PM live draw results, ticket checker utilities, AI scanner models, and historical gazette PDF archives completely free of charge. Your support covers server hosting, OCR API costs, domain services, and development time without relying on annoying intrusive pop-up ads.",
+    a: "We provide high-speed 3:00 PM live draw results, ticket checker utilities, AI scanner models, and historical Result PDF archives completely free of charge. Your support covers server hosting, OCR API costs, domain services, and development time without relying on annoying intrusive pop-up ads.",
   },
   {
     q: "Is Kerala Lottery Results app affiliated with the government?",

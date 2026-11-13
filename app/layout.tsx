@@ -103,7 +103,7 @@ async function getTodaySEOPackage(): Promise<TodaySEOData> {
 
     if (bumperDraw) {
       const title = `LIVE Kerala Lottery Result Today (${formattedDate}) | ${bumperDraw.name} (${bumperDraw.code}) Results`;
-      const description = `Kerala Lottery Result Today (${formattedDate}) for ${bumperDraw.name} (${bumperDraw.code}) Bumper Lottery. Check live 2:00 PM / 3:00 PM winning ticket numbers, 1st prize bumper jackpot, full prize breakdown, and official Gazette PDF.`;
+      const description = `Kerala Lottery Result Today (${formattedDate}) for ${bumperDraw.name} (${bumperDraw.code}) Bumper Lottery. Check live 2:00 PM / 3:00 PM winning ticket numbers, 1st prize bumper jackpot, full prize breakdown, and Result PDF.`;
       return {
         title,
         description,
@@ -146,7 +146,7 @@ async function getTodaySEOPackage(): Promise<TodaySEOData> {
       }
       const firstPrizeText = firstTicket ? ` | 1st Prize: ${firstTicket}` : "";
       const title = `LIVE Kerala Lottery Result Today (${formattedDate}) | ${drawResult.draw_name} (${codePart}) Results${firstPrizeText}`;
-      const description = `Kerala Lottery Result Today (${formattedDate}) for ${drawResult.draw_name} (${codePart}). Check today's 1st prize winning ticket numbers${firstTicket ? ` (${firstTicket})` : ""}, live 3 PM draw results, prize breakdown, and official Gazette PDF download.`;
+      const description = `Kerala Lottery Result Today (${formattedDate}) for ${drawResult.draw_name} (${codePart}). Check today's 1st prize winning ticket numbers${firstTicket ? ` (${firstTicket})` : ""}, live 3 PM draw results, prize breakdown, and Result PDF download.`;
       return {
         title,
         description,
@@ -198,9 +198,6 @@ async function getTodaySEOPackage(): Promise<TodaySEOData> {
       "Suvarna Keralam Result",
       "Sthree Sakthi Result",
       "ഇന്നത്തെ കേരള ലോട്ടറി ഫലങ്ങൾ",
-      "இன்றைய കേരള லாட்டரி முடிவுகள்",
-      "आज के केरल लॉटरी के नतीजे",
-      "ఈరోజు കേരళ లాటరీ ఫలితాలు",
     ];
 
     return {
@@ -325,13 +322,9 @@ export async function generateMetadata(): Promise<Metadata> {
     verification: {
       google: "1XeVOR9aNk4f21LP_pNIRfrJHxYaPUuOzeV7HyPAAgw",
     },
-    itunes: {
-      appId: "com.keralalotteryresultstoday.app",
-      appArgument: "https://www.keralalotteryresultstoday.in",
-    },
+    // No itunes/apple-itunes-app meta until a real App Store ID exists (placeholder IDs look deceptive).
     other: {
       "google-play-app": "app-id=com.keralalotteryresultstoday.app",
-      "apple-itunes-app": "app-id=6470000000, app-argument=https://www.keralalotteryresultstoday.in",
     },
   };
 }
@@ -353,16 +346,11 @@ export default async function RootLayout({
       url: "https://www.keralalotteryresultstoday.in",
       image: "https://www.keralalotteryresultstoday.in/logo-master-1024.png",
       description:
-        "Official real-time Kerala Lottery mobile app for live 3:00 PM draw updates, instant camera barcode scanner, and winning ticket watchlists.",
+        "Independent Kerala Lottery results app (not affiliated with the Government of Kerala) for 3:00 PM draw updates, a ticket barcode scanner, and winning ticket watchlists.",
       offers: {
         "@type": "Offer",
         price: "0",
         priceCurrency: "INR",
-      },
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.8",
-        ratingCount: "1250",
       },
       installUrl: [
         "https://play.google.com/store/apps/details?id=com.keralalotteryresultstoday.app",
@@ -461,8 +449,8 @@ export default async function RootLayout({
           acceptedAnswer: {
             "@type": "Answer",
             text: seoData.isBumper
-              ? `Kerala Bumper Lottery ${seoData.lotteryName} live draw starts today (${seoData.formattedDate}) at 2:00 PM IST from Gorky Bhavan, Thiruvananthapuram. The official Gazette PDF becomes available by 4:00 PM IST on https://www.keralalotteryresultstoday.in.`
-              : `Kerala Lottery ${seoData.lotteryName} live draw starts today (${seoData.formattedDate}) at 2:55 PM - 3:00 PM IST from Gorky Bhavan, Thiruvananthapuram. The official Gazette PDF becomes available by 4:00 PM IST on https://www.keralalotteryresultstoday.in.`,
+              ? `Kerala Bumper Lottery ${seoData.lotteryName} live draw starts today (${seoData.formattedDate}) at 2:00 PM IST from Gorky Bhavan, Thiruvananthapuram. The Result PDF becomes available by 4:00 PM IST on https://www.keralalotteryresultstoday.in.`
+              : `Kerala Lottery ${seoData.lotteryName} live draw starts today (${seoData.formattedDate}) at 2:55 PM - 3:00 PM IST from Gorky Bhavan, Thiruvananthapuram. The Result PDF becomes available by 4:00 PM IST on https://www.keralalotteryresultstoday.in.`,
           },
         },
         {

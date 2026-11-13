@@ -158,7 +158,7 @@ export const LOTTERY_EDITORIAL_DATA: Record<string, LotteryEditorialContent> = {
       },
       {
         question: "Where can I verify the official Bhagyathara result?",
-        answer: "You can check the live winning numbers right here on this page at 3:00 PM every Monday, and download the official Kerala Government Gazette PDF document.",
+        answer: "You can check the live winning numbers right here on this page at 3:00 PM every Monday, and download the Result PDF.",
       },
     ],
   },
@@ -838,7 +838,7 @@ export function getLotteryEditorialContent(
     ],
     aboutHeading: `About ${lotteryName} Lottery`,
     aboutParagraphs: [
-      `${lotteryName} is operated by the Government of Kerala. Participants can check draw results and download the official Gazette PDF.`,
+      `${lotteryName} is operated by the Government of Kerala. Participants can check draw results and download the Result PDF here.`,
     ],
     drawVenueHeading: `${lotteryName} Lottery Draw Venue`,
     drawVenueParagraphs: [

@@ -237,7 +237,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         question: "Where can I find Pooja Bumper winning numbers?",
         answer:
-          "Official winning numbers are published by the Kerala State Lotteries Department. Kerala Lottery Results Today also publishes the live Pooja Bumper 2026 result, full prize chart and Gazette PDF on its {{drawDate}} result page.",
+          "Official winning numbers are published by the Kerala State Lotteries Department. Kerala Lottery Results Today also publishes the live Pooja Bumper 2026 result, full prize chart and Result PDF on its {{drawDate}} result page.",
       },
     ],
   },
