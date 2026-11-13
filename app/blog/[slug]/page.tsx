@@ -153,7 +153,7 @@ export default async function BlogPostPage({ params }: Props) {
       {
         "@type": "ListItem",
         position: 2,
-        name: "Blog",
+        name: "Articles & News",
         item: "https://www.keralalotteryresultstoday.in/blog",
       },
       {

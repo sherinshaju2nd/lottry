@@ -170,10 +170,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const articles = await fetchArticlesForSitemap();
+  // Merged "Articles & News" listing (/news 308-redirects here): last modified = newest guide or article.
+  const listingLastModified = Math.max(
+    ...getAllBlogs().map(({ updatedDate }) => Date.parse(updatedDate) || 0),
+    ...articles.map(({ updated_at }) => Date.parse(updated_at) || 0),
+  );
   const articlePages: MetadataRoute.Sitemap = [
     {
-      url: `${baseUrl}/news`,
-      lastModified: articles[0]?.updated_at ? new Date(articles[0].updated_at) : new Date(),
+      url: `${baseUrl}/blog`,
+      lastModified: listingLastModified > 0 ? new Date(listingLastModified) : new Date(),
       changeFrequency: "daily" as const,
       priority: 0.85,
     },

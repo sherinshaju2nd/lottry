@@ -56,6 +56,8 @@ import AiGazettePdfUploader from "@/components/admin/AiGazettePdfUploader";
 import ArticlesManager from "@/components/admin/ArticlesManager";
 import TodayResultEditor from "@/components/admin/TodayResultEditor";
 import ApiSourcesManager from "@/components/admin/ApiSourcesManager";
+import SourceSyncButtons from "@/components/admin/SourceSyncButtons";
+import { DRAWS_SYNCED_EVENT } from "@/lib/adminSyncClient";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import {
@@ -72,7 +74,6 @@ export default function AdminDashboardPage() {
 
   // Tab 0: Draws state
   const [draws, setDraws] = useState<StructuredDrawResult[]>([]);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<{ type: "success" | "error" | "warning" | "info"; message: string } | null>(null);
   const [isLoadingDraws, setIsLoadingDraws] = useState(true);
   const [searchDrawTerm, setSearchDrawTerm] = useState("");
@@ -319,37 +320,17 @@ export default function AdminDashboardPage() {
     loadBroadcastStatus();
   }, []);
 
-  // Sync Latest API Result
-  const handleManualSync = async () => {
-    setIsSyncing(true);
-    setSyncStatus(null);
+  // Any per-source sync (header buttons or API Sources tab) wrote to the DB: refresh the dashboard.
+  // Re-subscribed every render so the handler always uses the current loaders.
+  useEffect(() => {
+    const onDrawsSynced = () => {
+      loadDraws();
+      loadCronConfigAndLogs();
+    };
+    window.addEventListener(DRAWS_SYNCED_EVENT, onDrawsSynced);
+    return () => window.removeEventListener(DRAWS_SYNCED_EVENT, onDrawsSynced);
+  });
 
-    try {
-      const res = await fetch("/api/sync", { method: "POST" });
-      const json = await res.json();
-
-      if (json.success) {
-        setSyncStatus({
-          type: "success",
-          message: `Manual sync completed! Synced: ${json.data?.draw_name} (${json.data?.draw_code}) on ${json.data?.draw_date}`,
-        });
-        await loadDraws();
-        await loadCronConfigAndLogs();
-        return;
-      }
-
-      // Writes happen only on the server (/api/sync); the browser has read-only DB access.
-      setSyncStatus({
-        type: "error",
-        message: json.error || `Sync failed (HTTP ${res.status}).`,
-      });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Sync connection error";
-      setSyncStatus({ type: "error", message: `Sync error: ${msg}` });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
 
   // -------------------------------------------------------------
   // Draw Result Handlers
@@ -792,38 +773,9 @@ export default function AdminDashboardPage() {
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
-          <Button
-            onClick={() => {
-              loadDraws();
-              loadPostponed();
-              loadLotteries();
-              loadCronConfigAndLogs();
-            }}
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            sx={{ fontWeight: 700, borderRadius: "8px", textTransform: "none", bgcolor: "#FFFFFF" }}
-          >
-            Refresh
-          </Button>
-
-          <Button
-            onClick={handleManualSync}
-            disabled={isSyncing}
-            variant="contained"
-            startIcon={isSyncing ? <CircularProgress size={18} color="inherit" /> : <CloudDownloadIcon />}
-            sx={{
-              bgcolor: "#0B3C5D",
-              color: "#FFFFFF",
-              fontWeight: 800,
-              px: 2.5,
-              borderRadius: "8px",
-              textTransform: "none",
-              "&:hover": { bgcolor: "#0F2C59" },
-            }}
-          >
-            {isSyncing ? "Syncing..." : "Sync Latest API Draw"}
-          </Button>
+        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center", justifyContent: { md: "flex-end" } }}>
+          {/* One "Sync {source name}" button per saved API source */}
+          <SourceSyncButtons onResult={setSyncStatus} />
         </Box>
       </Box>
 

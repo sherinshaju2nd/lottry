@@ -222,6 +222,26 @@ export const fetchPublishedArticles = async ({
   }
 };
 
+/** Newest published article pinned as featured in the admin (null when none or on error). */
+export const fetchFeaturedArticle = async (): Promise<ArticleSummary | null> => {
+  try {
+    const { data, error } = await supabase
+      .from("articles")
+      .select(ARTICLE_SUMMARY_FIELDS)
+      .eq("status", "published")
+      .eq("is_featured", true)
+      .lte("published_at", new Date().toISOString())
+      .order("published_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    return (data as ArticleSummary | null) ?? null;
+  } catch (err: unknown) {
+    console.error("[articles] fetchFeaturedArticle failed:", err instanceof Error ? err.message : String(err));
+    return null;
+  }
+};
+
 export const fetchArticleBySlug = async (slug: string): Promise<Article | null> => {
   if (!isValidSlug(slug)) return null;
   try {

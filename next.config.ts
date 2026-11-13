@@ -45,6 +45,13 @@ const nextConfig: NextConfig = {
         destination: "/kerala-lottery-app",
         permanent: true,
       },
+      // Blog and News were merged into one "Articles & News" listing at /blog.
+      // Article pages keep their /news/{slug} URLs; only the bare listing moves.
+      {
+        source: "/news",
+        destination: "/blog",
+        permanent: true,
+      },
       {
         source: "/buy-me-a-coffee",
         destination: "/support",

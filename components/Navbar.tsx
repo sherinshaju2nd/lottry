@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { getBlogBySlug } from "@/data/blogs";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -34,7 +35,6 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import CheckIcon from "@mui/icons-material/Check";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import NewspaperIcon from "@mui/icons-material/Newspaper";
 import { glowSx } from "@/lib/glowEffect";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutlineOutlined";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -59,6 +59,9 @@ export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [digestOpen, setDigestOpen] = useState(false);
   const pathname = usePathname();
+  // Articles & News covers the /blog listing, root-level guide posts and /news/{slug} articles.
+  const isPostsActive =
+    pathname.startsWith("/blog") || pathname.startsWith("/news") || Boolean(getBlogBySlug(pathname.slice(1)));
   const router = useRouter();
   const [lotteriesList, setLotteriesList] = useState(ALL_LOTTERIES);
   const [uiMode, setUiMode] = useState<"normal" | "modern">("normal");
@@ -541,30 +544,15 @@ export default function Navbar() {
               prefetch={false}
               startIcon={<MenuBookIcon />}
               sx={{
-                color: pathname.startsWith("/blog") ? "#0B3C5D" : "#374151",
-                fontWeight: pathname.startsWith("/blog") ? 800 : 700,
+                color: isPostsActive ? "#0B3C5D" : "#374151",
+                fontWeight: isPostsActive ? 800 : 700,
                 borderRadius: "8px",
                 px: 2,
-                bgcolor: pathname.startsWith("/blog") ? "#EBF5FF" : "transparent",
+                whiteSpace: "nowrap",
+                bgcolor: isPostsActive ? "#EBF5FF" : "transparent",
               }}
             >
-              Blog
-            </Button>
-
-            <Button
-              component={Link}
-              href="/news"
-              prefetch={false}
-              startIcon={<NewspaperIcon />}
-              sx={{
-                color: pathname.startsWith("/news") ? "#0B3C5D" : "#374151",
-                fontWeight: pathname.startsWith("/news") ? 800 : 700,
-                borderRadius: "8px",
-                px: 2,
-                bgcolor: pathname.startsWith("/news") ? "#EBF5FF" : "transparent",
-              }}
-            >
-              News
+              Articles &amp; News
             </Button>
 
             <Button
@@ -1210,56 +1198,7 @@ export default function Navbar() {
               <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
             </Box>
 
-            {/* News */}
-            <Box
-              component={Link}
-              href="/news"
-              onClick={handleDrawerToggle}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                p: 1,
-                borderRadius: "10px",
-                textDecoration: "none",
-                bgcolor: pathname.startsWith("/news") ? "#EFF6FF" : "transparent",
-                transition: "all 0.15s ease",
-                "&:hover": { bgcolor: "#F8FAFC" },
-              }}
-            >
-              <Box
-                sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "10px",
-                  bgcolor: "#F5F3FF",
-                  border: "1px solid #DDD6FE",
-                  color: "#7C3AED",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <NewspaperIcon sx={{ fontSize: 18 }} />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  sx={{
-                    fontSize: "0.875rem",
-                    fontWeight: pathname.startsWith("/news") ? 800 : 700,
-                    color: pathname.startsWith("/news") ? "#0B3C5D" : "#0F172A",
-                  }}
-                >
-                  Lottery News
-                </Typography>
-                <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
-                  Latest lottery news &amp; updates
-                </Typography>
-              </Box>
-              <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />
-            </Box>
-
-            {/* Blog & Guides */}
+            {/* Articles & News (merged blog + news) */}
             <Box
               component={Link}
               href="/blog"
@@ -1271,7 +1210,7 @@ export default function Navbar() {
                 p: 1,
                 borderRadius: "10px",
                 textDecoration: "none",
-                bgcolor: pathname.startsWith("/blog") ? "#EFF6FF" : "transparent",
+                bgcolor: isPostsActive ? "#EFF6FF" : "transparent",
                 transition: "all 0.15s ease",
                 "&:hover": { bgcolor: "#F8FAFC" },
               }}
@@ -1295,14 +1234,14 @@ export default function Navbar() {
                 <Typography
                   sx={{
                     fontSize: "0.875rem",
-                    fontWeight: pathname.startsWith("/blog") ? 800 : 700,
-                    color: pathname.startsWith("/blog") ? "#0B3C5D" : "#0F172A",
+                    fontWeight: isPostsActive ? 800 : 700,
+                    color: isPostsActive ? "#0B3C5D" : "#0F172A",
                   }}
                 >
-                  Blog &amp; Guides
+                  Articles &amp; News
                 </Typography>
                 <Typography sx={{ fontSize: "0.68rem", color: "#64748B" }}>
-                  How to claim, rules &amp; insights
+                  Claim guides, bumper updates &amp; news
                 </Typography>
               </Box>
               <ChevronRightIcon sx={{ fontSize: 16, color: "#94A3B8" }} />

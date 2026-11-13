@@ -131,7 +131,7 @@ const parseArticleInput = (
 /** Refresh every page that lists or renders the article. */
 const revalidateArticlePages = (...slugs: (string | null | undefined)[]) => {
   try {
-    revalidatePath("/news");
+    revalidatePath("/blog"); // merged Articles & News listing
     revalidatePath("/sitemap.xml");
     revalidatePath("/feed.xml");
     revalidatePath("/");

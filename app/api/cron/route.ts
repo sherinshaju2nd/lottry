@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAndSyncLatestLottery } from "@/lib/lottery-sync";
+import { revalidateDrawPages } from "@/lib/drawRevalidation";
 import {
   checkIsDatePostponed,
   checkIsBumperDrawDate,
@@ -311,21 +312,7 @@ async function handleCronExecution(req: NextRequest) {
       // Indexing notice optional
     }
 
-    try {
-      const { revalidatePath } = await import("next/cache");
-      revalidatePath("/");
-      revalidatePath("/sitemap.xml");
-      revalidatePath("/feed.xml");
-      revalidatePath("/analytics");
-      if (lotterySlug) {
-        revalidatePath(`/${lotterySlug}`);
-        if (draw?.draw_date) {
-          revalidatePath(`/${lotterySlug}/${draw.draw_date}`);
-        }
-      }
-    } catch (cacheErr) {
-      console.warn("[Cache Revalidate Note]:", cacheErr);
-    }
+    revalidateDrawPages(draw);
   } catch (syncPostErr) {
     console.warn("[Post-Sync Note]:", syncPostErr);
   }

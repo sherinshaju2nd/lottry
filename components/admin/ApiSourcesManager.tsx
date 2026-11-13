@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -20,6 +20,15 @@ import SaveIcon from "@mui/icons-material/Save";
 import NetworkCheckIcon from "@mui/icons-material/NetworkCheck";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import {
+  API_SOURCES_CHANGED_EVENT,
+  DRAWS_SYNCED_EVENT,
+  describeSyncedDraw,
+  notifyAdmin,
+  requestSourceSync,
+  requestSyncAll,
+} from "@/lib/adminSyncClient";
 import Collapse from "@mui/material/Collapse";
 
 interface ApiSource {
@@ -50,6 +59,13 @@ interface SourceResponse {
   prizes?: Record<string, unknown> & { amounts?: Record<string, string> };
 }
 
+/** Outcome of "Sync" on one source: its latest draw was fetched and written to the database. */
+interface SyncResult {
+  ok: boolean;
+  message: string;
+  at: string;
+}
+
 const VIEW_TIERS: [string, string][] = [
   ["consolation", "Consolation"],
   ["2nd", "2nd Prize"],
@@ -77,6 +93,8 @@ export default function ApiSourcesManager() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [syncs, setSyncs] = useState<Record<string, SyncResult | "running">>({});
+  const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
 
   const isDirty = JSON.stringify(sources) !== savedJson;
@@ -142,6 +160,83 @@ export default function ApiSourcesManager() {
 
   const testAll = () => sources.forEach((s) => testOne(s));
 
+  /** Sync needs the saved version of a source (the server reads saved sources, not unsaved edits). */
+  const savedSources = useMemo(() => {
+    try {
+      return JSON.parse(savedJson) as ApiSource[];
+    } catch (err: unknown) {
+      console.error("[ApiSourcesManager] saved list unreadable:", errorMessage(err));
+      return [];
+    }
+  }, [savedJson]);
+
+  const isSavedAsIs = (source: ApiSource): boolean => savedSources.some(({ id, url }) => id === source.id && url === source.url);
+
+  /** Fetch one source on the server and write its latest draw to the database. */
+  const syncOne = async (source: ApiSource): Promise<boolean> => {
+    setSyncs((prev) => ({ ...prev, [source.id]: "running" }));
+    const at = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    try {
+      const data = await requestSourceSync(source.id);
+      setSyncs((prev) => ({ ...prev, [source.id]: { ok: true, at, message: describeSyncedDraw(data) } }));
+      notifyAdmin(DRAWS_SYNCED_EVENT);
+      return true;
+    } catch (err: unknown) {
+      console.error(`[ApiSourcesManager] sync ${source.name} failed:`, errorMessage(err));
+      setSyncs((prev) => ({ ...prev, [source.id]: { ok: false, at, message: errorMessage(err) } }));
+      return false;
+    }
+  };
+
+  /**
+   * Sync every enabled, saved source one at a time, lowest priority first, so the
+   * highest-priority source is written last and its numbers win if sources disagree.
+   */
+  const syncAll = async () => {
+    // The server syncs the *saved* list; warn instead of silently ignoring unsaved edits.
+    if (isDirty && !window.confirm("You have unsaved changes. Sync all uses the saved sources. Continue?")) return;
+    const targets = savedSources.filter(({ enabled }) => enabled);
+    setIsSyncingAll(true);
+    setStatus(null);
+    setSyncs((prev) => ({ ...prev, ...Object.fromEntries(targets.map(({ id }) => [id, "running" as const])) }));
+    try {
+      const { results, message } = await requestSyncAll();
+      const at = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      setSyncs((prev) => ({
+        ...prev,
+        ...Object.fromEntries(targets.map(({ id }) => [id, { ok: false, at, message: "No result returned" }])),
+        ...Object.fromEntries(
+          results.map(({ sourceId, success, error, data }) => [
+            sourceId,
+            { ok: success, at, message: success ? describeSyncedDraw(data) : (error ?? "Sync failed") },
+          ]),
+        ),
+      }));
+      const okCount = results.filter(({ success }) => success).length;
+      if (okCount > 0) notifyAdmin(DRAWS_SYNCED_EVENT);
+      setStatus({
+        type: results.length > 0 && okCount === results.length ? "success" : okCount > 0 ? "info" : "error",
+        message: okCount > 0 ? `${message} Result pages were refreshed.` : message,
+      });
+    } finally {
+      setIsSyncingAll(false);
+    }
+  };
+
+  const renderSync = (id: string) => {
+    const s = syncs[id];
+    if (!s) return null;
+    if (s === "running") return <Chip size="small" icon={<CircularProgress size={12} />} label="Syncing to database…" />;
+    return (
+      <Chip
+        size="small"
+        icon={<CloudDownloadIcon sx={{ "&&": { color: s.ok ? "#166534" : "#991B1B" } }} />}
+        sx={{ fontWeight: 700, bgcolor: s.ok ? "#DBEAFE" : "#FEE2E2", color: s.ok ? "#1E3A8A" : "#991B1B", maxWidth: "100%" }}
+        label={`${s.ok ? "Synced" : "Sync failed"} ${s.at} · ${s.message}`}
+      />
+    );
+  };
+
   const save = async () => {
     setIsSaving(true);
     setStatus(null);
@@ -156,6 +251,7 @@ export default function ApiSourcesManager() {
       setSources(json.sources ?? sources);
       setSavedJson(JSON.stringify(json.sources ?? sources));
       setStatus({ type: "success", message: `${json.message ?? "Saved."} The next cron run uses this order.` });
+      notifyAdmin(API_SOURCES_CHANGED_EVENT); // header sync buttons reload names/order
     } catch (err: unknown) {
       setStatus({ type: "error", message: `Save failed: ${errorMessage(err)}` });
     } finally {
@@ -280,11 +376,28 @@ export default function ApiSourcesManager() {
               has prize numbers. If none has numbers yet, it uses the highest one that answered. A down source never blocks the others.
               Every source must return the same JSON format as the current India Lottery API.
             </Typography>
+            <Typography variant="body2" sx={{ color: C.sub, mt: 1 }}>
+              <strong>Test</strong> only checks a source. <strong>Sync</strong> calls that source now and saves its latest draw to the
+              database (the same as a cron run, including the 1st-prize broadcast, which never sends the same draw twice).
+            </Typography>
           </Box>
-          <Box sx={{ display: "flex", gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Button startIcon={<NetworkCheckIcon />} onClick={testAll} sx={{ fontWeight: 700, textTransform: "none" }}>
               Test all
             </Button>
+            <Tooltip title="Fetch every enabled source and save to the database (priority #1 is saved last, so its numbers win)">
+              <span>
+                <Button
+                  startIcon={isSyncingAll ? <CircularProgress size={16} color="inherit" /> : <CloudDownloadIcon />}
+                  variant="contained"
+                  onClick={syncAll}
+                  disabled={isSyncingAll}
+                  sx={{ fontWeight: 800, textTransform: "none", borderRadius: "10px", bgcolor: C.navy, "&:hover": { bgcolor: "#0F2C59" } }}
+                >
+                  {isSyncingAll ? "Syncing…" : "Sync all"}
+                </Button>
+              </span>
+            </Tooltip>
             <Button startIcon={<AddIcon />} variant="outlined" onClick={add} sx={{ fontWeight: 700, textTransform: "none", borderRadius: "10px" }}>
               Add source
             </Button>
@@ -352,6 +465,21 @@ export default function ApiSourcesManager() {
                     <NetworkCheckIcon />
                   </IconButton>
                 </Tooltip>
+                <Tooltip title={isSavedAsIs(source) ? "Sync: fetch this API now and save its draw to the database" : "Save your changes first, then sync"}>
+                  <span>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => syncOne(source)}
+                      disabled={!isSavedAsIs(source) || syncs[source.id] === "running" || isSyncingAll}
+                      startIcon={syncs[source.id] === "running" ? <CircularProgress size={14} /> : <CloudDownloadIcon fontSize="small" />}
+                      aria-label={`Sync ${source.name || "source"} to database`}
+                      sx={{ fontWeight: 800, textTransform: "none", borderRadius: "8px", mx: 0.5, color: C.navy, borderColor: "#BFDBFE", whiteSpace: "nowrap" }}
+                    >
+                      Sync
+                    </Button>
+                  </span>
+                </Tooltip>
                 <Tooltip title="Move up (higher priority)">
                   <span>
                     <IconButton disabled={index === 0} onClick={() => move(index, -1)} aria-label="Move up">
@@ -375,9 +503,10 @@ export default function ApiSourcesManager() {
                 </Tooltip>
               </Box>
             </Box>
-            {tests[source.id] && (
+            {(tests[source.id] || syncs[source.id]) && (
               <Box sx={{ mt: 1.5, ml: { md: 6.5 } }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                  {renderSync(source.id)}
                   {renderTest(source.id)}
                   {hasViewableData(source.id) && (
                     <Button

@@ -8,9 +8,11 @@ import Button from "@mui/material/Button";
 import Skeleton from "@mui/material/Skeleton";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import ArticleCard from "./ArticleCard";
-import SeeAllNewsTile from "./SeeAllNewsTile";
-import { ArticleSummary, NEWS_BASE_PATH, fetchPublishedArticles } from "@/lib/articles";
+import PostCard from "@/components/posts/PostCard";
+import SeeAllPostsTile from "@/components/posts/SeeAllPostsTile";
+import { getAllBlogs } from "@/data/blogs";
+import { fetchPublishedArticles } from "@/lib/articles";
+import { POSTS_PATH, articleToPostCard, guideToPostCard, sortPostsNewestFirst, type PostCardItem } from "@/lib/posts";
 
 /** Max cards fetched: fills the widest row (5) + extra swipe items on phones. */
 const ARTICLE_COUNT = 6;
@@ -71,7 +73,7 @@ const CardSkeleton = () => (
 export default function HomeLatestArticles() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [articles, setArticles] = useState<ArticleSummary[] | null>(null);
+  const [articles, setArticles] = useState<PostCardItem[] | null>(null);
 
   // Start fetching when the section is ~600px from the viewport.
   useEffect(() => {
@@ -106,7 +108,9 @@ export default function HomeLatestArticles() {
       const { articles: latest, error } = await fetchPublishedArticles({ page: 0, pageSize: ARTICLE_COUNT });
       if (!active) return;
       if (error) console.warn("[HomeLatestArticles] could not load articles:", error);
-      setArticles(latest);
+      // Merge editorial guides with the latest database articles, newest first.
+      const guides = getAllBlogs().map(guideToPostCard);
+      setArticles(sortPostsNewestFirst([...guides, ...latest.map(articleToPostCard)]).slice(0, ARTICLE_COUNT));
     })();
     return () => {
       active = false;
@@ -140,12 +144,12 @@ export default function HomeLatestArticles() {
         </Box>
         <Button
           component={Link}
-          href={NEWS_BASE_PATH}
+          href={POSTS_PATH}
           prefetch={false}
           endIcon={<ArrowForwardIcon />}
           sx={{ fontWeight: 800, textTransform: "none", borderRadius: "10px", color: "#0B3C5D", bgcolor: "#EBF5FF", px: 2, flexShrink: 0, "&:hover": { bgcolor: "#DBEAFE" } }}
         >
-          View all news
+          View all articles &amp; news
         </Button>
       </Box>
 
@@ -161,12 +165,12 @@ export default function HomeLatestArticles() {
         <Box component="ul" sx={rowSx}>
           {articles?.map((article) => (
             <li key={article.id}>
-              <ArticleCard article={article} />
+              <PostCard post={article} />
             </li>
           ))}
           {/* Hidden by the nth-of-type rules when the row is already full */}
           <li>
-            <SeeAllNewsTile />
+            <SeeAllPostsTile />
           </li>
         </Box>
       ) : null}

@@ -735,7 +735,7 @@ export default function ArticlesManager() {
               <NewspaperIcon sx={{ color: "#0B3C5D" }} /> Articles
             </Typography>
             <Typography variant="body2" sx={{ color: "#64748B", mt: 0.5 }}>
-              Posts appear on <strong>/news</strong> on the website and in the{" "}
+              Posts appear in <strong>Articles &amp; News</strong> (/blog) on the website, alongside the editorial guides, and in the{" "}
               <strong>News</strong> screen of the mobile app.
             </Typography>
           </Box>
