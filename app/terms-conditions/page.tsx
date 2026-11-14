@@ -4,6 +4,7 @@ import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import { CONTACT_EMAIL } from "@/lib/siteAuthor";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
@@ -138,7 +139,7 @@ export default function TermsConditionsPage() {
             <Typography variant="body1" sx={{ color: "#374151", lineHeight: 1.7 }}>
               If you have any questions about these Terms and Conditions, please contact us at:
               <br />
-              Email: <strong>support@keralalotteryresultstoday.in</strong>
+              Email: <strong>{CONTACT_EMAIL}</strong>
             </Typography>
           </Box>
         </Box>

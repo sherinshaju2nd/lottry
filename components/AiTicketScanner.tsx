@@ -16,7 +16,9 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FlashOnIcon from "@mui/icons-material/FlashOn";
 import FlashOffIcon from "@mui/icons-material/FlashOff";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
+// Type-only import: the ~350 KB camera library is loaded on demand in startScanner(),
+// not on every page (this component is mounted site-wide in the root layout).
+import type { Html5Qrcode } from "html5-qrcode";
 
 import { useRouter } from "next/navigation";
 import BarcodeResultModal from "./BarcodeResultModal";
@@ -118,6 +120,9 @@ export default function AiTicketScanner({
           scannerRef.current.clear();
         } catch {}
       }
+
+      // Load the camera library only when the scanner actually starts.
+      const { Html5Qrcode, Html5QrcodeSupportedFormats } = await import("html5-qrcode");
 
       // Instantiate with broad Kerala lottery barcode & QR format support
       const html5QrCode = new Html5Qrcode("kerala-barcode-reader", {

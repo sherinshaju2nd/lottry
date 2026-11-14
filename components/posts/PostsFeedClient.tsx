@@ -13,7 +13,6 @@ import Alert from "@mui/material/Alert";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import CircularProgress from "@mui/material/CircularProgress";
-import Skeleton from "@mui/material/Skeleton";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -35,6 +34,7 @@ import {
   type PostFilter,
 } from "@/lib/posts";
 import PostCard, { getPostCtaLabel } from "./PostCard";
+import { PostCardSkeleton } from "@/components/skeletons/SkeletonKit";
 
 interface PostsFeedClientProps {
   /** All static guides (always available, filtered client-side). */
@@ -55,17 +55,6 @@ const TOOLS = [
   { href: "/kerala-lottery-app", title: "Mobile App", desc: "Scanner & 3 PM results", Icon: SmartphoneIcon, bg: "#F0FDF4", fg: "#16A34A" },
   { href: "/support", title: "Player Safety", desc: "Anti-scam verification", Icon: SecurityIcon, bg: "#FAF5FF", fg: "#9333EA" },
 ] as const;
-
-const CardSkeleton = () => (
-  <Box sx={{ borderRadius: "18px", overflow: "hidden", border: "1px solid #E2E8F0", bgcolor: "#FFFFFF" }}>
-    <Skeleton variant="rectangular" sx={{ aspectRatio: "1200 / 630", height: "auto" }} />
-    <Box sx={{ p: 3 }}>
-      <Skeleton height={28} />
-      <Skeleton height={20} width="85%" />
-      <Skeleton height={20} width="60%" />
-    </Box>
-  </Box>
-);
 
 /** Large featured card at the top of the default view (blog design). */
 const FeaturedPostCard = ({ post }: { post: PostCardItem }) => (
@@ -412,7 +401,7 @@ export default function PostsFeedClient({
           <Grid container spacing={3} aria-busy="true" aria-label="Loading posts">
             {Array.from({ length: 3 }, (_, i) => (
               <Grid key={i} size={{ xs: 12, sm: 6, lg: 4 }}>
-                <CardSkeleton />
+                <PostCardSkeleton />
               </Grid>
             ))}
           </Grid>

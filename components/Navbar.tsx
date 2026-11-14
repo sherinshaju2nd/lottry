@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { getBlogBySlug } from "@/data/blogs";
 import AppBar from "@mui/material/AppBar";
@@ -42,7 +43,8 @@ import ShareIcon from "@mui/icons-material/Share";
 import DescriptionIcon from "@mui/icons-material/Description";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LocalCafeIcon from "@mui/icons-material/LocalCafe";
-import AiSocialDigestModal from "@/components/AiSocialDigestModal";
+// Loaded only when the digest is opened (keeps it out of the first JS download).
+const AiSocialDigestModal = dynamic(() => import("@/components/AiSocialDigestModal"), { ssr: false });
 import {
   WEEKLY_LOTTERIES,
   BUMPER_LOTTERIES,
@@ -212,18 +214,17 @@ export default function Navbar() {
               display: { xs: "none", md: "flex" },
               alignItems: "center",
               gap: { md: 0.25, lg: 0.5, xl: 1 },
-              // Keep every label on one line; tighten spacing and drop link icons until there is room
+              // Keep every label on one line. All links show at every desktop width (the Download App /
+              // Support Us buttons that used to need the room are now phone-only); link icons appear
+              // from 1200px, where they fit.
               "& > .MuiButton-root": {
                 whiteSpace: "nowrap",
                 minWidth: 0,
                 flexShrink: 0,
                 px: { md: 0.75, lg: 1.25, xl: 2 },
               },
-              // Small laptops: About & Contact stay reachable from the footer
-              "& > .MuiButton-root[href='/contact']": { display: { md: "none", lg: "inline-flex" } },
-              "& > .MuiButton-root[href='/about']": { display: { md: "none", xl: "inline-flex" } },
-              "& > .MuiButton-root:not([href='/kerala-lottery-app']):not([href='/support']) .MuiButton-startIcon": {
-                display: { md: "none", xl: "inherit" },
+              "& > .MuiButton-root .MuiButton-startIcon": {
+                display: { md: "none", lg: "inherit" },
               },
             }}
           >
@@ -587,69 +588,8 @@ export default function Navbar() {
               Ticket Price Checker
             </Button>
 
-            {/* Download App Desktop Button */}
-            <Button
-              component={Link}
-              href="/kerala-lottery-app"
-              prefetch={false}
-              startIcon={
-                <SmartphoneIcon sx={{ fontSize: 18, color: "#FFFFFF" }} />
-              }
-              sx={{
-                background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
-                color: "#FFFFFF",
-                fontWeight: 800,
-                fontSize: "0.85rem",
-                borderRadius: "10px",
-                px: 2,
-                py: 0.8,
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                textTransform: "none",
-                transition: "background 0.2s ease, transform 0.2s ease",
-                ...glowSx({ rgb: "37, 99, 235" }),
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)",
-                  transform: "translateY(-1px)",
-                },
-              }}
-            >
-              Download App
-            </Button>
-
-            {/* Buy Me a Coffee / Support Button */}
-            <Button
-              component={Link}
-              href="/support"
-              prefetch={false}
-              startIcon={
-                <LocalCafeIcon
-                  sx={{
-                    fontSize: 18,
-                    color: pathname === "/support" ? "#92400E" : "#B45309",
-                  }}
-                />
-              }
-              sx={{
-                bgcolor: pathname === "/support" ? "#FDE68A" : "#FFFBEB",
-                color: "#92400E",
-                fontWeight: 800,
-                fontSize: "0.85rem",
-                borderRadius: "10px",
-                px: 1.8,
-                py: 0.8,
-                border: "1px solid #FDE68A",
-                textTransform: "none",
-                transition: "background-color 0.2s ease, transform 0.2s ease",
-                ...glowSx({ rgb: "245, 158, 11", sheenColor: "rgba(255, 255, 255, 0.85)", delaySeconds: 1.2 }),
-                "&:hover": {
-                  bgcolor: "#FEF3C7",
-                  transform: "translateY(-1px)",
-                },
-              }}
-            >
-              Support Us
-            </Button>
+            {/* "Download App" and "Support Us" are phone-only (mobile header + drawer);
+                on laptops/desktops they are reachable from the footer. */}
           </Box>
 
           {/* Mobile Right Controls: App Button & Drawer Toggle */}
@@ -668,6 +608,8 @@ export default function Navbar() {
                 <SmartphoneIcon sx={{ fontSize: 16, color: "#FFFFFF" }} />
               }
               sx={{
+                // Phones only: hidden on tablets (sm+) as on desktop.
+                display: { xs: "inline-flex", sm: "none" },
                 background: "linear-gradient(135deg, #0B3C5D 0%, #0F2C59 100%)",
                 color: "#FFFFFF",
                 fontWeight: 800,
@@ -774,6 +716,7 @@ export default function Navbar() {
           </Box>
 
           <IconButton
+            aria-label="Close menu"
             onClick={handleDrawerToggle}
             size="small"
             sx={{
@@ -816,7 +759,7 @@ export default function Navbar() {
               sx={{
                 fontSize: "0.65rem",
                 fontWeight: 800,
-                color: "#94A3B8",
+                color: "#64748B",
                 letterSpacing: "0.08em",
                 display: "block",
                 mb: 1,
@@ -991,7 +934,7 @@ export default function Navbar() {
               sx={{
                 fontSize: "0.65rem",
                 fontWeight: 800,
-                color: "#94A3B8",
+                color: "#64748B",
                 letterSpacing: "0.08em",
                 display: "block",
                 px: 1,
@@ -1318,7 +1261,7 @@ export default function Navbar() {
               sx={{
                 fontSize: "0.65rem",
                 fontWeight: 800,
-                color: "#94A3B8",
+                color: "#64748B",
                 letterSpacing: "0.08em",
                 display: "block",
                 px: 1,
@@ -1492,7 +1435,7 @@ export default function Navbar() {
               sx={{
                 fontSize: "0.65rem",
                 fontWeight: 800,
-                color: "#94A3B8",
+                color: "#64748B",
                 letterSpacing: "0.08em",
                 display: "block",
                 px: 1,
@@ -1870,7 +1813,7 @@ export default function Navbar() {
               </Typography>
             </Box>
             <Typography
-              sx={{ fontSize: "0.65rem", color: "#94A3B8", lineHeight: 1.4 }}
+              sx={{ fontSize: "0.65rem", color: "#64748B", lineHeight: 1.4 }}
             >
               Data computed purely from official past draw records. 100%
               independent.

@@ -152,3 +152,22 @@ html[data-ui-mode="modern"] .home-normal-view {
 html[data-ui-mode="modern"] .home-modern-view {
   display: block !important;
 }
+
+/* iOS (iPhone/iPad) only: Safari zooms into any focused input whose text is under 16px.
+   Pinch-zoom is enabled site-wide (see viewport in app/layout.tsx), so keep inputs >= 16px
+   there to preserve the old no-jump typing behaviour. Other platforms are unaffected. */
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+/* Loading skeletons: no shimmer for users who asked their OS to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  .MuiSkeleton-root::after,
+  .MuiSkeleton-root {
+    animation: none !important;
+  }
+}

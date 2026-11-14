@@ -45,7 +45,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const url = getBlogUrl(post.slug);
 
   return {
-    title: `${post.metaTitle} | Kerala Lottery Official Guide`,
+    // The root layout's title template already appends " | Kerala Lottery".
+    title: post.metaTitle,
     description: post.description,
     keywords: post.tags,
     alternates: {

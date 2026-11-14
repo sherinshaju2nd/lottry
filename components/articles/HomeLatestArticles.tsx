@@ -5,10 +5,10 @@ import Link from "next/link";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import Skeleton from "@mui/material/Skeleton";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import PostCard from "@/components/posts/PostCard";
+import { PostCardSkeleton } from "@/components/skeletons/SkeletonKit";
 import SeeAllPostsTile from "@/components/posts/SeeAllPostsTile";
 import { getAllBlogs } from "@/data/blogs";
 import { fetchPublishedArticles } from "@/lib/articles";
@@ -53,17 +53,6 @@ const rowSx = {
   "& > li:nth-of-type(n+6)": { display: { xl: "none" } },
 } as const;
 
-const CardSkeleton = () => (
-  <Box sx={{ borderRadius: "18px", overflow: "hidden", border: "1px solid #E2E8F0", bgcolor: "#FFF" }}>
-    <Skeleton variant="rectangular" sx={{ aspectRatio: "16 / 9", height: "auto" }} animation="wave" />
-    <Box sx={{ p: 2 }}>
-      <Skeleton height={24} />
-      <Skeleton height={24} width="75%" />
-      <Skeleton height={18} sx={{ mt: 0.5 }} />
-      <Skeleton height={20} width="40%" sx={{ mt: 1.5 }} />
-    </Box>
-  </Box>
-);
 
 
 /**
@@ -157,7 +146,7 @@ export default function HomeLatestArticles() {
         <Box component="ul" sx={rowSx} aria-busy="true" aria-label="Loading latest articles">
           {Array.from({ length: ARTICLE_COUNT }, (_, i) => (
             <li key={i}>
-              <CardSkeleton />
+              <PostCardSkeleton />
             </li>
           ))}
         </Box>

@@ -17,6 +17,13 @@ import {
   WindowsIcon,
   PLAY_STORE_URL,
 } from "./DownloadAppModal";
+import { BUMPER_LOTTERIES, WEEKLY_LOTTERIES } from "@/lib/lotteryCatalog";
+import { getLotteryUrl } from "@/lib/lotterySlugs";
+
+const LOTTERY_GROUPS = [
+  { titleMl: "പ്രതിവാര ലോട്ടറികൾ", titleEn: "Weekly Lotteries", lotteries: WEEKLY_LOTTERIES },
+  { titleMl: "ബംപർ ലോട്ടറികൾ", titleEn: "Bumper Lotteries", lotteries: BUMPER_LOTTERIES },
+];
 
 export default function Footer() {
   const pathname = usePathname();
@@ -105,6 +112,7 @@ export default function Footer() {
 
             <Typography
               variant="h5"
+              component="p"
               sx={{
                 fontWeight: 900,
                 fontSize: { xs: "1.35rem", sm: "1.65rem" },
@@ -455,11 +463,62 @@ export default function Footer() {
           </Typography>
         </Box>
 
+        {/* Weekly + bumper lotteries by Malayalam name, each linking to its results archive */}
+        <Box
+          component="nav"
+          aria-label="Kerala lotteries in Malayalam"
+          sx={{ maxWidth: 900, mx: "auto", mb: 3, display: "grid", gap: 2 }}
+        >
+          {LOTTERY_GROUPS.map(({ titleMl, titleEn, lotteries }) => (
+            <Box key={titleEn}>
+              <Typography
+                component="h2"
+                sx={{ fontSize: "0.8rem", fontWeight: 800, color: "#0B3C5D", mb: 1, letterSpacing: "0.02em" }}
+              >
+                <Box component="span" lang="ml">{titleMl}</Box>
+                <Box component="span" sx={{ color: "#64748B", fontWeight: 600 }}>{` · ${titleEn}`}</Box>
+              </Typography>
+              <Box
+                component="ul"
+                sx={{ listStyle: "none", p: 0, m: 0, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 1 }}
+              >
+                {lotteries.map(({ code, name, nameMl }) => (
+                  <Box component="li" key={code}>
+                    <Typography
+                      component={Link}
+                      href={getLotteryUrl(code)}
+                      prefetch={false}
+                      lang="ml"
+                      title={`${name} Kerala lottery result`}
+                      sx={{
+                        display: "inline-block",
+                        fontSize: "0.82rem",
+                        fontWeight: 700,
+                        color: "#334155",
+                        textDecoration: "none",
+                        bgcolor: "#F8FAFC",
+                        border: "1px solid #E2E8F0",
+                        borderRadius: "999px",
+                        px: 1.5,
+                        py: 0.5,
+                        lineHeight: 1.6,
+                        transition: "color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease",
+                        "&:hover": { color: "#0B3C5D", borderColor: "#93C5FD", bgcolor: "#EFF6FF" },
+                      }}
+                    >
+                      {nameMl}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          ))}
+        </Box>
 
         <Typography
           variant="body2"
           sx={{
-            color: "#9CA3AF",
+            color: "#64748B",
             mb: 3.5,
             maxWidth: 850,
             mx: "auto",
@@ -471,7 +530,7 @@ export default function Footer() {
           <strong>Disclaimer:</strong> Kerala Lottery Results Today (
           <Link
             href="https://www.keralalotteryresultstoday.in/"
-            style={{ color: "#9CA3AF" }}
+            style={{ color: "#64748B" }}
           >
             https://www.keralalotteryresultstoday.in/
           </Link>
@@ -484,7 +543,7 @@ export default function Footer() {
 
         <Typography
           variant="caption"
-          sx={{ color: "#9CA3AF", display: "block" }}
+          sx={{ color: "#64748B", display: "block" }}
         >
           © 2026 Kerala Lottery Result Today All rights reserved•{" "}
           <span style={{ color: "red", fontWeight: 700 }}>

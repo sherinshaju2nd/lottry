@@ -389,7 +389,8 @@ export default function LotteryDetailsClient({
                 fontSize: "0.875rem",
               }}
             >
-              {lotteryInfo.name} Lottery Result Today
+              {lotteryInfo.name}
+              {lotteryInfo.nameMl && <span lang="ml">{` (${lotteryInfo.nameMl})`}</span>} Lottery Result Today
             </Typography>
           </Breadcrumbs>
         </Box>

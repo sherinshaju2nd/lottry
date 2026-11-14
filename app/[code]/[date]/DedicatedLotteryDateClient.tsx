@@ -1433,7 +1433,8 @@ export default function DedicatedLotteryDateClient({
                 fontSize: "0.875rem",
               }}
             >
-              {lotteryInfo.name} Results
+              {lotteryInfo.name}
+              {lotteryInfo.nameMl && <span lang="ml">{` (${lotteryInfo.nameMl})`}</span>} Results
             </Link>
             <Typography
               sx={{
@@ -1682,6 +1683,16 @@ export default function DedicatedLotteryDateClient({
             >
               {drawResult?.draw_name || lotteryInfo.name} (
               {drawResult?.draw_code || lotteryInfo.code}) Result
+              {" "}
+              {lotteryInfo.nameMl && (
+                <Box
+                  component="span"
+                  lang="ml"
+                  sx={{ color: "#0B3C5D", fontWeight: 800, fontSize: "0.72em", ml: 1, whiteSpace: "nowrap" }}
+                >
+                  {lotteryInfo.nameMl}
+                </Box>
+              )}
             </Typography>
             <Typography
               variant="body1"
@@ -1860,6 +1871,16 @@ export default function DedicatedLotteryDateClient({
                     sx={{ fontWeight: 800, color: "#111827", mb: 0.5 }}
                   >
                     {drawResult.draw_name} ({drawResult.draw_code})
+                    {" "}
+                    {lotteryInfo.nameMl && (
+                      <Box
+                        component="span"
+                        lang="ml"
+                        sx={{ color: "#0B3C5D", fontWeight: 800, fontSize: "0.8em", ml: 1, whiteSpace: "nowrap" }}
+                      >
+                        {`· ${lotteryInfo.nameMl}`}
+                      </Box>
+                    )}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#6B7280" }}>
                     Live draw verified and recorded from the official

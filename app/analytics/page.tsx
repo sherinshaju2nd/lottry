@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { LoadingRegion } from "@/components/skeletons/SkeletonKit";
+import { AnalyticsContentSkeleton } from "@/components/skeletons/PageSkeletons";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -13,7 +15,6 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
-import Skeleton from "@mui/material/Skeleton";
 import Divider from "@mui/material/Divider";
 
 // MUI Icons
@@ -740,10 +741,10 @@ export default function AnalyticsPage() {
         </Box>
 
         {loading ? (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Skeleton variant="rectangular" height={220} sx={{ borderRadius: "20px" }} />
-            <Skeleton variant="rectangular" height={280} sx={{ borderRadius: "20px" }} />
-          </Box>
+          // Mirrors the explorer panel + two statistics cards that load here.
+          <LoadingRegion label="Loading statistics…">
+            <AnalyticsContentSkeleton />
+          </LoadingRegion>
         ) : activeTab === "hot-picks" ? (
           /* Tab 2: Hot Picks & Number Trends View */
           <Grid container spacing={3}>

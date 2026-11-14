@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { preload } from "react-dom";
+import { HERO_BANNER, HERO_OVERLAY } from "@/lib/heroBanner";
+import HeroBannerImage from "@/components/HeroBannerImage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
@@ -45,7 +48,7 @@ import {
   hasAnyDrawResult,
   PostponedDraw,
 } from "@/lib/supabase";
-import { LotteryItem } from "@/app/page";
+import { LotteryItem } from "@/app/HomeLiveClient";
 
 interface HomeDesktopModernViewProps {
   todayLottery: LotteryItem;
@@ -132,6 +135,7 @@ function formatDrawCode(code?: string, num?: string): string {
   return `${c}-${n}`;
 }
 
+
 export default function HomeDesktopModernView({
   todayLottery,
   lotteriesList,
@@ -159,6 +163,15 @@ export default function HomeDesktopModernView({
   heroSlideIndex,
   setHeroSlideIndex,
 }: HomeDesktopModernViewProps) {
+  // Preload the responsive hero in <head> (same srcset/sizes as the <img>, so the browser fetches the
+  // one file it will use) — on desktop widths only, since phones show the normal view without it.
+  preload(HERO_BANNER.src, {
+    as: "image",
+    fetchPriority: "high",
+    imageSrcSet: HERO_BANNER.srcSet,
+    imageSizes: HERO_BANNER.sizes,
+    media: HERO_BANNER.media,
+  });
   const router = useRouter();
   const [selectedCalendarDate, setSelectedCalendarDate] =
     useState<string>(todayISTDate);
@@ -619,10 +632,7 @@ export default function HomeDesktopModernView({
           height: { xs: "auto", md: "390px" },
           minHeight: "450px",
           position: "relative",
-          backgroundImage: "url('/kerala-banner-bg-4k.webp?v=4k')",
-          backgroundSize: "cover",
-          backgroundPosition: "center 48%",
-          backgroundRepeat: "no-repeat",
+          bgcolor: "#EAF4F1",
           pt: { xs: 3, md: 0 },
           pb: 0,
           overflow: "visible",
@@ -630,13 +640,13 @@ export default function HomeDesktopModernView({
             content: '""',
             position: "absolute",
             inset: 0,
-            background:
-              "linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.52) 35%, rgba(255, 255, 255, 0.88) 75%, #FFFFFF 100%)",
-            backdropFilter: "blur(1.5px)",
+            background: HERO_OVERLAY,
             zIndex: 1,
           },
         }}
       >
+        {/* Responsive artwork: the browser picks the right width for the screen (see lib/heroBanner). */}
+        <HeroBannerImage variant="modern" priority />
         <Box
           sx={{
             position: "relative",
@@ -1153,7 +1163,7 @@ export default function HomeDesktopModernView({
                   "& .MuiOutlinedInput-input": {
                     px: 2,
                     "&::placeholder": {
-                      color: "#94A3B8",
+                      color: "#64748B",
                       opacity: 1,
                     },
                   },
@@ -2770,6 +2780,7 @@ export default function HomeDesktopModernView({
 
                     <Box sx={{ display: "flex", gap: 0.5 }}>
                       <IconButton
+                        aria-label="Previous month"
                         size="small"
                         onClick={() =>
                           setCalendarViewDate(
@@ -2791,6 +2802,7 @@ export default function HomeDesktopModernView({
                         <ChevronLeftIcon fontSize="small" />
                       </IconButton>
                       <IconButton
+                        aria-label="Next month"
                         size="small"
                         onClick={() =>
                           setCalendarViewDate(
@@ -2831,7 +2843,7 @@ export default function HomeDesktopModernView({
                           sx={{
                             fontSize: "0.78rem",
                             fontWeight: 700,
-                            color: "#94A3B8",
+                            color: "#64748B",
                           }}
                         >
                           {day}

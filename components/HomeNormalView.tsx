@@ -19,7 +19,9 @@ import {
   hasAnyDrawResult,
   getLotteryJackpot,
 } from "@/lib/supabase";
-import { LotteryItem } from "@/app/page";
+import { LotteryItem } from "@/app/HomeLiveClient";
+import HeroBannerImage from "@/components/HeroBannerImage";
+import { HERO_CARD_OVERLAY } from "@/lib/heroBanner";
 
 interface HomeNormalViewProps {
   todayLottery: LotteryItem;
@@ -203,9 +205,16 @@ export default function HomeNormalView({
                 alignItems: "center",
                 justifyContent: "center",
                 position: "relative",
+                // Own stacking context: the artwork (z-index -1) paints above the navy fill but
+                // below the title, pill and badges.
+                isolation: "isolate",
                 color: "#FFFFFF",
+                textShadow: "0 1px 3px rgba(4, 20, 36, 0.45)",
               }}
             >
+              {/* Backwaters artwork (phone / tablet composition) under a navy tint */}
+              <HeroBannerImage variant="compact" priority zIndex={-1} />
+              <Box aria-hidden="true" sx={{ position: "absolute", inset: 0, zIndex: -1, background: HERO_CARD_OVERLAY }} />
               {/* 1. Live Pulsing Badge */}
               {isTopLive && (
                 <Box

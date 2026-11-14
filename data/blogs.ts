@@ -248,7 +248,7 @@ export const BLOG_POSTS: BlogPost[] = [
     title: "How to Claim Kerala Lottery Prize: Complete Step-by-Step Guide",
     metaTitle: "How to Claim Kerala Lottery Prize: Complete Step-by-Step Guide",
     description:
-      "Official guide on how to claim Kerala lottery prize safely: step-by-step claim procedure, required documents, authorized claim offices, payment methods, deadlines, and anti-fraud tips.",
+      "How to claim a Kerala lottery prize safely: the step-by-step claim procedure, required documents, authorized claim offices, payment methods, deadlines, and anti-fraud tips.",
     category: "Claim Guide",
     tags: [
       "Kerala Lottery Claim",

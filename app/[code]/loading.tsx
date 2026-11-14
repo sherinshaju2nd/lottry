@@ -1,117 +1,100 @@
 "use client";
 
 import React from "react";
-import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
-import Skeleton from "@mui/material/Skeleton";
 import Paper from "@mui/material/Paper";
-import TableSkeleton from "@/components/skeletons/TableSkeleton";
+import Skeleton from "@mui/material/Skeleton";
+import { LoadingRegion, ON_DARK } from "@/components/skeletons/SkeletonKit";
+
+/**
+ * Lottery archive (/{lottery}) loading UI. Section bands use the real page's measured heights
+ * (phone 375px / desktop 1366px) so the page replaces the skeleton without any jump:
+ * header → navy "latest draw" banner → search bar → results table.
+ */
+const NAVY_BANNER = "linear-gradient(135deg, #071E33 0%, #0B3C5D 60%, #082D4A 100%)";
+const CARD = { bgcolor: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: "12px" } as const;
 
 export default function Loading() {
   return (
-    <Box
-      sx={{
-        bgcolor: "#F9FAFB",
-        color: "#111827",
-        minHeight: "100vh",
-        py: { xs: 3, sm: 5, md: 6 },
-      }}
-    >
-      <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
-        {/* Breadcrumb Navigation Skeleton */}
-        <Box sx={{ mb: 2.5, display: "flex", gap: 1, alignItems: "center" }}>
-          <Skeleton variant="text" width={50} height={20} />
-          <Skeleton variant="text" width={10} height={20} />
-          <Skeleton variant="text" width={140} height={20} />
+    <LoadingRegion label="Loading lottery results…" sx={{ bgcolor: "#F8FAFC", minHeight: "100vh", pt: { xs: 2, md: 5 }, pb: 6, px: { xs: 2, md: 5 } }}>
+      {/* Breadcrumb */}
+      <Box sx={{ height: 24, display: "flex", gap: 1, alignItems: "center", mb: { xs: 2, md: 2.5 } }}>
+        <Skeleton variant="text" width={46} height={20} />
+        <Skeleton variant="text" width={180} height={20} />
+      </Box>
+
+      {/* Header: badges, logo + title + details, view toggle (279px phone / 145px desktop) */}
+      <Box sx={{ height: { xs: 279, md: 145 }, mb: { xs: 2, md: 2.5 }, position: "relative", overflow: "hidden" }}>
+        <Box sx={{ display: "flex", gap: 1, mb: 1, justifyContent: { xs: "center", md: "flex-start" }, pl: { md: "102px" } }}>
+          <Skeleton variant="rounded" width={140} height={22} sx={{ borderRadius: "999px", bgcolor: "#DCFCE7" }} />
+          <Skeleton variant="rounded" width={80} height={22} sx={{ borderRadius: "999px", bgcolor: "#DBEAFE" }} />
         </Box>
-
-        {/* Back Button Skeleton */}
-        <Skeleton variant="rounded" width={180} height={36} sx={{ mb: 2.5, borderRadius: "6px" }} />
-
-        {/* Header Section: Logo + Title + View Mode Toggle */}
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 2.5,
-            mb: 4,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 2, sm: 2.5 }, maxWidth: { xs: "100%", md: "75%" } }}>
-            {/* Logo Box */}
-            <Skeleton
-              variant="rounded"
-              width={84}
-              height={84}
-              sx={{ borderRadius: "18px", flexShrink: 0 }}
-            />
-            <Box sx={{ flex: 1 }}>
-              <Skeleton variant="text" width="80%" height={38} sx={{ mb: 0.5 }} />
-              <Skeleton variant="text" width="45%" height={22} sx={{ mb: 0.5 }} />
-              <Skeleton variant="text" width="60%" height={20} />
-            </Box>
+        <Skeleton variant="rounded" width={130} height={22} sx={{ display: { md: "none" }, mx: "auto", mb: 2, borderRadius: "999px", bgcolor: "#FEF3C7" }} />
+        <Box sx={{ display: "flex", gap: { xs: 2, md: "22px" }, alignItems: "flex-start" }}>
+          <Skeleton variant="rounded" sx={{ width: { xs: 60, md: 80 }, height: { xs: 60, md: 80 }, borderRadius: "14px", flexShrink: 0, mt: "2px" }} />
+          <Box sx={{ flex: 1, minWidth: 0, maxWidth: 855 }}>
+            <Skeleton variant="text" sx={{ height: { xs: 27, md: 43 }, width: "92%" }} />
+            <Skeleton variant="text" sx={{ height: { xs: 27, md: 43 }, width: "64%" }} />
+            <Skeleton variant="text" sx={{ height: 27, width: "55%", display: { md: "none" } }} />
+            <Skeleton variant="text" sx={{ height: 21, width: { xs: "100%", md: "70%" }, mt: 0.5 }} />
+            <Skeleton variant="text" sx={{ height: 21, width: "80%", display: { md: "none" } }} />
           </Box>
-
-          {/* View Mode Toggle Buttons Skeleton */}
-          <Skeleton
-            variant="rounded"
-            width={220}
-            height={40}
-            sx={{ borderRadius: "6px" }}
-          />
+          <Skeleton variant="rounded" width={230} height={40} sx={{ display: { xs: "none", md: "block" }, borderRadius: "10px", flexShrink: 0 }} />
         </Box>
+        <Skeleton variant="rounded" height={44} sx={{ display: { md: "none" }, position: "absolute", left: 0, right: 0, bottom: 5, borderRadius: "10px" }} />
+      </Box>
 
-        {/* Upcoming Draw Announcement Banner Skeleton */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 2.5, sm: 3 },
-            mb: 4,
-            borderRadius: "16px",
-            border: "2px solid #FCD34D",
-            bgcolor: "#FFFDF0",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 2,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Skeleton variant="circular" width={44} height={44} />
-            <Box>
-              <Skeleton variant="text" width={220} height={26} />
-              <Skeleton variant="text" width={320} height={20} />
-            </Box>
+      {/* Navy "latest draw" banner (266px phone / 120px desktop) */}
+      <Box
+        sx={{
+          height: { xs: 266, md: 120 },
+          mb: 3,
+          borderRadius: "14px",
+          background: NAVY_BANNER,
+          p: { xs: 2, md: 2.5 },
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { md: "center" },
+          justifyContent: "space-between",
+          gap: 2,
+        }}
+      >
+        <Box>
+          <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
+            <Skeleton variant="rounded" width={90} height={20} sx={{ ...ON_DARK, borderRadius: "6px" }} />
+            <Skeleton variant="rounded" width={60} height={20} sx={{ ...ON_DARK, borderRadius: "6px" }} />
           </Box>
-          <Skeleton variant="rounded" width={160} height={38} sx={{ borderRadius: "8px" }} />
-        </Paper>
+          <Skeleton variant="text" width={130} height={28} sx={ON_DARK} />
+          <Skeleton variant="text" width={180} height={18} sx={ON_DARK} />
+        </Box>
+        <Box sx={{ width: { xs: "100%", md: 506 }, height: { xs: 87, md: 78 }, borderRadius: "10px", bgcolor: "rgba(0,0,0,0.25)", flexShrink: 0 }} />
+        <Skeleton variant="rounded" sx={{ ...ON_DARK, width: { xs: "100%", md: 190 }, height: 44, borderRadius: "10px", flexShrink: 0, bgcolor: "rgba(2,132,199,0.55)" }} />
+      </Box>
 
-        {/* Filter & Search Bar Skeleton */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            mb: 3,
-            borderRadius: "12px",
-            border: "1px solid #E5E7EB",
-            bgcolor: "#FFFFFF",
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <Skeleton variant="rounded" height={42} sx={{ flex: 1, minWidth: 220, borderRadius: "8px" }} />
-          <Skeleton variant="rounded" width={180} height={42} sx={{ borderRadius: "8px" }} />
-          <Skeleton variant="rounded" width={90} height={42} sx={{ borderRadius: "8px" }} />
-        </Paper>
+      {/* Search bar (111px phone / 74px desktop) */}
+      <Paper elevation={0} sx={{ ...CARD, height: { xs: 111, md: 74 }, mb: 2, px: 2, boxSizing: "border-box", display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "center", alignItems: { md: "center" }, gap: 1.5 }}>
+        <Skeleton variant="rounded" height={42} sx={{ flex: { md: 1 }, maxWidth: { md: 520 }, borderRadius: "8px" }} />
+        <Skeleton variant="text" width={140} height={20} sx={{ ml: { md: "auto" } }} />
+      </Paper>
 
-        {/* Table Content Skeleton */}
-        <TableSkeleton rows={8} />
-      </Container>
-    </Box>
+      {/* Results table: header row + rows (rows 97px phone / 74px desktop) */}
+      <Paper elevation={0} sx={{ ...CARD, overflow: "hidden", minHeight: { xs: 1214, md: 923 } }}>
+        <Box sx={{ height: { xs: 81, md: 57 }, bgcolor: "#F8FAFC", borderBottom: "1px solid #E5E7EB", display: "flex", alignItems: "center", gap: 3, px: 2 }}>
+          {[90, 70, 80, 120, 90].map((w, i) => (
+            <Skeleton key={i} variant="text" width={w} height={16} sx={{ display: i > 2 ? { xs: "none", md: "block" } : "block" }} />
+          ))}
+        </Box>
+        {Array.from({ length: 11 }, (_, i) => (
+          <Box key={i} sx={{ height: { xs: 97, md: 74 }, borderBottom: "1px solid #F1F5F9", display: "flex", alignItems: "center", gap: 3, px: 2 }}>
+            <Skeleton variant="text" width={90} height={20} />
+            <Skeleton variant="rounded" width={56} height={22} sx={{ borderRadius: "6px", bgcolor: "#DBEAFE" }} />
+            <Skeleton variant="text" width={110} height={20} />
+            <Skeleton variant="text" width={120} height={20} sx={{ display: { xs: "none", md: "block" } }} />
+            <Skeleton variant="rounded" width={110} height={32} sx={{ display: { xs: "none", md: "block" }, ml: "auto", borderRadius: "8px" }} />
+          </Box>
+        ))}
+      </Paper>
+    </LoadingRegion>
   );
 }

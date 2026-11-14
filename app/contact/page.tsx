@@ -17,6 +17,7 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import LanguageIcon from "@mui/icons-material/Language";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import Link from "next/link";
+import { CONTACT_EMAIL } from "@/lib/siteAuthor";
 
 export const metadata: Metadata = {
   title: "Contact Us & Support",
@@ -34,7 +35,8 @@ export const metadata: Metadata = {
   },
 };
 
-const SUPPORT_EMAIL = "keralalotteryresultstoday@gmail.com";
+// Single source of truth for the public contact address (also used by /about and /privacy-policy).
+const SUPPORT_EMAIL = CONTACT_EMAIL;
 const PHONE_1 = "+91 97785 70477";
 const PHONE_1_CLEAN = "919778570477";
 const PHONE_2 = "+91 9496706727";

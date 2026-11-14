@@ -78,6 +78,17 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Static images in /public (logos, icons, hero, blog covers). File names are reused when an
+        // image is replaced, so no "immutable": browsers keep them a week and refresh in the background.
+        source: "/:path*\\.(png|jpg|jpeg|webp|avif|svg|ico)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=604800, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      {
         source: "/(feed.xml|sitemap.xml)",
         headers: [
           {

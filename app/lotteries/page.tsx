@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { LoadingRegion } from "@/components/skeletons/SkeletonKit";
+import { LotteryListRowsSkeleton } from "@/components/skeletons/PageSkeletons";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
-import Skeleton from "@mui/material/Skeleton";
 import Button from "@mui/material/Button";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
@@ -203,31 +204,9 @@ export default function LotteriesPage() {
 
       {/* Content List */}
       {isLoading ? (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {[1, 2, 3, 4, 5, 6].map((idx) => (
-            <Paper
-              key={idx}
-              elevation={0}
-              sx={{
-                p: { xs: 2, sm: 2.5 },
-                borderRadius: "16px",
-                border: "1.5px solid #E2E8F0",
-                bgcolor: "#FFFFFF",
-              }}
-            >
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1.5 }}>
-                <Skeleton variant="rounded" width={80} height={26} sx={{ borderRadius: "8px" }} />
-                <Skeleton variant="rounded" width={90} height={24} sx={{ borderRadius: "8px" }} />
-              </Box>
-              <Skeleton variant="text" width="60%" height={32} />
-              <Skeleton variant="text" width="40%" height={20} sx={{ mb: 1.5 }} />
-              <Box sx={{ display: "flex", gap: 1.5 }}>
-                <Skeleton variant="rounded" width={130} height={30} sx={{ borderRadius: "8px" }} />
-                <Skeleton variant="rounded" width={90} height={30} sx={{ borderRadius: "8px" }} />
-              </Box>
-            </Paper>
-          ))}
-        </Box>
+        <LoadingRegion label="Loading lotteries…">
+          <LotteryListRowsSkeleton />
+        </LoadingRegion>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {currentList.map((item) => {

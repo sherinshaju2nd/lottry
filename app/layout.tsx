@@ -1,30 +1,34 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Inter } from "next/font/google";
 import MuiProvider from "@/components/MuiProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import InitialLoader from "@/components/InitialLoader";
 import ScrollRestorer from "@/components/ScrollRestorer";
-import AiVoiceAssistantModal from "@/components/AiVoiceAssistantModal";
 import PwaRegister from "@/components/PwaRegister";
 import IosInstallPrompt from "@/components/IosInstallPrompt";
-import IosInstallGuideModal from "@/components/IosInstallGuideModal";
-import WindowsInstallGuideModal from "@/components/WindowsInstallGuideModal";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import HideOnAdmin from "@/components/HideOnAdmin";
-import AiTicketScanner from "@/components/AiTicketScanner";
+import LazyGlobalWidgets from "@/components/LazyGlobalWidgets";
 import { supabase, WEEKLY_LOTTERIES } from "@/lib/supabase";
 import { GA_MEASUREMENT_ID, getGtagInitScript } from "@/lib/analytics";
 import "./globals.css";
 
 export const revalidate = 86400; // Cache 24h; updated instantly on-demand via revalidatePath when live results sync
 
+/**
+ * Self-hosted Inter (variable font, all weights). Exposed as --font-inter and used by the MUI
+ * theme (lib/theme.ts). Replaces the render-blocking fonts.googleapis.com stylesheet; Montserrat
+ * was loaded there but never used, so it is dropped.
+ */
+const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
+
+// Pinch-zoom is allowed (accessibility). iOS no longer auto-zooms into inputs because
+// globals.css keeps input text at >= 16px on iOS only.
 export const viewport: Viewport = {
   themeColor: "#0B3C5D",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
 };
 
@@ -507,14 +511,17 @@ export default async function RootLayout({
   ];
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
-        {/* Google AdSense */}
-        <script
-          async
+        {/* Google AdSense. Loaded with next/script (after hydration): a raw <script> in <head> let
+            adsbygoogle inject its own tags into <head> before React hydrated (hydration mismatch)
+            and competed with the first render. Site ownership is verified by the meta tag below. */}
+        <Script
+          id="adsbygoogle-init"
+          strategy="afterInteractive"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5188009819701998"
           crossOrigin="anonymous"
-        ></script>
+        />
         <meta name="google-adsense-account" content="ca-pub-5188009819701998" />
 
         {/* Google Search Console Verification */}
@@ -537,7 +544,7 @@ export default async function RootLayout({
         {/* Google Tag Manager */}
         <Script
           id="gtm-script"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -548,27 +555,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
         {/* End Google Tag Manager */}
 
-        {/* Google tag (gtag.js) — GA4 stream "Kerala lottery results" (see lib/analytics.ts) */}
-        <Script
-          strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        />
+        {/* Google tag (gtag.js) — GA4 stream "Kerala lottery results" (see lib/analytics.ts).
+            The tiny inline init runs early so window.gtag exists and events queue in dataLayer;
+            the heavy gtag.js / GTM downloads wait until the browser is idle (lazyOnload). */}
         <Script
           id="gtag-init"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: getGtagInitScript() }}
         />
+        <Script
+          strategy="lazyOnload"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        />
 
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800&display=swap"
-          rel="stylesheet"
-        />
+        {/* Inter is self-hosted via next/font (see `inter` above): no render-blocking Google Fonts stylesheet. */}
         {/* AI & LLM Auto-Discovery Links */}
         <link rel="alternate" type="text/plain" href="/llms.txt" title="LLMs.txt" />
         <link rel="alternate" type="text/plain" href="/llms-full.txt" title="LLMs-Full.txt" />
@@ -608,12 +608,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <MuiProvider>
           <PwaRegister />
           <ScrollRestorer />
-          <InitialLoader />
+          {/* No full-screen splash on the website: it covered content on every page load (interstitial / LCP).
+              The installed app uses the phone's own launch screen from the web manifest. */}
           {/* Public-site prompts & fixed overlays are hidden on /admin (they covered admin save buttons on phones) */}
           <HideOnAdmin>
             <IosInstallPrompt />
-            <IosInstallGuideModal />
-            <WindowsInstallGuideModal />
           </HideOnAdmin>
           <div
             style={{
@@ -627,9 +626,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
             <HideOnAdmin>
               <Footer />
-              <AiVoiceAssistantModal />
               <MobileBottomNav />
-              <AiTicketScanner variant="dialog-only" />
+              {/* AI assistant, ticket scanner and install guides load after the page is interactive */}
+              <LazyGlobalWidgets />
             </HideOnAdmin>
           </div>
         </MuiProvider>
