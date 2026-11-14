@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      const syncResult = await fetchAndSyncLatestLottery();
+      const syncResult = await fetchAndSyncLatestLottery("admin-sync");
       const duration_ms = Date.now() - startTime;
 
       if (!syncResult.success) {

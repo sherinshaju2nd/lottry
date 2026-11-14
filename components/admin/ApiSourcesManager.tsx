@@ -21,6 +21,7 @@ import NetworkCheckIcon from "@mui/icons-material/NetworkCheck";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import MailOutlineIcon from "@mui/icons-material/EmailOutlined";
 import {
   API_SOURCES_CHANGED_EVENT,
   DRAWS_SYNCED_EVENT,
@@ -96,6 +97,25 @@ export default function ApiSourcesManager() {
   const [syncs, setSyncs] = useState<Record<string, SyncResult | "running">>({});
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
+
+  /** Sends a sample "API source failed" alert so the Gmail SMTP env settings can be checked. */
+  const sendTestAlertEmail = async () => {
+    setIsSendingTestEmail(true);
+    try {
+      const res = await fetch("/api/admin/alert-email", { method: "POST", cache: "no-store" });
+      const { sent = false, error, recipients = [] } = (await res.json()) as { sent?: boolean; error?: string; recipients?: string[] };
+      setStatus(
+        sent
+          ? { type: "success", message: `Test alert email sent to ${recipients.join(", ")}.` }
+          : { type: "error", message: `Test email not sent: ${error ?? `HTTP ${res.status}`}. Check SMTP_USER / SMTP_PASS (Gmail App Password) in the environment.` },
+      );
+    } catch (err: unknown) {
+      setStatus({ type: "error", message: `Test email failed: ${err instanceof Error ? err.message : String(err)}` });
+    } finally {
+      setIsSendingTestEmail(false);
+    }
+  };
 
   const isDirty = JSON.stringify(sources) !== savedJson;
 
@@ -534,9 +554,23 @@ export default function ApiSourcesManager() {
       </Box>
 
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 3, gap: 2, flexWrap: "wrap" }}>
-        <Button onClick={resetToDefault} sx={{ fontWeight: 700, textTransform: "none", color: C.sub }}>
-          Reset to default
-        </Button>
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
+          <Button onClick={resetToDefault} sx={{ fontWeight: 700, textTransform: "none", color: C.sub }}>
+            Reset to default
+          </Button>
+          <Tooltip title="When a source fails during a sync, an alert email goes to the team (reminder every 30 min while it stays down, and a 'recovered' email). This sends a sample.">
+            <span>
+              <Button
+                onClick={sendTestAlertEmail}
+                disabled={isSendingTestEmail}
+                startIcon={isSendingTestEmail ? <CircularProgress size={16} color="inherit" /> : <MailOutlineIcon />}
+                sx={{ fontWeight: 700, textTransform: "none", color: C.sub }}
+              >
+                Send test alert email
+              </Button>
+            </span>
+          </Tooltip>
+        </Box>
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           {isDirty && <Chip size="small" label="Unsaved changes" sx={{ fontWeight: 700, bgcolor: "#FEF3C7", color: "#92400E" }} />}
           <Button

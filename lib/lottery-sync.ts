@@ -9,6 +9,7 @@ import {
   type SourceAttempt,
   type SourceAttemptSummary,
 } from "./apiSources";
+import { notifySourceFailures, type AlertTrigger } from "./sourceAlerts";
 
 export interface SyncLotteryResult {
   success: boolean;
@@ -92,12 +93,16 @@ const saveSourceResponse = async (chosen: SourceAttempt, attemptSummary: SourceA
   };
 };
 
-/** Cron / header button: all enabled sources in parallel, highest-priority usable answer wins. */
-export const fetchAndSyncLatestLottery = async (): Promise<SyncLotteryResult> => {
+/**
+ * Cron / header button: all enabled sources in parallel, highest-priority usable answer wins.
+ * Emails the team when a source fails (see lib/sourceAlerts; throttled, never blocks the sync).
+ */
+export const fetchAndSyncLatestLottery = async (trigger: AlertTrigger = "cron"): Promise<SyncLotteryResult> => {
   try {
     const sources = await getApiSources();
     const { chosen, attempts } = await fetchFromSources(sources);
     const attemptSummary = summarizeAttempts(attempts);
+    await notifySourceFailures({ attempts, trigger, usedSource: chosen?.json ? chosen.source.name : undefined, allSourcesTried: true });
 
     if (!chosen?.json) {
       return {
@@ -144,6 +149,7 @@ export const fetchAndSyncFromSource = async (sourceId: string): Promise<SyncLott
 
     const attempt = await fetchSource(source);
     const attemptSummary = summarizeAttempts([attempt]);
+    await notifySourceFailures({ attempts: [attempt], trigger: "admin-source-sync", allSourcesTried: false });
     if (!attempt.ok || !attempt.json) {
       return { success: false, error: `${source.name}: ${attempt.error ?? "no data returned"}`, source: source.name, attempts: attemptSummary };
     }

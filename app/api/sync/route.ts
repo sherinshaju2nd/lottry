@@ -57,7 +57,7 @@ const handleSync = async (req: NextRequest, successMessage: string) => {
     const mode = await readMode(req);
     if (mode.kind === "all") return await syncAll();
 
-    const result = mode.kind === "source" ? await fetchAndSyncFromSource(mode.sourceId) : await fetchAndSyncLatestLottery();
+    const result = mode.kind === "source" ? await fetchAndSyncFromSource(mode.sourceId) : await fetchAndSyncLatestLottery("admin-sync");
     const { success, error, data, source, attempts } = result;
 
     if (!success) {
