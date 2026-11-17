@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { BlogPost, BlogDrawContext } from "@/data/blogs";
+import type { BlogPost, BlogDrawContext, BlogRecentDraw } from "@/data/blogs";
 import { renderBlogContent } from "@/components/blog/blogContentRegistry";
 import PostDetailLayout from "@/components/posts/PostDetailLayout";
 import { formatArticleDate } from "@/lib/articles";
@@ -11,10 +11,12 @@ interface Props {
   post: BlogPost;
   /** Draw details from the database (lotteries.draw_date) for posts with a drawLotteryCode. */
   draw?: BlogDrawContext | null;
+  /** Latest published draws for posts with showRecentDraws. */
+  recentDraws?: BlogRecentDraw[];
 }
 
 /** Editorial guide page: guide content rendered in the shared Articles & News detail layout. */
-export default function BlogPostClient({ post, draw = null }: Props) {
+export default function BlogPostClient({ post, draw = null, recentDraws = [] }: Props) {
   const { publishedAt, readMinutes } = guideToPostCard(post);
 
   return (
@@ -33,7 +35,7 @@ export default function BlogPostClient({ post, draw = null }: Props) {
       reviewedDate={post.updatedDate}
       kindLabel="Guide"
     >
-      {renderBlogContent(post.slug, draw)}
+      {renderBlogContent(post.slug, { draw, recentDraws })}
     </PostDetailLayout>
   );
 }

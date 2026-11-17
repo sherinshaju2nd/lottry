@@ -44,6 +44,33 @@ export interface BlogPost {
    * server-side from the database, so no draw dates are hardcoded here.
    */
   drawLotteryCode?: string;
+  /** Renders the latest published draws (draw_results) inside the article body. */
+  showRecentDraws?: boolean;
+}
+
+/** A recently published draw with its prize-claim deadline, for in-article data panels. */
+export interface BlogRecentDraw {
+  name: string;
+  code: string;
+  /** ISO draw date (YYYY-MM-DD). */
+  date: string;
+  dateLong: string;
+  /** First prize ticket number, e.g. "SA 286401". */
+  firstTicket: string;
+  location: string;
+  /** Draw result page. */
+  url: string;
+  /** ISO date by which the winning ticket must be surrendered. */
+  claimDeadline: string;
+  claimDeadlineLong: string;
+  /** Days left until the claim deadline (negative once passed). */
+  daysLeft: number;
+}
+
+/** Server-loaded data an article body can render. */
+export interface BlogRenderContext {
+  draw: BlogDrawContext | null;
+  recentDraws: BlogRecentDraw[];
 }
 
 /** Draw details resolved from the database for a post's `drawLotteryCode`. */
@@ -67,6 +94,362 @@ export const getBlogPath = (slug: string): string => `/${slug}`;
 export const getBlogUrl = (slug: string): string => `${SITE_URL}${getBlogPath(slug)}`;
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: "how-to-find-fake-kerala-lottery-tickets",
+    coverImage: "/blog/how-to-find-fake-kerala-lottery-tickets.jpg",
+    title: "How to Find Fake Kerala Lottery Tickets: 10 Checks Before You Trust a Ticket",
+    metaTitle: "How to Find Fake Kerala Lottery Tickets: 10 Warning Signs",
+    description:
+      "Learn how to find fake Kerala lottery tickets: check printing quality, ticket number, alterations, draw details and seller, compare with recent results, and what to do if you suspect a fake.",
+    category: "Safety Guide",
+    tags: [
+      "Fake Kerala Lottery Ticket",
+      "Kerala Lottery Fraud",
+      "Duplicate Lottery Ticket",
+      "Kerala Lottery Ticket Verification",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-17",
+    updatedDate: "2026-11-17",
+    readTime: "6 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    showRecentDraws: true,
+    primaryCta: {
+      href: "/",
+      label: "Check Today's Result",
+      heading: "Verify Against the Result",
+      description: "Match the full ticket number, series, draw code and date with the published result.",
+    },
+    howTo: {
+      name: "How to check whether a Kerala lottery ticket is fake",
+      steps: [
+        "Examine the printing quality, colours and spelling on the ticket.",
+        "Check the ticket number for overwritten, uneven or missing digits.",
+        "Look for scratches, ink marks, pasted numbers or replaced sections.",
+        "Confirm the lottery name, draw number and draw date are consistent.",
+        "Buy only from authorised agents and get official verification when in doubt.",
+      ],
+    },
+    tableOfContents: [
+      { id: "printing-quality", title: "1. Examine the Printing Quality" },
+      { id: "ticket-number", title: "2. Check the Ticket Number" },
+      { id: "alterations", title: "3. Look for Alterations" },
+      { id: "draw-details", title: "4. Verify Lottery Name & Draw Details" },
+      { id: "physical-condition", title: "5. Physical Condition of the Ticket" },
+      { id: "unknown-sellers", title: "6. Unknown Sellers" },
+      { id: "compare-genuine", title: "7. Compare with a Genuine Ticket" },
+      { id: "winning-number", title: "8. A Winning Number Is Not Proof" },
+      { id: "suspect-fake", title: "9. If You Suspect a Fake Ticket" },
+      { id: "tips", title: "10. Tips to Avoid Fake Tickets" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "How can I identify a fake Kerala lottery ticket?",
+        answer:
+          "Check the printing quality, the ticket number for overwritten or uneven digits, signs of alteration such as scratches or pasted numbers, the lottery name, draw number and draw date, and the physical condition of the paper. If anything looks suspicious, ask an authorised Kerala State Lottery official to verify it.",
+      },
+      {
+        question: "Is a ticket genuine if its number matches the winning result?",
+        answer:
+          "No. A counterfeit or altered ticket can carry a number that matches a published result. The ticket must belong to the correct draw, be the unaltered original and pass the official verification process.",
+      },
+      {
+        question: "Does a damaged ticket mean it is fake?",
+        answer:
+          "Not necessarily. Genuine tickets can be damaged through normal handling. Damage is a reason for closer examination, not proof of counterfeiting.",
+      },
+      {
+        question: "Where should I buy Kerala lottery tickets to avoid fakes?",
+        answer:
+          "Buy original printed tickets only from authorised lottery agents and sellers. Avoid unknown sellers, unusual discounts, guaranteed-win offers and any online or WhatsApp seller.",
+      },
+      {
+        question: "What should I do if I bought a fake Kerala lottery ticket?",
+        answer:
+          "Do not alter the ticket or pay anyone to 'approve' it. Keep the ticket and purchase details, contact an authorised Kerala State Lottery official, and report the fraud to the authorities or the cybercrime helpline 1930.",
+      },
+    ],
+  },
+  {
+    slug: "documents-required-to-claim-kerala-lottery-prize",
+    coverImage: "/blog/documents-required-to-claim-kerala-lottery-prize.jpg",
+    title: "What Documents Are Required to Claim a Kerala Lottery Prize?",
+    metaTitle: "Documents Required to Claim Kerala Lottery Prize (Checklist)",
+    description:
+      "Complete checklist of documents required to claim a Kerala lottery prize: original ticket, ID and address proof, PAN, bank proof, photographs and the claim form, plus submission steps and deadlines.",
+    category: "Claim Guide",
+    tags: [
+      "Kerala Lottery Claim Documents",
+      "Kerala Lottery Prize Claim",
+      "District Lottery Officer",
+      "Form V Kerala Lottery",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-15",
+    updatedDate: "2026-11-15",
+    readTime: "6 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    showRecentDraws: true,
+    primaryCta: {
+      href: "/surrender-kerala-lottery-winning-ticket-through-bank",
+      label: "Submit Through a Bank",
+      heading: "Documents Ready?",
+      description: "Step-by-step guide to surrendering your winning ticket through an eligible bank.",
+    },
+    howTo: {
+      name: "How to submit documents to claim a Kerala lottery prize",
+      steps: [
+        "Organise the original ticket, identification documents, bank details, photographs and claim form.",
+        "Verify the ticket number, draw details, personal information and bank details.",
+        "Visit the District Lottery Officer or the designated authority.",
+        "Submit the original ticket and supporting documents.",
+        "Obtain an acknowledgement and complete the verification process.",
+      ],
+    },
+    tableOfContents: [
+      { id: "original-ticket", title: "1. Original Winning Ticket" },
+      { id: "identity-proof", title: "2. Identity Proof" },
+      { id: "photographs", title: "3. Passport-Size Photographs" },
+      { id: "pan-card", title: "4. PAN Card" },
+      { id: "bank-details", title: "5. Bank Account Details" },
+      { id: "claim-form", title: "6. Claim Application Form" },
+      { id: "address-proof", title: "7. Address Proof" },
+      { id: "self-attested", title: "8. Self-Attested Copies" },
+      { id: "how-to-submit", title: "9. How to Submit Documents" },
+      { id: "remember", title: "10. Things to Remember" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "What documents are required to claim a Kerala lottery prize?",
+        answer:
+          "Winners may need the original winning ticket, identity proof, PAN card, passport-size photographs, bank account details, address proof and a completed prize claim application form. Additional documents may be required depending on the prize amount and applicable rules.",
+      },
+      {
+        question: "Where should I submit my Kerala lottery winning ticket?",
+        answer:
+          "Submit the ticket and documents to the authorised lottery office or designated authority for your prize category, or through an eligible bank. Contact the District Lottery Officer for guidance on the correct location.",
+      },
+      {
+        question: "Is the original Kerala lottery ticket compulsory for claiming a prize?",
+        answer:
+          "Yes. The original winning ticket is essential for verification. A photocopy or photograph generally cannot replace it.",
+      },
+      {
+        question: "Is a PAN card necessary to claim a Kerala lottery prize?",
+        answer:
+          "A PAN card may be required for identity verification and tax formalities, particularly for higher-value prizes. Check the latest requirements for your prize category.",
+      },
+      {
+        question: "Do I need a bank passbook to claim a Kerala lottery prize?",
+        answer:
+          "Bank account proof may be required to verify your account and process payment. A passbook copy, account statement or cancelled cheque may be requested.",
+      },
+      {
+        question: "How many photographs are required for a Kerala lottery prize claim?",
+        answer:
+          "It depends on the current claim application requirements. Keep recent passport-size photographs ready and confirm the quantity with the District Lottery Officer.",
+      },
+      {
+        question: "What happens if my Kerala lottery ticket is damaged?",
+        answer:
+          "A damaged ticket may need additional examination. Do not repair or alter it; keep it safe and contact the Lottery Department for guidance.",
+      },
+      {
+        question: "What is the time limit for claiming a Kerala lottery prize?",
+        answer:
+          "Under the Kerala Paper Lotteries (Regulation) Amendment Rules, 2024, the original winning ticket must generally be surrendered within 90 days from the draw date. Check the official instructions as soon as you find a winning ticket.",
+      },
+      {
+        question: "Can someone else submit my Kerala lottery winning ticket?",
+        answer:
+          "Prize claims follow specific rules about claimants and authorised representatives. Confirm the permitted procedure with the Lottery Department before letting anyone else submit or receive the prize.",
+      },
+      {
+        question: "Are photocopies of documents accepted for Kerala lottery prize claims?",
+        answer:
+          "Self-attested photocopies of supporting documents may be required along with the originals for verification, but the original winning ticket must always be presented.",
+      },
+    ],
+  },
+  {
+    slug: "surrender-kerala-lottery-winning-ticket-through-bank",
+    coverImage: "/blog/surrender-kerala-lottery-winning-ticket-through-bank.jpg",
+    title: "How to Surrender a Kerala Lottery Winning Ticket Through Bank",
+    metaTitle: "Surrender Kerala Lottery Winning Ticket Through Bank: Form V Guide",
+    description:
+      "How to surrender a Kerala lottery winning ticket through a bank: eligible banks, Form V, documents, bank authorisation, verification, payment and the 90-day deadline, with real deadlines for the latest draws.",
+    category: "Claim Guide",
+    tags: [
+      "Surrender Kerala Lottery Ticket Bank",
+      "Kerala Lottery Form V",
+      "Kerala Lottery Claim Through Bank",
+      "Kerala Lottery 90 Days Claim",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-12",
+    updatedDate: "2026-11-12",
+    readTime: "7 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    showRecentDraws: true,
+    primaryCta: {
+      href: "/documents-required-to-claim-kerala-lottery-prize",
+      label: "See the Document Checklist",
+      heading: "Preparing Form V?",
+      description: "Every document you need before visiting the bank or lottery office.",
+    },
+    howTo: {
+      name: "How to surrender a Kerala lottery winning ticket through a bank",
+      steps: [
+        "Verify the ticket number, series, lottery name and draw date against the official result.",
+        "Choose an eligible bank branch and confirm it accepts lottery prize claims.",
+        "Prepare the original ticket, PAN, Aadhaar, bank passbook copy and photograph.",
+        "Complete Form V including the bank authorisation section.",
+        "Write your name, address and signature on the reverse of the ticket.",
+        "Submit everything at the bank within 90 days of the draw and keep the acknowledgement.",
+      ],
+    },
+    tableOfContents: [
+      { id: "verify-ticket", title: "1. Verify Your Winning Ticket" },
+      { id: "eligible-bank", title: "2. Choose an Eligible Bank" },
+      { id: "documents", title: "3. Collect the Documents" },
+      { id: "form-v", title: "4. Complete Form V" },
+      { id: "reverse-side", title: "5. Details on the Reverse Side" },
+      { id: "submit-at-bank", title: "6. Submit the Ticket to the Bank" },
+      { id: "verification", title: "7. Verification & Approval" },
+      { id: "receive-money", title: "8. How You Receive the Prize Money" },
+      { id: "deadline", title: "9. Submission Deadline" },
+      { id: "safety", title: "10. Safety Tips" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "Can I submit a Kerala lottery winning ticket through a bank?",
+        answer:
+          "Yes. Eligible winning tickets can be submitted through nationalised banks, scheduled commercial banks, Kerala Bank and urban cooperative banks, following the prescribed procedure.",
+      },
+      {
+        question: "What is the minimum prize amount for submitting Form V?",
+        answer: "Form V is required for prize claims above ₹10,000. It is not required for prizes below ₹10,000 under the amended rules.",
+      },
+      {
+        question: "What is Form V in Kerala lottery?",
+        answer:
+          "Form V is the official application for claiming Kerala lottery prizes above ₹10,000. It contains the winner's personal details, ticket information, bank account details and declaration.",
+      },
+      {
+        question: "What is the deadline for submitting a Kerala lottery winning ticket?",
+        answer:
+          "The original winning ticket must generally be surrendered within 90 days from the draw date. Certain delayed claims of ₹1 lakh or more may be considered within a further 60 days at the Government's discretion.",
+      },
+      {
+        question: "Can I submit my winning ticket through any bank?",
+        answer:
+          "No. The rules specify eligible bank categories, and not every branch accepts lottery prize claims. Confirm the procedure with the branch before visiting.",
+      },
+      {
+        question: "How does the bank receive the prize money?",
+        answer:
+          "In Form V the winner authorises the Director of State Lotteries to pay the approved prize to the designated bank branch, which then pays the winner.",
+      },
+      {
+        question: "What happens if my lottery ticket is damaged?",
+        answer:
+          "Damaged, torn or mutilated tickets may face additional scrutiny or rejection. If authenticity is doubtful, the authorities may require further verification and, in certain cases, an affidavit in Form VIII.",
+      },
+      {
+        question: "Can two people claim one Kerala lottery prize together?",
+        answer: "Yes. Joint claims are permitted. The winners must submit their individual claim documents and a notarised affidavit in Form VI.",
+      },
+      {
+        question: "What happens if the winner lives outside Kerala?",
+        answer:
+          "A claimant whose Aadhaar address is outside Kerala may need to submit an affidavit in Form VII, sworn before and attested by a Notary, along with the original ticket and other documents.",
+      },
+    ],
+  },
+  {
+    slug: "why-online-kerala-lottery-ticket-sales-are-illegal",
+    coverImage: "/blog/why-online-kerala-lottery-ticket-sales-are-illegal.jpg",
+    title: "Why Online Ticket Sales for Kerala Lotteries Are Strictly Illegal",
+    metaTitle: "Is Buying Kerala Lottery Online Legal? Why Online Sales Are Illegal",
+    description:
+      "Kerala lottery tickets cannot be sold online, on WhatsApp or through apps under the 2024 amended rules. Learn the risks of online sellers, how tickets are officially sold, how to claim prizes and how to report fraud.",
+    category: "Safety Guide",
+    tags: [
+      "Kerala Lottery Online",
+      "Buy Kerala Lottery Online",
+      "Kerala Lottery WhatsApp Scam",
+      "Kerala Paper Lotteries Rules 2024",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-10",
+    updatedDate: "2026-11-10",
+    readTime: "7 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    showRecentDraws: true,
+    primaryCta: {
+      href: "/how-to-find-fake-kerala-lottery-tickets",
+      label: "Spot a Fake Ticket",
+      heading: "Got a Ticket Online?",
+      description: "10 checks to find fake or altered Kerala lottery tickets before you trust them.",
+    },
+    tableOfContents: [
+      { id: "why-prohibited", title: "1. Why Online Sales Are Prohibited" },
+      { id: "department-stand", title: "2. What the Lottery Department Says" },
+      { id: "risks", title: "3. Risks of Buying Online" },
+      { id: "official-distribution", title: "4. Official Ticket Distribution" },
+      { id: "fake-ads", title: "5. Fake Lottery Advertisements" },
+      { id: "results-vs-buying", title: "6. Checking Results vs Buying Tickets" },
+      { id: "claim-prize", title: "7. Claiming Prizes" },
+      { id: "claim-documents", title: "8. Documents for Prize Claims" },
+      { id: "report", title: "9. Reporting Unauthorised Sales" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "Is selling Kerala lottery tickets online illegal?",
+        answer:
+          "Kerala's 2024 amended lottery rules prohibit selling Kerala lottery tickets, their numbers or images through communication devices, computers and social media. Only original printed ticket sales through permitted channels are allowed.",
+      },
+      {
+        question: "Can I purchase Kerala lottery tickets through WhatsApp?",
+        answer: "No. WhatsApp is not an authorised channel. Buy original physical tickets from authorised agents and sellers.",
+      },
+      {
+        question: "Can I check Kerala lottery results online?",
+        answer: "Yes. Result information is available online, but checking results is different from buying tickets electronically.",
+      },
+      {
+        question: "Are Kerala lottery tickets available through mobile applications?",
+        answer:
+          "The Kerala State Lotteries Department has not authorised anyone to sell its paper lottery tickets through mobile applications. Be cautious of apps claiming official online sales.",
+      },
+      {
+        question: "Can I receive a Kerala lottery prize using a digital ticket image?",
+        answer: "No. A digital image cannot replace the original physical winning ticket, which must be submitted for verification.",
+      },
+      {
+        question: "What is the deadline for claiming a Kerala lottery prize?",
+        answer:
+          "The general deadline is 90 days from the draw date under the Kerala Paper Lotteries (Regulation) Amendment Rules, 2024. Limited provisions exist for certain delayed claims.",
+      },
+      {
+        question: "What should I do if someone took money promising an online Kerala lottery ticket?",
+        answer:
+          "Stop further payments, save the transaction details and messages, and report the fraud on the National Cyber Crime Reporting Portal or helpline 1930.",
+      },
+    ],
+  },
   {
     slug: "what-happens-if-you-lose-kerala-lottery-ticket",
     coverImage: "/blog/what-happens-if-you-lose-kerala-lottery-ticket.jpg",

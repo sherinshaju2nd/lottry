@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllBlogs, getBlogBySlug, getBlogUrl, resolveBlogPost } from "@/data/blogs";
 import BlogPostClient from "@/components/BlogPostClient";
-import { getBlogDrawContext } from "@/lib/blogDraw";
+import { getBlogDrawContext, getBlogRecentDraws } from "@/lib/blogDraw";
 import { founderPersonSchema, isFounderAuthor } from "@/lib/siteAuthor";
 
 // Draw dates come from the DB (lotteries.draw_date) — refresh hourly
@@ -14,8 +14,11 @@ export const dynamicParams = false;
 const loadPost = async (slug: string) => {
   const post = getBlogBySlug(slug);
   if (!post) return null;
-  const draw = post.drawLotteryCode ? await getBlogDrawContext(post.drawLotteryCode) : null;
-  return { post: resolveBlogPost(post, draw), draw };
+  const [draw, recentDraws] = await Promise.all([
+    post.drawLotteryCode ? getBlogDrawContext(post.drawLotteryCode) : Promise.resolve(null),
+    post.showRecentDraws ? getBlogRecentDraws() : Promise.resolve([]),
+  ]);
+  return { post: resolveBlogPost(post, draw), draw, recentDraws };
 };
 
 interface Props {
@@ -82,7 +85,7 @@ export default async function BlogPostPage({ params }: Props) {
   if (!loaded) {
     notFound();
   }
-  const { post, draw } = loaded;
+  const { post, draw, recentDraws } = loaded;
   const aboutUrl = draw ? `https://www.keralalotteryresultstoday.in${draw.url}` : undefined;
 
   const pageUrl = getBlogUrl(post.slug);
@@ -200,7 +203,7 @@ export default async function BlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
         />
       )}
-      <BlogPostClient post={post} draw={draw} />
+      <BlogPostClient post={post} draw={draw} recentDraws={recentDraws} />
     </>
   );
 }
