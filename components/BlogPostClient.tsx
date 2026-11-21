@@ -19,11 +19,9 @@ interface Props {
   recentDraws?: BlogRecentDraw[];
 }
 
-const CREDIT_LINK_STYLE = { color: "inherit", textDecoration: "underline" } as const;
-
 /** Post details (author, dates, read time, category, tags) shown at the top of every guide body. */
 const GuideDetails = ({ post, readMinutes }: { post: BlogPost; readMinutes: number }) => {
-  const { coverCredit, author, category, publishedDate, updatedDate, tags = [] } = post;
+  const { author, category, publishedDate, updatedDate, tags = [] } = post;
   const details = [
     `By ${author.name}`,
     `Published ${formatArticleDate(publishedDate)}`,
@@ -40,18 +38,6 @@ const GuideDetails = ({ post, readMinutes }: { post: BlogPost; readMinutes: numb
       {tags.map((tag) => (
         <Chip key={tag} label={tag} size="small" sx={{ bgcolor: "#EFF6FF", color: "#0B3C5D", fontWeight: 700, fontSize: "0.72rem" }} />
       ))}
-      {coverCredit && (
-        <Typography component="p" sx={{ width: "100%", mt: 0.5, fontSize: "0.74rem", color: "#94A3B8" }}>
-          Cover photo:{" "}
-          <a href={coverCredit.sourceUrl} target="_blank" rel="noopener noreferrer" style={CREDIT_LINK_STYLE}>
-            {coverCredit.author} / Wikimedia Commons
-          </a>
-          , cropped,{" "}
-          <a href={coverCredit.licenseUrl} target="_blank" rel="noopener noreferrer license" style={CREDIT_LINK_STYLE}>
-            {coverCredit.license}
-          </a>
-        </Typography>
-      )}
     </Box>
   );
 };

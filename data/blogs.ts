@@ -1,12 +1,4 @@
 import { FOUNDER } from "@/lib/siteAuthor";
-/** Attribution for a licensed third-party photo (e.g. CC BY-SA from Wikimedia Commons). */
-export interface PhotoCredit {
-  author: string;
-  license: string;
-  licenseUrl: string;
-  sourceUrl: string;
-}
-
 export interface BlogPost {
   slug: string;
   title: string;
@@ -26,8 +18,6 @@ export interface BlogPost {
   coverImage?: string;
   /** Descriptive alt text for the cover (falls back to the title). */
   coverAlt?: string;
-  /** Attribution for a third-party cover photo (required by its licence). */
-  coverCredit?: PhotoCredit;
   tableOfContents: {
     id: string;
     title: string;
@@ -332,8 +322,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "kerala-lottery-agent-commission-on-winning-tickets",
     coverImage: "/blog/kerala-lottery-agent-commission-on-winning-tickets.jpg",
-    coverAlt: "New Bhagya Lottery Agencies, a Kerala lottery agency shop with ticket counters on a street in Kerala",
-    coverCredit: { author: "Mail2arunjith", license: "CC BY-SA 3.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Keralalottery_agency.jpg" },
+    coverAlt: "Samrudhi and Suvarna Keralam Kerala lottery ticket specimens with an authorised agent seal and rupee coins representing agent commission",
     title: "How Kerala Lottery Agents Earn Commission on Winning Tickets",
     metaTitle: "Kerala Lottery Agent Commission on Winning Tickets Explained",
     description:
@@ -417,8 +406,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "how-to-find-fake-kerala-lottery-tickets",
     coverImage: "/blog/how-to-find-fake-kerala-lottery-tickets.jpg",
-    coverAlt: "Close-up of a genuine Karunya KR-84 Kerala State Lotteries ticket showing the ticket number, barcode, secret code and draw date",
-    coverCredit: { author: "Mail2arunjith", license: "CC BY-SA 3.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:KarunyaLottery.jpg" },
+    coverAlt: "A genuine Sthree Sakthi SS-546 Kerala lottery ticket next to an altered copy with an overwritten digit under a magnifying glass",
     title: "How to Find Fake Kerala Lottery Tickets: 10 Checks Before You Trust a Ticket",
     metaTitle: "How to Find Fake Kerala Lottery Tickets: 10 Warning Signs",
     description:
@@ -498,8 +486,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "documents-required-to-claim-kerala-lottery-prize",
     coverImage: "/blog/documents-required-to-claim-kerala-lottery-prize.jpg",
-    coverAlt: "Kerala Gramin Bank branch in Kanichar, Kerala, where lottery prize claim documents can be submitted",
-    coverCredit: { author: "Vinayaraj", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Kerala_Gramin_Bank_Kanichar_branch.jpg" },
+    coverAlt: "Bhagyathara BT-80 Kerala lottery ticket beside a prize claim form, PAN card and bank passbook",
     title: "What Documents Are Required to Claim a Kerala Lottery Prize?",
     metaTitle: "Documents Required to Claim Kerala Lottery Prize (Checklist)",
     description:
@@ -604,8 +591,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "surrender-kerala-lottery-winning-ticket-through-bank",
     coverImage: "/blog/surrender-kerala-lottery-winning-ticket-through-bank.jpg",
-    coverAlt: "South Indian Bank Neyyar Dam branch signboard in Thiruvananthapuram, Kerala",
-    coverCredit: { author: "Sujithshivam511", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:South_Indian_Bank_and_ATM,_Neyyar_Dam_Branch,_kallikaud_,Tvm_kerala_India.jpg" },
+    coverAlt: "Dhanalekshmi DL-77 Kerala lottery winning ticket and Form V being taken to a bank, with a 90-day deadline calendar",
     title: "How to Surrender a Kerala Lottery Winning Ticket Through Bank",
     metaTitle: "Surrender Kerala Lottery Winning Ticket Through Bank: Form V Guide",
     description:
@@ -704,8 +690,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "why-online-kerala-lottery-ticket-sales-are-illegal",
     coverImage: "/blog/why-online-kerala-lottery-ticket-sales-are-illegal.jpg",
-    coverAlt: "Street lottery seller in Mattancherry, Fort Kochi, with printed Kerala lottery tickets laid out on a stand",
-    coverCredit: { author: "SerChevalerie", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Lottery_seller_in_Mattancherry,_Fort_Kochi.jpg" },
+    coverAlt: "Original Suvarna Keralam SK-77 printed lottery ticket next to a phone offering online Kerala lottery tickets, crossed out as illegal",
     title: "Why Online Ticket Sales for Kerala Lotteries Are Strictly Illegal",
     metaTitle: "Is Buying Kerala Lottery Online Legal? Why Online Sales Are Illegal",
     description:
@@ -781,8 +766,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "what-happens-if-you-lose-kerala-lottery-ticket",
     coverImage: "/blog/what-happens-if-you-lose-kerala-lottery-ticket.jpg",
-    coverAlt: "Kerala lottery seller arranging printed lottery tickets on a roadside stand",
-    coverCredit: { author: "Mail2arunjith", license: "CC BY-SA 3.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Keralalottery_seller.jpg" },
+    coverAlt: "A wallet and a lost Kerala lottery ticket under a magnifying glass with question marks",
     title: "What Happens If You Lose Your Kerala Lottery Ticket?",
     metaTitle: "Lost Kerala Lottery Ticket? Can You Still Claim the Prize",
     description:
@@ -862,8 +846,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "pooja-bumper-lottery-2026",
     coverImage: "/blog/pooja-bumper-lottery-2026.jpg",
-    coverAlt: "Kerala Thiruvonam Bumper BR-57 (2017) lottery ticket with a ₹10 crore first prize and ₹250 ticket price",
-    coverCredit: { author: "Kottakkalnet", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Onam_bumper_2017_lottery.jpg" },
+    coverAlt: "Kerala Pooja Bumper BR-112 2026 golden ticket with a ₹12 crore first prize beside a traditional nilavilakku lamp",
     title: "Pooja Bumper Lottery 2026 (BR-112): Ticket Price, Prize Structure, Draw Date & Result",
     metaTitle: "Pooja Bumper 2026 BR-112: ₹12 Crore Prize, ₹300 Ticket, Draw {{drawDateShort}}",
     description:
@@ -960,8 +943,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "how-to-claim-kerala-lottery-prize",
     coverImage: "/blog/how-to-claim-kerala-lottery-prize.jpg",
-    coverAlt: "Canara Bank Perunthanni branch on a street in Thiruvananthapuram, Kerala",
-    coverCredit: { author: "Manukrishnan80", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Canara_bank_Perunthanni_branch_(58106).jpg" },
+    coverAlt: "Kerala lottery prize claim checklist on a clipboard with a verified stamp, a winning ticket, a bank and rupee coins",
     title: "How to Claim Kerala Lottery Prize: Complete Step-by-Step Guide",
     metaTitle: "How to Claim Kerala Lottery Prize: Complete Step-by-Step Guide",
     description:
