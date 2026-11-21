@@ -1,9 +1,7 @@
 import type { BlogRecentDraw } from "@/data/blogs";
 import { getBlogPath } from "@/data/blogs";
 import RecentDrawsAnalysis from "./RecentDrawsAnalysis";
-import { Callout, CheckList, GuideFigure, InlineLink, Lead, P, Section, StepList } from "./GuideBlocks";
-
-const SLUG = "documents-required-to-claim-kerala-lottery-prize";
+import { Callout, CheckList, InlineLink, Lead, P, Section, StepList } from "./GuideBlocks";
 
 const TICKET_CHECKS = [
   "The ticket is original and has not been altered.",
@@ -64,11 +62,6 @@ const REMEMBER = [
 
 const ClaimDocumentsGuideContent = ({ recentDraws }: { recentDraws: BlogRecentDraw[] }) => (
   <>
-    <GuideFigure
-      slug={SLUG}
-      alt="Bhagyathara BT-80 Kerala lottery ticket beside a prize claim form, PAN card and bank passbook"
-      caption="Illustration: the claim document set with a Bhagyathara BT-80 ticket (draw of 16 November 2026). Specimen only."
-    />
     <Lead>
       Winning a Kerala State Lottery prize is an exciting moment. But receiving the prize money takes more than
       matching your ticket with the winning numbers. Winners must submit the original ticket along with the necessary
@@ -120,7 +113,11 @@ const ClaimDocumentsGuideContent = ({ recentDraws }: { recentDraws: BlogRecentDr
         complete the financial paperwork and apply the correct tax deduction. Before submitting your PAN copy, check:
       </P>
       <CheckList items={PAN_CHECKS} />
-      <P>Tax requirements vary with the prize amount and the applicable income tax provisions.</P>
+      <P>
+        Tax requirements vary with the prize amount and the applicable income tax provisions. Read{" "}
+        <InlineLink href={getBlogPath("kerala-lottery-tax-deduction-on-winnings")}>Kerala lottery tax on winnings</InlineLink>{" "}
+        for the 30% TDS rules and take-home examples.
+      </P>
     </Section>
 
     <Section id="bank-details" title="5. Bank Account Details">

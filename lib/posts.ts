@@ -69,7 +69,7 @@ export const guideToPostCard = (post: BlogPost): PostCardItem => {
     category,
     categoryLabel: getCategoryMeta(category).label,
     coverImage: post.coverImage,
-    coverAlt: post.title,
+    coverAlt: post.coverAlt ?? post.title,
     readMinutes: parseReadMinutes(post.readTime),
     featured: post.featured,
     authorName: post.author.name,

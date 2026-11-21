@@ -571,7 +571,11 @@ const PoojaBumper2026GuideContent = ({
         />
         <Typography sx={{ color: "#334155" }}>
           Understanding these requirements can help winners prepare for the
-          prize claim process.
+          prize claim process. See our guide to{" "}
+          <Link href="/kerala-lottery-tax-deduction-on-winnings" style={{ color: "#0B3C5D", fontWeight: 700, textDecoration: "underline" }}>
+            Kerala lottery tax and TDS on winnings
+          </Link>{" "}
+          for take-home examples.
         </Typography>
       </Section>
 

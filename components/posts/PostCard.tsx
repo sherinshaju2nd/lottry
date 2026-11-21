@@ -154,13 +154,15 @@ const PostCard = ({ post, headingLevel = "h3" }: { post: PostCardItem; headingLe
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 1,
+          flexWrap: "wrap",
+          columnGap: 1,
+          rowGap: 1.25,
         }}
       >
         <Box
           component="time"
           dateTime={post.publishedAt}
-          sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "#64748B", fontSize: "0.8rem", fontWeight: 600 }}
+          sx={{ display: "flex", alignItems: "center", gap: 0.75, color: "#64748B", fontSize: "0.8rem", fontWeight: 600, whiteSpace: "nowrap" }}
         >
           <CalendarTodayIcon sx={{ fontSize: 14 }} />
           {formatArticleDate(post.publishedAt)}
@@ -178,6 +180,9 @@ const PostCard = ({ post, headingLevel = "h3" }: { post: PostCardItem; headingLe
             color: "#0B3C5D",
             fontWeight: 800,
             fontSize: "0.8rem",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+            ml: "auto",
             transition: "background-color 0.2s ease, color 0.2s ease",
           }}
         >

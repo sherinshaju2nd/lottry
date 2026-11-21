@@ -1,9 +1,7 @@
 import type { BlogRecentDraw } from "@/data/blogs";
 import { getBlogPath } from "@/data/blogs";
 import RecentDrawsAnalysis from "./RecentDrawsAnalysis";
-import { Callout, CheckList, GuideFigure, InlineLink, Lead, P, Section, StepList } from "./GuideBlocks";
-
-const SLUG = "how-to-find-fake-kerala-lottery-tickets";
+import { Callout, CheckList, InlineLink, Lead, P, Section, StepList } from "./GuideBlocks";
 
 const CHECKS = {
   printing: [
@@ -90,11 +88,6 @@ const WINNING_CHECKS = [
 
 const FakeTicketGuideContent = ({ recentDraws }: { recentDraws: BlogRecentDraw[] }) => (
   <>
-    <GuideFigure
-      slug={SLUG}
-      alt="A genuine Sthree Sakthi SS-546 Kerala lottery ticket next to an altered copy with an overwritten digit under a magnifying glass"
-      caption="Illustration: genuine vs altered ticket (Sthree Sakthi SS-546, draw of 17 November 2026). Specimen only."
-    />
     <Lead>
       <strong>Be careful before accepting a Kerala lottery ticket.</strong> Kerala lotteries are popular among people
       who buy tickets hoping to win exciting cash prizes. However, fake lottery tickets and fraudulent activities can

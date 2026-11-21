@@ -5,9 +5,7 @@ import Typography from "@mui/material/Typography";
 import type { BlogRecentDraw } from "@/data/blogs";
 import { getBlogPath } from "@/data/blogs";
 import RecentDrawsAnalysis from "./RecentDrawsAnalysis";
-import { Callout, CheckList, GuideFigure, InlineLink, Lead, P, Section, StepList } from "./GuideBlocks";
-
-const SLUG = "surrender-kerala-lottery-winning-ticket-through-bank";
+import { Callout, CheckList, InlineLink, Lead, P, Section, StepList } from "./GuideBlocks";
 
 const VERIFY_TICKET = [
   "Lottery name and draw number.",
@@ -73,11 +71,6 @@ const DEADLINE_FACTS = [
 
 const BankSurrenderGuideContent = ({ recentDraws }: { recentDraws: BlogRecentDraw[] }) => (
   <>
-    <GuideFigure
-      slug={SLUG}
-      alt="Dhanalekshmi DL-77 Kerala lottery winning ticket and Form V being taken to a bank, with a 90-day deadline calendar"
-      caption="Illustration: surrendering a Dhanalekshmi DL-77 ticket (draw of 11 November 2026) through a bank. Specimen only."
-    />
     <Lead>
       Winning a Kerala State Lottery prize is an exciting moment, but receiving the money requires the correct
       submission and verification procedure. Winners of eligible prizes can submit their original winning tickets
@@ -193,7 +186,12 @@ const BankSurrenderGuideContent = ({ recentDraws }: { recentDraws: BlogRecentDra
         the bank branch where the amount is to be deposited: the winner authorises the Director of State Lotteries to pay
         the approved amount to that branch, and the bank then pays the winner.
       </P>
-      <P>Statutory tax deductions are made before the final payment, so check your account details and authorisation carefully.</P>
+      <P>
+        Statutory tax deductions are made before the final payment, so check your account details and authorisation
+        carefully. See{" "}
+        <InlineLink href={getBlogPath("kerala-lottery-tax-deduction-on-winnings")}>how 30% TDS on Kerala lottery winnings works</InlineLink>
+        .
+      </P>
     </Section>
 
     <Section id="deadline" title="9. What Is the Deadline for Submitting a Winning Ticket?">

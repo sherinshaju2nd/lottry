@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
@@ -110,14 +109,3 @@ export const StepList = ({ steps }: { steps: { title: string; desc: ReactNode }[
   </Box>
 );
 
-/** Article illustration (1200×630 cover rendered by scripts/build-blog-covers.mjs). */
-export const GuideFigure = ({ slug, alt, caption }: { slug: string; alt: string; caption: string }) => (
-  <Box component="figure" sx={{ m: 0, mb: 4 }}>
-    <Box sx={{ position: "relative", width: "100%", aspectRatio: "1200 / 630", borderRadius: "16px", overflow: "hidden", border: "1px solid #E2E8F0" }}>
-      <Image src={`/blog/${slug}.webp`} alt={alt} fill priority sizes="(max-width: 900px) 100vw, 820px" style={{ objectFit: "cover" }} />
-    </Box>
-    <Typography component="figcaption" sx={{ mt: 1, fontSize: "0.82rem", color: "#64748B", textAlign: "center" }}>
-      {caption}
-    </Typography>
-  </Box>
-);

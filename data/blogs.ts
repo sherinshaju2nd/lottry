@@ -1,4 +1,12 @@
 import { FOUNDER } from "@/lib/siteAuthor";
+/** Attribution for a licensed third-party photo (e.g. CC BY-SA from Wikimedia Commons). */
+export interface PhotoCredit {
+  author: string;
+  license: string;
+  licenseUrl: string;
+  sourceUrl: string;
+}
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -16,6 +24,10 @@ export interface BlogPost {
   };
   featured: boolean;
   coverImage?: string;
+  /** Descriptive alt text for the cover (falls back to the title). */
+  coverAlt?: string;
+  /** Attribution for a third-party cover photo (required by its licence). */
+  coverCredit?: PhotoCredit;
   tableOfContents: {
     id: string;
     title: string;
@@ -95,8 +107,318 @@ export const getBlogUrl = (slug: string): string => `${SITE_URL}${getBlogPath(sl
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "kerala-lottery-tax-deduction-on-winnings",
+    coverImage: "/blog/kerala-lottery-tax-deduction-on-winnings.jpg",
+    coverAlt: "Dhanalekshmi Kerala lottery ticket specimen beside a prize payment statement showing agent commission and 30% TDS deductions",
+    title: "Kerala Lottery Tax: Why Winners Should Understand TDS and Tax Deductions",
+    metaTitle: "Kerala Lottery Tax on Winnings: 30% TDS & Take-Home Prize",
+    description:
+      "How tax applies to Kerala lottery winnings: 30% TDS under Section 194B, surcharge and cess, agent commission, take-home prize examples, documents to keep and how to plan before spending.",
+    category: "Claim Guide",
+    tags: [
+      "Kerala Lottery Tax",
+      "Lottery Winnings Tax India",
+      "TDS on Lottery Winnings",
+      "Section 194B",
+      "Section 115BB",
+      "Kerala Lottery Prize Money",
+    ],
+    publishedDate: "2026-11-21",
+    updatedDate: "2026-11-21",
+    readTime: "7 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    primaryCta: {
+      href: "/how-to-claim-kerala-lottery-prize",
+      label: "How to Claim a Prize",
+      heading: "Won a Prize?",
+      description: "Follow the official claim procedure before tax is deducted and the prize is paid.",
+    },
+    tableOfContents: [
+      { id: "quick-answer", title: "Quick Answer: Tax on Kerala Lottery Winnings" },
+      { id: "tax-on-winnings", title: "1. How Lottery Winnings Are Taxed" },
+      { id: "actual-amount", title: "2. Why the Amount Received Is Lower" },
+      { id: "tds", title: "3. Tax Deducted at Source (TDS)" },
+      { id: "check-details", title: "4. Check Your Tax Details" },
+      { id: "documents", title: "5. Tax Documents to Keep" },
+      { id: "dont-spend", title: "6. Don't Spend the Prize Immediately" },
+      { id: "tax-vs-expenses", title: "7. Tax vs Other Expenses" },
+      { id: "professional-advice", title: "8. Professional Tax Advice" },
+      { id: "planning", title: "9. Financial Planning After Winning" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "Are Kerala lottery winnings taxable in India?",
+        answer:
+          "Yes. Lottery winnings are taxable under Indian income-tax law at a flat rate of 30% (Section 115BB), plus applicable surcharge and 4% health and education cess. Tax is deducted at source before the prize is paid.",
+      },
+      {
+        question: "What is the TDS rate on Kerala lottery winnings?",
+        answer:
+          "TDS on lottery winnings is 30% under Section 194B of the Income Tax Act when the winnings cross the prescribed threshold (₹10,000). Surcharge and cess may apply on top of the base rate depending on the amount.",
+      },
+      {
+        question: "Will I receive the full advertised Kerala lottery prize amount?",
+        answer:
+          "No. The selling agent's commission and the applicable tax are deducted, so the amount credited to your bank account is lower than the prize announced in the result.",
+      },
+      {
+        question: "Can I claim deductions or the basic exemption against lottery winnings?",
+        answer:
+          "Generally no. Lottery winnings are taxed at the special 30% rate and deductions or the basic exemption limit cannot be set off against them. Consult a tax professional for your situation.",
+      },
+      {
+        question: "Why should lottery winners keep tax documents?",
+        answer:
+          "The prize payment confirmation, TDS certificate and bank statement help you verify deductions, report the winnings correctly in your income-tax return and answer any tax notice.",
+      },
+      {
+        question: "Does checking Kerala lottery results mean I need to pay tax?",
+        answer:
+          "No. Checking results creates no tax liability. Tax arises only when you receive taxable lottery winnings.",
+      },
+    ],
+  },
+  {
+    slug: "minimum-age-to-buy-kerala-lottery-ticket",
+    coverImage: "/blog/minimum-age-to-buy-kerala-lottery-ticket.jpg",
+    coverAlt: "Bhagyathara Kerala lottery ticket specimen beside an identity card and an 18+ adults-only badge",
+    title: "Why Is There a Minimum Age to Buy a Kerala Lottery Ticket?",
+    metaTitle: "Minimum Age to Buy Kerala Lottery Ticket: Rules & Reasons",
+    description:
+      "Why Kerala lottery participation is for adults only: the reasons behind minimum age rules, the 18-year age requirement for lottery agents, responsible play tips and how parents can explain lottery risks.",
+    category: "Safety Guide",
+    tags: [
+      "Kerala Lottery Minimum Age",
+      "Kerala Lottery Age Limit",
+      "Responsible Lottery Play",
+      "Kerala Lottery Agent Eligibility",
+      "Kerala Lottery Rules",
+    ],
+    publishedDate: "2026-11-20",
+    updatedDate: "2026-11-20",
+    readTime: "6 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    primaryCta: {
+      href: "/how-to-find-fake-kerala-lottery-tickets",
+      label: "Spot Fake Tickets",
+      heading: "Buy Responsibly",
+      description: "10 checks to make sure the ticket you buy from an authorised seller is genuine.",
+    },
+    tableOfContents: [
+      { id: "quick-answer", title: "Quick Answer: Minimum Age for Kerala Lottery" },
+      { id: "why-minimum-age", title: "1. Why a Minimum Age Matters" },
+      { id: "financial-risks", title: "2. Protecting Young People from Financial Risk" },
+      { id: "responsible-play", title: "3. Responsible Lottery Participation" },
+      { id: "agents-sellers", title: "4. Age Rules for Agents and Sellers" },
+      { id: "parents", title: "5. The Role of Parents and Guardians" },
+      { id: "results-vs-playing", title: "6. Reading Results Is Not Participating" },
+      { id: "not-investment", title: "7. A Lottery Ticket Is Not an Investment" },
+      { id: "buy-responsibly", title: "8. Buying Tickets Responsibly" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "Why is there a minimum age for Kerala lottery participation?",
+        answer:
+          "Age restrictions protect young people from financial risk and gambling-related harm, and limit participation to adults who can understand that a lottery is a game of chance.",
+      },
+      {
+        question: "Is Kerala lottery participation intended for children?",
+        answer:
+          "No. Kerala lottery participation is intended for eligible adults, and age-related requirements apply under the relevant rules and regulations.",
+      },
+      {
+        question: "What age requirement applies to Kerala lottery agents?",
+        answer:
+          "The Kerala lottery agent registration framework includes an 18-year age requirement for individuals seeking to become agents. Additional eligibility and documentation requirements may apply.",
+      },
+      {
+        question: "Can young people check Kerala lottery results online?",
+        answer:
+          "Reading publicly available results is different from buying a ticket or taking part in a draw. Young people should not be encouraged to participate in lottery activities.",
+      },
+      {
+        question: "Should a lottery ticket be considered an investment?",
+        answer:
+          "No. Lottery tickets are games of chance and do not provide a guaranteed or predictable return. Savings, budgeting and suitable financial products are the basis of financial planning.",
+      },
+      {
+        question: "How can parents explain lottery risks to children?",
+        answer:
+          "Parents can explain probability, responsible spending, saving and budgeting, and the difference between entertainment and reliable financial planning.",
+      },
+    ],
+  },
+  {
+    slug: "kerala-lottery-social-impact-karunya-benevolent-fund",
+    coverImage: "/blog/kerala-lottery-social-impact-karunya-benevolent-fund.jpg",
+    coverAlt: "Karunya and Karunya Plus Kerala lottery ticket specimens with a heart, medical cross and hospital showing lottery support for healthcare",
+    title: "The Social Impact of Kerala Lotteries on Healthcare and Public Welfare",
+    metaTitle: "Kerala Lottery Social Impact: Karunya Fund, Jobs & Revenue",
+    description:
+      "How Kerala lotteries support public welfare: the Karunya Benevolent Fund for serious illnesses, livelihoods for over one lakh agents and sellers, and what the CAG audit says about lottery revenue.",
+    category: "Explainer",
+    tags: [
+      "Karunya Benevolent Fund",
+      "Kerala Lottery Social Impact",
+      "Kerala Lottery Revenue",
+      "Kerala Lottery Healthcare",
+      "Kerala State Lotteries",
+    ],
+    publishedDate: "2026-11-19",
+    updatedDate: "2026-11-19",
+    readTime: "7 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    relatedLotteryCodes: ["KR", "KN"],
+    primaryCta: {
+      href: "/",
+      label: "Check Today's Result",
+      heading: "Today's Kerala Lottery Result",
+      description: "Live Karunya, Karunya Plus and daily draw results with the full prize chart.",
+    },
+    tableOfContents: [
+      { id: "quick-answer", title: "Quick Answer: How Kerala Lotteries Help Society" },
+      { id: "public-welfare", title: "1. How Lotteries Contribute to Public Welfare" },
+      { id: "karunya-fund", title: "2. Karunya Benevolent Fund" },
+      { id: "medical-expenses", title: "3. Support for Families Facing Medical Bills" },
+      { id: "employment", title: "4. Employment Through the Lottery System" },
+      { id: "revenue", title: "5. Lottery Revenue: What the CAG Audit Shows" },
+      { id: "weaker-sections", title: "6. Supporting Economically Weaker Sections" },
+      { id: "responsible-play", title: "7. Responsible Lottery Participation" },
+      { id: "transparency", title: "8. Transparency and Accountability" },
+      { id: "wider-importance", title: "9. Wider Social Importance" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "How do Kerala lotteries contribute to public welfare?",
+        answer:
+          "Kerala lotteries generate non-tax revenue for the State, create livelihoods for agents and sellers, and support healthcare assistance through the Karunya Benevolent Fund.",
+      },
+      {
+        question: "What is the Karunya Benevolent Fund?",
+        answer:
+          "The Karunya Benevolent Fund (KBF) is a Kerala Government healthcare assistance scheme, supported by lottery funds, that helps eligible economically disadvantaged patients with serious illnesses.",
+      },
+      {
+        question: "Which diseases are covered under the Karunya Benevolent Fund?",
+        answer:
+          "The scheme covers specified serious conditions including cancer, kidney diseases, heart diseases, haemophilia and palliative care, subject to eligibility and scheme rules.",
+      },
+      {
+        question: "How much revenue does the Kerala lottery generate?",
+        answer:
+          "According to the CAG State Finances Audit Report for 2024–25, Kerala received ₹12,711.18 crore in State Lottery receipts. After lottery expenditure of ₹11,721.98 crore, the net receipt was ₹989.20 crore.",
+      },
+      {
+        question: "Do all Kerala lottery proceeds go directly to healthcare?",
+        answer:
+          "No. Most receipts go to prizes, agent commission and operating costs. The net revenue joins the State's general resources, while specific healthcare help is provided through schemes such as the Karunya Benevolent Fund.",
+      },
+      {
+        question: "Do Kerala lotteries create employment?",
+        answer:
+          "Yes. Kerala's 2024 Budget Speech noted that the lottery sector provides income and employment to more than one lakh people, including agents, retail sellers and distribution workers.",
+      },
+    ],
+  },
+  {
+    slug: "kerala-lottery-agent-commission-on-winning-tickets",
+    coverImage: "/blog/kerala-lottery-agent-commission-on-winning-tickets.jpg",
+    coverAlt: "New Bhagya Lottery Agencies, a Kerala lottery agency shop with ticket counters on a street in Kerala",
+    coverCredit: { author: "Mail2arunjith", license: "CC BY-SA 3.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Keralalottery_agency.jpg" },
+    title: "How Kerala Lottery Agents Earn Commission on Winning Tickets",
+    metaTitle: "Kerala Lottery Agent Commission on Winning Tickets Explained",
+    description:
+      "How local Kerala lottery retail agents earn: commission on ticket sales, the selling-agent commission on winning tickets, how it is processed, what affects agent income and agents' responsibilities.",
+    category: "Explainer",
+    tags: [
+      "Kerala Lottery Agent Commission",
+      "Lottery Agent Prize Commission",
+      "Kerala Lottery Agent",
+      "Kerala Lottery Retail Seller",
+      "Kerala Lottery Winning Ticket",
+    ],
+    publishedDate: "2026-11-18",
+    updatedDate: "2026-11-18",
+    readTime: "7 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    primaryCta: {
+      href: "/kerala-lottery-tax-deduction-on-winnings",
+      label: "See Tax on Winnings",
+      heading: "Your Take-Home Prize",
+      description: "Agent commission and 30% TDS are deducted before the prize reaches your account.",
+    },
+    howTo: {
+      name: "How the selling-agent commission on a winning Kerala lottery ticket is processed",
+      steps: [
+        "An authorised agent sells the original printed ticket to a customer.",
+        "The customer checks the ticket against the declared result.",
+        "The winning ticket and the selling agent's details are identified during the claim.",
+        "The Lottery Department verifies the original ticket and claim documents.",
+        "Any eligible selling-agent commission is processed under the prescribed rules.",
+      ],
+    },
+    tableOfContents: [
+      { id: "quick-answer", title: "Quick Answer: How Agents Earn" },
+      { id: "who-are-agents", title: "1. Who Are Kerala Lottery Retail Agents?" },
+      { id: "sales-commission", title: "2. How Agents Earn Commission" },
+      { id: "winning-commission", title: "3. Commission When Customers Win" },
+      { id: "how-it-works", title: "4. How the Winning Ticket Commission Works" },
+      { id: "why-agent-matters", title: "5. Why the Selling Agent Matters" },
+      { id: "agent-income", title: "6. What Affects an Agent's Income" },
+      { id: "prize-categories", title: "7. Commission by Prize Category" },
+      { id: "support-agents", title: "8. Supporting Authorised Agents" },
+      { id: "responsibilities", title: "9. Agent Responsibilities" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "How do Kerala lottery retail agents earn money?",
+        answer:
+          "Kerala lottery agents mainly earn commission on authorised ticket sales. Their earnings depend on the prescribed commission structure and the number of tickets they sell.",
+      },
+      {
+        question: "Do Kerala lottery agents get commission when a ticket wins?",
+        answer:
+          "Yes, depending on the rules and prize category, the agent who sold a winning ticket may receive a selling-agent commission. For major and bumper prizes this is widely reported as 10% of the prize amount, deducted before the winner is paid.",
+      },
+      {
+        question: "Is the agent commission the same for every Kerala lottery prize?",
+        answer:
+          "No. Commission arrangements can vary by lottery, prize category and the rules in force, so agents should check the latest official instructions.",
+      },
+      {
+        question: "Does the lottery agent pay the prize to the winner?",
+        answer:
+          "No. The agent does not approve or guarantee prize payments. Claims are verified and paid by the Kerala State Lotteries Department or the competent authority.",
+      },
+      {
+        question: "Can Kerala lottery agents sell tickets online?",
+        answer:
+          "No. Kerala paper lottery tickets are distributed only as original printed tickets through the regulated physical sales system. Online sale is not permitted.",
+      },
+      {
+        question: "What factors affect a lottery agent's income?",
+        answer:
+          "Ticket sales volume, customer demand, shop location, the lotteries available and any eligible selling-agent commission on winning tickets.",
+      },
+    ],
+  },
+  {
     slug: "how-to-find-fake-kerala-lottery-tickets",
     coverImage: "/blog/how-to-find-fake-kerala-lottery-tickets.jpg",
+    coverAlt: "Close-up of a genuine Karunya KR-84 Kerala State Lotteries ticket showing the ticket number, barcode, secret code and draw date",
+    coverCredit: { author: "Mail2arunjith", license: "CC BY-SA 3.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:KarunyaLottery.jpg" },
     title: "How to Find Fake Kerala Lottery Tickets: 10 Checks Before You Trust a Ticket",
     metaTitle: "How to Find Fake Kerala Lottery Tickets: 10 Warning Signs",
     description:
@@ -176,6 +498,8 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "documents-required-to-claim-kerala-lottery-prize",
     coverImage: "/blog/documents-required-to-claim-kerala-lottery-prize.jpg",
+    coverAlt: "Kerala Gramin Bank branch in Kanichar, Kerala, where lottery prize claim documents can be submitted",
+    coverCredit: { author: "Vinayaraj", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Kerala_Gramin_Bank_Kanichar_branch.jpg" },
     title: "What Documents Are Required to Claim a Kerala Lottery Prize?",
     metaTitle: "Documents Required to Claim Kerala Lottery Prize (Checklist)",
     description:
@@ -280,6 +604,8 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "surrender-kerala-lottery-winning-ticket-through-bank",
     coverImage: "/blog/surrender-kerala-lottery-winning-ticket-through-bank.jpg",
+    coverAlt: "South Indian Bank Neyyar Dam branch signboard in Thiruvananthapuram, Kerala",
+    coverCredit: { author: "Sujithshivam511", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:South_Indian_Bank_and_ATM,_Neyyar_Dam_Branch,_kallikaud_,Tvm_kerala_India.jpg" },
     title: "How to Surrender a Kerala Lottery Winning Ticket Through Bank",
     metaTitle: "Surrender Kerala Lottery Winning Ticket Through Bank: Form V Guide",
     description:
@@ -378,6 +704,8 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "why-online-kerala-lottery-ticket-sales-are-illegal",
     coverImage: "/blog/why-online-kerala-lottery-ticket-sales-are-illegal.jpg",
+    coverAlt: "Street lottery seller in Mattancherry, Fort Kochi, with printed Kerala lottery tickets laid out on a stand",
+    coverCredit: { author: "SerChevalerie", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Lottery_seller_in_Mattancherry,_Fort_Kochi.jpg" },
     title: "Why Online Ticket Sales for Kerala Lotteries Are Strictly Illegal",
     metaTitle: "Is Buying Kerala Lottery Online Legal? Why Online Sales Are Illegal",
     description:
@@ -453,6 +781,8 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "what-happens-if-you-lose-kerala-lottery-ticket",
     coverImage: "/blog/what-happens-if-you-lose-kerala-lottery-ticket.jpg",
+    coverAlt: "Kerala lottery seller arranging printed lottery tickets on a roadside stand",
+    coverCredit: { author: "Mail2arunjith", license: "CC BY-SA 3.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Keralalottery_seller.jpg" },
     title: "What Happens If You Lose Your Kerala Lottery Ticket?",
     metaTitle: "Lost Kerala Lottery Ticket? Can You Still Claim the Prize",
     description:
@@ -532,6 +862,8 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "pooja-bumper-lottery-2026",
     coverImage: "/blog/pooja-bumper-lottery-2026.jpg",
+    coverAlt: "Kerala Thiruvonam Bumper BR-57 (2017) lottery ticket with a ₹10 crore first prize and ₹250 ticket price",
+    coverCredit: { author: "Kottakkalnet", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Onam_bumper_2017_lottery.jpg" },
     title: "Pooja Bumper Lottery 2026 (BR-112): Ticket Price, Prize Structure, Draw Date & Result",
     metaTitle: "Pooja Bumper 2026 BR-112: ₹12 Crore Prize, ₹300 Ticket, Draw {{drawDateShort}}",
     description:
@@ -628,6 +960,8 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "how-to-claim-kerala-lottery-prize",
     coverImage: "/blog/how-to-claim-kerala-lottery-prize.jpg",
+    coverAlt: "Canara Bank Perunthanni branch on a street in Thiruvananthapuram, Kerala",
+    coverCredit: { author: "Manukrishnan80", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", sourceUrl: "https://commons.wikimedia.org/wiki/File:Canara_bank_Perunthanni_branch_(58106).jpg" },
     title: "How to Claim Kerala Lottery Prize: Complete Step-by-Step Guide",
     metaTitle: "How to Claim Kerala Lottery Prize: Complete Step-by-Step Guide",
     description:
@@ -733,6 +1067,42 @@ export const resolveBlogPost = (post: BlogPost, draw: BlogDrawContext | null): B
     return value;
   };
   return fill(post) as BlogPost;
+};
+
+/** Words too common across every guide to signal topical relatedness. */
+const RELATED_STOPWORDS = new Set([
+  "kerala", "lottery", "lotteries", "ticket", "tickets", "results", "today", "the", "a", "an", "to", "of", "on",
+  "and", "for", "how", "what", "why", "is", "are", "you", "your", "it", "in", "with", "through",
+]);
+
+const topicWords = ({ title, tags }: BlogPost): Set<string> =>
+  new Set(
+    `${title} ${tags.join(" ")}`
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((word) => word.length > 2 && !RELATED_STOPWORDS.has(word)),
+  );
+
+/**
+ * "More guides" for the bottom of a post: ranked by shared tags, category and topic words,
+ * newest first on ties, so every post (including new ones) always gets `limit` suggestions.
+ */
+export const getRelatedBlogs = (slug: string, limit = 3): BlogPost[] => {
+  const current = getBlogBySlug(slug);
+  if (!current) return BLOG_POSTS.slice(0, limit);
+  const currentTags = new Set(current.tags.map((tag) => tag.toLowerCase()));
+  const currentWords = topicWords(current);
+
+  return BLOG_POSTS.filter((post) => post.slug !== slug)
+    .map((post, index) => {
+      const sharedTags = post.tags.filter((tag) => currentTags.has(tag.toLowerCase())).length;
+      const sharedWords = [...topicWords(post)].filter((word) => currentWords.has(word)).length;
+      const sameCategory = post.category === current.category ? 1 : 0;
+      return { post, index, score: sharedTags * 3 + sameCategory * 2 + sharedWords };
+    })
+    .sort((a, b) => b.score - a.score || b.post.publishedDate.localeCompare(a.post.publishedDate) || a.index - b.index)
+    .slice(0, limit)
+    .map(({ post }) => post);
 };
 
 /** Blog guides that should be cross-linked from a lottery's draw pages. */

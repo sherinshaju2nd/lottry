@@ -7,9 +7,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import type { BlogRecentDraw } from "@/data/blogs";
 import { getBlogPath } from "@/data/blogs";
 import RecentDrawsAnalysis from "./RecentDrawsAnalysis";
-import { Callout, CheckList, GuideFigure, InlineLink, Lead, P, Section, StepList } from "./GuideBlocks";
-
-const SLUG = "why-online-kerala-lottery-ticket-sales-are-illegal";
+import { Callout, CheckList, InlineLink, Lead, P, Section, StepList } from "./GuideBlocks";
 
 const REASONS = [
   "Preventing unauthorised lottery ticket sales.",
@@ -80,11 +78,6 @@ const REPORT = [
 
 const OnlineSalesIllegalGuideContent = ({ recentDraws }: { recentDraws: BlogRecentDraw[] }) => (
   <>
-    <GuideFigure
-      slug={SLUG}
-      alt="Original Suvarna Keralam SK-77 printed lottery ticket next to a phone offering online Kerala lottery tickets, crossed out as illegal"
-      caption="Illustration: an original printed Suvarna Keralam SK-77 ticket (draw of 13 November 2026) vs an online seller. Specimen only."
-    />
     <Lead>
       Kerala State Lotteries are among India&apos;s most popular government-regulated lottery programmes. Thousands of
       people buy physical tickets every day through authorised agents and sellers. But with the growth of digital
@@ -218,7 +211,9 @@ const OnlineSalesIllegalGuideContent = ({ recentDraws }: { recentDraws: BlogRece
       <P>
         Buy original physical tickets only from authorised agents and sellers, be careful with digital advertisements and
         ticket images, and never trust anyone promising guaranteed winnings. Use the internet to check results, not to
-        buy tickets.
+        buy tickets. Buying from your local seller also supports their livelihood. See{" "}
+        <InlineLink href={getBlogPath("kerala-lottery-agent-commission-on-winning-tickets")}>how Kerala lottery agents earn commission</InlineLink>
+        .
       </P>
     </Section>
   </>
