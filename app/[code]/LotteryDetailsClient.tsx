@@ -52,6 +52,11 @@ import {
   getLotteryLogoAlt,
   supabase,
   resolveLotteryDisplayMeta,
+  createDrawFreshnessStore,
+  resolveFreshDraws,
+  resolveFreshDraw,
+  drawFromRealtimePayload,
+  mergeDrawLists,
 } from "@/lib/supabase";
 import {
   LotteryEditorialContent,
@@ -74,6 +79,8 @@ interface LotteryDetailsClientProps {
   lotteryCode: string;
   lotterySlug: string;
   initialDraws: StructuredDrawResult[];
+  /** When the server read initialDraws (ISO) — later fetches only replace them if newer. */
+  initialGeneratedAt?: string;
   initialLotteryMeta: any;
   editorial?: LotteryEditorialContent;
   latestFormattedDate?: string;
@@ -84,6 +91,7 @@ export default function LotteryDetailsClient({
   lotteryCode,
   lotterySlug,
   initialDraws,
+  initialGeneratedAt,
   initialLotteryMeta,
   editorial: propEditorial,
   latestFormattedDate: propFormattedDate,
@@ -92,6 +100,12 @@ export default function LotteryDetailsClient({
 
   const [drawHistory, setDrawHistory] =
     useState<StructuredDrawResult[]>(initialDraws);
+  // Newest known version of each draw, so a cached history refetch can't roll back socket data.
+  const [drawFreshness] = useState(() => {
+    const store = createDrawFreshnessStore();
+    resolveFreshDraws(store, initialDraws, initialGeneratedAt);
+    return store;
+  });
   const [filteredDraws, setFilteredDraws] =
     useState<StructuredDrawResult[]>(initialDraws);
   const [lotteryDbMeta] = useState<any>(initialLotteryMeta);
@@ -225,7 +239,9 @@ export default function LotteryDetailsClient({
       );
       const json = await res.json();
       if (json.success && Array.isArray(json.results)) {
-        setDrawHistory(json.results);
+        const fresh = resolveFreshDraws(drawFreshness, json.results, json.generatedAt);
+        // Merge (not replace) so a live draw missing from an older cached copy stays visible.
+        setDrawHistory((prev) => mergeDrawLists(fresh, prev));
       }
     } catch {}
   };
@@ -242,32 +258,14 @@ export default function LotteryDetailsClient({
           table: "draw_results",
         },
         (payload) => {
-          const newRow = payload.new as any;
+          const live = drawFromRealtimePayload(payload);
           if (
-            newRow &&
-            (!newRow.lottery_code ||
-              newRow.lottery_code.toUpperCase() === lotteryCode.toUpperCase())
+            live &&
+            live.draw.lottery_code.toUpperCase() === lotteryCode.toUpperCase()
           ) {
             try {
-              const firstObj =
-                typeof newRow.first_prize === "string"
-                  ? JSON.parse(newRow.first_prize)
-                  : newRow.first_prize || {};
-              const prizesObj =
-                typeof newRow.prizes === "string"
-                  ? JSON.parse(newRow.prizes)
-                  : newRow.prizes || {};
-
-              const item: StructuredDrawResult = {
-                id: newRow.id,
-                draw_date: newRow.draw_date,
-                draw_name: newRow.draw_name,
-                draw_code: newRow.draw_code,
-                lottery_code: newRow.lottery_code,
-                first: firstObj,
-                prizes: prizesObj,
-                created_at: newRow.created_at,
-              };
+              // Stamped with the commit time so an older cached refetch can't replace it.
+              const item = resolveFreshDraw(drawFreshness, live.draw, live.at);
 
               setDrawHistory((prev) => {
                 const filtered = prev.filter(
@@ -304,7 +302,7 @@ export default function LotteryDetailsClient({
       supabase.removeChannel(channel);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [lotteryCode]);
+  }, [lotteryCode, drawFreshness]);
 
   useEffect(() => {
     const q = searchFilter.trim().toLowerCase();

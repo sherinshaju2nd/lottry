@@ -128,7 +128,7 @@ export const BUMPER_LOTTERIES: WeeklyLotteryItem[] = [
     nameMl: "തിരുവോണം ബംപർ",
     code: "TH",
     is_bumper: true,
-    jackpot: "₹25 Crore",
+    jackpot: "₹30 Crore",
     ticket_price: "₹500",
     draw_season: "September (Onam)",
   },

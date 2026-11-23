@@ -12,8 +12,6 @@ export interface LotteryVideoGeneratorOptions {
 }
 
 export const KERALA_LOTTERY_ML_MAP: Record<string, string> = {
-  WN: "വിൻ-വിൻ",
-  "WIN-WIN": "വിൻ-വിൻ",
   SS: "സ്ത്രീ ശക്തി",
   "STHREE SAKTHI": "സ്ത്രീ ശക്തി",
   "STHREE SHAKTHI": "സ്ത്രീ ശക്തി",

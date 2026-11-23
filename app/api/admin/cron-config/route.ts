@@ -7,6 +7,7 @@ import {
   checkIsBumperDrawDate,
 } from "@/lib/supabase";
 import { fetchAndSyncLatestLottery } from "@/lib/lottery-sync";
+import { refreshAfterDrawChange } from "@/lib/drawRevalidation";
 import { logCronExecutionInSupabase, checkIsDatePostponed } from "@/lib/supabase";
 import { isAuthorizedAdmin } from "@/lib/admin-auth";
 
@@ -165,6 +166,9 @@ export async function POST(req: NextRequest) {
         details: syncResult.data,
         duration_ms,
       });
+
+      // An admin test run always refreshes pages + the data cache (doubles as a "force refresh").
+      await refreshAfterDrawChange(syncResult.data);
 
       return NextResponse.json({
         success: true,

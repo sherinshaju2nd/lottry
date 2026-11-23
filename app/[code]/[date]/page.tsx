@@ -155,6 +155,8 @@ export async function generateMetadata({
 export default async function DedicatedLotteryDateDetailsPage({
   params,
 }: PageProps) {
+  // Taken before the draw is read, so the client can tell if a later fetch is newer.
+  const initialGeneratedAt = new Date().toISOString();
   const resolvedParams = await params;
   const rawCode = resolvedParams.code;
   const lotteryCode = getLotteryCodeFromSlug(rawCode);
@@ -372,6 +374,7 @@ export default async function DedicatedLotteryDateDetailsPage({
         lotterySlug={lotterySlug}
         dateParam={dateParam}
         initialDrawResult={drawResult}
+        initialGeneratedAt={initialGeneratedAt}
         initialAvailableDates={availableDates}
         initialPostponement={postponement}
         recentOtherDraws={recentOtherDraws}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchTicketsInSupabase } from "@/lib/supabase";
+import { searchTicketsInDraws } from "@/lib/supabase";
+import { getCachedAllDraws } from "@/lib/drawCache";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -9,8 +10,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Search query required" }, { status: 400 });
   }
 
-
-  const results = await searchTicketsInSupabase(q);
+  // Matched against the server-cached draw list: the database is only read again after a real
+  // data change (was: the whole draw_results table downloaded from Supabase on every search).
+  const { data: draws } = await getCachedAllDraws();
+  const results = searchTicketsInDraws(q, draws);
 
   return NextResponse.json({
     success: true,

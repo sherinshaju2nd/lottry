@@ -4,7 +4,7 @@
  * Keep in sync with mobile/src/utils/claimCalculator.ts (same rules, same numbers):
  *  - Prizes above ₹10,000: the selling agent's 10% commission is deducted first, then 30% TDS
  *    (Income Tax Act s.194B) is deducted from the remaining amount. This matches the widely
- *    reported payouts, e.g. ₹25 Cr bumper → ₹22.5 Cr after commission → ₹15.75 Cr after TDS.
+ *    reported payouts, e.g. ₹30 Cr bumper → ₹27 Cr after commission → ₹18.9 Cr after TDS.
  *  - Prizes up to ₹10,000: paid in full.
  *  - Surcharge and 4% health & education cess may be due when the winner files their return;
  *    they are not deducted at source here.

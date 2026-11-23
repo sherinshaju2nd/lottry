@@ -44,6 +44,11 @@ import {
   formatTicketSearchInput,
   hasAnyDrawResult,
   supabase,
+  mergeDrawLists,
+  createDrawFreshnessStore,
+  resolveFreshDraws,
+  resolveFreshDraw,
+  drawFromRealtimePayload,
 } from "@/lib/supabase";
 import ModernDatePicker from "@/components/ModernDatePicker";
 import SavedWatchlistDrawer from "@/components/SavedWatchlistDrawer";
@@ -106,7 +111,16 @@ export default function AdvancedSearchPage() {
   const [results, setResults] = useState<SearchMatch[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchedTicket, setSearchedTicket] = useState("");
+  // Recent draws (lightweight, no prize lists) for the carousel + default date.
   const [availableDraws, setAvailableDraws] = useState<StructuredDrawResult[]>([]);
+  // Every date that has a draw, for the date-picker dots (date column only).
+  const [publishedDates, setPublishedDates] = useState<string[]>([]);
+  // Full draw rows (with prizes) for just the date being looked at.
+  const [detailDraws, setDetailDraws] = useState<{ date: string; results: StructuredDrawResult[] } | null>(null);
+  const [drawsRefreshKey, setDrawsRefreshKey] = useState(0);
+  // Newest known version of each draw (socket commit time / API read time): a cached API
+  // response can never roll back a newer live update.
+  const [drawFreshness] = useState(createDrawFreshnessStore);
 
   // Mobile Pro Feature States
   const [searchMode, setSearchMode] = useState<"single" | "batch">("single");
@@ -166,36 +180,89 @@ export default function AdvancedSearchPage() {
   }, [availableDraws]);
 
   const publishedDateList = useMemo(() => {
-    return Array.from(new Set(availableDraws.map((d) => d.draw_date)));
-  }, [availableDraws]);
+    return Array.from(new Set([...publishedDates, ...availableDraws.map((d) => d.draw_date)]));
+  }, [publishedDates, availableDraws]);
+
+  // The date whose full prize lists are needed: the selected date, else the latest published draw.
+  const detailDate = selectedDateFilter || publishedDraws[0]?.draw_date || availableDraws[0]?.draw_date || null;
+  const loadedDetailDraw = useMemo(() => {
+    if (!detailDate) return null;
+    const fullFromRecent = availableDraws.find(
+      (d) => d.draw_date === detailDate && Object.keys(d.prizes ?? {}).length > 0,
+    );
+    if (fullFromRecent) return fullFromRecent;
+    return detailDraws?.date === detailDate ? (detailDraws.results[0] ?? null) : null;
+  }, [availableDraws, detailDraws, detailDate]);
+  const needsDetailFetch = Boolean(detailDate) && !availableDraws.some(
+    (d) => d.draw_date === detailDate && Object.keys(d.prizes ?? {}).length > 0,
+  );
+
+  useEffect(() => {
+    if (!detailDate || !needsDetailFetch) return;
+    const controller = new AbortController();
+    const loadDetail = async () => {
+      try {
+        const res = await fetch(`/api/draws?type=date&date=${encodeURIComponent(detailDate)}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { results = [], generatedAt } = (await res.json()) ?? {};
+        setDetailDraws({
+          date: detailDate,
+          results: Array.isArray(results) ? resolveFreshDraws(drawFreshness, results, generatedAt) : [],
+        });
+      } catch (err: unknown) {
+        if (controller.signal.aborted) return;
+        console.error("[search] draw detail fetch failed:", err instanceof Error ? err.message : String(err));
+      }
+    };
+    loadDetail();
+    return () => controller.abort();
+  }, [detailDate, needsDetailFetch, drawsRefreshKey, drawFreshness]);
 
   const selectedDraw = useMemo(() => {
+    if (!selectedDateFilter) return null;
+    if (loadedDetailDraw?.draw_date === selectedDateFilter) return loadedDetailDraw;
     return availableDraws.find((d) => d.draw_date === selectedDateFilter) || null;
-  }, [availableDraws, selectedDateFilter]);
+  }, [availableDraws, loadedDetailDraw, selectedDateFilter]);
 
   const isSelectedDrawPublished = useMemo(() => {
     if (!selectedDateFilter) return true;
-    return selectedDraw ? hasAnyDrawResult(selectedDraw) : false;
-  }, [selectedDraw, selectedDateFilter]);
+    if (selectedDraw) return hasAnyDrawResult(selectedDraw);
+    // Older date whose draw is still loading: trust the published-dates list meanwhile, so
+    // "not published yet" never flashes for a date that has results.
+    const detailLoaded = detailDraws?.date === selectedDateFilter;
+    return !detailLoaded && publishedDates.includes(selectedDateFilter);
+  }, [selectedDraw, selectedDateFilter, detailDraws, publishedDates]);
 
-  const targetDrawForJustMiss = selectedDraw || publishedDraws[0] || availableDraws[0] || null;
+  const targetDrawForJustMiss = selectedDraw || loadedDetailDraw || publishedDraws[0] || availableDraws[0] || null;
 
   useEffect(() => {
+    // Recent draws: latest 2 dates with full prizes + 20 lightweight rows (same cached
+    // payload as the homepage), and the date list for the picker — not the whole table.
     async function loadDraws() {
       try {
-        const res = await fetch(`/api/draws?type=all`);
+        const [res, datesRes] = await Promise.all([
+          fetch(`/api/draws?type=home`),
+          fetch(`/api/draws?type=published-dates`),
+        ]);
+        const datesJson = await datesRes.json().catch(() => null);
+        if (Array.isArray(datesJson?.dates)) setPublishedDates(datesJson.dates);
         const json = await res.json();
         if (json.success && Array.isArray(json.results)) {
-          setAvailableDraws(json.results);
-          const withData = json.results.filter(
+          // Newer socket rows win over this (possibly CDN-cached) copy; merge keeps live rows
+          // that the cached copy doesn't have yet.
+          const fresh = resolveFreshDraws(drawFreshness, json.results, json.generatedAt);
+          setAvailableDraws((prev) => mergeDrawLists(fresh, prev));
+          const withData = fresh.filter(
             (d: StructuredDrawResult) =>
               Boolean(d.first?.ticket) ||
               (d.prizes && Object.keys(d.prizes).length > 0),
           );
           if (withData.length > 0) {
             setSelectedDateFilter((prev) => prev || withData[0].draw_date);
-          } else if (json.results.length > 0) {
-            setSelectedDateFilter((prev) => prev || json.results[0].draw_date);
+          } else if (fresh.length > 0) {
+            setSelectedDateFilter((prev) => prev || fresh[0].draw_date);
           }
         }
       } catch {
@@ -228,8 +295,18 @@ export default function AdvancedSearchPage() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "draw_results" },
-        () => {
-          loadDraws();
+        (payload) => {
+          // Apply the changed row from the socket message itself (no table re-download).
+          const live = drawFromRealtimePayload(payload);
+          if (!live) return;
+          const changed = resolveFreshDraw(drawFreshness, live.draw, live.at);
+          setAvailableDraws((prev) => mergeDrawLists([changed], prev));
+          setPublishedDates((prev) => (prev.includes(changed.draw_date) ? prev : [changed.draw_date, ...prev]));
+          setDetailDraws((prev) =>
+            prev?.date === changed.draw_date
+              ? { ...prev, results: mergeDrawLists([changed], prev.results) }
+              : prev,
+          );
         }
       )
       .subscribe();
@@ -242,6 +319,7 @@ export default function AdvancedSearchPage() {
         if (now - lastSearchVisTime > 60000) {
           lastSearchVisTime = now;
           loadDraws();
+          setDrawsRefreshKey((k) => k + 1);
         }
       }
     };
@@ -251,7 +329,7 @@ export default function AdvancedSearchPage() {
       supabase.removeChannel(channel);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, []);
+  }, [drawFreshness]);
 
   // --- Single Search Submission ---
   const onSubmit = async (data: SearchInput) => {

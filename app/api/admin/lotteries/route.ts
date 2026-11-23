@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { refreshAfterDrawChange } from "@/lib/drawRevalidation";
 import {
   getLotteriesFromSupabase,
   saveLotteryToSupabase,
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 });
     }
+    await refreshAfterDrawChange(null); // lottery list is cached with the draw data
 
     return NextResponse.json({
       success: true,
@@ -77,6 +79,7 @@ export async function DELETE(req: NextRequest) {
         { status: 500 }
       );
     }
+    await refreshAfterDrawChange(null); // lottery list is cached with the draw data
 
     return NextResponse.json({
       success: true,

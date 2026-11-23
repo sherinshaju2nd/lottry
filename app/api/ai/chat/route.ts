@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chatWithGeminiAssistant, chatWithGeminiAudio } from "@/lib/gemini";
-import { fetchAllDrawResultsFromSupabase } from "@/lib/supabase";
+import { getCachedDrawsForLatestDates } from "@/lib/drawCache";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,10 +14,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fetch latest 3 draws to ground the AI with exact real-time winning numbers
+    // Ground the AI with the exact winning numbers of the latest 2 draw dates (not the whole table)
     let drawContext = "";
     try {
-      const recentDraws = await fetchAllDrawResultsFromSupabase();
+      const { data: recentDraws } = await getCachedDrawsForLatestDates(2);
       if (recentDraws && recentDraws.length > 0) {
         drawContext = recentDraws
           .slice(0, 3)

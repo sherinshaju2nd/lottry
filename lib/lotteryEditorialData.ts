@@ -121,7 +121,7 @@ export const LOTTERY_EDITORIAL_DATA: Record<string, LotteryEditorialContent> = {
     prizes: [
       { category: "1st Prize", amount: "₹1,00,00,000 (1 Crore)" },
       { category: "2nd Prize", amount: "₹30,00,000 (30 Lakh)" },
-      { category: "3rd Prize", amount: "₹5,00,00,000 (5 Lakh)" },
+      { category: "3rd Prize", amount: "₹5,00,000 (5 Lakh)" },
       { category: "4th Prize", amount: "₹5,000" },
       { category: "5th Prize", amount: "₹2,000" },
       { category: "6th Prize", amount: "₹1,000" },
@@ -230,8 +230,8 @@ export const LOTTERY_EDITORIAL_DATA: Record<string, LotteryEditorialContent> = {
     },
     prizes: [
       { category: "1st Prize", amount: "₹1,00,00,000 (1 Crore)" },
-      { category: "2nd Prize", amount: "₹25,00,00,000 (25 Lakh)" },
-      { category: "3rd Prize", amount: "₹5,00,00,000 (5 Lakh)" },
+      { category: "2nd Prize", amount: "₹25,00,000 (25 Lakh)" },
+      { category: "3rd Prize", amount: "₹5,00,000 (5 Lakh)" },
       { category: "4th Prize", amount: "₹5,000 (5 Thousand)" },
       { category: "5th Prize", amount: "₹2,000 (2 Thousand)" },
       { category: "6th Prize", amount: "₹1,000 (1 Thousand)" },
@@ -338,7 +338,7 @@ export const LOTTERY_EDITORIAL_DATA: Record<string, LotteryEditorialContent> = {
     prizes: [
       { category: "1st Prize", amount: "₹1,00,00,000 (₹1 Crore)" },
       { category: "2nd Prize", amount: "₹30,00,000 (₹30 Lakh)" },
-      { category: "3rd Prize", amount: "₹5,00,00,000 (₹5 Lakh)" },
+      { category: "3rd Prize", amount: "₹5,00,000 (₹5 Lakh)" },
       { category: "4th Prize", amount: "₹5,000" },
       { category: "5th Prize", amount: "₹2,000" },
       { category: "6th Prize", amount: "₹1,000" },
@@ -439,7 +439,7 @@ export const LOTTERY_EDITORIAL_DATA: Record<string, LotteryEditorialContent> = {
     prizes: [
       { category: "1st Prize", amount: "₹1,00,00,000 (1 Crore)" },
       { category: "2nd Prize", amount: "₹30,00,000 (30 Lakh)" },
-      { category: "3rd Prize", amount: "₹5,00,00,000 (5 Lakh)" },
+      { category: "3rd Prize", amount: "₹5,00,000 (5 Lakh)" },
       { category: "4th Prize", amount: "₹5,000" },
       { category: "5th Prize", amount: "₹2,000" },
       { category: "6th Prize", amount: "₹1,000" },
@@ -541,7 +541,7 @@ export const LOTTERY_EDITORIAL_DATA: Record<string, LotteryEditorialContent> = {
     prizes: [
       { category: "1st Prize", amount: "₹1,00,00,000 (1 Crore)" },
       { category: "2nd Prize", amount: "₹30,00,000 (30 Lakh)" },
-      { category: "3rd Prize", amount: "₹5,00,00,000 (5 Lakh)" },
+      { category: "3rd Prize", amount: "₹5,00,000 (5 Lakh)" },
       { category: "4th Prize", amount: "₹5,000" },
       { category: "5th Prize", amount: "₹2,000" },
       { category: "6th Prize", amount: "₹1,000" },
@@ -644,7 +644,7 @@ export const LOTTERY_EDITORIAL_DATA: Record<string, LotteryEditorialContent> = {
     prizes: [
       { category: "1st Prize", amount: "₹1,00,00,000 (1 Crore)" },
       { category: "2nd Prize", amount: "₹30,00,000 (30 Lakh)" },
-      { category: "3rd Prize", amount: "₹5,00,00,000 (5 Lakh)" },
+      { category: "3rd Prize", amount: "₹5,00,000 (5 Lakh)" },
       { category: "4th Prize", amount: "₹5,000" },
       { category: "5th Prize", amount: "₹2,000" },
       { category: "6th Prize", amount: "₹1,000" },
@@ -807,7 +807,7 @@ export function getLotteryEditorialContent(
   const defaultPrizes: PrizeCategoryItem[] = [
     { category: "1st Prize", amount: jackpot || "₹1 Crore" },
     { category: "2nd Prize", amount: "₹30,00,000 (30 Lakh)" },
-    { category: "3rd Prize", amount: "₹5,00,00,000 (5 Lakh)" },
+    { category: "3rd Prize", amount: "₹5,00,000 (5 Lakh)" },
     { category: "Consolation Prize", amount: "₹5,000" },
   ];
 
@@ -849,7 +849,7 @@ export function getLotteryEditorialContent(
       location: "Near Bakery Junction, Palayam",
       city: "Thiruvananthapuram",
       state: "Kerala",
-      drawTime: "3:00 PM",
+      drawTime: drawDay?.startsWith("Bumper") ? "2:00 PM" : "3:00 PM",
       drawDay: drawDay || "Scheduled Day",
     },
     ticketPriceHeading: `${lotteryName} Lottery Ticket Price`,

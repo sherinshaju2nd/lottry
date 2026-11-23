@@ -51,7 +51,7 @@ const LOTTERY_PRIZES: Record<string, string> = {
   SK: "₹1,00,00,000 (₹1 Crore)",
   KR: "₹80,00,000 (₹80 Lakhs)",
   SM: "₹1,00,00,000 (₹1 Crore)",
-  BR: "₹25,00,00,000 (₹25 Crore)",
+  BR: "₹30,00,00,000 (₹30 Crore)",
   XN: "₹20,00,00,000 (₹20 Crore)",
   SB: "₹10,00,00,000 (₹10 Crore)",
   VB: "₹12,00,00,000 (₹12 Crore)",

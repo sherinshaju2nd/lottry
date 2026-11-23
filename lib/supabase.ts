@@ -271,6 +271,24 @@ export const bustDrawResultsCache = (): void => {
   // Cache invalidation hook
 };
 
+/** JSON with object keys sorted at every level, so equal data always gives the same string. */
+const stableStringify = (value: unknown): string =>
+  JSON.stringify(value, (_key, val: unknown) =>
+    val && typeof val === "object" && !Array.isArray(val)
+      ? Object.fromEntries(Object.entries(val as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)))
+      : val,
+  );
+
+type DrawContent = { draw_name?: unknown; draw_code?: unknown; first_prize?: unknown; prizes?: unknown };
+
+/**
+ * True when two draw rows hold exactly the same result data (key order ignored, array order
+ * respected). Used to skip writing a sync result that brings nothing new.
+ */
+export const isSameDrawContent = (a: DrawContent, b: DrawContent): boolean =>
+  stableStringify({ draw_name: a.draw_name, draw_code: a.draw_code, first_prize: a.first_prize, prizes: a.prizes }) ===
+  stableStringify({ draw_name: b.draw_name, draw_code: b.draw_code, first_prize: b.first_prize, prizes: b.prizes });
+
 export async function saveDrawResultToSupabase(data: {
   draw_date: string;
   draw_name: string;
@@ -324,7 +342,7 @@ export async function saveDrawResultToSupabase(data: {
     //    Empty API values ("" / []) never overwrite stored values (e.g. prizes an admin added).
     const { data: existing, error: existingErr } = await supabaseServer
       .from("draw_results")
-      .select("id, first_prize, prizes")
+      .select("id, draw_name, draw_code, first_prize, prizes")
       .eq("draw_date", data.draw_date)
       .eq("lottery_code", lottery_code);
 
@@ -345,11 +363,23 @@ export async function saveDrawResultToSupabase(data: {
           return {};
         }
       };
+      const storedFirst = parseStored(stored.first_prize);
+      const storedPrizes = parseStored(stored.prizes);
       const mergedPayload = {
         ...rowPayload,
-        first_prize: mergeKeepingStored(parseStored(stored.first_prize), rowPayload.first_prize),
-        prizes: mergeKeepingStored(parseStored(stored.prizes), rowPayload.prizes),
+        first_prize: mergeKeepingStored(storedFirst, rowPayload.first_prize),
+        prizes: mergeKeepingStored(storedPrizes, rowPayload.prizes),
       };
+
+      // Nothing new from the API (the usual case on most cron runs): skip the write entirely.
+      // No write = no realtime push to every open page, no cache invalidation, no page refresh.
+      const unchanged = isSameDrawContent(
+        { draw_name: stored.draw_name, draw_code: stored.draw_code, first_prize: storedFirst, prizes: storedPrizes },
+        mergedPayload,
+      );
+      if (unchanged) {
+        return { ...stored, first_prize: storedFirst, prizes: storedPrizes, changed: false };
+      }
 
       const { data: updated, error: updateErr } = await supabaseServer
         .from("draw_results")
@@ -358,7 +388,7 @@ export async function saveDrawResultToSupabase(data: {
         .select();
 
       if (!updateErr && updated && updated.length > 0) {
-        return updated[0];
+        return { ...updated[0], changed: true };
       }
       // Never fall through to the raw upsert below: it would overwrite admin data with empty API values.
       console.error("[supabase] draw_results update failed:", updateErr?.message ?? "no row returned");
@@ -372,7 +402,7 @@ export async function saveDrawResultToSupabase(data: {
       .select();
 
     if (!upsertError && upsertData && upsertData.length > 0) {
-      return upsertData[0];
+      return { ...upsertData[0], changed: true };
     }
 
     // 3. Fallback Insert
@@ -384,189 +414,41 @@ export async function saveDrawResultToSupabase(data: {
     if (insertError) {
       console.error("[supabase] draw_results save failed:", upsertError?.message ?? "", insertError.message);
     }
-    return inserted?.[0] ?? null;
+    return inserted?.[0] ? { ...inserted[0], changed: true } : null;
   } catch (err: unknown) {
     console.error("[supabase] draw_results save error:", err instanceof Error ? err.message : String(err));
     return null;
   }
 }
 
+/** One lottery's draw on `date` (or its latest), or null. Never throws (see querySingleDraw). */
 export async function getDrawResultFromSupabase(
   lotteryCode: string,
   date?: string,
 ): Promise<StructuredDrawResult | null> {
-  try {
-    let query = supabase
-      .from("draw_results")
-      .select("*")
-      .eq("lottery_code", lotteryCode.toUpperCase());
-    if (date) {
-      query = query.eq("draw_date", date);
-    } else {
-      query = query.order("draw_date", { ascending: false }).limit(1);
-    }
-
-    const { data, error } = await query;
-    if (!error && data && data.length > 0) {
-      const row = data[0];
-      let firstObj: FirstPrize = {};
-      let prizesObj: PrizeData = {};
-
-      try {
-        firstObj =
-          typeof row.first_prize === "string"
-            ? JSON.parse(row.first_prize)
-            : row.first_prize || {};
-      } catch {
-        firstObj = {};
-      }
-
-      try {
-        prizesObj =
-          typeof row.prizes === "string"
-            ? JSON.parse(row.prizes)
-            : row.prizes || {};
-      } catch {
-        prizesObj = {};
-      }
-
-      return {
-        id: row.id,
-        draw_date: row.draw_date,
-        draw_name: row.draw_name,
-        draw_code: row.draw_code,
-        lottery_code: row.lottery_code,
-        first: firstObj,
-        prizes: prizesObj,
-        created_at: row.created_at,
-      };
-    }
-  } catch (e) {
-    console.warn("Supabase getDrawResult note:", e);
-  }
-
-  return null;
+  return withFallback("getDrawResult", () => querySingleDraw(lotteryCode, date), null);
 }
 
+/** One lottery's draw dates, newest first. Never throws (see queryDrawDates). */
 export async function getDrawDatesFromSupabase(
   lotteryCode: string,
 ): Promise<string[]> {
-  try {
-    const { data, error } = await supabase
-      .from("draw_results")
-      .select("draw_date")
-      .eq("lottery_code", lotteryCode.toUpperCase())
-      .order("draw_date", { ascending: false });
-
-    if (!error && data && data.length > 0) {
-      return data.map((d) => d.draw_date);
-    }
-  } catch (e) {
-    console.warn("Supabase getDrawDates note:", e);
-  }
-
-  return [];
+  return withFallback("getDrawDates", () => queryDrawDates(lotteryCode), []);
 }
 
+/** Every draw with prize lists, newest first. Never throws (see queryAllDraws). */
 export async function fetchAllDrawResultsFromSupabase(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _forceRefresh = true,
 ): Promise<StructuredDrawResult[]> {
-  // Bypassing in-memory cache to guarantee live results
-  const now = Date.now();
-
-  try {
-    const { data, error } = await supabase
-      .from("draw_results")
-      .select("*")
-      .order("draw_date", { ascending: false });
-    if (!error && data && data.length > 0) {
-      const results = data.map((row) => {
-        let firstObj: FirstPrize = {};
-        let prizesObj: PrizeData = {};
-        try {
-          firstObj =
-            typeof row.first_prize === "string"
-              ? JSON.parse(row.first_prize)
-              : row.first_prize || {};
-        } catch {
-          firstObj = {};
-        }
-        try {
-          prizesObj =
-            typeof row.prizes === "string"
-              ? JSON.parse(row.prizes)
-              : row.prizes || {};
-        } catch {
-          prizesObj = {};
-        }
-        return {
-          id: row.id,
-          draw_date: row.draw_date,
-          draw_name: row.draw_name,
-          draw_code: row.draw_code,
-          lottery_code: row.lottery_code,
-          first: firstObj,
-          prizes: prizesObj,
-          created_at: row.created_at,
-        };
-      });
-
-      return results;
-    }
-  } catch (e) {
-    console.warn("Supabase fetchAll note:", e);
-  }
-
-  return [];
+  return withFallback("fetchAllDrawResults", queryAllDraws, []);
 }
 
+/** One lottery's full history, newest first. Never throws (see queryDrawHistory). */
 export async function getDrawHistoryFromSupabase(
   lotteryCode: string,
 ): Promise<StructuredDrawResult[]> {
-  try {
-    const { data, error } = await supabase
-      .from("draw_results")
-      .select("*")
-      .eq("lottery_code", lotteryCode.toUpperCase())
-      .order("draw_date", { ascending: false });
-
-    if (!error && data && data.length > 0) {
-      return data.map((row) => {
-        let firstObj: FirstPrize = {};
-        let prizesObj: PrizeData = {};
-        try {
-          firstObj =
-            typeof row.first_prize === "string"
-              ? JSON.parse(row.first_prize)
-              : row.first_prize || {};
-        } catch {
-          firstObj = {};
-        }
-        try {
-          prizesObj =
-            typeof row.prizes === "string"
-              ? JSON.parse(row.prizes)
-              : row.prizes || {};
-        } catch {
-          prizesObj = {};
-        }
-        return {
-          id: row.id,
-          draw_date: row.draw_date,
-          draw_name: row.draw_name,
-          draw_code: row.draw_code,
-          lottery_code: row.lottery_code,
-          first: firstObj,
-          prizes: prizesObj,
-          created_at: row.created_at,
-        };
-      });
-    }
-  } catch (e) {
-    console.warn("Supabase getDrawHistory error:", e);
-  }
-  return [];
+  return withFallback("getDrawHistory", () => queryDrawHistory(lotteryCode), []);
 }
 
 export async function getRecentDrawsFromSupabase(
@@ -616,6 +498,349 @@ export async function getRecentDrawsFromSupabase(
   }
   return [];
 }
+
+// ---------------------------------------------------------------------------
+// Egress-friendly draw queries. `prizes` is the heavy JSON column, so list views
+// select DRAW_SUMMARY_COLUMNS and only the draws actually shown in full get it.
+// ---------------------------------------------------------------------------
+
+/** Every column the app reads from draw_results except the heavy `prizes` JSON. */
+export const DRAW_SUMMARY_COLUMNS =
+  "id, draw_date, draw_name, draw_code, lottery_code, first_prize, created_at";
+/** Every column the app reads from draw_results (same data as `select("*")`). */
+export const DRAW_FULL_COLUMNS = `${DRAW_SUMMARY_COLUMNS}, prizes`;
+/** Every column of the lotteries table (matches LotteryRecord). */
+export const LOTTERY_COLUMNS =
+  "id, day, name, name_ml, code, draw_time, is_bumper, jackpot, ticket_price, draw_date, draw_season, created_at";
+
+interface DrawResultRow {
+  id?: number;
+  draw_date: string;
+  draw_name: string;
+  draw_code: string;
+  lottery_code: string;
+  first_prize?: unknown;
+  prizes?: unknown;
+  created_at?: string;
+}
+
+const parseJsonColumn = <T extends object>(value: unknown): T => {
+  try {
+    return (typeof value === "string" ? JSON.parse(value) : value || {}) as T;
+  } catch {
+    return {} as T;
+  }
+};
+
+/** Row → StructuredDrawResult. A row selected without `prizes` gets `prizes: {}`. */
+export const mapDrawResultRow = (row: DrawResultRow): StructuredDrawResult => ({
+  id: row.id,
+  draw_date: row.draw_date,
+  draw_name: row.draw_name,
+  draw_code: row.draw_code,
+  lottery_code: row.lottery_code,
+  first: parseJsonColumn<FirstPrize>(row.first_prize),
+  prizes: parseJsonColumn<PrizeData>(row.prizes),
+  created_at: row.created_at,
+});
+
+/** Newest-first order used everywhere (draw_date desc, then lottery_code for a stable page order). */
+export const sortDrawsNewestFirst = (draws: StructuredDrawResult[]): StructuredDrawResult[] =>
+  [...draws].sort(
+    (a, b) =>
+      b.draw_date.localeCompare(a.draw_date) ||
+      (a.lottery_code ?? "").localeCompare(b.lottery_code ?? ""),
+  );
+
+const drawKey = (d: StructuredDrawResult) => `${d.draw_date}|${(d.lottery_code ?? "").toUpperCase()}`;
+const hasPrizeData = (d: StructuredDrawResult) => Object.keys(d.prizes ?? {}).length > 0;
+
+/**
+ * Merges draw lists by (draw_date, lottery_code). Entries from `incoming` win, but a full row's
+ * `prizes` are never replaced by a summary row's empty ones. Result is newest-first.
+ */
+export const mergeDrawLists = (
+  incoming: StructuredDrawResult[],
+  existing: StructuredDrawResult[] = [],
+): StructuredDrawResult[] => {
+  const byKey = new Map(existing.map((d) => [drawKey(d), d]));
+  incoming.forEach((draw) => {
+    const prev = byKey.get(drawKey(draw));
+    byKey.set(
+      drawKey(draw),
+      prev && !hasPrizeData(draw) && hasPrizeData(prev) ? { ...draw, prizes: prev.prizes } : draw,
+    );
+  });
+  return sortDrawsNewestFirst([...byKey.values()]);
+};
+
+// ---------------------------------------------------------------------------
+// Live freshness: every draw row a page receives (socket push or API fetch) is stamped with
+// when it was read from the database — the socket's commit_timestamp, or the API response's
+// `generatedAt`. A row is only replaced by a version stamped at the same time or later, so a
+// CDN-cached response can never roll back newer data the socket already delivered.
+// ---------------------------------------------------------------------------
+
+export type DrawFreshnessStore = Map<string, { draw: StructuredDrawResult; at: number }>;
+
+/**
+ * When a socket says a postponement/lottery changed, pages refetch it from the API. The server
+ * clears its data cache twice over ~2.5s after a write, so the refetch waits a little longer and
+ * adds `fresh` to skip the CDN copy — guaranteeing it sees the change.
+ */
+export const LIVE_CHANGE_REFETCH_DELAY_MS = 3000;
+export const withFreshParam = (url: string): string =>
+  `${url}${url.includes("?") ? "&" : "?"}fresh=${Date.now()}`;
+
+export const createDrawFreshnessStore = (): DrawFreshnessStore => new Map();
+
+const toStampMs = (stamp?: string | number | null): number => {
+  if (typeof stamp === "number") return stamp;
+  const ms = Date.parse(stamp ?? "");
+  return Number.isFinite(ms) ? ms : 0;
+};
+
+/**
+ * Records `rows` (read from the database at `readAt`) and returns them with any row replaced
+ * by a fresher version already known. Rows without prize lists keep the known prizes.
+ */
+export const resolveFreshDraws = (
+  store: DrawFreshnessStore,
+  rows: StructuredDrawResult[],
+  readAt?: string | number | null,
+): StructuredDrawResult[] => {
+  const at = toStampMs(readAt);
+  return rows.map((row) => {
+    const key = drawKey(row);
+    const known = store.get(key);
+    if (known && known.at > at) return known.draw;
+    const draw = !hasPrizeData(row) && known && hasPrizeData(known.draw) ? { ...row, prizes: known.draw.prizes } : row;
+    store.set(key, { draw, at });
+    return draw;
+  });
+};
+
+/** Single-row form of resolveFreshDraws. */
+export const resolveFreshDraw = (
+  store: DrawFreshnessStore,
+  row: StructuredDrawResult,
+  readAt?: string | number | null,
+): StructuredDrawResult => resolveFreshDraws(store, [row], readAt)[0];
+
+/** Parses a realtime `postgres_changes` payload for draw_results (null for deletes / bad rows). */
+export const drawFromRealtimePayload = (payload: {
+  new?: unknown;
+  commit_timestamp?: string;
+}): { draw: StructuredDrawResult; at: string | number } | null => {
+  const row = payload.new as Partial<DrawResultRow> | undefined;
+  if (!row?.draw_date || !row.lottery_code) return null;
+  return {
+    draw: mapDrawResultRow(row as DrawResultRow),
+    at: payload.commit_timestamp ?? Date.now(),
+  };
+};
+
+// ---------------------------------------------------------------------------
+// Strict queries: THROW on any database error (never return a fake empty result), so the
+// server data cache (lib/drawCache.ts) can never store a failure. The exported `get*`
+// functions keep the old forgiving behaviour (log + fallback) for every other caller.
+// ---------------------------------------------------------------------------
+
+type SupabaseQuery = PromiseLike<{ data: unknown; error: { message: string } | null; count?: number | null }>;
+
+const runQuery = async <T>(label: string, query: SupabaseQuery): Promise<{ data: T; count: number | null }> => {
+  const { data, error, count = null } = await query;
+  if (error) throw new Error(`[supabase] ${label}: ${error.message}`);
+  return { data: (data ?? []) as T, count };
+};
+
+/** Runs a strict query; on error logs it and returns `fallback` (the old non-throwing behaviour). */
+const withFallback = async <T>(label: string, run: () => Promise<T>, fallback: T): Promise<T> => {
+  try {
+    return await run();
+  } catch (err: unknown) {
+    console.error(`[supabase] ${label} failed:`, err instanceof Error ? err.message : String(err));
+    return fallback;
+  }
+};
+
+const monthRange = (month: string): { start: string; next: string } | null => {
+  const [year, mon] = month.split("-").map(Number);
+  if (!year || !mon || mon < 1 || mon > 12) return null;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return {
+    start: `${year}-${pad(mon)}-01`,
+    next: mon === 12 ? `${year + 1}-01-01` : `${year}-${pad(mon + 1)}-01`,
+  };
+};
+
+/** Every draw with full prize lists, newest first (ticket search / admin). */
+export const queryAllDraws = async (): Promise<StructuredDrawResult[]> => {
+  const { data } = await runQuery<DrawResultRow[]>(
+    "all draws",
+    supabase.from("draw_results").select(DRAW_FULL_COLUMNS).order("draw_date", { ascending: false }),
+  );
+  return data.map(mapDrawResultRow);
+};
+
+/** Full draws in a date range (`from` inclusive, `before` exclusive), newest first. */
+export const queryDrawsInDateRange = async ({ from, before }: { from?: string; before?: string }): Promise<StructuredDrawResult[]> => {
+  let query = supabase.from("draw_results").select(DRAW_FULL_COLUMNS);
+  if (from) query = query.gte("draw_date", from);
+  if (before) query = query.lt("draw_date", before);
+  const { data } = await runQuery<DrawResultRow[]>("draws in range", query.order("draw_date", { ascending: false }));
+  return data.map(mapDrawResultRow);
+};
+
+/** One lottery's full history, newest first. */
+export const queryDrawHistory = async (lotteryCode: string): Promise<StructuredDrawResult[]> => {
+  const { data } = await runQuery<DrawResultRow[]>(
+    "draw history",
+    supabase
+      .from("draw_results")
+      .select(DRAW_FULL_COLUMNS)
+      .eq("lottery_code", lotteryCode.toUpperCase())
+      .order("draw_date", { ascending: false }),
+  );
+  return data.map(mapDrawResultRow);
+};
+
+/** One lottery's draw dates, newest first. */
+export const queryDrawDates = async (lotteryCode: string): Promise<string[]> => {
+  const { data } = await runQuery<{ draw_date: string }[]>(
+    "draw dates",
+    supabase
+      .from("draw_results")
+      .select("draw_date")
+      .eq("lottery_code", lotteryCode.toUpperCase())
+      .order("draw_date", { ascending: false }),
+  );
+  return data.map((d) => d.draw_date);
+};
+
+/** One lottery's draw on `date` (or its latest draw when no date), or null when none exists. */
+export const querySingleDraw = async (lotteryCode: string, date?: string): Promise<StructuredDrawResult | null> => {
+  const base = supabase.from("draw_results").select(DRAW_FULL_COLUMNS).eq("lottery_code", lotteryCode.toUpperCase());
+  const { data } = await runQuery<DrawResultRow[]>(
+    "single draw",
+    date ? base.eq("draw_date", date) : base.order("draw_date", { ascending: false }).limit(1),
+  );
+  return data[0] ? mapDrawResultRow(data[0]) : null;
+};
+
+/** Postponed draws (optionally for one date), newest first. */
+export const queryPostponedDraws = async (date?: string): Promise<PostponedDraw[]> => {
+  const base = supabase.from("postponed_draws").select("*").order("draw_date", { ascending: false });
+  const { data } = await runQuery<PostponedDraw[]>("postponed draws", date ? base.eq("draw_date", date) : base);
+  return data;
+};
+
+/** The lotteries table, ordered by id (may be empty). */
+export const queryLotteries = async (): Promise<LotteryRecord[]> => {
+  const { data } = await runQuery<LotteryRecord[]>(
+    "lotteries",
+    supabase.from("lotteries").select(LOTTERY_COLUMNS).order("id", { ascending: true }),
+  );
+  return data;
+};
+
+/** One page of draws (newest first) without `prizes`, plus the total row count for "load more". */
+export const queryDrawSummariesPage = async (
+  offset = 0,
+  limit = 20,
+): Promise<{ results: StructuredDrawResult[]; total: number }> => {
+  const { data, count } = await runQuery<DrawResultRow[]>(
+    "draw page",
+    supabase
+      .from("draw_results")
+      .select(DRAW_SUMMARY_COLUMNS, { count: "exact" })
+      .order("draw_date", { ascending: false })
+      .order("lottery_code", { ascending: true })
+      .range(offset, offset + limit - 1),
+  );
+  const results = data.map(mapDrawResultRow);
+  return { results, total: count ?? offset + results.length };
+};
+export const getDrawSummariesPage = (offset = 0, limit = 20) =>
+  withFallback("getDrawSummariesPage", () => queryDrawSummariesPage(offset, limit), { results: [], total: 0 });
+
+/** Draws of one calendar month ("YYYY-MM") without `prizes` — for the home calendar dots. */
+export const queryDrawSummariesForMonth = async (month: string): Promise<StructuredDrawResult[]> => {
+  const range = monthRange(month);
+  if (!range) return [];
+  const { data } = await runQuery<DrawResultRow[]>(
+    "draw month",
+    supabase
+      .from("draw_results")
+      .select(DRAW_SUMMARY_COLUMNS)
+      .gte("draw_date", range.start)
+      .lt("draw_date", range.next)
+      .order("draw_date", { ascending: false }),
+  );
+  return data.map(mapDrawResultRow);
+};
+export const getDrawSummariesForMonth = (month: string) =>
+  withFallback("getDrawSummariesForMonth", () => queryDrawSummariesForMonth(month), []);
+
+/** Every distinct draw date (newest first) — only the date column, for date-picker dots. */
+export const queryPublishedDrawDates = async (): Promise<string[]> => {
+  const { data } = await runQuery<{ draw_date: string }[]>(
+    "published dates",
+    supabase.from("draw_results").select("draw_date").order("draw_date", { ascending: false }).limit(5000),
+  );
+  return [...new Set(data.map((r) => r.draw_date))];
+};
+export const getPublishedDrawDates = () => withFallback("getPublishedDrawDates", queryPublishedDrawDates, []);
+
+/** Latest draws of one lottery (newest first) without `prizes`. */
+export const queryDrawSummariesForLottery = async (lotteryCode: string, limit = 10): Promise<StructuredDrawResult[]> => {
+  const { data } = await runQuery<DrawResultRow[]>(
+    "lottery recent",
+    supabase
+      .from("draw_results")
+      .select(DRAW_SUMMARY_COLUMNS)
+      .eq("lottery_code", lotteryCode.toUpperCase())
+      .order("draw_date", { ascending: false })
+      .limit(limit),
+  );
+  return data.map(mapDrawResultRow);
+};
+export const getDrawSummariesForLottery = (lotteryCode: string, limit = 10) =>
+  withFallback("getDrawSummariesForLottery", () => queryDrawSummariesForLottery(lotteryCode, limit), []);
+
+/** Full draws (with `prizes`) for one date ("YYYY-MM-DD"). */
+export const queryDrawsForDate = async (date: string): Promise<StructuredDrawResult[]> => {
+  const { data } = await runQuery<DrawResultRow[]>(
+    "draws for date",
+    supabase.from("draw_results").select(DRAW_FULL_COLUMNS).eq("draw_date", date).order("lottery_code", { ascending: true }),
+  );
+  return data.map(mapDrawResultRow);
+};
+export const getDrawsForDate = (date: string) => withFallback("getDrawsForDate", () => queryDrawsForDate(date), []);
+
+/**
+ * Full draws (with `prizes`) for the latest `dateCount` distinct draw dates, plus any `extraDates`
+ * (e.g. today). Newest first. Used by the homepage hero and the AI routes.
+ */
+export const queryDrawsForLatestDates = async (
+  dateCount = 2,
+  extraDates: string[] = [],
+): Promise<StructuredDrawResult[]> => {
+  const { data: dateRows } = await runQuery<{ draw_date: string }[]>(
+    "latest dates",
+    supabase.from("draw_results").select("draw_date").order("draw_date", { ascending: false }).limit(dateCount * 5),
+  );
+  const latestDates = [...new Set(dateRows.map((r) => r.draw_date))].slice(0, dateCount);
+  const dates = [...new Set([...latestDates, ...extraDates])];
+  if (dates.length === 0) return [];
+  const { data } = await runQuery<DrawResultRow[]>(
+    "latest draws",
+    supabase.from("draw_results").select(DRAW_FULL_COLUMNS).in("draw_date", dates).order("draw_date", { ascending: false }),
+  );
+  return sortDrawsNewestFirst(data.map(mapDrawResultRow));
+};
+export const getDrawsForLatestDates = (dateCount = 2, extraDates: string[] = []) =>
+  withFallback("getDrawsForLatestDates", () => queryDrawsForLatestDates(dateCount, extraDates), []);
 
 /**
  * Lightweight sitemap-only fetch: only retrieves lottery_code, draw_date, created_at.
@@ -878,7 +1103,11 @@ export function getSearchFeedbackMessage(
 }
 
 export async function searchTicketsInSupabase(queryTicket: string) {
-  const allResults = await fetchAllDrawResultsFromSupabase();
+  return searchTicketsInDraws(queryTicket, await fetchAllDrawResultsFromSupabase());
+}
+
+/** Ticket matching over an already-loaded draw list (e.g. the server-cached list in /api/search). */
+export function searchTicketsInDraws(queryTicket: string, allResults: StructuredDrawResult[]) {
   const matches: Array<{
     draw_date: string;
     draw_name: string;
@@ -1052,24 +1281,7 @@ export async function checkIsBumperDrawDate(
 export async function getPostponedDraws(
   date?: string,
 ): Promise<PostponedDraw[]> {
-  try {
-    let query = supabase
-      .from("postponed_draws")
-      .select("*")
-      .order("draw_date", { ascending: false });
-
-    if (date) {
-      query = query.eq("draw_date", date);
-    }
-
-    const { data, error } = await query;
-    if (!error && data) {
-      return data as PostponedDraw[];
-    }
-  } catch (e) {
-    console.warn("Supabase getPostponedDraws note:", e);
-  }
-  return [];
+  return withFallback("getPostponedDraws", () => queryPostponedDraws(date), []);
 }
 
 /**
@@ -1174,20 +1386,13 @@ export async function deletePostponedDraw(id: number): Promise<boolean> {
  * Fetch all lotteries (weekly + bumper) from Supabase
  */
 export async function getLotteriesFromSupabase(): Promise<LotteryRecord[]> {
-  try {
-    const { data, error } = await supabase
-      .from("lotteries")
-      .select("*")
-      .order("id", { ascending: true });
+  const rows = await withFallback("getLotteries", queryLotteries, []);
+  return rows.length > 0 ? rows : getStaticLotteryRecords();
+}
 
-    if (!error && data && data.length > 0) {
-      return data as LotteryRecord[];
-    }
-  } catch (e) {
-    console.warn("getLotteriesFromSupabase error:", e);
-  }
-  // Fallback to static lists
-  return ALL_LOTTERIES.map((l, idx) => ({
+/** Static lottery list used when the lotteries table is unreachable or empty. */
+export const getStaticLotteryRecords = (): LotteryRecord[] =>
+  ALL_LOTTERIES.map((l, idx) => ({
     id: idx + 1,
     day: l.day,
     name: l.name,
@@ -1198,7 +1403,6 @@ export async function getLotteriesFromSupabase(): Promise<LotteryRecord[]> {
     jackpot: "jackpot" in l && typeof l.jackpot === "string" ? l.jackpot : undefined,
     draw_season: "draw_season" in l && typeof l.draw_season === "string" ? l.draw_season : undefined,
   }));
-}
 
 /**
  * Save or update lottery definition (weekly or bumper)

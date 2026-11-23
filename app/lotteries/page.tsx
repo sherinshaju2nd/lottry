@@ -40,7 +40,7 @@ const LOTTERY_PRIZE_DEFAULTS: Record<string, { prize: string; price: string }> =
   SB: { prize: "₹10 Crore", price: "₹250" },
   VB: { prize: "₹12 Crore", price: "₹300" },
   MB: { prize: "₹10 Crore", price: "₹250" },
-  TH: { prize: "₹25 Crore", price: "₹500" },
+  TH: { prize: "₹30 Crore", price: "₹500" },
   PB: { prize: "₹12 Crore", price: "₹300" },
 };
 

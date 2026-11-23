@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAndSyncLatestLottery } from "@/lib/lottery-sync";
-import { revalidateDrawPages } from "@/lib/drawRevalidation";
+import { refreshAfterDrawChange } from "@/lib/drawRevalidation";
 import {
   checkIsDatePostponed,
   checkIsBumperDrawDate,
@@ -290,8 +290,10 @@ async function handleCronExecution(req: NextRequest) {
     duration_ms: executionTimeMs,
   });
 
-  // Automatically notify IndexNow & Google to re-crawl updated URLs immediately
-  try {
+  // Only when this run actually changed the stored draw: notify IndexNow, refresh the result
+  // pages and clear the API data cache. Unchanged runs (most cron runs) touch nothing, so the
+  // database isn't re-read and search engines aren't pinged for identical pages.
+  if (lastResult.changed !== false) try {
     const draw = lastResult.data;
     const lotterySlug = getLotterySlug(draw?.lottery_code || "");
     const updatedUrls = [
@@ -312,7 +314,7 @@ async function handleCronExecution(req: NextRequest) {
       // Indexing notice optional
     }
 
-    revalidateDrawPages(draw);
+    await refreshAfterDrawChange(draw);
   } catch (syncPostErr) {
     console.warn("[Post-Sync Note]:", syncPostErr);
   }

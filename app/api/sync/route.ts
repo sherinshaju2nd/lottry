@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAndSyncAllSources, fetchAndSyncFromSource, fetchAndSyncLatestLottery } from "@/lib/lottery-sync";
 import { isAuthorizedAdmin } from "@/lib/admin-auth";
-import { revalidateDrawPages } from "@/lib/drawRevalidation";
+import { invalidateDrawData, refreshAfterDrawChange, revalidateDrawPages } from "@/lib/drawRevalidation";
 
 export const dynamic = "force-dynamic";
 // "Sync all" calls each source in turn (up to 10 × 12s timeout).
@@ -30,14 +30,37 @@ const readMode = async (req: NextRequest): Promise<SyncMode> => {
   }
 };
 
-const syncAll = async () => {
+/**
+ * Automation calls this route with `Bearer CRON_SECRET` (possibly every minute): refresh only when
+ * the data really changed. An admin pressing Sync (session cookie) always refreshes pages and
+ * the data cache, so the button still works as a "force refresh".
+ */
+const isAutomatedCall = (req: NextRequest): boolean =>
+  (req.headers.get("authorization") ?? "").toLowerCase().startsWith("bearer ");
+
+const syncAll = async (forceRefresh: boolean) => {
   const outcomes = await fetchAndSyncAllSources();
-  const results = outcomes.map(({ sourceId, name, result: { success, error, data } }) => ({ sourceId, name, success, error, data }));
+  const results = outcomes.map(({ sourceId, name, result: { success, error, data, changed } }) => ({
+    sourceId,
+    name,
+    success,
+    error,
+    data,
+    changed,
+  }));
   const synced = results.filter(({ success }) => success);
 
-  // Refresh each distinct draw page once.
-  const draws = new Map(synced.map(({ data }) => [`${data?.lottery_code}:${data?.draw_date}`, data]));
-  draws.forEach((draw) => revalidateDrawPages(draw));
+  // Refresh each distinct changed (or, for a manual sync, every synced) draw page once, then
+  // clear the data cache once.
+  const refreshDraws = new Map(
+    synced
+      .filter(({ changed }) => forceRefresh || changed !== false)
+      .map(({ data }) => [`${data?.lottery_code}:${data?.draw_date}`, data]),
+  );
+  if (refreshDraws.size > 0) {
+    refreshDraws.forEach((draw) => revalidateDrawPages(draw));
+    await invalidateDrawData([...refreshDraws.values()]);
+  }
 
   const message = `Synced ${synced.length} of ${results.length} API source(s) to the database.`;
   return NextResponse.json(
@@ -55,10 +78,11 @@ const handleSync = async (req: NextRequest, successMessage: string) => {
 
   try {
     const mode = await readMode(req);
-    if (mode.kind === "all") return await syncAll();
+    const forceRefresh = !isAutomatedCall(req);
+    if (mode.kind === "all") return await syncAll(forceRefresh);
 
     const result = mode.kind === "source" ? await fetchAndSyncFromSource(mode.sourceId) : await fetchAndSyncLatestLottery("admin-sync");
-    const { success, error, data, source, attempts } = result;
+    const { success, error, data, source, attempts, changed } = result;
 
     if (!success) {
       return NextResponse.json(
@@ -67,9 +91,12 @@ const handleSync = async (req: NextRequest, successMessage: string) => {
       );
     }
 
-    // Manual syncs refresh cached result pages the same way the cron does.
-    revalidateDrawPages(data);
-    return NextResponse.json({ success: true, message: successMessage, data, source, attempts }, { headers: noStore });
+    // Refresh pages + data cache on a real change, or always when an admin pressed Sync.
+    if (forceRefresh || changed !== false) await refreshAfterDrawChange(data);
+    return NextResponse.json(
+      { success: true, message: successMessage, data, source, attempts, changed: changed !== false },
+      { headers: noStore },
+    );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Sync error occurred";
     console.error("[api/sync] Sync failed:", msg);

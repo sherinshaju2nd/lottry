@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { preload } from "react-dom";
 import { HERO_BANNER, HERO_OVERLAY } from "@/lib/heroBanner";
 import HeroBannerImage from "@/components/HeroBannerImage";
@@ -186,6 +186,40 @@ export default function HomeDesktopModernView({
     } catch {}
     return new Date();
   });
+
+  // The homepage only loads recent draws, so the calendar fetches the viewed month's draws
+  // (lightweight, no prize lists) to keep result dots and draw links for older months.
+  const calendarMonthKey = `${calendarViewDate.getFullYear()}-${String(calendarViewDate.getMonth() + 1).padStart(2, "0")}`;
+  const [monthDrawsCache, setMonthDrawsCache] = useState<Record<string, StructuredDrawResult[]>>({});
+
+  useEffect(() => {
+    if (monthDrawsCache[calendarMonthKey]) return;
+    const controller = new AbortController();
+    const loadMonthDraws = async () => {
+      try {
+        const res = await fetch(`/api/draws?type=month&month=${calendarMonthKey}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { results = [] } = (await res.json()) ?? {};
+        setMonthDrawsCache((prev) => ({
+          ...prev,
+          [calendarMonthKey]: Array.isArray(results) ? results : [],
+        }));
+      } catch (err: unknown) {
+        if (controller.signal.aborted) return;
+        // Calendar still works from the loaded draws; only older-month dots are missing.
+        console.error("[home] calendar month fetch failed:", err instanceof Error ? err.message : String(err));
+      }
+    };
+    loadMonthDraws();
+    return () => controller.abort();
+  }, [calendarMonthKey, monthDrawsCache]);
+
+  const calendarDraws = useMemo(
+    () => [...allDraws, ...(monthDrawsCache[calendarMonthKey] ?? [])],
+    [allDraws, monthDrawsCache, calendarMonthKey],
+  );
 
   const isToday = heroSlideIndex === 0;
 
@@ -464,7 +498,7 @@ export default function HomeDesktopModernView({
   // Set of dates that have an actual lottery result
   const availableResultDatesSet = useMemo(() => {
     const set = new Set<string>();
-    allDraws.forEach((d) => {
+    calendarDraws.forEach((d) => {
       if (d.draw_date && hasAnyDrawResult(d)) {
         set.add(d.draw_date);
       }
@@ -482,7 +516,7 @@ export default function HomeDesktopModernView({
     }
     return set;
   }, [
-    allDraws,
+    calendarDraws,
     recentDrawsMap,
     todayDrawResult,
     todayISTDate,
@@ -593,7 +627,7 @@ export default function HomeDesktopModernView({
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       const existingDraw =
-        allDraws.find((d) => d.draw_date === dateStr) ||
+        calendarDraws.find((d) => d.draw_date === dateStr) ||
         recentDrawsMap[dateStr];
       if (existingDraw?.lottery_code) {
         router.push(getLotteryUrl(existingDraw.lottery_code, dateStr));

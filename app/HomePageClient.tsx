@@ -4382,7 +4382,7 @@ export default function HomePageClient({
                     sx={{ color: "#64748B", mt: 0.5 }}
                   >
                     Massive festive bumper draws held throughout the year with
-                    jackpots ranging up to ₹25 Crore.
+                    jackpots ranging up to ₹30 Crore.
                   </Typography>
                 </Box>
               </Box>
@@ -4430,7 +4430,7 @@ export default function HomePageClient({
                     emoji: "🌼",
                     name: "Thiruvonam Bumper",
                     slug: "thiruvonam-bumper",
-                    jackpot: "₹25 Crore",
+                    jackpot: "₹30 Crore",
                     color: "#059669",
                     bg: "#ECFDF5",
                   },

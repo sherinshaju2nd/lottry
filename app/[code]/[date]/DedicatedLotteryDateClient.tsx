@@ -73,6 +73,12 @@ import {
   getIsAfterDrawTime,
   getIsPollingWindow,
   resolveLotteryDisplayMeta,
+  createDrawFreshnessStore,
+  resolveFreshDraw,
+  resolveFreshDraws,
+  drawFromRealtimePayload,
+  withFreshParam,
+  LIVE_CHANGE_REFETCH_DELAY_MS,
 } from "@/lib/supabase";
 
 interface SingleCheckerMatch {
@@ -105,6 +111,8 @@ interface DedicatedLotteryDateClientProps {
   lotterySlug: string;
   dateParam: string;
   initialDrawResult: StructuredDrawResult | null;
+  /** When the server read initialDrawResult (ISO) — later fetches only replace it if newer. */
+  initialGeneratedAt?: string;
   initialAvailableDates: string[];
   initialPostponement: PostponedDraw | null;
   recentOtherDraws: StructuredDrawResult[];
@@ -1027,6 +1035,7 @@ export default function DedicatedLotteryDateClient({
   lotterySlug,
   dateParam,
   initialDrawResult,
+  initialGeneratedAt,
   initialAvailableDates,
   initialPostponement,
   recentOtherDraws,
@@ -1047,6 +1056,12 @@ export default function DedicatedLotteryDateClient({
   const [drawResult, setDrawResult] = useState<StructuredDrawResult | null>(
     initialDrawResult,
   );
+  // Newest known version of this draw, so a cached refetch can't roll back socket updates.
+  const [drawFreshness] = useState(() => {
+    const store = createDrawFreshnessStore();
+    if (initialDrawResult) resolveFreshDraws(store, [initialDrawResult], initialGeneratedAt);
+    return store;
+  });
   const [postponement, setPostponement] = useState<PostponedDraw | null>(
     initialPostponement,
   );
@@ -1101,14 +1116,15 @@ export default function DedicatedLotteryDateClient({
     checkTime();
     const timeInterval = setInterval(checkTime, 30000);
 
-    const fetchLatestDetails = async () => {
+    const liveRefetchTimers: ReturnType<typeof setTimeout>[] = [];
+    const fetchLatestDetails = async (fresh = false) => {
       try {
-        const res = await fetch(
-          `/api/draws?code=${lotteryCode}&date=${dateParam}`,
-        );
+        const url = `/api/draws?code=${lotteryCode}&date=${dateParam}`;
+        const res = await fetch(fresh ? withFreshParam(url) : url);
         const json = await res.json();
-        if (json.result) setDrawResult(json.result);
-        if (json.postponement) setPostponement(json.postponement);
+        if (json.result) setDrawResult(resolveFreshDraw(drawFreshness, json.result, json.generatedAt));
+        // Also clears a postponement the admin removed (it used to stay until a reload).
+        if (json.success) setPostponement(json.postponement ?? null);
       } catch (err) {
         console.warn("Failed to refresh draw details:", err);
       }
@@ -1126,40 +1142,17 @@ export default function DedicatedLotteryDateClient({
           table: "draw_results",
         },
         async (payload) => {
-          const newRow = payload.new as any;
+          const live = drawFromRealtimePayload(payload);
           if (
-            newRow &&
-            newRow.draw_date === dateParam &&
-            (!newRow.lottery_code ||
-              newRow.lottery_code.toUpperCase() === lotteryCode.toUpperCase())
+            live &&
+            live.draw.draw_date === dateParam &&
+            live.draw.lottery_code.toUpperCase() === lotteryCode.toUpperCase()
           ) {
-            // Immediately parse payload and hydrate UI
-            try {
-              let firstObj: FirstPrize = {};
-              let prizesObj: PrizeData = {};
-              firstObj =
-                typeof newRow.first_prize === "string"
-                  ? JSON.parse(newRow.first_prize)
-                  : newRow.first_prize || {};
-              prizesObj =
-                typeof newRow.prizes === "string"
-                  ? JSON.parse(newRow.prizes)
-                  : newRow.prizes || {};
-
-              const liveDraw: StructuredDrawResult = {
-                id: newRow.id,
-                draw_date: newRow.draw_date,
-                draw_name: newRow.draw_name,
-                draw_code: newRow.draw_code,
-                lottery_code: newRow.lottery_code,
-                first: firstObj,
-                prizes: prizesObj,
-                created_at: newRow.created_at,
-              };
-              if (hasAnyDrawResult(liveDraw)) {
-                setDrawResult(liveDraw);
-              }
-            } catch {}
+            // Immediately hydrate UI from the socket row, stamped with its commit time.
+            const liveDraw = resolveFreshDraw(drawFreshness, live.draw, live.at);
+            if (hasAnyDrawResult(liveDraw)) {
+              setDrawResult(liveDraw);
+            }
           }
         },
       )
@@ -1171,7 +1164,8 @@ export default function DedicatedLotteryDateClient({
           table: "postponed_draws",
         },
         () => {
-          fetchLatestDetails();
+          // Wait for the server to clear its cache, then bypass the CDN (see LIVE_CHANGE_REFETCH_DELAY_MS).
+          liveRefetchTimers.push(setTimeout(() => fetchLatestDetails(true), LIVE_CHANGE_REFETCH_DELAY_MS));
         },
       )
       .subscribe((status) => {
@@ -1208,10 +1202,11 @@ export default function DedicatedLotteryDateClient({
     return () => {
       supabase.removeChannel(channel);
       clearInterval(timeInterval);
+      liveRefetchTimers.forEach(clearTimeout);
       document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [lotteryCode, dateParam]);
+  }, [lotteryCode, dateParam, drawFreshness]);
 
   // Auto-highlight ticket from search page navigation
   useEffect(() => {

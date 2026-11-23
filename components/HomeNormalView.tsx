@@ -28,6 +28,12 @@ interface HomeNormalViewProps {
   todayISTDate: string;
   todayDrawResult: StructuredDrawResult | null;
   allDraws: StructuredDrawResult[];
+  /** Total draws on the server (allDraws holds only the pages loaded so far). */
+  totalDraws?: number;
+  /** True while the server has rows not yet in allDraws. */
+  hasMoreDraws?: boolean;
+  /** Fetches the next page of older draws into allDraws. */
+  onLoadMoreDraws?: () => Promise<void>;
   isLoading: boolean;
   isTodayBumper: boolean;
   isAfter3PM: boolean;
@@ -84,6 +90,9 @@ export default function HomeNormalView({
   todayISTDate,
   todayDrawResult,
   allDraws,
+  totalDraws = 0,
+  hasMoreDraws = false,
+  onLoadMoreDraws,
   isLoading,
   isTodayBumper,
   isAfter3PM,
@@ -151,12 +160,28 @@ export default function HomeNormalView({
     return remainingDraws.slice(0, visibleCount);
   }, [remainingDraws, visibleCount]);
 
-  const handleLoadMore = () => {
+  // Rows still to show: loaded-but-hidden ones plus those not fetched from the server yet.
+  const remainingCount = useMemo(() => {
+    const excludedCount = allDraws.length - remainingDraws.length;
+    const serverRemaining = Math.max(remainingDraws.length, totalDraws - excludedCount);
+    return Math.max(serverRemaining - visibleCount, 0);
+  }, [allDraws.length, remainingDraws.length, totalDraws, visibleCount]);
+
+  const canLoadMore = visibleCount < remainingDraws.length || hasMoreDraws;
+
+  const handleLoadMore = async () => {
     setLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, remainingDraws.length));
+    try {
+      // Fetch the next server page only when the already-loaded rows run out.
+      if (visibleCount + PAGE_SIZE > remainingDraws.length && hasMoreDraws && onLoadMoreDraws) {
+        await onLoadMoreDraws();
+      }
+      setVisibleCount((prev) => prev + PAGE_SIZE);
+    } catch (err: unknown) {
+      console.error("[home] load more failed:", err instanceof Error ? err.message : String(err));
+    } finally {
       setLoadingMore(false);
-    }, 200);
+    }
   };
 
   const topBadgeCode = formatDrawCodeBadge(topFeaturedDraw);
@@ -607,7 +632,7 @@ export default function HomeNormalView({
       </Grid>
 
       {/* Pagination / Load More Button */}
-      {visibleCount < remainingDraws.length && (
+      {canLoadMore && (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <Button
             onClick={handleLoadMore}
@@ -631,7 +656,7 @@ export default function HomeNormalView({
               },
             }}
           >
-            {loadingMore ? "Loading..." : `Load More Draws (${remainingDraws.length - visibleCount} remaining)`}
+            {loadingMore ? "Loading..." : `Load More Draws (${remainingCount} remaining)`}
           </Button>
         </Box>
       )}

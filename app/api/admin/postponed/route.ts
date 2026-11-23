@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { refreshAfterDrawChange } from "@/lib/drawRevalidation";
 import {
   getPostponedDraws,
   savePostponedDraw,
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 });
     }
+    await refreshAfterDrawChange({ lottery_code: body.lottery_code, draw_date: body.draw_date });
 
     return NextResponse.json({
       success: true,
@@ -88,6 +90,7 @@ export async function DELETE(req: NextRequest) {
         { status: 500 }
       );
     }
+    await refreshAfterDrawChange(null); // postponement list is cached with the draw data
 
     return NextResponse.json({
       success: true,

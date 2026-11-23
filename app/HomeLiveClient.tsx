@@ -82,6 +82,14 @@ import {
   getIsBeforeSwitchTime,
   getIsPollingWindow,
   getDrawTimeDisplay,
+  mergeDrawLists,
+  createDrawFreshnessStore,
+  resolveFreshDraw,
+  resolveFreshDraws,
+  drawFromRealtimePayload,
+  withFreshParam,
+  LIVE_CHANGE_REFETCH_DELAY_MS,
+  type LotteryRecord,
 } from "@/lib/supabase";
 import ShareButtons from "@/components/ShareButtons";
 // Loaded only when the digest is opened (keeps it out of the first JS download).
@@ -93,7 +101,7 @@ import GridViewIcon from "@mui/icons-material/GridView";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { trackEvent } from "@/lib/analytics";
-import { deriveHomeDrawState, getISTToday } from "@/lib/homeInitialData";
+import { HOME_DRAWS_PAGE_SIZE, deriveHomeDrawState, getISTToday } from "@/lib/homeInitialData";
 
 const searchSchema = yup.object({
   ticketNumber: yup
@@ -145,8 +153,12 @@ const DEFAULT_BUMPER_CARD_STYLE = { emoji: "🎟️", color: "#0B3C5D", bg: "#EF
 interface HomeLiveClientProps {
   /** Newest draws fetched on the server (app/page.tsx) so the first HTML has real results. */
   initialDraws?: StructuredDrawResult[];
-  /** Latest draw per lottery code, from the server's full list. */
+  /** Latest draw per lottery code among the server-loaded draws. */
   initialRecentMap?: Record<string, StructuredDrawResult>;
+  /** Total draws in the database, so "Load more" knows whether another page exists. */
+  initialTotal?: number;
+  /** When the server read initialDraws (ISO) — later fetches only replace them if newer. */
+  initialGeneratedAt?: string;
 }
 
 /** Today's weekly lottery by IST weekday (the same match the mount effect makes). */
@@ -155,7 +167,12 @@ const getInitialWeeklyLottery = (): LotteryItem => {
   return WEEKLY_LOTTERIES.find((l) => l.day.toLowerCase() === istDayName.toLowerCase()) || WEEKLY_LOTTERIES[0];
 };
 
-export default function HomePage({ initialDraws = [], initialRecentMap = {} }: HomeLiveClientProps) {
+export default function HomePage({
+  initialDraws = [],
+  initialRecentMap = {},
+  initialTotal = 0,
+  initialGeneratedAt,
+}: HomeLiveClientProps) {
   const theme = useTheme();
   const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("md"));
   // First-render state from server data; every effect below still refreshes it exactly as before.
@@ -221,6 +238,50 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
   });
 
   const [allDraws, setAllDraws] = useState<StructuredDrawResult[]>(initialDraws);
+  // Newest known version of every draw (socket commit time / API read time). Every incoming
+  // row goes through it, so a cached API response can never roll back newer live data.
+  const [drawFreshness] = useState(() => {
+    const store = createDrawFreshnessStore();
+    resolveFreshDraws(store, initialDraws, initialGeneratedAt);
+    return store;
+  });
+  // Older draws are paged in from /api/draws?type=page instead of loading the whole table.
+  const [drawsTotal, setDrawsTotal] = useState<number>(Math.max(initialTotal, initialDraws.length));
+  const hasMoreDraws = allDraws.length < drawsTotal;
+
+  const loadMoreDraws = async (): Promise<void> => {
+    const loadedCount = allDraws.length;
+    try {
+      const res = await fetch(
+        // One row of overlap: if a live draw was added since the cached page was made, the
+        // offset shifts by one — overlapping avoids skipping a row (duplicates are merged).
+        `/api/draws?type=page&offset=${Math.max(loadedCount - 1, 0)}&limit=${HOME_DRAWS_PAGE_SIZE}`,
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const { results = [], total, generatedAt } = json ?? {};
+      const page: StructuredDrawResult[] = Array.isArray(results) ? results : [];
+      const loadedKeys = new Set(allDraws.map((d) => `${d.draw_date}|${(d.lottery_code ?? "").toUpperCase()}`));
+      const newRowCount = page.filter(
+        (d) => !loadedKeys.has(`${d.draw_date}|${(d.lottery_code ?? "").toUpperCase()}`),
+      ).length;
+      if (page.length > 0) {
+        const fresh = resolveFreshDraws(drawFreshness, page, generatedAt);
+        setAllDraws((prev) => mergeDrawLists(prev, fresh));
+      }
+      // No new rows (only the overlap row, or nothing) means the list is exhausted, even if
+      // the cached total was stale — so "Load more" can never get stuck.
+      setDrawsTotal(
+        newRowCount === 0
+          ? loadedCount
+          : typeof total === "number"
+            ? Math.max(total, loadedCount + newRowCount)
+            : loadedCount + newRowCount,
+      );
+    } catch (err: unknown) {
+      console.error("[home] load more draws failed:", err instanceof Error ? err.message : String(err));
+    }
+  };
   const [uiMode, setUiMode] = useState<"normal" | "modern">("normal");
   const [mounted, setMounted] = useState(false);
   /** null until mounted (server/hydration render both layouts); then true at >= 900px (MUI md). */
@@ -376,13 +437,16 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
     updateCountdown();
     const countdownInterval = setInterval(updateCountdown, 1000);
     const timeInterval = setInterval(updateCountdown, 15000);
+    const liveRefetchTimers: ReturnType<typeof setTimeout>[] = [];
 
-    async function loadLotteriesFromDb() {
+    async function loadLotteriesFromDb(fresh = false) {
       try {
-        const { data, error } = await supabase
-          .from("lotteries")
-          .select("*")
-          .order("id", { ascending: true });
+        // Server-cached lottery list (re-read from the database only after an admin change).
+        const url = "/api/draws?type=lotteries";
+        const res = await fetch(fresh ? withFreshParam(url) : url);
+        const json = res.ok ? await res.json() : null;
+        const data: LotteryRecord[] | null = Array.isArray(json?.lotteries) ? json.lotteries : null;
+        const error = data ? null : `lotteries unavailable (HTTP ${res.status})`;
         if (!error && data && data.length > 0) {
           const weeklyMapped = data
             .map((d: any) => ({
@@ -507,11 +571,10 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
       setHeroSlideIndex(0);
     }
 
-    async function checkTodayPostponement() {
+    async function checkTodayPostponement(fresh = false) {
       try {
-        const res = await fetch(
-          `/api/draws?type=postponed&date=${todayISTDate}`,
-        );
+        const url = `/api/draws?type=postponed&date=${todayISTDate}`;
+        const res = await fetch(fresh ? withFreshParam(url) : url);
         const json = await res.json();
         if (json.success && json.list && json.list.length > 0) {
           // If today is a Bumper day, only apply postponement if it targets this bumper or ALL
@@ -539,15 +602,19 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
           `/api/draws?code=${targetCode}&date=${todayISTDate}`,
         );
         const json = await res.json();
+        // Keep whichever is newer: this (possibly CDN-cached) row or a socket update.
+        const result: StructuredDrawResult | null = json.result
+          ? resolveFreshDraw(drawFreshness, json.result, json.generatedAt)
+          : null;
         if (
           json.success &&
-          json.result &&
-          json.result.draw_date === todayISTDate &&
-          hasAnyDrawResult(json.result)
+          result &&
+          result.draw_date === todayISTDate &&
+          hasAnyDrawResult(result)
         ) {
-          setTodayDrawResult(json.result);
-          todayDrawResultRef.current = json.result;
-        } else if (!json.result || !hasAnyDrawResult(json.result)) {
+          setTodayDrawResult(result);
+          todayDrawResultRef.current = result;
+        } else if (!result || !hasAnyDrawResult(result)) {
           // Never overwrite existing valid confirmed result for today with null
           if (!todayDrawResultRef.current || !hasAnyDrawResult(todayDrawResultRef.current)) {
             setTodayDrawResult(null);
@@ -561,38 +628,48 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
 
     async function loadRecentDrawsMap() {
       try {
-        const res = await fetch(`/api/draws?type=all`);
+        // Latest 2 draw dates with full prizes + first list page without prizes (not the whole table).
+        const res = await fetch(`/api/draws?type=home`);
         const json = await res.json();
         if (
           json.success &&
           Array.isArray(json.results) &&
           json.results.length > 0
         ) {
-          setAllDraws(json.results);
+          // Rows newer from the socket replace their (possibly CDN-cached) copies here.
+          const results: StructuredDrawResult[] = resolveFreshDraws(
+            drawFreshness,
+            json.results,
+            json.generatedAt,
+          );
+          // Merge so pages already loaded via "Load more" are kept; fresh rows win.
+          setAllDraws((prev) => mergeDrawLists(results, prev));
+          if (typeof json.total === "number") {
+            setDrawsTotal(json.total);
+          }
           const todayDate = new Date().toLocaleDateString("en-CA", {
             timeZone: "Asia/Kolkata",
           });
 
           // Check if today's result is in allDraws
-          const todayResultFromAll = json.results.find(
-            (d: StructuredDrawResult) => d.draw_date === todayDate && hasAnyDrawResult(d)
+          // Already resolved against newer socket/API data above, so this is the newest known.
+          const todayResultFromAll = results.find(
+            (d) => d.draw_date === todayDate && hasAnyDrawResult(d)
           );
           if (todayResultFromAll) {
             setTodayDrawResult(todayResultFromAll);
             todayDrawResultRef.current = todayResultFromAll;
           }
 
-          // Previous draw is the most recent draw published prior to todayDate (or json.results[0] if today is not published)
+          // Previous draw is the most recent draw published prior to todayDate (or results[0] if today is not published)
           const prevDraw =
-            json.results.find(
-              (d: StructuredDrawResult) => d.draw_date !== todayDate,
-            ) ||
-            json.results[1] ||
-            json.results[0];
+            results.find((d) => d.draw_date !== todayDate) ||
+            results[1] ||
+            results[0];
           setLatestPreviousDraw(prevDraw);
 
           const map: Record<string, StructuredDrawResult> = {};
-          json.results.forEach((draw: StructuredDrawResult) => {
+          results.forEach((draw: StructuredDrawResult) => {
             const code = (draw.lottery_code || "").toUpperCase();
             if (code && !map[code]) {
               map[code] = draw;
@@ -628,56 +705,46 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
         "postgres_changes",
         { event: "*", schema: "public", table: "draw_results" },
         (payload) => {
-          if (payload.new) {
-            const newRow = payload.new as any;
-            if (newRow.draw_date === todayISTDate) {
-              setSocketStatus("live_updating");
-              setTimeout(() => setSocketStatus("connected"), 4000);
+          // Parsed straight from the socket message (REPLICA IDENTITY FULL = complete row),
+          // stamped with its commit time so older API copies can't replace it later.
+          const live = drawFromRealtimePayload(payload);
+          if (!live) return;
+          const liveStructuredDraw = resolveFreshDraw(drawFreshness, live.draw, live.at);
 
-              // Immediately hydrate state from socket payload
-              try {
-                let firstObj: FirstPrize = {};
-                let prizesObj: PrizeData = {};
-                firstObj =
-                  typeof newRow.first_prize === "string"
-                    ? JSON.parse(newRow.first_prize)
-                    : newRow.first_prize || {};
-                prizesObj =
-                  typeof newRow.prizes === "string"
-                    ? JSON.parse(newRow.prizes)
-                    : newRow.prizes || {};
+          if (liveStructuredDraw.draw_date !== todayISTDate) {
+            // Correction to an earlier draw: update it in place if it's on screen.
+            setAllDraws((prev) =>
+              prev.some((d) => d.draw_date === liveStructuredDraw.draw_date && d.lottery_code === liveStructuredDraw.lottery_code)
+                ? mergeDrawLists([liveStructuredDraw], prev)
+                : prev,
+            );
+            setLatestPreviousDraw((prev) =>
+              prev?.draw_date === liveStructuredDraw.draw_date && prev?.lottery_code === liveStructuredDraw.lottery_code
+                ? liveStructuredDraw
+                : prev,
+            );
+            return;
+          }
 
-                const liveStructuredDraw: StructuredDrawResult = {
-                  id: newRow.id,
-                  draw_date: newRow.draw_date,
-                  draw_name: newRow.draw_name,
-                  draw_code: newRow.draw_code,
-                  lottery_code: newRow.lottery_code,
-                  first: firstObj,
-                  prizes: prizesObj,
-                  created_at: newRow.created_at,
-                };
-                if (hasAnyDrawResult(liveStructuredDraw)) {
-                  setTodayDrawResult(liveStructuredDraw);
-                  todayDrawResultRef.current = liveStructuredDraw;
+          setSocketStatus("live_updating");
+          setTimeout(() => setSocketStatus("connected"), 4000);
 
-                  // Update in-memory allDraws & recentDrawsMap directly (zero network API calls!)
-                  setAllDraws((prev) => {
-                    const withoutToday = prev.filter(
-                      (d) => d.draw_date !== liveStructuredDraw.draw_date,
-                    );
-                    return [liveStructuredDraw, ...withoutToday];
-                  });
-                  setRecentDrawsMap((prev) => ({
-                    ...prev,
-                    [(liveStructuredDraw.lottery_code || "").toUpperCase()]:
-                      liveStructuredDraw,
-                  }));
-                }
-              } catch (e) {
-                console.warn("Failed to parse live socket row payload:", e);
-              }
-            }
+          // Immediately hydrate state from socket payload (zero network API calls)
+          if (hasAnyDrawResult(liveStructuredDraw)) {
+            setTodayDrawResult(liveStructuredDraw);
+            todayDrawResultRef.current = liveStructuredDraw;
+
+            setAllDraws((prev) => {
+              const withoutToday = prev.filter(
+                (d) => d.draw_date !== liveStructuredDraw.draw_date,
+              );
+              return [liveStructuredDraw, ...withoutToday];
+            });
+            setRecentDrawsMap((prev) => ({
+              ...prev,
+              [(liveStructuredDraw.lottery_code || "").toUpperCase()]:
+                liveStructuredDraw,
+            }));
           }
         },
       )
@@ -685,14 +752,19 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
         "postgres_changes",
         { event: "*", schema: "public", table: "postponed_draws" },
         () => {
-          checkTodayPostponement();
+          // Wait for the server to clear its cache, then bypass the CDN (see LIVE_CHANGE_REFETCH_DELAY_MS).
+          liveRefetchTimers.push(
+            setTimeout(() => checkTodayPostponement(true), LIVE_CHANGE_REFETCH_DELAY_MS),
+          );
         },
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "lotteries" },
         () => {
-          loadLotteriesFromDb();
+          liveRefetchTimers.push(
+            setTimeout(() => loadLotteriesFromDb(true), LIVE_CHANGE_REFETCH_DELAY_MS),
+          );
         },
       )
       .subscribe((status) => {
@@ -732,10 +804,11 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
       supabase.removeChannel(channel);
       clearInterval(countdownInterval);
       clearInterval(timeInterval);
+      liveRefetchTimers.forEach(clearTimeout);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("focus", handleWindowFocus);
     };
-  }, []);
+  }, [drawFreshness]);
 
   const triggerCelebration = () => {
     confetti({
@@ -1083,6 +1156,9 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
           todayISTDate={todayISTDate}
           todayDrawResult={todayDrawResult}
           allDraws={allDraws}
+          totalDraws={drawsTotal}
+          hasMoreDraws={hasMoreDraws}
+          onLoadMoreDraws={loadMoreDraws}
           isLoading={isLoading}
           isTodayBumper={isTodayBumper}
           isAfter3PM={isAfter3PM}
@@ -1774,7 +1850,7 @@ export default function HomePage({ initialDraws = [], initialRecentMap = {} }: H
                   Kerala State Bumper Lotteries Seasonal Calendar
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#64748B", mt: 0.5 }}>
-                  Massive festive bumper draws held throughout the year with jackpots ranging up to ₹25 Crore.
+                  Massive festive bumper draws held throughout the year with jackpots ranging up to ₹30 Crore.
                 </Typography>
               </Box>
             </Box>

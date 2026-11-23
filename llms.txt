@@ -114,7 +114,7 @@ frontend/
 - **SB**: Summer Bumper (₹10 Crore) - March
 - **VB**: Vishu Bumper (₹12 Crore) - May
 - **MB**: Monsoon Bumper (₹10 Crore) - July
-- **TH**: Thiruvonam Bumper (₹25 Crore) - September
+- **TH**: Thiruvonam Bumper (₹30 Crore) - September
 - **BR**: Pooja Bumper (₹12 Crore) - November
 
 ### TypeScript Interfaces

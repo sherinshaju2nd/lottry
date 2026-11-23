@@ -209,7 +209,6 @@ const TAG_SUGGESTIONS = [
   "Prize Claim",
   "Karunya",
   "Sthree Sakthi",
-  "Win Win",
   "Nirmal",
   "Akshaya",
   "Fifty Fifty",

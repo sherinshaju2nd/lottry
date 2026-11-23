@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { refreshAfterDrawChange } from "@/lib/drawRevalidation";
 import {
   saveManualDrawResultToSupabase,
   deleteDrawResultFromSupabase,
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 });
     }
+    await refreshAfterDrawChange(body); // pages + data cache show the admin edit right away
 
     return NextResponse.json({
       success: true,
@@ -90,6 +92,7 @@ export async function DELETE(req: NextRequest) {
         { status: 500 }
       );
     }
+    await refreshAfterDrawChange(null); // pages + data cache: the deleted draw disappears everywhere
 
     return NextResponse.json({
       success: true,

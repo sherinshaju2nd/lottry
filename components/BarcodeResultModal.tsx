@@ -74,22 +74,50 @@ export default function BarcodeResultModal({
   const [step, setStep] = useState<"select_date" | "result">("select_date");
   const [isJustMissOpen, setIsJustMissOpen] = useState(false);
 
-  // Fetch recent draws when opened
+  // Fetch recent draws when opened: the scanned lottery's last 10 draws (filtered in the
+  // database), or the homepage's cached recent list — never the whole table. No prize lists:
+  // the selected date's full draw is fetched on verify.
   useEffect(() => {
-    if (open) {
-      fetch("/api/draws?type=all")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.results && Array.isArray(data.results)) {
-            setAvailableDraws(data.results);
-            if (!selectedDate && data.results.length > 0) {
-              setSelectedDate(data.results[0].draw_date);
-            }
+    if (!open) return;
+    const controller = new AbortController();
+    const loadRecentDraws = async () => {
+      try {
+        const url = targetLotteryCode
+          ? `/api/draws?type=lottery-recent&code=${encodeURIComponent(targetLotteryCode)}&limit=10`
+          : "/api/draws?type=home";
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { results } = (await res.json()) ?? {};
+        if (Array.isArray(results)) {
+          setAvailableDraws(results);
+          if (results.length > 0) {
+            setSelectedDate((prev) => prev || results[0].draw_date);
           }
-        })
-        .catch(() => {});
+        }
+      } catch (err: unknown) {
+        if (controller.signal.aborted) return;
+        console.error("[barcode] recent draws fetch failed:", err instanceof Error ? err.message : String(err));
+      }
+    };
+    loadRecentDraws();
+    return () => controller.abort();
+  }, [open, targetLotteryCode]);
+
+  /** Full draw (with prize lists) for one date, preferring the scanned lottery. */
+  const fetchDrawForDate = async (date: string): Promise<StructuredDrawResult | null> => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+    try {
+      const res = await fetch(`/api/draws?type=date&date=${encodeURIComponent(date)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { results = [] } = (await res.json()) ?? {};
+      const draws: StructuredDrawResult[] = Array.isArray(results) ? results : [];
+      const code = targetLotteryCode?.toUpperCase();
+      return (code && draws.find((d) => d.lottery_code?.toUpperCase() === code)) || draws[0] || null;
+    } catch (err: unknown) {
+      console.error("[barcode] draw detail fetch failed:", err instanceof Error ? err.message : String(err));
+      return null;
     }
-  }, [open]);
+  };
 
   useEffect(() => {
     if (open && scannedBarcode) {
@@ -113,7 +141,11 @@ export default function BarcodeResultModal({
     setStep("result");
 
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(scannedBarcode)}`);
+      // Ticket matches and the selected date's full draw are fetched in parallel.
+      const [res, fullDraw] = await Promise.all([
+        fetch(`/api/search?q=${encodeURIComponent(scannedBarcode)}`),
+        fetchDrawForDate(targetDate),
+      ]);
       const data = await res.json();
       let results: SearchMatch[] = data.results || [];
 
@@ -135,6 +167,7 @@ export default function BarcodeResultModal({
 
       // Find full draw details
       const foundDraw =
+        fullDraw ||
         relevantDraws.find((d) => d.draw_date === targetDate) ||
         availableDraws.find((d) => d.draw_date === targetDate) ||
         null;

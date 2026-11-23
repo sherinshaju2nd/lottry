@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateSocialMediaDigests } from "@/lib/gemini";
-import { getDrawResultFromSupabase, fetchAllDrawResultsFromSupabase } from "@/lib/supabase";
+import { getCachedDrawsForLatestDates, getCachedSingleDraw } from "@/lib/drawCache";
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,9 +10,9 @@ export async function GET(req: NextRequest) {
 
     let draw = null;
     if (code) {
-      draw = await getDrawResultFromSupabase(code, date || undefined);
+      draw = (await getCachedSingleDraw(code, date || undefined)).data;
     } else {
-      const all = await fetchAllDrawResultsFromSupabase();
+      const { data: all } = await getCachedDrawsForLatestDates(2);
       if (all && all.length > 0) draw = all[0];
     }
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     let draw = body.draw;
 
     if (!draw) {
-      const all = await fetchAllDrawResultsFromSupabase();
+      const { data: all } = await getCachedDrawsForLatestDates(2);
       if (all && all.length > 0) draw = all[0];
     }
 

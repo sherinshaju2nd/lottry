@@ -18,7 +18,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { calculateClaim } from "@/lib/claimCalculator";
 
 const PRESET_AMOUNTS = [
-  { label: "₹25 Crore (Onam Bumper)", value: 250000000 },
+  { label: "₹30 Crore (Onam Bumper)", value: 300000000 },
   { label: "₹20 Crore (Xmas Bumper)", value: 200000000 },
   { label: "₹1 Crore (Dhanalekshmi)", value: 10000000 },
   { label: "₹80 Lakhs (Karunya / BT)", value: 8000000 },

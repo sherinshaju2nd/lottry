@@ -167,6 +167,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function LotteryDetailsPage({ params }: PageProps) {
+  // Taken before the draws are read, so the client can tell if a later fetch is newer.
+  const initialGeneratedAt = new Date().toISOString();
   const resolvedParams = await params;
   const rawCode = resolvedParams.code;
   const lotteryCode = getLotteryCodeFromSlug(rawCode);
@@ -209,7 +211,7 @@ export default async function LotteryDetailsPage({ params }: PageProps) {
 
   const drawTime =
     lotteryDbMeta?.draw_time ||
-    (lotteryInfo.code.startsWith("Bumper") ? "2:00 PM" : "3:00 PM");
+    (lotteryInfo.is_bumper ? "2:00 PM" : "3:00 PM");
 
   const editorial = getLotteryEditorialContent(
     lotteryCode,
@@ -293,6 +295,7 @@ export default async function LotteryDetailsPage({ params }: PageProps) {
         lotteryCode={lotteryCode}
         lotterySlug={lotterySlug}
         initialDraws={drawHistory}
+        initialGeneratedAt={initialGeneratedAt}
         initialLotteryMeta={lotteryDbMeta}
         editorial={editorial}
         latestFormattedDate={latestFormattedDate}

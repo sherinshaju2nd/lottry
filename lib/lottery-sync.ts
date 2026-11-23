@@ -20,6 +20,11 @@ export interface SyncLotteryResult {
   source?: string;
   /** Result of every source tried this run (for logs / admin). */
   attempts?: SourceAttemptSummary[];
+  /**
+   * False when the API returned nothing new (the stored row already had this data, so nothing
+   * was written). Callers refresh caches/pages only when this is true.
+   */
+  changed?: boolean;
 }
 
 const errorMessage = (err: unknown, fallback = "Sync failed"): string =>
@@ -83,13 +88,18 @@ const saveSourceResponse = async (chosen: SourceAttempt, attemptSummary: SourceA
   }
 
   // Report what is actually stored (admin values may have been kept over empty/shorter API data).
-  const storedRow = saved as { first_prize?: StructuredDrawResult["first"]; prizes?: StructuredDrawResult["prizes"] };
+  const storedRow = saved as {
+    first_prize?: StructuredDrawResult["first"];
+    prizes?: StructuredDrawResult["prizes"];
+    changed?: boolean;
+  };
   return {
     success: true,
     data: { ...payload, first: storedRow.first_prize ?? payload.first, prizes: storedRow.prizes ?? payload.prizes },
     broadcast: broadcastResult,
     source: sourceName,
     attempts: attemptSummary,
+    changed: storedRow.changed !== false,
   };
 };
 

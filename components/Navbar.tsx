@@ -52,7 +52,7 @@ import {
   getLotteryUrl,
   getLotteryLogo,
   getLotteryLogoAlt,
-  supabase,
+  type LotteryRecord,
 } from "@/lib/supabase";
 
 export default function Navbar() {
@@ -128,10 +128,11 @@ export default function Navbar() {
   React.useEffect(() => {
     async function loadNavbarLotteries() {
       try {
-        const { data, error } = await supabase
-          .from("lotteries")
-          .select("*")
-          .order("id", { ascending: true });
+        // Server-cached lottery list (re-read from the database only after an admin change).
+        const res = await fetch("/api/draws?type=lotteries");
+        const json = res.ok ? await res.json() : null;
+        const data: LotteryRecord[] | null = Array.isArray(json?.lotteries) ? json.lotteries : null;
+        const error = data ? null : `lotteries unavailable (HTTP ${res.status})`;
         if (!error && data && data.length > 0) {
           const mapped = data.map((d: any) => ({
             day: d.day,

@@ -95,7 +95,7 @@ VALUES
   ('Bumper (March)', 'Summer Bumper', 'സമ്മർ ബംപർ', 'SB', '2:00 PM', true, '₹10 Crore', '₹250', 'March (Summer)'),
   ('Bumper (May)', 'Vishu Bumper', 'വിഷു ബംപർ', 'VB', '2:00 PM', true, '₹12 Crore', '₹300', 'May (Vishu)'),
   ('Bumper (July)', 'Monsoon Bumper', 'മൺസൂൺ ബംപർ', 'MB', '2:00 PM', true, '₹10 Crore', '₹250', 'July (Monsoon)'),
-  ('Bumper (September)', 'Thiruvonam Bumper', 'തിരുവോണം ബംപർ', 'TH', '2:00 PM', true, '₹25 Crore', '₹500', 'September (Onam)'),
+  ('Bumper (September)', 'Thiruvonam Bumper', 'തിരുവോണം ബംപർ', 'TH', '2:00 PM', true, '₹30 Crore', '₹500', 'September (Onam)'),
   ('Bumper (November)', 'Pooja Bumper', 'പൂജ ബംപർ', 'PB', '2:00 PM', true, '₹12 Crore', '₹300', 'November (Pooja/Diwali)')
 ON CONFLICT (code) DO UPDATE SET
   name = EXCLUDED.name,
