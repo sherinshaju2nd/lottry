@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
-import { getBlogBySlug } from "@/data/blogs";
+import { isBlogSlug } from "@/data/blogs";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -63,7 +63,7 @@ export default function Navbar() {
   const pathname = usePathname();
   // Articles & News covers the /blog listing, root-level guide posts and /news/{slug} articles.
   const isPostsActive =
-    pathname.startsWith("/blog") || pathname.startsWith("/news") || Boolean(getBlogBySlug(pathname.slice(1)));
+    pathname.startsWith("/blog") || pathname.startsWith("/news") || Boolean(isBlogSlug(pathname.slice(1)));
   const router = useRouter();
   const [lotteriesList, setLotteriesList] = useState(ALL_LOTTERIES);
   const [uiMode, setUiMode] = useState<"normal" | "modern">("normal");

@@ -1,6 +1,14 @@
 import { FOUNDER } from "@/lib/siteAuthor";
+import { BLOG_LANGUAGES, type BlogLanguage } from "@/data/blogTranslations/types";
+
 export interface BlogPost {
   slug: string;
+  /** Language of this page; omitted on English originals. */
+  language?: BlogLanguage;
+  /** Slug of the English original — set on every translated page. */
+  translationOf?: string;
+  /** Localized "Read this guide in:" label for the language switcher. */
+  switcherLabel?: string;
   title: string;
   metaTitle: string;
   description: string;
@@ -1014,10 +1022,52 @@ export const BLOG_POSTS: BlogPost[] = [
   },
 ];
 
+/** URL suffix per translated language, e.g. how-to-claim-kerala-lottery-prize-malayalam. */
+const LANGUAGE_SLUG_SUFFIX: Record<Exclude<BlogLanguage, "en">, string> = {
+  ml: "malayalam",
+  hi: "hindi",
+  ta: "tamil",
+  te: "telugu",
+};
+
+/** Languages every guide is translated into (text lives in data/blogTranslations, loaded server-side by data/blogPages.ts). */
+export const TRANSLATED_LANGUAGES = Object.keys(LANGUAGE_SLUG_SUFFIX) as Exclude<BlogLanguage, "en">[];
+
+export const getTranslatedSlug = (slug: string, language: BlogLanguage): string =>
+  language === "en" ? slug : `${slug}-${LANGUAGE_SLUG_SUFFIX[language]}`;
+
+/** Every language version's slug → its English source and language. Lightweight: no translated text. */
+const SLUG_INDEX = new Map<string, { sourceSlug: string; language: BlogLanguage }>(
+  BLOG_POSTS.flatMap(({ slug }) =>
+    (["en", ...TRANSLATED_LANGUAGES] as BlogLanguage[]).map(
+      (language) => [getTranslatedSlug(slug, language), { sourceSlug: slug, language }] as const,
+    ),
+  ),
+);
+
+/** Resolves any post URL slug (English or translated) to its English source slug and language. */
+export const parseBlogSlug = (slug: string): { sourceSlug: string; language: BlogLanguage } | undefined =>
+  SLUG_INDEX.get(slug);
+
+/** True for every routable post slug, translations included (proxy, Navbar). */
+export const isBlogSlug = (slug: string): boolean => SLUG_INDEX.has(slug);
+
+/** Every language version of a post as switcher links, in BLOG_LANGUAGES order. */
+export const getBlogLanguageLinks = (slug: string): { language: BlogLanguage; href: string }[] => {
+  const parsed = parseBlogSlug(slug);
+  if (!parsed) return [];
+  return (Object.keys(BLOG_LANGUAGES) as BlogLanguage[]).map((language) => ({
+    language,
+    href: getBlogPath(getTranslatedSlug(parsed.sourceSlug, language)),
+  }));
+};
+
+/** English originals — used for listings, the feed, the home page and related posts. */
 export function getAllBlogs(): BlogPost[] {
   return BLOG_POSTS;
 }
 
+/** English original by slug. Translated pages are loaded with getBlogPage() from data/blogPages.ts (server only). */
 export function getBlogBySlug(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((b) => b.slug === slug);
 }
@@ -1070,12 +1120,13 @@ const topicWords = ({ title, tags }: BlogPost): Set<string> =>
  * newest first on ties, so every post (including new ones) always gets `limit` suggestions.
  */
 export const getRelatedBlogs = (slug: string, limit = 3): BlogPost[] => {
-  const current = getBlogBySlug(slug);
+  // Translations share their English original's related posts.
+  const current = getBlogBySlug(parseBlogSlug(slug)?.sourceSlug ?? slug);
   if (!current) return BLOG_POSTS.slice(0, limit);
   const currentTags = new Set(current.tags.map((tag) => tag.toLowerCase()));
   const currentWords = topicWords(current);
 
-  return BLOG_POSTS.filter((post) => post.slug !== slug)
+  return BLOG_POSTS.filter((post) => post.slug !== current.slug)
     .map((post, index) => {
       const sharedTags = post.tags.filter((tag) => currentTags.has(tag.toLowerCase())).length;
       const sharedWords = [...topicWords(post)].filter((word) => currentWords.has(word)).length;
