@@ -4,20 +4,19 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
-import type { BlogPost } from "@/data/blogs";
+import type { BlogPost, BlogDrawContext, BlogRecentDraw } from "@/data/blogs";
+import { renderBlogContent } from "@/components/blog/blogContentRegistry";
 import PostDetailLayout from "@/components/posts/PostDetailLayout";
 import RelatedBlogPosts from "@/components/blog/RelatedBlogPosts";
 import { formatArticleDate } from "@/lib/articles";
 import { guideToPostCard } from "@/lib/posts";
-import BlogLanguageSwitcher, { type BlogLanguageLink } from "@/components/blog/BlogLanguageSwitcher";
-import { BLOG_LANGUAGES } from "@/data/blogTranslations/types";
 
 interface Props {
   post: BlogPost;
-  /** Article body, rendered on the server (keeps translated text out of the client bundle). */
-  content: React.ReactNode;
-  /** Every language version of this guide (empty when untranslated). */
-  translations?: BlogLanguageLink[];
+  /** Draw details from the database (lotteries.draw_date) for posts with a drawLotteryCode. */
+  draw?: BlogDrawContext | null;
+  /** Latest published draws for posts with showRecentDraws. */
+  recentDraws?: BlogRecentDraw[];
 }
 
 /** Post details (author, dates, read time, category, tags) shown at the top of every guide body. */
@@ -44,13 +43,10 @@ const GuideDetails = ({ post, readMinutes }: { post: BlogPost; readMinutes: numb
 };
 
 /** Editorial guide page: guide content rendered in the shared Articles & News detail layout. */
-export default function BlogPostClient({ post, content, translations = [] }: Props) {
+export default function BlogPostClient({ post, draw = null, recentDraws = [] }: Props) {
   const { publishedAt, readMinutes } = guideToPostCard(post);
-  const language = post.language ?? "en";
 
   return (
-    // The root layout is lang="en"; translated guides mark their own language for screen readers, fonts and search engines.
-    <Box lang={BLOG_LANGUAGES[language].hreflang}>
     <PostDetailLayout
       title={post.title}
       description={post.description}
@@ -68,10 +64,7 @@ export default function BlogPostClient({ post, content, translations = [] }: Pro
       footer={<RelatedBlogPosts slug={post.slug} />}
     >
       <GuideDetails post={post} readMinutes={readMinutes} />
-      <BlogLanguageSwitcher current={language} links={translations} label={post.switcherLabel} />
-      {/* Keyed wrapper: the server-rendered body otherwise trips React's list-key check inside the layout. */}
-      <React.Fragment key="body">{content}</React.Fragment>
+      {renderBlogContent(post.slug, { draw, recentDraws })}
     </PostDetailLayout>
-    </Box>
   );
 }

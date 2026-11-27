@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getBlogPath, getBlogUrl, resolveBlogPost, type BlogPost } from "@/data/blogs";
-import { getAllBlogPages, getBlogPage, getBlogTranslations } from "@/data/blogPages";
-import { renderBlogContent } from "@/components/blog/blogContentRegistry";
-import { BLOG_LANGUAGES } from "@/data/blogTranslations/types";
+import { getAllBlogs, getBlogBySlug, getBlogUrl, resolveBlogPost } from "@/data/blogs";
 import BlogPostClient from "@/components/BlogPostClient";
 import { getBlogDrawContext, getBlogRecentDraws } from "@/lib/blogDraw";
 import { founderPersonSchema, isFounderAuthor } from "@/lib/siteAuthor";
@@ -15,7 +12,7 @@ export const dynamicParams = false;
 
 /** Loads a post with its {{drawDate}} tokens filled from the database. */
 const loadPost = async (slug: string) => {
-  const post = getBlogPage(slug);
+  const post = getBlogBySlug(slug);
   if (!post) return null;
   const [draw, recentDraws] = await Promise.all([
     post.drawLotteryCode ? getBlogDrawContext(post.drawLotteryCode) : Promise.resolve(null),
@@ -24,15 +21,6 @@ const loadPost = async (slug: string) => {
   return { post: resolveBlogPost(post, draw), draw, recentDraws };
 };
 
-/** hreflang map for every language version, with the English original as x-default. */
-const getHreflangAlternates = (translations: BlogPost[]): Record<string, string> =>
-  Object.fromEntries(
-    translations.flatMap(({ slug, language = "en" }) => [
-      [BLOG_LANGUAGES[language].hreflang, getBlogUrl(slug)],
-      ...(language === "en" ? [["x-default", getBlogUrl(slug)]] : []),
-    ]),
-  );
-
 interface Props {
   params: Promise<{
     slug: string;
@@ -40,7 +28,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const blogs = getAllBlogPages();
+  const blogs = getAllBlogs();
   return blogs.map((post) => ({
     slug: post.slug,
   }));
@@ -58,8 +46,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { post } = loaded;
   const url = getBlogUrl(post.slug);
-  const translations = getBlogTranslations(post);
-  const { ogLocale } = BLOG_LANGUAGES[post.language ?? "en"];
 
   return {
     // The root layout's title template already appends " | Kerala Lottery".
@@ -68,18 +54,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: post.tags,
     alternates: {
       canonical: url,
-      ...(translations.length > 0 && { languages: getHreflangAlternates(translations) }),
     },
     openGraph: {
       title: `${post.title} | Kerala Lottery`,
       description: post.description,
       url,
-      locale: ogLocale,
-      ...(translations.length > 0 && {
-        alternateLocale: translations
-          .map(({ language = "en" }) => BLOG_LANGUAGES[language].ogLocale)
-          .filter((locale) => locale !== ogLocale),
-      }),
       siteName: "Kerala Lottery Results Today",
       type: "article",
       publishedTime: post.publishedDate,
@@ -138,7 +117,7 @@ export default async function BlogPostPage({ params }: Props) {
       "@id": pageUrl,
     },
     keywords: post.tags.join(", "),
-    inLanguage: BLOG_LANGUAGES[post.language ?? "en"].hreflang,
+    inLanguage: "en-IN",
     image: `https://www.keralalotteryresultstoday.in${post.coverImage ?? "/logo-master-1024.png"}`,
     // AEO: point voice assistants / answer engines at the summary blocks
     speakable: {
@@ -224,11 +203,7 @@ export default async function BlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
         />
       )}
-      <BlogPostClient
-        post={post}
-        content={renderBlogContent(post.translationOf ?? post.slug, { draw, recentDraws }, post.language ?? "en")}
-        translations={getBlogTranslations(post).map(({ slug: href, language = "en" }) => ({ language, href: getBlogPath(href) }))}
-      />
+      <BlogPostClient post={post} draw={draw} recentDraws={recentDraws} />
     </>
   );
 }

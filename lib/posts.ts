@@ -8,7 +8,6 @@ import {
   type ArticleSummary,
 } from "@/lib/articles";
 import { FOUNDER, isFounderAuthor } from "@/lib/siteAuthor";
-import { BLOG_LANGUAGES } from "@/data/blogTranslations/types";
 
 /**
  * Unified "Articles & News" feed: static editorial guides (data/blogs.ts, served at /{slug})
@@ -59,10 +58,7 @@ const GUIDE_CATEGORY_MAP: Record<string, ArticleCategory> = {
 const parseReadMinutes = (readTime: string): number => Number.parseInt(readTime, 10) || 5;
 
 export const guideToPostCard = (post: BlogPost): PostCardItem => {
-  const category = GUIDE_CATEGORY_MAP[post.sourceCategory ?? post.category] ?? "guide";
-  // Translated guides are listed as their own posts, labelled with their language.
-  const language = post.language && post.language !== "en" ? BLOG_LANGUAGES[post.language] : undefined;
-  const categoryLabel = getCategoryMeta(category).label;
+  const category = GUIDE_CATEGORY_MAP[post.category] ?? "guide";
   return {
     id: `guide:${post.slug}`,
     kind: "guide",
@@ -71,14 +67,14 @@ export const guideToPostCard = (post: BlogPost): PostCardItem => {
     description: post.description,
     publishedAt: `${post.publishedDate}T09:00:00+05:30`,
     category,
-    categoryLabel: language ? `${categoryLabel} · ${language.nativeName}` : categoryLabel,
+    categoryLabel: getCategoryMeta(category).label,
     coverImage: post.coverImage,
     coverAlt: post.coverAlt ?? post.title,
     readMinutes: parseReadMinutes(post.readTime),
     featured: post.featured,
     authorName: post.author.name,
     authorAvatar: post.author.avatar,
-    searchText: `${post.title} ${post.description} ${post.category} ${language ? `${language.englishName} ${language.nativeName}` : ""}`.toLowerCase(),
+    searchText: `${post.title} ${post.description} ${post.category}`.toLowerCase(),
   };
 };
 

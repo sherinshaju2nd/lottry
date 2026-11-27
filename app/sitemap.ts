@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
 import { getAllBlogs, getBlogPath } from "@/data/blogs";
-import { getAllBlogPages, getBlogTranslations } from "@/data/blogPages";
-import { BLOG_LANGUAGES } from "@/data/blogTranslations/types";
 import { fetchArticlesForSitemap, getArticlePath } from "@/lib/articles";
 import {
   ALL_LOTTERIES,
@@ -164,25 +162,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Error generating dynamic draw sitemap links:", error);
   }
 
-  const blogPages: MetadataRoute.Sitemap = getAllBlogPages().map((post) => {
-    const translations = getBlogTranslations(post);
-    return {
-      url: `${baseUrl}${getBlogPath(post.slug)}`,
-      lastModified: new Date(post.updatedDate),
-      changeFrequency: "weekly" as const,
-      priority: post.translationOf ? 0.8 : 0.85,
-      ...(translations.length > 0 && {
-        alternates: {
-          languages: Object.fromEntries(
-            translations.map(({ slug, language = "en" }) => [
-              BLOG_LANGUAGES[language].hreflang,
-              `${baseUrl}${getBlogPath(slug)}`,
-            ]),
-          ),
-        },
-      }),
-    };
-  });
+  const blogPages: MetadataRoute.Sitemap = getAllBlogs().map((post) => ({
+    url: `${baseUrl}${getBlogPath(post.slug)}`,
+    lastModified: new Date(post.updatedDate),
+    changeFrequency: "weekly" as const,
+    priority: 0.85,
+  }));
 
   const articles = await fetchArticlesForSitemap();
   // Merged "Articles & News" listing (/news 308-redirects here): last modified = newest guide or article.

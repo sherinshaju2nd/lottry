@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ADMIN_SESSION_COOKIE, isValidAdminSessionToken } from "@/lib/admin-auth";
 import { LOTTERY_SLUGS, SLUG_TO_LOTTERY_CODE } from "@/lib/lotterySlugs";
-import { isBlogSlug, getBlogPath } from "@/data/blogs";
+import { getBlogBySlug, getBlogPath } from "@/data/blogs";
 
 /**
  * Top-level app routes that are NOT lottery slugs. Anything else with 1–2 path
@@ -98,14 +98,14 @@ export function proxy(request: NextRequest) {
 
   // Legacy /blog/{slug}: 308 to the root-level post URL, real 404 for unknown posts
   if (segments[0] === "blog" && segments.length > 1) {
-    if (segments.length !== 2 || !isBlogSlug(segments[1])) return notFoundResponse();
+    if (segments.length !== 2 || !getBlogBySlug(segments[1])) return notFoundResponse();
     const target = new URL(getBlogPath(segments[1]), request.url);
     target.search = request.nextUrl.search;
     return NextResponse.redirect(target, 308);
   }
 
   // Root-level /{post-slug}: served by app/blog/[slug] (app/[code] would otherwise claim it)
-  if (segments.length === 1 && isBlogSlug(segments[0])) {
+  if (segments.length === 1 && getBlogBySlug(segments[0])) {
     const target = request.nextUrl.clone();
     target.pathname = `/blog/${segments[0]}`;
     return NextResponse.rewrite(target);
