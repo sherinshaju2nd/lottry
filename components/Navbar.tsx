@@ -183,7 +183,11 @@ export default function Navbar() {
       }}
     >
       <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 5 } }}>
-        <Toolbar disableGutters sx={{ justifyContent: "space-between", py: 1 }}>
+        <Toolbar
+          disableGutters
+          // Compact on phones so the sticky header doesn't eat ~11% of the screen
+          sx={{ justifyContent: "space-between", py: { xs: 0.5, md: 1 }, minHeight: { xs: 60, md: 64 } }}
+        >
           {/* Logo & Brand Name */}
           <Box
             component={Link}
@@ -200,8 +204,8 @@ export default function Navbar() {
               src="/logo-round-192.png"
               alt="kerala-lottery-results-logo"
               sx={{
-                width: 73,
-                height: 75,
+                width: { xs: 50, md: 73 },
+                height: { xs: 50, md: 75 },
                 borderRadius: "50%",
                 boxShadow: "0 2px 8px rgba(15,90,36,0.3)",
                 objectFit: "contain",

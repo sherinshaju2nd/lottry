@@ -639,6 +639,8 @@ export default function AdvancedSearchPage() {
               sx={{
                 borderRadius: "10px",
                 py: 1,
+                whiteSpace: "nowrap",
+                "& .MuiButton-startIcon": { mr: { xs: 0.5, sm: 1 } },
                 fontWeight: 800,
                 fontSize: { xs: "0.8rem", sm: "0.875rem" },
                 textTransform: "none",
@@ -664,6 +666,8 @@ export default function AdvancedSearchPage() {
               sx={{
                 borderRadius: "10px",
                 py: 1,
+                whiteSpace: "nowrap",
+                "& .MuiButton-startIcon": { mr: { xs: 0.5, sm: 1 } },
                 fontWeight: 800,
                 fontSize: { xs: "0.8rem", sm: "0.875rem" },
                 textTransform: "none",
@@ -716,7 +720,7 @@ export default function AdvancedSearchPage() {
                         }
                       },
                     })}
-                    placeholder="e.g. MJ 136429, 136429, or 6429"
+                    placeholder="e.g. MJ 136429"
                     fullWidth
                     error={!!errors.ticketNumber}
                     helperText={errors.ticketNumber?.message}
@@ -892,7 +896,8 @@ export default function AdvancedSearchPage() {
                   fontWeight: 800,
                   color: "#0F172A",
                   fontSize: "0.9rem",
-                  mb: 0.75,
+                  // Extra gap so the wrapped Malayalam line clears the date picker's floating label
+                  mb: 2,
                 }}
               >
                 Draw Date Filter <span style={{ color: "#64748B", fontWeight: 600 }}>(തീയതി തിരഞ്ഞെടുക്കുക)</span>
@@ -1512,7 +1517,8 @@ export default function AdvancedSearchPage() {
                   fontWeight: 800,
                   color: "#0F172A",
                   fontSize: "0.9rem",
-                  mb: 0.75,
+                  // Extra gap so the wrapped Malayalam line clears the date picker's floating label
+                  mb: 2,
                 }}
               >
                 Draw Date Filter <span style={{ color: "#64748B", fontWeight: 600 }}>(തീയതി തിരഞ്ഞെടുക്കുക)</span>

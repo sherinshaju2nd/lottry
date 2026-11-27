@@ -19,6 +19,7 @@ import {
 } from "./DownloadAppModal";
 import { BUMPER_LOTTERIES, WEEKLY_LOTTERIES } from "@/lib/lotteryCatalog";
 import { getLotteryUrl } from "@/lib/lotterySlugs";
+import { MIN_TAP_SIZE } from "@/lib/responsiveSx";
 
 const LOTTERY_GROUPS = [
   { titleMl: "പ്രതിവാര ലോട്ടറികൾ", titleEn: "Weekly Lotteries", lotteries: WEEKLY_LOTTERIES },
@@ -299,8 +300,11 @@ export default function Footer() {
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "center",
-            gap: { xs: 2, sm: 3 },
+            columnGap: { xs: 2, sm: 3 },
+            rowGap: 0,
             mb: 2.5,
+            // Comfortable touch targets on phones without changing the visual text size
+            "& > a": { display: "inline-flex", alignItems: "center", minHeight: MIN_TAP_SIZE },
           }}
         >
           <Typography

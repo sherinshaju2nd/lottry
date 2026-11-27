@@ -442,18 +442,35 @@ export default function AiVoiceAssistantModal() {
       <Tooltip title="Kerala Lottery AI Voice Assistant (മലയാളം & English)" placement="left" arrow>
         <Box
           onClick={() => setOpen(true)}
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setOpen(true);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Ask Lottery AI (Malayalam & English)"
           sx={{
             position: "fixed",
-            bottom: { xs: 20, md: 32 },
-            right: { xs: 16, md: 28 },
-            zIndex: 1250,
+            // Mobile: sit above the fixed bottom nav (58px + safe-area) so tabs stay tappable
+            bottom: {
+              xs: "calc(74px + env(safe-area-inset-bottom, 0px))",
+              md: 32,
+            },
+            right: { xs: 14, md: 28 },
+            // Below MUI Drawer (1200) so the side menu covers it
+            zIndex: 1150,
             display: "flex",
             alignItems: "center",
-            gap: 1.5,
+            justifyContent: "center",
+            gap: { xs: 0, md: 1.5 },
+            width: { xs: 52, md: "auto" },
+            height: { xs: 52, md: "auto" },
             bgcolor: "#0B3C5D",
             background: "linear-gradient(135deg, #0B3C5D 0%, #172554 50%, #0F172A 100%)",
             color: "#FFFFFF",
-            p: { xs: "8px 16px", md: "10px 20px" },
+            p: { xs: 0, md: "10px 20px" },
             borderRadius: "50px",
             boxShadow: "0 10px 30px rgba(11, 60, 93, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.2) inset",
             cursor: "pointer",
@@ -493,7 +510,8 @@ export default function AiVoiceAssistantModal() {
             />
           </Box>
 
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
+          {/* Text label only on desktop; mobile shows a compact icon button */}
+          <Box sx={{ display: { xs: "none", md: "flex" }, flexDirection: "column" }}>
             <Typography
               sx={{
                 fontWeight: 800,

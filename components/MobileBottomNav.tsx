@@ -41,7 +41,8 @@ export default function MobileBottomNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        zIndex: 1250,
+        // Above sticky header (1100), below MUI Drawer (1200) so the side menu covers it
+        zIndex: 1150,
         bgcolor: "rgba(255, 255, 255, 0.96)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",

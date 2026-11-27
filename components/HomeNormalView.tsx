@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
+import SupportUsCard from "@/components/SupportUsCard";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
@@ -344,7 +345,8 @@ export default function HomeNormalView({
                   textAlign: "center",
                   letterSpacing: "0.03em",
                   textTransform: "uppercase",
-                  mt: { xs: 0.5, sm: 0 },
+                  // Start below the top-corner code badge / NEW ribbon so they never touch the title
+                  mt: { xs: 2.5, sm: 2 },
                   px: 4,
                 }}
               >
@@ -660,6 +662,11 @@ export default function HomeNormalView({
           </Button>
         </Box>
       )}
+
+      {/* Support Us (same card as the modern home sidebar) */}
+      <Box sx={{ maxWidth: 520, mx: "auto", mt: 2 }}>
+        <SupportUsCard />
+      </Box>
     </Box>
   );
 }

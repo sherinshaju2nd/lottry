@@ -80,6 +80,7 @@ import {
   withFreshParam,
   LIVE_CHANGE_REFETCH_DELAY_MS,
 } from "@/lib/supabase";
+import { fixAmountSeparators } from "@/lib/drawInsights";
 
 interface SingleCheckerMatch {
   tier: string;
@@ -1226,7 +1227,7 @@ export default function DedicatedLotteryDateClient({
       if (matchRes.isMatch) {
         matchesList.push({
           tier: "1st Prize Winner",
-          amount: drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-",
+          amount: fixAmountSeparators(drawResult.prizes?.amounts?.["1st"]) || "1,00,00,000/-",
           matchedNumber: drawResult.first.ticket,
           seriesNote: matchRes.seriesNote,
         });
@@ -1246,7 +1247,7 @@ export default function DedicatedLotteryDateClient({
     ] as const;
     for (const tier of tiers) {
       const nums = drawResult.prizes?.[tier] || [];
-      const amount = drawResult.prizes?.amounts?.[tier];
+      const amount = fixAmountSeparators(drawResult.prizes?.amounts?.[tier]);
       for (const num of nums) {
         const matchRes = validateTicketMatch(query, num);
         if (matchRes.isMatch) {
@@ -1317,7 +1318,7 @@ export default function DedicatedLotteryDateClient({
       if (matchRes.isMatch) {
         matchesList.push({
           tier: "1st Prize Winner",
-          amount: drawResult.prizes?.amounts?.["1st"] || "1,00,00,000/-",
+          amount: fixAmountSeparators(drawResult.prizes?.amounts?.["1st"]) || "1,00,00,000/-",
           matchedNumber: drawResult.first.ticket,
           seriesNote: matchRes.seriesNote,
         });
@@ -1337,7 +1338,7 @@ export default function DedicatedLotteryDateClient({
     ] as const;
     for (const tier of tiers) {
       const nums = drawResult.prizes?.[tier] || [];
-      const amount = drawResult.prizes?.amounts?.[tier];
+      const amount = fixAmountSeparators(drawResult.prizes?.amounts?.[tier]);
       for (const num of nums) {
         const matchRes = validateTicketMatch(queryInput, num);
         if (matchRes.isMatch) {
@@ -1944,7 +1945,7 @@ export default function DedicatedLotteryDateClient({
                   </Button>
                   <ShareButtons
                     title={`${drawResult.draw_name} (${drawResult.draw_code}) Result - ${drawResult.draw_date}`}
-                    text={`Kerala Lottery ${drawResult.draw_name} (${drawResult.draw_code}) results for ${drawResult.draw_date}. 1st Prize (${drawResult.prizes?.amounts?.["1st"] || "₹1 Crore"}): ${drawResult.first?.ticket || "Pending"}`}
+                    text={`Kerala Lottery ${drawResult.draw_name} (${drawResult.draw_code}) results for ${drawResult.draw_date}. 1st Prize (${fixAmountSeparators(drawResult.prizes?.amounts?.["1st"]) || "₹1 Crore"}): ${drawResult.first?.ticket || "Pending"}`}
                     pdfUrl={`/api/pdf/${lotteryCode}/${drawResult.draw_date || selectedDate}`}
                     drawResult={drawResult}
                     lotteryInfo={lotteryInfo}
@@ -2004,7 +2005,7 @@ export default function DedicatedLotteryDateClient({
                       mb: 0.5,
                     }}
                   >
-                    {drawResult.prizes?.amounts?.["1st"] || "₹1 Crore"}
+                    {fixAmountSeparators(drawResult.prizes?.amounts?.["1st"]) || "₹1 Crore"}
                   </Typography>
                 </Box>
 
@@ -2234,7 +2235,7 @@ export default function DedicatedLotteryDateClient({
             <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }} sx={{ mb: 4 }}>
               {prizeTiers.map((tier) => {
                 const numbers = (drawResult.prizes as any)?.[tier.key] || [];
-                const amount = drawResult.prizes?.amounts?.[tier.key];
+                const amount = fixAmountSeparators(drawResult.prizes?.amounts?.[tier.key]);
                 if (!numbers || numbers.length === 0) return null;
 
                 return (

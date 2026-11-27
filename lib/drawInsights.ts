@@ -56,8 +56,15 @@ export interface DrawInsights {
 }
 
 /** "₹1,00,00,000/-" / "5.000/-" → "₹1,00,00,000" / "₹5,000" */
+/**
+ * Some sources store Indian amounts with a dot as the thousands separator ("5.000/-").
+ * Swap those dots for commas ("5,000/-") without touching real decimals like "1.5 Crore".
+ */
+export const fixAmountSeparators = <T extends string | undefined>(raw: T): T =>
+  (raw?.replace(/(\d)\.(\d{3})(?!\d)/g, "$1,$2") ?? raw) as T;
+
 export const formatPrizeAmount = (raw?: string): string | undefined => {
-  const cleaned = raw?.replace(/\/-\s*$/, "").replace(/(\d)\.(\d{3})$/, "$1,$2").replace(/^₹?\s*/, "").trim();
+  const cleaned = fixAmountSeparators(raw)?.replace(/\/-\s*$/, "").replace(/^₹?\s*/, "").trim();
   return cleaned ? `₹${cleaned}` : undefined;
 };
 

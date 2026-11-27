@@ -22,12 +22,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Accordion from "@mui/material/Accordion";
@@ -88,6 +82,9 @@ import HomeNormalView from "@/components/HomeNormalView";
 import GridViewIcon from "@mui/icons-material/GridView";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import WeeklyScheduleTable from "@/components/WeeklyScheduleTable";
+import { fixAmountSeparators } from "@/lib/drawInsights";
+import { MIN_TAP_SIZE } from "@/lib/responsiveSx";
 
 const searchSchema = yup.object({
   ticketNumber: yup
@@ -863,7 +860,7 @@ export default function HomePageClient({
             variant="subtitle2"
             sx={{ fontWeight: 700, opacity: 0.95, mb: 1.5 }}
           >
-            Prize: {draw.prizes?.amounts?.["1st"] || "₹70 Lakhs"}
+            Prize: {fixAmountSeparators(draw.prizes?.amounts?.["1st"]) || "₹70 Lakhs"}
           </Typography>
 
           {(hasLocation || hasAgent) && (
@@ -917,7 +914,7 @@ export default function HomePageClient({
             const numbers = draw.prizes?.[key as keyof typeof draw.prizes] as
               | string[]
               | undefined;
-            const amount = draw.prizes?.amounts?.[key];
+            const amount = fixAmountSeparators(draw.prizes?.amounts?.[key]);
 
             if (!numbers || numbers.length === 0) return null;
 
@@ -3872,238 +3869,7 @@ export default function HomePageClient({
                 />
               </Box>
 
-              <Paper
-                elevation={0}
-                sx={{
-                  borderRadius: "18px",
-                  border: "1px solid #E2E8F0",
-                  overflow: "hidden",
-                  mb: 2.5,
-                  boxShadow: "0 4px 18px rgba(11, 60, 93, 0.04)",
-                }}
-              >
-                <TableContainer>
-                  <Table size="medium">
-                    <TableHead sx={{ bgcolor: "#F8FAFC" }}>
-                      <TableRow>
-                        <TableCell
-                          sx={{
-                            fontWeight: 800,
-                            color: "#0B3C5D",
-                            py: 1.8,
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          LOTTERY NAME
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            fontWeight: 800,
-                            color: "#0B3C5D",
-                            py: 1.8,
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          DRAW DAY
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            fontWeight: 800,
-                            color: "#0B3C5D",
-                            py: 1.8,
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          CODE
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            fontWeight: 800,
-                            color: "#0B3C5D",
-                            py: 1.8,
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          1ST PRIZE JACKPOT
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            fontWeight: 800,
-                            color: "#0B3C5D",
-                            py: 1.8,
-                            fontSize: "0.85rem",
-                          }}
-                        >
-                          TICKET PRICE
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            fontWeight: 800,
-                            color: "#0B3C5D",
-                            py: 1.8,
-                            fontSize: "0.85rem",
-                            textAlign: "right",
-                          }}
-                        >
-                          ACTION
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {[
-                        {
-                          name: "BHAGYATHARA",
-                          day: "Monday",
-                          code: "BT",
-                          prize: "₹1 Crore",
-                          cost: "₹50",
-                          slug: "bhagyathara",
-                        },
-                        {
-                          name: "STHREE-SAKTHI",
-                          day: "Tuesday",
-                          code: "SS",
-                          prize: "₹1 Crore",
-                          cost: "₹50",
-                          slug: "sthreesakthi",
-                        },
-                        {
-                          name: "DHANALEKSHMI",
-                          day: "Wednesday",
-                          code: "DL",
-                          prize: "₹1 Crore",
-                          cost: "₹50",
-                          slug: "dhanalekshmi",
-                        },
-                        {
-                          name: "KARUNYA PLUS",
-                          day: "Thursday",
-                          code: "KN",
-                          prize: "₹1 Crore",
-                          cost: "₹50",
-                          slug: "karunyaplus",
-                        },
-                        {
-                          name: "SUVARNA KERALAM",
-                          day: "Friday",
-                          code: "SK",
-                          prize: "₹1 Crore",
-                          cost: "₹50",
-                          slug: "suvarnakeralam",
-                        },
-                        {
-                          name: "KARUNYA",
-                          day: "Saturday",
-                          code: "KR",
-                          prize: "₹1 Crore",
-                          cost: "₹50",
-                          slug: "karunya",
-                        },
-                        {
-                          name: "SAMRUDHI",
-                          day: "Sunday",
-                          code: "SM",
-                          prize: "₹1 Crore",
-                          cost: "₹50",
-                          slug: "samrudhi",
-                        },
-                      ].map((row, idx) => (
-                        <TableRow
-                          key={row.code}
-                          sx={{
-                            bgcolor: idx % 2 === 1 ? "#FAFCFF" : "#FFFFFF",
-                            transition: "background-color 0.15s ease",
-                            "&:hover": { bgcolor: "#F0F7FF" },
-                          }}
-                        >
-                          <TableCell sx={{ fontWeight: 800, py: 1.8 }}>
-                            <Link
-                              href={`/${row.slug}`}
-                              style={{
-                                color: "#0B3C5D",
-                                textDecoration: "none",
-                                fontWeight: 800,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 6,
-                              }}
-                            >
-                              {row.name}
-                              <ArrowForwardIcon
-                                sx={{ fontSize: 15, color: "#2563EB" }}
-                              />
-                            </Link>
-                          </TableCell>
-                          <TableCell sx={{ color: "#334155", fontWeight: 600 }}>
-                            {row.day}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={row.code}
-                              size="small"
-                              sx={{
-                                fontWeight: 800,
-                                bgcolor: "#EFF6FF",
-                                color: "#1D4ED8",
-                                borderRadius: "8px",
-                                border: "1px solid #BFDBFE",
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={row.prize}
-                              size="small"
-                              icon={
-                                <EmojiEventsIcon
-                                  sx={{
-                                    fontSize: "14px !important",
-                                    color: "#15803D !important",
-                                  }}
-                                />
-                              }
-                              sx={{
-                                fontWeight: 800,
-                                bgcolor: "#DCFCE7",
-                                color: "#15803D",
-                                borderRadius: "8px",
-                                border: "1px solid #86EFAC",
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ color: "#475569", fontWeight: 700 }}>
-                            {row.cost}
-                          </TableCell>
-                          <TableCell sx={{ textAlign: "right" }}>
-                            <Button
-                              component={Link}
-                              href={`/${row.slug}`}
-                              size="small"
-                              variant="outlined"
-                              sx={{
-                                textTransform: "none",
-                                borderRadius: "8px",
-                                fontWeight: 700,
-                                fontSize: "0.78rem",
-                                py: 0.4,
-                                px: 1.4,
-                                borderColor: "#CBD5E1",
-                                color: "#0B3C5D",
-                                "&:hover": {
-                                  borderColor: "#0B3C5D",
-                                  bgcolor: "rgba(11, 60, 93, 0.04)",
-                                },
-                              }}
-                            >
-                              View Result
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Paper>
+              <WeeklyScheduleTable />
 
               <Box
                 sx={{
@@ -4518,11 +4284,12 @@ export default function HomePageClient({
                         size="small"
                         endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
                         sx={{
-                          mt: 2,
+                          mt: 1,
                           textTransform: "none",
                           fontWeight: 700,
                           color: "#0B3C5D",
                           p: 0,
+                          minHeight: MIN_TAP_SIZE,
                           justifyContent: "flex-start",
                           "&:hover": {
                             bgcolor: "transparent",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import QRCode from "qrcode";
 import Link from "next/link";
 import Box from "@mui/material/Box";
@@ -35,6 +35,8 @@ const SUPPORT_POINTS = [
 export default function SupportUsCard() {
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  // The card can render twice on the home page (modern + normal views), so ids must be unique.
+  const titleId = `support-us-title-${useId()}`;
 
   useEffect(() => {
     let active = true;
@@ -72,7 +74,7 @@ export default function SupportUsCard() {
   return (
     <Paper
       component="section"
-      aria-labelledby="support-us-card-title"
+      aria-labelledby={titleId}
       elevation={0}
       sx={{
         mt: 3,
@@ -108,7 +110,7 @@ export default function SupportUsCard() {
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 0.75 }}>
           <FavoriteIcon sx={{ color: "#F43F5E", fontSize: 22 }} />
           <Typography
-            id="support-us-card-title"
+            id={titleId}
             component="h2"
             sx={{ fontWeight: 900, fontSize: "1.2rem", color: "#FFFFFF" }}
           >
