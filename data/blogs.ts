@@ -9,6 +9,8 @@ export interface BlogPost {
   translationOf?: string;
   /** Localized "Read this guide in:" label for the language switcher. */
   switcherLabel?: string;
+  /** English category of the original, so translated cards map to the same listing filter. */
+  sourceCategory?: string;
   title: string;
   metaTitle: string;
   description: string;

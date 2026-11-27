@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAllBlogs } from "@/data/blogs";
+import { getAllBlogPages } from "@/data/blogPages";
 import PostsFeedClient from "@/components/posts/PostsFeedClient";
 import { SITE_URL, fetchFeaturedArticle, fetchPublishedArticles } from "@/lib/articles";
 import { POSTS_TITLE, POSTS_URL, articleToPostCard, guideToPostCard, mergePostFeed } from "@/lib/posts";
@@ -37,7 +37,8 @@ export const metadata: Metadata = {
 };
 
 export default async function ArticlesAndNewsPage() {
-  const guides = getAllBlogs().map(guideToPostCard);
+  // Every guide page, translations included, is listed as its own post.
+  const guides = getAllBlogPages().map(guideToPostCard);
   const [{ articles, total, error }, pinned] = await Promise.all([
     fetchPublishedArticles({ page: 0 }),
     fetchFeaturedArticle(),

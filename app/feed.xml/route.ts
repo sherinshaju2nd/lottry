@@ -4,7 +4,8 @@ import {
   WEEKLY_LOTTERIES,
   getLotterySlug,
 } from "@/lib/supabase";
-import { getAllBlogs, getBlogPath } from "@/data/blogs";
+import { getBlogPath } from "@/data/blogs";
+import { getAllBlogPages } from "@/data/blogPages";
 import { fetchArticlesForSitemap, getArticlePath, getCategoryMeta } from "@/lib/articles";
 export const revalidate = 3600; // 1 hour (revalidated on-demand when draws sync)
 
@@ -96,7 +97,7 @@ export async function GET() {
       })
       .join("\n");
 
-    const blogItemsXml = getAllBlogs()
+    const blogItemsXml = getAllBlogPages()
       .map(({ slug, title, description, publishedDate, category }) => {
         const url = `${baseUrl}${getBlogPath(slug)}`;
         return `    <item>

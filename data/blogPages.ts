@@ -24,6 +24,7 @@ const translatePost = (source: BlogPost, language: BlogLanguage, meta: BlogTrans
     slug,
     language,
     translationOf: source.slug,
+    sourceCategory: source.category,
     featured: false,
     coverImage: `/blog/${slug}.jpg`,
     tableOfContents: source.tableOfContents.map(({ id, title }) => ({ id, title: tocTitles[id] ?? title })),
