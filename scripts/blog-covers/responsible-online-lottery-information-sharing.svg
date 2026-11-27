@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827"/><stop offset="0.55" stop-color="#1F2937"/><stop offset="1" stop-color="#14532D"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.72" cy="0.42" r="0.6">
+      <stop offset="0" stop-color="#86EFAC" stop-opacity="0.26"/><stop offset="1" stop-color="#86EFAC" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="12"/><feOffset dx="0" dy="14" result="b"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="60" y="92" font-size="48" font-weight="900" fill="#FFFFFF">Responsible Online Lottery</text><text x="60" y="146" font-size="48" font-weight="900" fill="#FFFFFF">Information Sharing</text>
+    <text x="62" y="192" font-size="20" font-weight="700" fill="#FDE68A">Verify results, avoid fake announcements and prize scams</text>
+  </g>
+  
+    <!-- verified result card -->
+    <g filter="url(#shadow)" transform="rotate(-4 330 450)">
+      <rect x="70" y="310" width="500" height="270" rx="18" fill="#FFFFFF"/>
+      <rect x="70" y="310" width="500" height="56" rx="18" fill="#15803D"/><rect x="70" y="344" width="500" height="22" fill="#15803D"/>
+      <text x="96" y="346" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="900" fill="#FFFFFF">OFFICIAL RESULT</text>
+      <text x="544" y="346" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="900" fill="#BBF7D0">Kerala State Lotteries</text>
+      <text x="96" y="400" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#475569">Lottery · Draw No. · Date</text>
+      <text x="544" y="400" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="800" fill="#0F172A">SK-79 · 27-11-2026</text>
+      <text x="96" y="440" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#475569">1st Prize</text>
+      <text x="544" y="440" text-anchor="end" font-family="'Courier New', Courier, monospace" font-size="26" font-weight="700" fill="#DC2626">RK 661942</text>
+      <line x1="96" y1="462" x2="544" y2="462" stroke="#E2E8F0" stroke-width="2"/>
+      <text x="96" y="496" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="800" fill="#16A34A">Lottery name ✓</text><text x="96" y="524" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="800" fill="#16A34A">Draw date ✓</text><text x="96" y="552" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="800" fill="#16A34A">Ticket series ✓</text>
+      <g transform="translate(470 520)"><circle r="40" fill="#16A34A"/><path d="M-18 0 L-5 14 L20 -14" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </g>
+    <!-- fake message phone -->
+    <g filter="url(#shadow)" transform="rotate(6 930 390)">
+      <rect x="800" y="150" width="270" height="460" rx="34" fill="#0F172A"/>
+      <rect x="814" y="166" width="242" height="428" rx="24" fill="#F1F5F9"/>
+      <rect x="814" y="166" width="242" height="56" rx="24" fill="#475569"/><rect x="814" y="200" width="242" height="22" fill="#475569"/>
+      <text x="935" y="202" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="900" fill="#FFFFFF">Unknown number</text>
+      <rect x="832" y="240" width="206" height="96" rx="14" fill="#FFFFFF"/>
+      <text x="846" y="268" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="800" fill="#0F172A">You WON ₹25 lakh!</text>
+      <text x="846" y="294" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#334155">Pay ₹4,999 "tax"</text>
+      <text x="846" y="318" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#334155">to release prize</text>
+      <rect x="832" y="350" width="206" height="70" rx="14" fill="#FFFFFF"/>
+      <text x="846" y="380" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#334155">Send your OTP and</text>
+      <text x="846" y="404" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#334155">bank details now</text>
+      <rect x="832" y="440" width="206" height="44" rx="22" fill="#DC2626"/>
+      <text x="935" y="468" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="900" fill="#FFFFFF">PAY NOW</text>
+    </g>
+    <g transform="rotate(-16 960 320)">
+      <rect x="845" y="280" width="230" height="84" rx="12" fill="none" stroke="#F87171" stroke-width="7"/>
+      <text x="960" y="340" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="900" fill="#F87171" letter-spacing="6">FAKE</text>
+    </g>
+    
+  <g filter="url(#shadow)" transform="rotate(-3 460 264)">
+    <rect x="330" y="238" width="260" height="52" rx="26" fill="#16A34A"/>
+    <text x="460" y="273" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" fill="#FFFFFF" letter-spacing="1">VERIFY FIRST ✓</text>
+  </g>
+</svg>

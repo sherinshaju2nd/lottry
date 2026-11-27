@@ -30,8 +30,14 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-export const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/sherin80";
-export const UPI_ID = "sherinshaju80-2@okicici";
+import {
+  BUY_ME_A_COFFEE_URL,
+  UPI_ID,
+  getCleanUpiAmount,
+  getUpiPayUrl as buildUpiPayUrl,
+} from "@/lib/supportConfig";
+
+export { BUY_ME_A_COFFEE_URL, UPI_ID };
 
 const PRESET_AMOUNTS = ["20", "50", "100", "200", "500"];
 
@@ -91,16 +97,8 @@ export default function SupportClient() {
   const [toastMsg, setToastMsg] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
 
-  const getCleanAmount = (amt: string) => {
-    const num = parseFloat(amt);
-    if (isNaN(num) || num <= 0) return "50.00";
-    return num.toFixed(2);
-  };
-
-  const getUpiPayUrl = (amt: string) => {
-    const cleanAmt = getCleanAmount(amt);
-    return `upi://pay?pa=${UPI_ID}&pn=Sherin%20Shaju&am=${cleanAmt}&cu=INR&tn=Kerala%20Lottery%20App%20Support`;
-  };
+  const getCleanAmount = getCleanUpiAmount;
+  const getUpiPayUrl = (amt: string) => buildUpiPayUrl(amt);
 
   useEffect(() => {
     const currentUrl = getUpiPayUrl(selectedAmount);

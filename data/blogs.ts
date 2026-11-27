@@ -97,6 +97,374 @@ export const getBlogUrl = (slug: string): string => `${SITE_URL}${getBlogPath(sl
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "how-kerala-lottery-draw-dates-are-decided",
+    coverImage: "/blog/how-kerala-lottery-draw-dates-are-decided.jpg",
+    coverAlt: "Win-Win Kerala lottery ticket specimen beside a monthly draw calendar marking daily weekly draws and a bumper draw date",
+    title: "How Are Kerala Lottery Draw Dates and Schedules Decided?",
+    metaTitle: "How Kerala Lottery Draw Dates & Schedules Are Decided",
+    description:
+      "Who decides Kerala lottery draw dates, how weekly schedules are prepared, why draws are announced in advance, where they are held, and what happens when a draw is postponed under the 2024 rules.",
+    category: "Explainer",
+    tags: [
+      "Kerala Lottery Draw Schedule",
+      "Kerala Lottery Draw Date",
+      "Weekly Kerala Lotteries",
+      "Kerala Paper Lotteries Rules",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-28",
+    updatedDate: "2026-11-28",
+    readTime: "8 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    primaryCta: {
+      href: "/lotteries",
+      label: "See All Lotteries",
+      heading: "Check the Schedule",
+      description: "Every weekly and bumper Kerala lottery with its draw day and latest results.",
+    },
+    tableOfContents: [
+      { id: "who-decides", title: "1. Who Decides Draw Dates?" },
+      { id: "weekly-schedules", title: "2. How Weekly Schedules Are Prepared" },
+      { id: "factors", title: "3. Factors That Influence Draw Dates" },
+      { id: "announced-in-advance", title: "4. Why Dates Are Announced in Advance" },
+      { id: "venue", title: "5. Where Draws Are Conducted" },
+      { id: "postponed", title: "6. Can Draws Be Postponed?" },
+      { id: "check-online", title: "7. Checking Draw Schedules Online" },
+      { id: "lost-ticket", title: "8. If You Lose Your Ticket" },
+      { id: "tax", title: "9. Kerala Lottery Tax and TDS" },
+      { id: "minimum-age", title: "10. Minimum Age to Buy a Ticket" },
+      { id: "follow-official", title: "11. Follow the Official Schedule" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "How are Kerala lottery draw dates decided?",
+        answer:
+          "Kerala lottery draw dates are decided according to government-notified lottery schemes and administrative arrangements managed by the Kerala State Lotteries Department.",
+      },
+      {
+        question: "Who is responsible for conducting Kerala lottery draws?",
+        answer:
+          "The Kerala State Lotteries Department, under the Government of Kerala, is responsible for organising and conducting lottery draws under the supervision of authorised officials and a panel of judges.",
+      },
+      {
+        question: "How many weekly lottery draws are conducted in Kerala?",
+        answer:
+          "Kerala operates several weekly lottery series, including Win-Win, Sthree Sakthi, Dhanalekshmi, Karunya Plus, Suvarna Keralam, Karunya and Bhagyathara. The exact schedule should be checked through official announcements.",
+      },
+      {
+        question: "Are Kerala lottery draw dates announced in advance?",
+        answer:
+          "Yes. Draw dates and times are announced in advance according to the applicable lottery scheme, allowing agents, sellers and participants to access schedule information.",
+      },
+      {
+        question: "Can Kerala lottery draw dates change?",
+        answer:
+          "Yes. The Director can postpone a draw under the applicable rules. The government may also cancel an announced draw or lottery scheme in exceptional circumstances.",
+      },
+      {
+        question: "Where can I check the upcoming Kerala lottery draw schedule?",
+        answer:
+          "You can check upcoming draw dates, times and venues through the official Kerala State Lotteries Department website and its Lottery Information System (LOTIS) portal.",
+      },
+      {
+        question: "At what time are Kerala lottery draws conducted?",
+        answer:
+          "The draw time is decided by the Director and announced in advance. Participants should check the official schedule because different draws may have different timings.",
+      },
+      {
+        question: "Where are Kerala lottery draws conducted?",
+        answer:
+          "Draws are conducted at officially designated venues within Kerala. Thiruvananthapuram is a regular location for these events.",
+      },
+      {
+        question: "How can I check Kerala Lottery Results Today?",
+        answer:
+          "You can check Kerala Lottery Results Today through official department announcements and authorised publications. Always verify the lottery name, draw number and winning ticket numbers.",
+      },
+      {
+        question: "What happens if you lose your Kerala lottery ticket?",
+        answer:
+          "Losing the original ticket can make claiming a prize difficult. The original ticket is generally required for verification, so participants should keep their tickets safe.",
+      },
+    ],
+  },
+  {
+    slug: "how-digital-platforms-help-access-lottery-information",
+    coverImage: "/blog/how-digital-platforms-help-access-lottery-information.jpg",
+    coverAlt: "Laptop and smartphone showing live Kerala lottery results, draw schedule, ticket checker and claim guide",
+    title: "How Digital Platforms Help People Access Lottery Information",
+    metaTitle: "How Digital Platforms Help You Access Kerala Lottery Information",
+    description:
+      "How websites and mobile apps make Kerala lottery results, schedules, rules, ticket safety and tax information easier to access, and how to tell a reliable lottery information website from a misleading one.",
+    category: "Explainer",
+    tags: [
+      "Kerala Lottery Online Results",
+      "Lottery Information Website",
+      "Kerala Lottery App",
+      "Responsible Lottery Participation",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-28",
+    updatedDate: "2026-11-28",
+    readTime: "6 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    primaryCta: {
+      href: "/kerala-lottery-app",
+      label: "Get the App",
+      heading: "Results on Your Phone",
+      description: "Install the free Kerala Lottery Results Today app on Android, iPhone or Windows.",
+    },
+    tableOfContents: [
+      { id: "easy-access", title: "1. Easy Access to Results and Updates" },
+      { id: "faster-availability", title: "2. Faster Availability of Information" },
+      { id: "rules", title: "3. Understanding Rules and Regulations" },
+      { id: "ticket-safety", title: "4. Learning About Ticket Safety" },
+      { id: "tax", title: "5. Lottery Tax and Prize Deductions" },
+      { id: "mobile", title: "6. Smartphones and Mobile-Friendly Websites" },
+      { id: "search-engines", title: "7. Search Engines and Discovery" },
+      { id: "responsible-participation", title: "8. Informed and Responsible Participation" },
+      { id: "reliable-websites", title: "9. Reliable Lottery Information Websites" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "How do digital platforms help people access lottery information?",
+        answer:
+          "Digital platforms provide convenient access to lottery results, draw schedules, prize details and important updates through websites and mobile devices.",
+      },
+      {
+        question: "Where can people check Kerala Lottery Results Today?",
+        answer:
+          "People can check Kerala Lottery Results Today through online information websites and verify the announced winning numbers through the official Kerala State Lotteries website.",
+      },
+      {
+        question: "Are online lottery results reliable?",
+        answer:
+          "Online lottery results can be useful, but visitors should always verify winning numbers and prize details through official Kerala State Lotteries announcements.",
+      },
+      {
+        question: "What happens if you lose your Kerala lottery ticket?",
+        answer:
+          "Losing a lottery ticket can create difficulties when claiming a prize. The original ticket is generally essential for prize claims, so participants should keep it safe and follow official claim procedures.",
+      },
+      {
+        question: "Why is there a minimum age to buy a Kerala lottery ticket?",
+        answer:
+          "Minimum age requirements are intended to restrict lottery participation to legally eligible individuals and promote responsible participation.",
+      },
+      {
+        question: "Do Kerala lottery winners have to pay tax?",
+        answer:
+          "Yes. Lottery winnings are subject to applicable income tax provisions. Tax may be deducted at source, depending on the applicable rules and prize amount.",
+      },
+      {
+        question: "What is TDS on Kerala lottery winnings?",
+        answer:
+          "TDS stands for Tax Deducted at Source. It is the tax deducted from applicable lottery winnings before the remaining prize amount is paid to the winner.",
+      },
+      {
+        question: "Can people access lottery information using mobile phones?",
+        answer:
+          "Yes. Mobile-friendly websites allow users to access lottery results, schedules, prize information and educational articles using smartphones and tablets.",
+      },
+      {
+        question: "Why should people use reliable lottery information websites?",
+        answer:
+          "Reliable websites help visitors access organised information, understand lottery procedures, avoid misleading claims and verify important details through official sources.",
+      },
+      {
+        question: "Does checking lottery results online guarantee winning?",
+        answer:
+          "No. Checking lottery results online does not guarantee winning. Lottery outcomes are based on chance, and users should always participate responsibly.",
+      },
+    ],
+  },
+  {
+    slug: "responsible-online-lottery-information-sharing",
+    coverImage: "/blog/responsible-online-lottery-information-sharing.jpg",
+    coverAlt: "Verified official Kerala lottery result card next to a phone showing a fake prize scam message stamped FAKE",
+    title: "The Importance of Responsible Online Lottery Information Sharing",
+    metaTitle: "Responsible Online Lottery Information Sharing: Why It Matters",
+    description:
+      "Why accurate, transparent lottery information matters online: verifying Kerala lottery results, avoiding fake announcements and prize scams, agent commission, prize claim documents and the 90-day claim window.",
+    category: "Safety Guide",
+    tags: [
+      "Kerala Lottery Scams",
+      "Fake Lottery Results",
+      "Kerala Lottery Prize Claim Documents",
+      "Kerala Lottery Agent Commission",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-28",
+    updatedDate: "2026-11-28",
+    readTime: "8 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    primaryCta: {
+      href: "/how-to-find-fake-kerala-lottery-tickets",
+      label: "Spot a Fake Ticket",
+      heading: "Avoid Lottery Scams",
+      description: "10 checks to find fake or altered Kerala lottery tickets before you trust them.",
+    },
+    tableOfContents: [
+      { id: "why-it-matters", title: "Why Responsible Sharing Matters" },
+      { id: "digital-platforms", title: "The Role of Digital Platforms" },
+      { id: "accurate-results", title: "Accurate Kerala Lottery Results" },
+      { id: "social-impact", title: "Social Impact on Healthcare and Welfare" },
+      { id: "agent-commission", title: "How Agents Earn Commission" },
+      { id: "claim-documents", title: "Documents to Claim a Prize" },
+      { id: "risks", title: "Risks of Unverified Information" },
+      { id: "promote-awareness", title: "How Websites Promote Awareness" },
+      { id: "future", title: "The Future of Responsible Sharing" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "Why is responsible online lottery information sharing important?",
+        answer:
+          "Responsible sharing helps prevent misinformation, fake winning announcements, fraudulent prize claims and confusion among lottery participants. It also encourages people to verify information through official sources.",
+      },
+      {
+        question: "Where can people verify Kerala lottery results?",
+        answer:
+          "People should verify winning numbers through the official Kerala State Lotteries Department website and its published result announcements before making any prize claim.",
+      },
+      {
+        question: "How do online lottery websites help readers?",
+        answer:
+          "Online lottery websites provide convenient access to result updates, lottery-related announcements, prize information and educational articles explaining lottery procedures.",
+      },
+      {
+        question: "How do Kerala lottery agents earn commissions?",
+        answer:
+          "Authorised agents can earn commissions through ticket sales and applicable winning-ticket commission or incentive arrangements, according to the relevant government rules.",
+      },
+      {
+        question: "What documents are needed to claim a Kerala lottery prize?",
+        answer:
+          "Depending on the prize category, documents may include the original winning ticket, completed claim form, identity proof, PAN details, photographs, ticket photocopies and bank account information.",
+      },
+      {
+        question: "How can people avoid online lottery scams?",
+        answer:
+          "People should verify results through official sources, avoid paying unknown individuals for prize releases, and never share OTPs, passwords or sensitive banking information.",
+      },
+      {
+        question: "Does purchasing a lottery ticket guarantee a financial return?",
+        answer:
+          "No. Lottery outcomes depend on chance. Purchasing a ticket does not guarantee a prize or financial benefit. Participants should spend responsibly and within their financial limits.",
+      },
+    ],
+  },
+  {
+    slug: "why-kerala-lottery-bumper-draws-attract-attention",
+    coverImage: "/blog/why-kerala-lottery-bumper-draws-attract-attention.jpg",
+    coverAlt: "Pooja Bumper 2026 BR-112 Kerala lottery ticket specimen with a ₹12 crore first prize beside the full prize structure",
+    title: "Why Kerala Lottery Bumper Draws Attract Public Attention",
+    metaTitle: "Why Kerala Bumper Lotteries Attract Attention | Pooja Bumper BR-112",
+    description:
+      "Why Kerala bumper draws draw huge interest, with Pooja Bumper 2026 (BR-112) ticket price, ₹12 crore first prize, full prize structure, how to check the result and how to surrender a winning ticket through a bank.",
+    category: "Bumper Guide",
+    tags: [
+      "Kerala Bumper Lottery",
+      "Pooja Bumper 2026",
+      "Pooja Bumper BR-112",
+      "Kerala Lottery Prize Structure",
+      "Kerala Lottery Results Today",
+    ],
+    publishedDate: "2026-11-28",
+    updatedDate: "2026-11-28",
+    readTime: "8 min read",
+    author: { name: FOUNDER.name, role: FOUNDER.role, avatar: FOUNDER.avatar },
+    featured: false,
+    relatedLotteryCodes: ["PB"],
+    primaryCta: {
+      href: "/pooja-bumper-lottery-2026",
+      label: "Pooja Bumper 2026 Guide",
+      heading: "Holding a Pooja Bumper Ticket?",
+      description: "Prize structure, result and claim steps for Pooja Bumper BR-112.",
+    },
+    howTo: {
+      name: "How to surrender a Kerala lottery winning ticket through a bank",
+      steps: [
+        "Keep the original winning ticket safe and undamaged.",
+        "Write your name, address and signature on the reverse of the ticket.",
+        "Ask your bank whether it can facilitate the Kerala lottery prize surrender procedure.",
+        "Prepare the claim form, PAN, identity proof, photographs, bank details and bank authorisation.",
+        "Submit the ticket and documents through the bank's accepted procedure.",
+        "Wait for the lottery authorities to verify the ticket and approve payment.",
+      ],
+    },
+    tableOfContents: [
+      { id: "prize-structures", title: "Attractive Prize Structures" },
+      { id: "special-occasions", title: "Special Occasions Increase Excitement" },
+      { id: "large-prizes", title: "Large Prize Amounts" },
+      { id: "pooja-bumper-2026", title: "Pooja Bumper 2026 (BR-112)" },
+      { id: "surrender-through-bank", title: "Surrender a Winning Ticket Through Bank" },
+      { id: "minimum-age", title: "Minimum Age to Buy a Ticket" },
+      { id: "digital-platforms", title: "Role of Digital Platforms" },
+      { id: "responsible-participation", title: "Responsible Participation" },
+      { id: "conclusion", title: "Conclusion" },
+      { id: "faqs", title: "Frequently Asked Questions" },
+    ],
+    faqs: [
+      {
+        question: "Why do Kerala Lottery Bumper Draws attract public attention?",
+        answer:
+          "Kerala Lottery Bumper Draws attract attention because of their large first prizes, multiple prize categories, special occasions and the excitement surrounding the announcement of winning numbers.",
+      },
+      {
+        question: "What is the first prize of Pooja Bumper Lottery 2026 (BR-112)?",
+        answer: "The first prize of Pooja Bumper Lottery 2026 (BR-112) is ₹12 crore.",
+      },
+      {
+        question: "What is the ticket price of Pooja Bumper 2026?",
+        answer: "Each Pooja Bumper BR-112 lottery ticket costs ₹300.",
+      },
+      {
+        question: "When will the Pooja Bumper 2026 draw take place?",
+        answer:
+          "The Pooja Bumper BR-112 draw is scheduled for 28 November 2026 at 2:00 PM at Gorky Bhavan, Thiruvananthapuram.",
+      },
+      {
+        question: "How can I check Kerala Lottery Bumper results?",
+        answer:
+          "You can check the results through the official Kerala State Lotteries website. Match your complete ticket number and series with the published winning numbers.",
+      },
+      {
+        question: "How can I surrender a Kerala lottery winning ticket through a bank?",
+        answer:
+          "Contact an eligible bank, prepare the original winning ticket and required documents, complete the necessary authorisation and follow the bank's prescribed submission procedure.",
+      },
+      {
+        question: "What documents are required to claim a Kerala lottery prize?",
+        answer:
+          "Depending on the prize amount, documents may include the original winning ticket, PAN card, identity proof, photographs, bank account details and the prescribed prize claim application.",
+      },
+      {
+        question: "Why is there a minimum age to purchase Kerala lottery tickets?",
+        answer:
+          "Age restrictions help protect minors from gambling-related financial risks and encourage responsible participation among eligible adults.",
+      },
+      {
+        question: "Can I claim a Kerala lottery prize without the original ticket?",
+        answer:
+          "The original winning ticket is generally essential for claiming a prize. A photocopy or photograph is not a substitute for the original ticket.",
+      },
+      {
+        question: "Where can I find Kerala Lottery Results Today?",
+        answer:
+          "Readers can follow Kerala Lottery Results Today for lottery-related information and updates. Winning numbers should always be verified using the official Kerala State Lotteries Department publication.",
+      },
+    ],
+  },
+  {
     slug: "kerala-lottery-tax-deduction-on-winnings",
     coverImage: "/blog/kerala-lottery-tax-deduction-on-winnings.jpg",
     coverAlt: "Dhanalekshmi Kerala lottery ticket specimen beside a prize payment statement showing agent commission and 30% TDS deductions",

@@ -1,4 +1,5 @@
-// One-off generator for the November 2026 guide covers (agent commission, social impact, minimum age, tax).
+// Generator for the November 2026 guide covers (agent commission, social impact, minimum age, tax,
+// draw dates, digital platforms, responsible sharing, bumper draws).
 // Writes {slug}.svg next to this file; then run `node scripts/build-blog-covers.mjs`.
 // Usage: node scripts/blog-covers/_gen-new-covers.mjs
 import { writeFile } from "node:fs/promises";
@@ -30,7 +31,7 @@ const barcode = (x0, y, n = 31) =>
   }).join("");
 
 /** A 520×260 Kerala State Lotteries ticket specimen. */
-const ticket = ({ id, name, draw, date, number, prize, price = "₹50", light, dark, ink, accent, x, y, rot }) => `
+const ticket = ({ id, name, draw, date, number, prize, price = "₹50", time = "3:00 PM", light, dark, ink, accent, x, y, rot }) => `
   <g transform="translate(${x} ${y}) rotate(${rot} 260 130)" filter="url(#shadow)">
     <defs><linearGradient id="${id}-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${light}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs>
     <clipPath id="${id}"><rect width="520" height="260" rx="14"/></clipPath>
@@ -40,7 +41,7 @@ const ticket = ({ id, name, draw, date, number, prize, price = "₹50", light, d
       <rect width="520" height="38" fill="${dark}"/>
       <text x="300" y="25" text-anchor="middle" font-family="${FONT}" font-size="15" font-weight="700" fill="#FFFFFF" letter-spacing="3">KERALA STATE LOTTERIES</text>
       <rect y="236" width="520" height="24" fill="${dark}" opacity="0.9"/>
-      <text x="300" y="253" text-anchor="middle" font-family="${FONT}" font-size="11" fill="#FFFFFF" letter-spacing="1">DRAW AT GORKY BHAVAN, THIRUVANANTHAPURAM · 3:00 PM</text>
+      <text x="300" y="253" text-anchor="middle" font-family="${FONT}" font-size="11" fill="#FFFFFF" letter-spacing="1">DRAW AT GORKY BHAVAN, THIRUVANANTHAPURAM · ${time}</text>
     </g>
     <line x1="96" y1="40" x2="96" y2="236" stroke="${ink}" stroke-width="2" stroke-dasharray="4 5" opacity="0.6"/>
     <text transform="translate(40 214) rotate(-90)" font-family="${MONO}" font-size="22" font-weight="700" fill="#DC2626">${number}</text>
@@ -199,6 +200,136 @@ const COVERS = {
       <text x="905" y="560" text-anchor="middle" font-family="${FONT}" font-size="12" fill="#94A3B8">Illustrative only · final tax depends on surcharge, cess and your return</text>
     </g>
     ${pill(330, 238, 240, "30% TDS", "#DC2626", -3)}`,
+  }),
+
+  // 5. Draw dates: month calendar with marked draw days + weekly series list
+  "how-kerala-lottery-draw-dates-are-decided": frame({
+    bg: ["#0F172A", "#1E3A8A", "#0E7490"],
+    glow: "#7DD3FC",
+    title: ["How Kerala Lottery Draw", "Dates Are Decided"],
+    subtitle: "Weekly schedules, advance notice and postponements explained",
+    body: `
+    ${ticket({ id: "d1", name: "WIN-WIN", draw: "W-842", date: "24-11-2026", number: "WB 274519", prize: "₹75 Lakh", light: "#EFF6FF", dark: "#1D4ED8", ink: "#1E3A8A", accent: "#BFDBFE", x: 50, y: 300, rot: -5 })}
+    <!-- calendar -->
+    <g filter="url(#shadow)" transform="rotate(4 900 370)">
+      <rect x="680" y="150" width="440" height="420" rx="18" fill="#FFFFFF"/>
+      <rect x="680" y="150" width="440" height="70" rx="18" fill="#DC2626"/><rect x="680" y="196" width="440" height="24" fill="#DC2626"/>
+      <rect x="760" y="132" width="14" height="40" rx="7" fill="#334155"/><rect x="1026" y="132" width="14" height="40" rx="7" fill="#334155"/>
+      <text x="900" y="198" text-anchor="middle" font-family="${FONT}" font-size="26" font-weight="900" fill="#FFFFFF" letter-spacing="2">DRAW CALENDAR</text>
+      ${["S", "M", "T", "W", "T", "F", "S"].map((d, i) => `<text x="${722 + i * 59}" y="252" text-anchor="middle" font-family="${FONT}" font-size="15" font-weight="900" fill="#64748B">${d}</text>`).join("")}
+      ${Array.from({ length: 35 }, (_, n) => {
+        const c = n % 7;
+        const r = Math.floor(n / 7);
+        // November 2026 starts on a Sunday
+        const day = n + 1;
+        if (day > 30) return "";
+        const cx = 722 + c * 59;
+        const cy = 292 + r * 56;
+        const isBumper = day === 28;
+        return `<circle cx="${cx}" cy="${cy - 6}" r="${isBumper ? 22 : 20}" fill="${isBumper ? "#F59E0B" : "#DBEAFE"}"/><text x="${cx}" y="${cy}" text-anchor="middle" font-family="${FONT}" font-size="17" font-weight="800" fill="${isBumper ? "#FFFFFF" : "#1E3A8A"}">${day}</text>`;
+      }).join("")}
+      <text x="900" y="556" text-anchor="middle" font-family="${FONT}" font-size="13" font-weight="700" fill="#64748B">A weekly draw every day · orange = bumper draw</text>
+    </g>
+    ${pill(330, 238, 300, "OFFICIAL SCHEDULE", "#2563EB", -3)}`,
+  }),
+
+  // 6. Digital platforms: laptop + phone showing live results
+  "how-digital-platforms-help-access-lottery-information": frame({
+    bg: ["#082F49", "#0C4A6E", "#1E40AF"],
+    glow: "#38BDF8",
+    title: ["How Digital Platforms Help", "You Access Lottery Info"],
+    subtitle: "Results, schedules, rules and ticket safety on any device",
+    body: `
+    <!-- laptop -->
+    <g filter="url(#shadow)">
+      <rect x="90" y="300" width="560" height="300" rx="16" fill="#1E293B"/>
+      <rect x="108" y="318" width="524" height="264" rx="6" fill="#F8FAFC"/>
+      <rect x="108" y="318" width="524" height="40" rx="6" fill="#0B3C5D"/><rect x="108" y="346" width="524" height="12" fill="#0B3C5D"/>
+      <text x="126" y="344" font-family="${FONT}" font-size="15" font-weight="900" fill="#FFFFFF">Kerala Lottery Results Today</text>
+      <circle cx="600" cy="338" r="6" fill="#22C55E"/><text x="590" y="343" text-anchor="end" font-family="${FONT}" font-size="12" font-weight="900" fill="#86EFAC">LIVE</text>
+      <rect x="128" y="374" width="484" height="74" rx="10" fill="#0F172A"/>
+      <text x="148" y="400" font-family="${FONT}" font-size="13" font-weight="900" fill="#FBBF24">1st PRIZE · ₹1 Crore</text>
+      <text x="148" y="434" font-family="${MONO}" font-size="30" font-weight="700" fill="#FFFFFF" letter-spacing="2">SK 661942</text>
+      ${["4012", "4337", "4431", "4538", "4966", "5527", "6410", "6582"].map((num, i) => `<rect x="${128 + (i % 4) * 122}" y="${464 + Math.floor(i / 4) * 52}" width="110" height="40" rx="8" fill="#F1F5F9" stroke="#E2E8F0"/><text x="${183 + (i % 4) * 122}" y="${490 + Math.floor(i / 4) * 52}" text-anchor="middle" font-family="${MONO}" font-size="18" font-weight="700" fill="#0F172A">${num}</text>`).join("")}
+      <path d="M50 600 H690 L660 620 H80 Z" fill="#334155"/>
+    </g>
+    <!-- phone -->
+    <g filter="url(#shadow)" transform="rotate(6 940 380)">
+      <rect x="820" y="140" width="250" height="470" rx="34" fill="#0F172A"/>
+      <rect x="834" y="156" width="222" height="438" rx="24" fill="#F8FAFC"/>
+      <rect x="905" y="166" width="80" height="10" rx="5" fill="#0F172A"/>
+      <rect x="850" y="194" width="190" height="64" rx="12" fill="#0B3C5D"/>
+      <text x="945" y="220" text-anchor="middle" font-family="${FONT}" font-size="13" font-weight="900" fill="#FBBF24">TODAY'S RESULT</text>
+      <text x="945" y="246" text-anchor="middle" font-family="${MONO}" font-size="20" font-weight="700" fill="#FFFFFF">SK 661942</text>
+      ${[["Draw schedule", "#DBEAFE", "#1D4ED8"], ["Ticket checker", "#DCFCE7", "#15803D"], ["Claim guide", "#FEF3C7", "#B45309"], ["Tax &amp; TDS", "#FCE7F3", "#BE185D"], ["Result PDF", "#EDE9FE", "#6D28D9"]].map(([label, bgc, fg], i) => `<rect x="850" y="${274 + i * 60}" width="190" height="48" rx="10" fill="${bgc}"/><text x="868" y="${304 + i * 60}" font-family="${FONT}" font-size="16" font-weight="800" fill="${fg}">${label}</text>`).join("")}
+    </g>
+    ${pill(330, 238, 240, "LIVE 3 PM", "#16A34A", -3)}`,
+  }),
+
+  // 7. Responsible sharing: verified result vs fake prize message
+  "responsible-online-lottery-information-sharing": frame({
+    bg: ["#111827", "#1F2937", "#14532D"],
+    glow: "#86EFAC",
+    title: ["Responsible Online Lottery", "Information Sharing"],
+    subtitle: "Verify results, avoid fake announcements and prize scams",
+    body: `
+    <!-- verified result card -->
+    <g filter="url(#shadow)" transform="rotate(-4 330 450)">
+      <rect x="70" y="310" width="500" height="270" rx="18" fill="#FFFFFF"/>
+      <rect x="70" y="310" width="500" height="56" rx="18" fill="#15803D"/><rect x="70" y="344" width="500" height="22" fill="#15803D"/>
+      <text x="96" y="346" font-family="${FONT}" font-size="19" font-weight="900" fill="#FFFFFF">OFFICIAL RESULT</text>
+      <text x="544" y="346" text-anchor="end" font-family="${FONT}" font-size="15" font-weight="900" fill="#BBF7D0">Kerala State Lotteries</text>
+      <text x="96" y="400" font-family="${FONT}" font-size="15" fill="#475569">Lottery · Draw No. · Date</text>
+      <text x="544" y="400" text-anchor="end" font-family="${FONT}" font-size="15" font-weight="800" fill="#0F172A">SK-79 · 27-11-2026</text>
+      <text x="96" y="440" font-family="${FONT}" font-size="15" fill="#475569">1st Prize</text>
+      <text x="544" y="440" text-anchor="end" font-family="${MONO}" font-size="26" font-weight="700" fill="#DC2626">RK 661942</text>
+      <line x1="96" y1="462" x2="544" y2="462" stroke="#E2E8F0" stroke-width="2"/>
+      ${["Lottery name ✓", "Draw date ✓", "Ticket series ✓"].map((t, i) => `<text x="96" y="${496 + i * 28}" font-family="${FONT}" font-size="16" font-weight="800" fill="#16A34A">${t}</text>`).join("")}
+      <g transform="translate(470 520)"><circle r="40" fill="#16A34A"/><path d="M-18 0 L-5 14 L20 -14" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </g>
+    <!-- fake message phone -->
+    <g filter="url(#shadow)" transform="rotate(6 930 390)">
+      <rect x="800" y="150" width="270" height="460" rx="34" fill="#0F172A"/>
+      <rect x="814" y="166" width="242" height="428" rx="24" fill="#F1F5F9"/>
+      <rect x="814" y="166" width="242" height="56" rx="24" fill="#475569"/><rect x="814" y="200" width="242" height="22" fill="#475569"/>
+      <text x="935" y="202" text-anchor="middle" font-family="${FONT}" font-size="15" font-weight="900" fill="#FFFFFF">Unknown number</text>
+      <rect x="832" y="240" width="206" height="96" rx="14" fill="#FFFFFF"/>
+      <text x="846" y="268" font-family="${FONT}" font-size="14" font-weight="800" fill="#0F172A">You WON ₹25 lakh!</text>
+      <text x="846" y="294" font-family="${FONT}" font-size="13" fill="#334155">Pay ₹4,999 "tax"</text>
+      <text x="846" y="318" font-family="${FONT}" font-size="13" fill="#334155">to release prize</text>
+      <rect x="832" y="350" width="206" height="70" rx="14" fill="#FFFFFF"/>
+      <text x="846" y="380" font-family="${FONT}" font-size="13" fill="#334155">Send your OTP and</text>
+      <text x="846" y="404" font-family="${FONT}" font-size="13" fill="#334155">bank details now</text>
+      <rect x="832" y="440" width="206" height="44" rx="22" fill="#DC2626"/>
+      <text x="935" y="468" text-anchor="middle" font-family="${FONT}" font-size="16" font-weight="900" fill="#FFFFFF">PAY NOW</text>
+    </g>
+    <g transform="rotate(-16 960 320)">
+      <rect x="845" y="280" width="230" height="84" rx="12" fill="none" stroke="#F87171" stroke-width="7"/>
+      <text x="960" y="340" text-anchor="middle" font-family="${FONT}" font-size="54" font-weight="900" fill="#F87171" letter-spacing="6">FAKE</text>
+    </g>
+    ${pill(330, 238, 260, "VERIFY FIRST ✓", "#16A34A", -3)}`,
+  }),
+
+  // 8. Bumper draws: Pooja Bumper BR-112 ticket + prize structure card
+  "why-kerala-lottery-bumper-draws-attract-attention": frame({
+    bg: ["#4C0519", "#831843", "#581C87"],
+    glow: "#FDE68A",
+    title: ["Why Kerala Bumper Draws", "Attract Public Attention"],
+    subtitle: "Pooja Bumper 2026 (BR-112) · ₹300 ticket · ₹12 crore first prize",
+    body: `
+    ${ticket({ id: "b1", name: "POOJA BUMPER", draw: "BR-112", date: "28-11-2026", number: "JC 508213", prize: "₹12 Crore", price: "₹300", time: "2:00 PM", light: "#FFFBEB", dark: "#B45309", ink: "#78350F", accent: "#FCD34D", x: 50, y: 300, rot: -5 })}
+    <!-- confetti -->
+    ${[[620, 160, "#FBBF24"], [700, 120, "#F472B6"], [1150, 140, "#A78BFA"], [660, 600, "#FBBF24"], [1160, 600, "#F472B6"], [610, 300, "#34D399"], [1170, 330, "#FBBF24"]].map(([cx, cy, col], i) => `<rect x="${cx}" y="${cy}" width="14" height="22" rx="3" fill="${col}" transform="rotate(${i * 37} ${cx} ${cy})" opacity="0.9"/>`).join("")}
+    <!-- prize structure card -->
+    <g filter="url(#shadow)" transform="rotate(4 910 380)">
+      <rect x="700" y="150" width="420" height="440" rx="16" fill="#FFFFFF"/>
+      <rect x="700" y="150" width="420" height="60" rx="16" fill="#78350F"/><rect x="700" y="188" width="420" height="22" fill="#78350F"/>
+      <text x="910" y="189" text-anchor="middle" font-family="${FONT}" font-size="20" font-weight="900" fill="#FDE68A" letter-spacing="1">PRIZE STRUCTURE</text>
+      ${[["1st Prize", "₹12 Crore", "#B45309"], ["2nd Prize", "₹50 Lakh", "#0F172A"], ["3rd Prize", "₹5 Lakh", "#0F172A"], ["4th Prize", "₹3 Lakh", "#0F172A"], ["5th Prize", "₹2 Lakh", "#0F172A"], ["Consolation", "₹1 Lakh", "#0F172A"], ["6th – 9th", "₹5,000 – ₹300", "#0F172A"]].map(([label, amt, col], i) => `<text x="726" y="${250 + i * 44}" font-family="${FONT}" font-size="17" fill="#475569">${label}</text><text x="1094" y="${250 + i * 44}" text-anchor="end" font-family="${FONT}" font-size="${i === 0 ? 24 : 18}" font-weight="900" fill="${col}">${amt}</text>`).join("")}
+      <line x1="726" y1="548" x2="1094" y2="548" stroke="#E2E8F0" stroke-width="2"/>
+      <text x="910" y="574" text-anchor="middle" font-family="${FONT}" font-size="14" font-weight="800" fill="#64748B">Total prize pool ≈ ₹39.11 crore</text>
+    </g>
+    ${pill(330, 238, 250, "₹12 CRORE", "#D97706", -3)}`,
   }),
 };
 

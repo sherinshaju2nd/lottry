@@ -11,9 +11,17 @@ import MinimumAgeGuideContent from "./MinimumAgeGuideContent";
 import OnlineSalesIllegalGuideContent from "./OnlineSalesIllegalGuideContent";
 import PoojaBumper2026GuideContent from "./PoojaBumper2026GuideContent";
 import SocialImpactGuideContent from "./SocialImpactGuideContent";
+import DrawScheduleGuideContent from "./DrawScheduleGuideContent";
+import DigitalPlatformsGuideContent from "./DigitalPlatformsGuideContent";
+import ResponsibleSharingGuideContent from "./ResponsibleSharingGuideContent";
+import BumperDrawsGuideContent from "./BumperDrawsGuideContent";
 
 /** Maps a blog slug (from data/blogs.ts) to its article body. */
 const BLOG_CONTENT: Record<string, (ctx: BlogRenderContext) => ReactNode> = {
+  "how-kerala-lottery-draw-dates-are-decided": () => <DrawScheduleGuideContent />,
+  "how-digital-platforms-help-access-lottery-information": () => <DigitalPlatformsGuideContent />,
+  "responsible-online-lottery-information-sharing": () => <ResponsibleSharingGuideContent />,
+  "why-kerala-lottery-bumper-draws-attract-attention": () => <BumperDrawsGuideContent />,
   "kerala-lottery-agent-commission-on-winning-tickets": () => <AgentCommissionGuideContent />,
   "kerala-lottery-social-impact-karunya-benevolent-fund": () => <SocialImpactGuideContent />,
   "minimum-age-to-buy-kerala-lottery-ticket": () => <MinimumAgeGuideContent />,

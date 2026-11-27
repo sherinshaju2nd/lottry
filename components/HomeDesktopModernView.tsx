@@ -4,6 +4,8 @@ import React, { useState, useMemo, useEffect } from "react";
 import { preload } from "react-dom";
 import { HERO_BANNER, HERO_OVERLAY } from "@/lib/heroBanner";
 import HeroBannerImage from "@/components/HeroBannerImage";
+import SupportUsCard from "@/components/SupportUsCard";
+import DownloadAppCard from "@/components/DownloadAppCard";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
@@ -2958,6 +2960,12 @@ export default function HomeDesktopModernView({
                 </Box>
               </Paper>
             )}
+
+            {/* Support Us (UPI QR: GPay / PhonePe / Paytm) */}
+            <SupportUsCard />
+
+            {/* Download App (Android / iOS / Windows quick install) */}
+            <DownloadAppCard />
           </Grid>
         </Grid>
       </Box>
