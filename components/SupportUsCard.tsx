@@ -28,7 +28,7 @@ const UPI_APPS = [
 
 const SUPPORT_POINTS = [
   { icon: BoltIcon, text: "Fast 3:00 PM live results every day" },
-  { icon: CloudQueueIcon, text: "Server, OCR & PDF hosting costs" },
+  { icon: CloudQueueIcon, text: "സെർവർ, OCR, PDF ഹോസ്റ്റിംഗ് ചെലവുകൾ" },
   { icon: BlockIcon, text: "No paywalls, no annoying pop-ups" },
 ];
 
@@ -121,6 +121,19 @@ export default function SupportUsCard() {
           Enjoying free Kerala lottery results? A small UPI tip helps us keep the service fast and
           better for everyone.
         </Typography>
+
+        <Box sx={{ mx: "auto", mb: 1.5, width: 130 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- small static asset (transparent cutout) */}
+          <img
+            src="/support/support-us-cutout.webp"
+            alt="Friendly man reaching out a hand, asking for a little support"
+            width={320}
+            height={282}
+            loading="lazy"
+            decoding="async"
+            style={{ display: "block", width: "100%", height: "auto" }}
+          />
+        </Box>
 
         {/* QR code */}
         <Box
